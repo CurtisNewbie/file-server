@@ -1,5 +1,7 @@
 package com.yongj.io.api;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.concurrent.Future;
 
 /**
@@ -10,17 +12,17 @@ import java.util.concurrent.Future;
 public interface IOHandler {
 
     /**
-     * Read file from relative path asynchronously
+     * Read file from absolute path asynchronously
      */
-    Future<byte[]> asyncRead(String relPath);
+    Future<byte[]> asyncRead(@NotEmpty String absPath);
 
     /**
-     * Writ data to file of relative path asynchronously
+     * Writ data to file of absolute path asynchronously
      */
-    void asyncWrite(String relPath, byte[] data);
+    void asyncWrite(@NotEmpty String absPath, @NotNull byte[] data);
 
     /**
      * Check if a file exists
      */
-    boolean exists(String relPath);
+    boolean exists(@NotEmpty String absPath);
 }
