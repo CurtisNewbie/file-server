@@ -20,4 +20,12 @@ public interface PathResolver {
      * @throws com.yongj.exceptions.IllegalPathException if the path contains illegal character, such as ".."
      */
     String resolvePath(@NotEmpty String relPath);
+
+    /**
+     * Validate the file extension of the given path
+     *
+     * @param relPath
+     * @return TRUE if is valid, else FALSE
+     */
+    boolean validateFileExtension(@NotEmpty String relPath);
 }

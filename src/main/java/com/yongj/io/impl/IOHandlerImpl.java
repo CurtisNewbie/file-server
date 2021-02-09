@@ -23,7 +23,7 @@ public class IOHandlerImpl implements IOHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
 
-    @Value("${thread.io.number}")
+    @Value("${io.thread.number}")
     private int ioThreads;
 
     private ExecutorService executorService;
