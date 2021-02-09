@@ -5,10 +5,10 @@ import com.yongj.io.api.PathResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -31,12 +31,12 @@ public class FileController {
     private int readTimeOut;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(String filePath, byte[] data) {
+    public ResponseEntity<String> upload(String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         if (!pathResolver.validateFileExtension(filePath)) {
             return ResponseEntity.badRequest().build();
         }
         String absPath = pathResolver.resolvePath(filePath);
-        ioHandler.asyncWrite(absPath, data);
+        ioHandler.asyncWrite(absPath, multipartFile.getBytes());
         return ResponseEntity.ok().build();
     }
 

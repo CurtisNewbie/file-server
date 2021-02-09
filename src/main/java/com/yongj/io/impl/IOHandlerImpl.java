@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -45,7 +44,7 @@ public class IOHandlerImpl implements IOHandler {
     public void asyncWrite(String absPath, byte[] data) {
         executorService.execute(() -> {
             try {
-                Files.write(Path.of(absPath), data, StandardOpenOption.WRITE);
+                Files.write(Path.of(absPath), data);
             } catch (IOException e) {
                 e.printStackTrace();
             }
