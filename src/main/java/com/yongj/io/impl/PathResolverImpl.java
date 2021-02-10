@@ -11,10 +11,11 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Stream;
 
 
 /**
@@ -80,5 +81,20 @@ public class PathResolverImpl implements PathResolver {
         if (!supportedFileExtension.contains(parsedExt.toString())) {
             throw new IllegalExtException(String.format("File extension '%s' not supported", parsedExt));
         }
+    }
+
+    @Override
+    public String getBaseDir() {
+        return basePath;
+    }
+
+    @Override
+    public List<String> relativizePaths(Stream<Path> absPath) {
+        List<String> relPaths = new ArrayList<>();
+        final URI baseUri = Paths.get(basePath).toUri();
+        absPath.forEach(ap -> {
+            relPaths.add(baseUri.relativize(ap.toUri()).getPath());
+        });
+        return relPaths;
     }
 }

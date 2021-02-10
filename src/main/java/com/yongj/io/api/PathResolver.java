@@ -3,6 +3,9 @@ package com.yongj.io.api;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Resolver of paths, which is also responsible for escape special characters, and concatenating relative paths.
@@ -28,4 +31,17 @@ public interface PathResolver {
      * @throws com.yongj.exceptions.IllegalExtException if file extension is invalid
      */
     void validateFileExtension(@NotEmpty String relPath);
+
+    /**
+     * Get base dir
+     * @return path
+     */
+    String getBaseDir();
+
+    /**
+     * Extract relative path from the base path
+     * @param absPath
+     * @return
+     */
+    List<String> relativizePaths(Stream<Path> absPath);
 }

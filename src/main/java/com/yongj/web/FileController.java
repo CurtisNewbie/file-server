@@ -1,6 +1,7 @@
 package com.yongj.web;
 
 import com.yongj.dto.Resp;
+import com.yongj.io.api.FileManager;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
 import org.slf4j.Logger;
@@ -35,6 +36,9 @@ public class FileController {
     @Autowired
     private PathResolver pathResolver;
 
+    @Autowired
+    private FileManager fileManager;
+
     @Value("${io.timeout}")
     private int readTimeOut;
 
@@ -65,5 +69,10 @@ public class FileController {
         else
             bytes = result.get(readTimeOut, TimeUnit.SECONDS);
         return ResponseEntity.ok(Resp.of(bytes));
+    }
+
+    @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Resp<Iterable<String>>> listAll() {
+        return ResponseEntity.ok(Resp.of(fileManager.getAll()));
     }
 }

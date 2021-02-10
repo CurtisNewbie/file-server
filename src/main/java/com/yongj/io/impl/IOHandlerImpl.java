@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 /**
  * @author yongjie.zhuang
@@ -56,5 +57,10 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public boolean exists(String absPath) {
         return Files.exists(Path.of(absPath));
+    }
+
+    @Override
+    public Stream<Path> scanDir(String dir) throws IOException {
+        return Files.walk(Path.of(dir));
     }
 }
