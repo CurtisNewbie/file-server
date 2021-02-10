@@ -1,5 +1,6 @@
 package com.yongj.io.impl;
 
+import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
 import com.yongj.io.api.PathResolver;
 import org.slf4j.Logger;
@@ -59,23 +60,25 @@ public class PathResolverImpl implements PathResolver {
     }
 
     @Override
-    public boolean validateFileExtension(String relPath) {
+    public void validateFileExtension(String relPath) {
         relPath = relPath.trim();
         if (relPath.isEmpty() || relPath.endsWith(FILE_EXT_DELIMITER))
-            return false;
+            throw new IllegalExtException("Path is empty or it contains '..' illegal sequence of chars");
         StringBuilder parsedExt = new StringBuilder();
         for (int i = relPath.length() - 1; i >= 0; i--) {
             if (relPath.charAt(i) == '.') {
                 break;
             } else if (relPath.charAt(i) == ' ') {
-                return false;
+                throw new IllegalExtException("File extension shouldn't contain space");
             } else {
                 parsedExt.insert(0, relPath.charAt(i));
             }
         }
         if (parsedExt.length() == 0)
-            return false;
+            throw new IllegalExtException("File extension not found");
 
-        return supportedFileExtension.contains(parsedExt.toString());
+        if (!supportedFileExtension.contains(parsedExt.toString())) {
+            throw new IllegalExtException(String.format("File extension '%s' not supported", parsedExt));
+        }
     }
 }

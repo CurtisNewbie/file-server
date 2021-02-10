@@ -25,7 +25,7 @@ public interface PathResolver {
      * Validate the file extension of the given path
      *
      * @param relPath
-     * @return TRUE if is valid, else FALSE
+     * @throws com.yongj.exceptions.IllegalExtException if file extension is invalid
      */
-    boolean validateFileExtension(@NotEmpty String relPath);
+    void validateFileExtension(@NotEmpty String relPath);
 }

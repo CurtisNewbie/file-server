@@ -1,11 +1,15 @@
 package com.yongj.web;
 
+import com.yongj.dto.Resp;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -31,23 +35,19 @@ public class FileController {
     private int readTimeOut;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
-        if (!pathResolver.validateFileExtension(filePath)) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Resp<String>> upload(String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+        pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Resp.empty());
     }
 
     @PostMapping("/download")
-    public ResponseEntity<byte[]> download(String filePath) throws ExecutionException, InterruptedException, TimeoutException {
-        if (!pathResolver.validateFileExtension(filePath)) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Resp<byte[]>> download(String filePath) throws ExecutionException, InterruptedException, TimeoutException {
+        pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         if (!ioHandlerService.exists(absPath))
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(Resp.error("File not exists"));
 
         Future<byte[]> result = ioHandlerService.asyncRead(absPath);
         byte[] bytes;
@@ -55,6 +55,6 @@ public class FileController {
             bytes = result.get();
         else
             bytes = result.get(readTimeOut, TimeUnit.SECONDS);
-        return ResponseEntity.ok(bytes);
+        return ResponseEntity.ok(Resp.of(bytes));
     }
 }
