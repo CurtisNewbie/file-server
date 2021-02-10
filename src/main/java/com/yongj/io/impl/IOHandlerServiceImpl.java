@@ -4,7 +4,7 @@ import com.yongj.io.api.IOHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -17,10 +17,10 @@ import java.util.concurrent.Future;
 /**
  * @author yongjie.zhuang
  */
-@Service
-public class IOHandlerImpl implements IOHandler {
+@Component
+public class IOHandlerServiceImpl implements IOHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(IOHandlerServiceImpl.class);
 
     @Value("${io.thread.number}")
     private int ioThreads;

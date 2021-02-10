@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 public class FileController {
 
     @Autowired
-    private IOHandler ioHandler;
+    private IOHandler ioHandlerService;
 
     @Autowired
     private PathResolver pathResolver;
@@ -36,7 +36,7 @@ public class FileController {
             return ResponseEntity.badRequest().build();
         }
         String absPath = pathResolver.resolvePath(filePath);
-        ioHandler.asyncWrite(absPath, multipartFile.getBytes());
+        ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
         return ResponseEntity.ok().build();
     }
 
@@ -46,10 +46,10 @@ public class FileController {
             return ResponseEntity.badRequest().build();
         }
         String absPath = pathResolver.resolvePath(filePath);
-        if (!ioHandler.exists(absPath))
+        if (!ioHandlerService.exists(absPath))
             return ResponseEntity.notFound().build();
 
-        Future<byte[]> result = ioHandler.asyncRead(absPath);
+        Future<byte[]> result = ioHandlerService.asyncRead(absPath);
         byte[] bytes;
         if (readTimeOut == -1)
             bytes = result.get();
