@@ -27,7 +27,7 @@ public class PathResolverImpl implements PathResolver {
     private static final String FILE_EXT_DELIMITER = ".";
 
     /**
-     * unmodifiable, initialised set of supported file extension, use this instead of {@link #supportedExt} in any
+     * unmodifiable, initialised set of supported file extension, use this instead of {@link #configSupportedExt} in any
      * operation
      */
     private Set<String> supportedFileExtension;
@@ -36,13 +36,13 @@ public class PathResolverImpl implements PathResolver {
     private String basePath;
 
     @Value("${supported.file.extension}")
-    private List<String> supportedExt;
+    private List<String> configSupportedExt;
 
     @PostConstruct
     void init() {
         logger.info("[INIT] PathResolver using base path: '{}'", basePath);
         Set<String> tempSet = new TreeSet<>();
-        supportedExt.forEach(ext -> {
+        configSupportedExt.forEach(ext -> {
             final String trimmedExt = ext.trim();
             if (StringUtils.hasText(trimmedExt))
                 tempSet.add(trimmedExt);
