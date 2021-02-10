@@ -19,7 +19,7 @@ public class Resp<T> implements Serializable {
     public static <T> Resp<T> ok() {
         var resp = new Resp<T>();
         resp.hasError = false;
-        resp.msg = null;
+        resp.msg = "";
         resp.data = null;
         return resp;
     }

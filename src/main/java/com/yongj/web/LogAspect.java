@@ -26,10 +26,10 @@ public class LogAspect {
             result = pjp.proceed();
         } finally {
             sw.stop();
-            logger.info("JoinPoint: '{}', arguments: '{}', took '{}' seconds, result: {}",
+            logger.info("JoinPoint: '{}', arguments: {}, took '{}' millisec, result: {}",
                     pjp.toShortString(),
                     cvtToStr(pjp.getArgs()),
-                    sw.getTotalTimeSeconds(),
+                    sw.getTotalTimeMillis(),
                     result == null ? "unknown" : result);
         }
     }
@@ -43,7 +43,7 @@ public class LogAspect {
             if (isPrimitiveType(o)) {
                 if (sb.length() > 0)
                     sb.append(", ");
-                sb.append(o == null ? "null" : o.toString());
+                sb.append(o == null ? "null" : "'" + o.toString() + "'");
             }
         }
         sb.insert(0, "[ ");

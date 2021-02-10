@@ -29,7 +29,7 @@ public class CtrlAdvice {
     @ResponseBody
     ResponseEntity<Resp<?>> handleExpectedException(Exception e) {
         logger.warn("Request invalid - '{}'", e.getMessage());
-        return ResponseEntity.ok(Resp.error("Request invalid"));
+        return ResponseEntity.ok(Resp.error("Request invalid: " + e.getMessage()));
     }
 
 }

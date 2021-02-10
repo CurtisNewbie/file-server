@@ -18,9 +18,9 @@ import java.util.concurrent.Future;
  * @author yongjie.zhuang
  */
 @Component
-public class IOHandlerServiceImpl implements IOHandler {
+public class IOHandlerImpl implements IOHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(IOHandlerServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
 
     @Value("${io.thread.number}")
     private int ioThreads;
@@ -35,6 +35,7 @@ public class IOHandlerServiceImpl implements IOHandler {
 
     @Override
     public Future<byte[]> asyncRead(String absPath) {
+        logger.info("Async read from {}", absPath);
         return executorService.submit(() -> {
             return Files.readAllBytes(Path.of(absPath));
         });
@@ -42,6 +43,7 @@ public class IOHandlerServiceImpl implements IOHandler {
 
     @Override
     public void asyncWrite(String absPath, byte[] data) {
+        logger.info("Async write to {}", absPath);
         executorService.execute(() -> {
             try {
                 Files.write(Path.of(absPath), data);

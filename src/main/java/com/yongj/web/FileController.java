@@ -3,12 +3,15 @@ package com.yongj.web;
 import com.yongj.dto.Resp;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -20,7 +23,10 @@ import java.util.concurrent.TimeoutException;
  */
 @RestController
 @RequestMapping("/file")
+@CrossOrigin // TODO remove this
 public class FileController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Autowired
     private IOHandler ioHandlerService;
@@ -31,9 +37,13 @@ public class FileController {
     @Value("${io.timeout}")
     private int readTimeOut;
 
+    @PostConstruct
+    void init() {
+        logger.info("[INIT] Setting timeout '{}' seconds for IOHandler's operations", readTimeOut);
+    }
+
     @PostMapping("/upload")
-    @ResponseBody
-    public ResponseEntity<Resp<String>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
@@ -41,7 +51,6 @@ public class FileController {
     }
 
     @PostMapping("/download")
-    @ResponseBody
     public ResponseEntity<Resp<byte[]>> download(@RequestParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
