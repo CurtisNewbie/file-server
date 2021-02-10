@@ -16,7 +16,7 @@ function upload() {
   formData.append("filePath", uploadNameStr);
   formData.append("file", uploadFileInput.files[0]);
 
-  fetch("http://localhost:8080/file/upload", {
+  fetch("file/upload", {
     method: "POST",
     body: formData,
   })
@@ -38,7 +38,7 @@ function upload() {
 }
 
 function download(path) {
-  fetch("http://localhost:8080/file/download", {
+  fetch("file/download", {
     method: "POST",
     body: {
       filePath: path,
@@ -58,7 +58,7 @@ function download(path) {
 }
 
 function getList() {
-  fetch("http://localhost:8080/file/list", {
+  fetch("/file/list", {
     method: "GET",
   })
     .then((response) => response.text())
@@ -76,7 +76,7 @@ function getList() {
         for (let p of list) {
           let li = document.createElement("li");
           let innerLink = document.createElement("a");
-          innerLink.href = "http://localhost:8080/file/download?filePath=" + p;
+          innerLink.href = "file/download?filePath=" + p;
           innerLink.textContent = p;
           li.appendChild(innerLink);
           li.classList.add("list-group-item");
