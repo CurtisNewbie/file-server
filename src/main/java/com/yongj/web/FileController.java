@@ -6,10 +6,7 @@ import com.yongj.io.api.PathResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -35,7 +32,7 @@ public class FileController {
     private int readTimeOut;
 
     @PostMapping("/upload")
-    public ResponseEntity<Resp<String>> upload(String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<Resp<String>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
@@ -43,7 +40,7 @@ public class FileController {
     }
 
     @PostMapping("/download")
-    public ResponseEntity<Resp<byte[]>> download(String filePath) throws ExecutionException, InterruptedException, TimeoutException {
+    public ResponseEntity<Resp<byte[]>> download(@RequestParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         if (!ioHandlerService.exists(absPath))
