@@ -13,9 +13,10 @@ public class Resp<T> implements Serializable {
     /** whether current response has an error */
     private boolean hasError;
 
+    /** data */
     private T data;
 
-    public static <T> Resp<T> empty() {
+    public static <T> Resp<T> ok() {
         var resp = new Resp<T>();
         resp.hasError = false;
         resp.msg = null;
@@ -61,5 +62,14 @@ public class Resp<T> implements Serializable {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    @Override
+    public String toString() {
+        return "Resp{" +
+                "msg='" + msg + '\'' +
+                ", hasError=" + hasError +
+                ", data=" + data +
+                '}';
     }
 }

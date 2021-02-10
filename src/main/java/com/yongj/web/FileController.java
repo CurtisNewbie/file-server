@@ -32,14 +32,16 @@ public class FileController {
     private int readTimeOut;
 
     @PostMapping("/upload")
+    @ResponseBody
     public ResponseEntity<Resp<String>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
-        return ResponseEntity.ok(Resp.empty());
+        return ResponseEntity.ok(Resp.ok());
     }
 
     @PostMapping("/download")
+    @ResponseBody
     public ResponseEntity<Resp<byte[]>> download(@RequestParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);

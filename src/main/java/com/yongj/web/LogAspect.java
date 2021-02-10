@@ -20,12 +20,17 @@ public class LogAspect {
     @Around("execution(* com.yongj.web.FileController.*(..))")
     public void logBeforeOperation(ProceedingJoinPoint pjp) throws Throwable {
         StopWatch sw = new StopWatch();
+        Object result = null;
         try {
             sw.start();
-            pjp.proceed();
+            result = pjp.proceed();
         } finally {
             sw.stop();
-            logger.info("JoinPoint: '{}', arguments: '{}', took '{}' seconds", pjp.toShortString(), cvtToStr(pjp.getArgs()), sw.getTotalTimeSeconds());
+            logger.info("JoinPoint: '{}', arguments: '{}', took '{}' seconds, result: {}",
+                    pjp.toShortString(),
+                    cvtToStr(pjp.getArgs()),
+                    sw.getTotalTimeSeconds(),
+                    result == null ? "unknown" : result);
         }
     }
 
