@@ -24,11 +24,17 @@ function upload() {
     .then((result) => {
       if (!result || result.length == 0) {
         console.log("Returned response abnormal");
+        return;
       }
       let json = JSON.parse(result);
       console.log(json);
       if (json.hasError) {
         window.alert(json.msg);
+        return;
+      } else {
+        uploadNameInput.value = null;
+        uploadFileInput.value = null;
+        window.alert("File uploaded");
       }
     })
     .catch((error) => {
