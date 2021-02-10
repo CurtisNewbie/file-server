@@ -59,7 +59,6 @@ public class FileController {
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> download(@PathParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
-        pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         if (!ioHandlerService.exists(absPath))
             return ResponseEntity.notFound().build();
