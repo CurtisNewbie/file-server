@@ -4,6 +4,7 @@ import com.yongj.dto.Resp;
 import com.yongj.io.api.FileManager;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
+import com.yongj.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -55,12 +57,12 @@ public class FileController {
         return ResponseEntity.ok(Resp.ok());
     }
 
-    @PostMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Resp<byte[]>> download(@RequestParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
+    @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> download(@PathParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         if (!ioHandlerService.exists(absPath))
-            return ResponseEntity.ok(Resp.error("File not exists"));
+            return ResponseEntity.notFound().build();
 
         Future<byte[]> result = ioHandlerService.asyncRead(absPath);
         byte[] bytes;
@@ -68,7 +70,11 @@ public class FileController {
             bytes = result.get();
         else
             bytes = result.get(readTimeOut, TimeUnit.SECONDS);
-        return ResponseEntity.ok(Resp.of(bytes));
+        ResponseEntity respEntity = ResponseEntity.ok()
+                .header("Content-Disposition", String.format("attachment; filename=%s", PathUtils.extractFileName(filePath)))
+                .contentLength(bytes.length)
+                .body(bytes);
+        return respEntity;
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
