@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,7 +43,7 @@ public class FileController {
         logger.info("[INIT] Setting timeout '{}' seconds for IOHandler's operations", readTimeOut);
     }
 
-    @PostMapping("/upload")
+    @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
@@ -50,7 +51,7 @@ public class FileController {
         return ResponseEntity.ok(Resp.ok());
     }
 
-    @PostMapping("/download")
+    @PostMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resp<byte[]>> download(@RequestParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);

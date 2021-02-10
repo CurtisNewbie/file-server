@@ -5,6 +5,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -18,19 +19,20 @@ public class LogAspect {
     private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
     @Around("execution(* com.yongj.web.FileController.*(..))")
-    public void logBeforeOperation(ProceedingJoinPoint pjp) throws Throwable {
+    public Object logBeforeOperation(ProceedingJoinPoint pjp) throws Throwable {
         StopWatch sw = new StopWatch();
         Object result = null;
         try {
             sw.start();
             result = pjp.proceed();
+            return result;
         } finally {
             sw.stop();
             logger.info("JoinPoint: '{}', arguments: {}, took '{}' millisec, result: {}",
                     pjp.toShortString(),
                     cvtToStr(pjp.getArgs()),
                     sw.getTotalTimeMillis(),
-                    result == null ? "unknown" : result);
+                    respToStr(result));
         }
     }
 
@@ -59,5 +61,21 @@ public class LogAspect {
                 || o instanceof Long
                 || o instanceof Double
                 || o instanceof Float;
+    }
+
+    private static final String respToStr(Object object) {
+        if (object == null)
+            return "null";
+
+        ResponseEntity respEntity;
+        if (object instanceof ResponseEntity) {
+            respEntity = (ResponseEntity) object;
+            StringBuilder sb = new StringBuilder("{ ");
+            sb.append("statusCode: ").append(respEntity.getStatusCode()).append(", ");
+            sb.append("body: ").append(respEntity.getBody()).append(" }");
+            return sb.toString();
+        } else {
+            return object.toString();
+        }
     }
 }
