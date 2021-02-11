@@ -16,6 +16,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 
@@ -27,6 +28,7 @@ public class PathResolverImpl implements PathResolver {
 
     private static final Logger logger = LoggerFactory.getLogger(PathResolverImpl.class);
     private static final String FILE_EXT_DELIMITER = ".";
+    private static final Pattern INVALID_CHAR_PATTERN = Pattern.compile("^.*[\\&\\|\\*:\\?\"\\<\\>\\t].*$");
 
     /**
      * unmodifiable, initialised set of supported file extension, use this instead of {@link #configSupportedExt} in any
@@ -67,10 +69,12 @@ public class PathResolverImpl implements PathResolver {
     }
 
     @Override
-    public String escapePath(@NotEmpty String relPath) {
-        relPath = relPath.replaceAll("[^\\.a-zA-Z0-9\\-\\(\\)\\=]", "");
+    public String validatePath(@NotEmpty String relPath) {
         if (relPath.isEmpty() || relPath.matches("\\.[a-zA-Z]+"))
-            throw new IllegalPathException("Path only contains illegal characters");
+            throw new IllegalPathException("Path doesn't include filename");
+        if (INVALID_CHAR_PATTERN.matcher(relPath).matches())
+            throw new IllegalPathException("Path contains illegal characters");
+        relPath = relPath.replaceAll("\\s", "-");
         return relPath;
     }
 

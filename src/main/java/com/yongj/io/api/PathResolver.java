@@ -31,7 +31,7 @@ public interface PathResolver {
      * @return escaped path
      * @throws com.yongj.exceptions.IllegalPathException if the path only contains illegal character
      */
-    String escapePath(@NotEmpty String relPath);
+    String validatePath(@NotEmpty String relPath);
 
     /**
      * Validate the file extension of the given path

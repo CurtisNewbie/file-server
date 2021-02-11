@@ -54,7 +54,7 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
-        String absPath = pathResolver.resolvePath(pathResolver.escapePath(filePath));
+        String absPath = pathResolver.resolvePath(pathResolver.validatePath(filePath));
         ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
         fileManager.cache(pathResolver.relativizePath(absPath));
         return ResponseEntity.ok(Resp.ok());
