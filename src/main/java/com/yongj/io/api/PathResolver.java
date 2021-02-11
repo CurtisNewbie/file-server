@@ -34,12 +34,14 @@ public interface PathResolver {
 
     /**
      * Get base dir
+     *
      * @return path
      */
     String getBaseDir();
 
     /**
      * Extract relative path from the base path
+     *
      * @param absPath
      * @return
      */
@@ -47,6 +49,7 @@ public interface PathResolver {
 
     /**
      * Extract relative path from the base path
+     *
      * @param absPath
      * @return
      */
@@ -54,8 +57,14 @@ public interface PathResolver {
 
     /**
      * Extract relative path from the base path
+     *
      * @param absPath
      * @return
      */
     String relativizePath(String absPath);
+
+    /**
+     * Get the supported file extensions in a list
+     */
+    List<String> getSupportedFileExtension();
 }

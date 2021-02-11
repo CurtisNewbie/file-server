@@ -41,26 +41,6 @@ function upload() {
     });
 }
 
-function download(path) {
-  fetch("file/download", {
-    method: "POST",
-    body: {
-      filePath: path,
-    },
-  })
-    .then((resp) => resp.text())
-    .then((result) => {
-      if (!result || result.length == 0) {
-        console.log("Returned response abnormal");
-      }
-      let json = JSON.parse(result);
-      console.log(json);
-      if (json.hasError) {
-        window.alert(json.msg);
-      }
-    });
-}
-
 function getList() {
   fetch("/file/list", {
     method: "GET",
@@ -97,4 +77,35 @@ function getList() {
     });
 }
 
+function getSupportedFileExtension() {
+  fetch("/file/extension", {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((result) => {
+      if (!result) {
+        console.log("Returned response abnormal");
+      }
+      console.log(result);
+      if (result.hasError) {
+        window.alert(result.msg);
+      } else {
+        const list = result.data;
+        const fileExtSpan = document.getElementById("fileExtSpan");
+        let listStr = "";
+        for (let i = 0; i < list.length; i++) {
+          if (i > 0) listStr += ", ";
+          listStr += list[i];
+        }
+        fileExtSpan.textContent = listStr;
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      window.alert("Failed to fetch supported file extensions");
+    });
+}
+
+// ------------------------------- main ------------------------------
 getList();
+getSupportedFileExtension();

@@ -112,4 +112,11 @@ public class PathResolverImpl implements PathResolver {
         Path path = Paths.get(absPath);
         return relativizePath(path);
     }
+
+    @Override
+    public List<String> getSupportedFileExtension() {
+        List<String> list = new ArrayList<>(supportedFileExtension.size());
+        supportedFileExtension.forEach(e -> list.add(e));
+        return list;
+    }
 }
