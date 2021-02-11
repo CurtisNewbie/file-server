@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
@@ -63,6 +64,14 @@ public class PathResolverImpl implements PathResolver {
         if (relPath.contains(".."))
             throw new IllegalPathException("Path contains '..', which is illegal");
         return relPath.startsWith(File.separator) ? BASE_PATH + relPath : BASE_PATH + File.separator + relPath;
+    }
+
+    @Override
+    public String escapePath(@NotEmpty String relPath) {
+        relPath = relPath.replaceAll("[^\\.a-zA-Z0-9\\-\\(\\)\\=]", "");
+        if (relPath.isEmpty() || relPath.matches("\\.[a-zA-Z]+"))
+            throw new IllegalPathException("Path only contains illegal characters");
+        return relPath;
     }
 
     @Override
