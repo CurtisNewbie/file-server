@@ -19,7 +19,7 @@ function upload() {
   formData.append("filePath", uploadNameStr);
   formData.append("file", uploadFileInput.files[0]);
 
-  fetch("http://localhost:8080/file/upload", {
+  fetch("/file/upload", {
     method: "POST",
     body: formData,
   })
