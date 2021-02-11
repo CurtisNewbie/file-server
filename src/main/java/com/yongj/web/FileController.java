@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -71,7 +73,7 @@ public class FileController {
         else
             bytes = result.get(readTimeOut, TimeUnit.SECONDS);
         ResponseEntity respEntity = ResponseEntity.ok()
-                .header("Content-Disposition", String.format("attachment; filename=%s", PathUtils.extractFileName(filePath)))
+                .header("Content-Disposition", "attachment; filename=" + URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8))
                 .contentLength(bytes.length)
                 .body(bytes);
         return respEntity;
