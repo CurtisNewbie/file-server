@@ -19,20 +19,19 @@ function upload() {
   formData.append("filePath", uploadNameStr);
   formData.append("file", uploadFileInput.files[0]);
 
-  fetch("file/upload", {
+  fetch("http://localhost:8080/file/upload", {
     method: "POST",
     body: formData,
   })
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((result) => {
-      if (!result || result.length == 0) {
+      if (!result) {
         console.log("Returned response abnormal");
         return;
       }
-      let json = JSON.parse(result);
-      console.log(json);
-      if (json.hasError) {
-        window.alert(json.msg);
+      console.log(result);
+      if (result.hasError) {
+        window.alert(result.msg);
         return;
       } else {
         window.location.reload();
@@ -48,17 +47,16 @@ function getList() {
   fetch("/file/list", {
     method: "GET",
   })
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((result) => {
-      if (!result || result.length == 0) {
+      if (!result) {
         console.log("Returned response abnormal");
       }
-      let json = JSON.parse(result);
-      console.log(json);
-      if (json.hasError) {
-        window.alert(json.msg);
+      console.log(result);
+      if (result.hasError) {
+        window.alert(result.msg);
       } else {
-        const list = json.data;
+        const list = result.data;
         for (let p of list) {
           let li = document.createElement("li");
           let innerLink = document.createElement("a");
