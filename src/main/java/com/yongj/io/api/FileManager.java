@@ -1,8 +1,7 @@
 package com.yongj.io.api;
 
-import org.redisson.api.RBucket;
-import org.redisson.api.RKeys;
-import org.redisson.api.RedissonClient;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +17,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
- * Manager of files inside the base dir, it internally uses redisson to handle cache. The way it uses redis cache is
- * basically that: 1. scan the whole directory periodically, 2. cache the file scanned and set a expiry time, 3. the
- * file that no longer exists will be expired. Thus, there may be a latency for the list of path being cached, but it
- * should provide decent performance.
+ * Manager of files inside the base dir, it internally uses redisson to handle cache.
+ *
+ * <p>
+ * The way it uses redis cache is basically that:
+ * <li>
+ * 1. scan the whole directory periodically,
+ * </li>
+ * <li>
+ * 2. cache the file scanned and set a expiry time (if the file path is already cached, refresh the expiry time),
+ * </li>
+ * <li>
+ * 3. the file that no longer exists will be expired.
+ * </li>
+ * <p>
+ * Thus, there may be a latency for the list of path being cached, but it should provide acceptable performance.
  *
  * @author yongjie.zhuang
  */
@@ -29,11 +39,13 @@ import java.util.stream.Stream;
 public class FileManager {
 
     /** 10s */
-    private static final int scanInterval = 10_000;
+    private static final int SCAN_INTERVAL_MILLISEC = 10_000;
+    private static final int MAXIMUM_SIZE = Integer.MAX_VALUE;
     private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
-
-    @Autowired
-    private RedissonClient redisson;
+    private static final Cache<String, String> PATH_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(MAXIMUM_SIZE)
+            .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
+            .build();
 
     @Autowired
     private IOHandler ioHandler;
@@ -43,8 +55,7 @@ public class FileManager {
 
     @PostConstruct
     void init() {
-        redisson.getKeys().deleteByPattern("*");
-        logger.info("[INIT] FileManager setting scan interval: {} seconds", scanInterval / 1000);
+        logger.info("[INIT] FileManager setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
     }
 
 
@@ -54,24 +65,17 @@ public class FileManager {
      * @param relPath
      */
     public void cache(String relPath) {
-        RBucket rBucket = redisson.getBucket(relPath);
-        if (rBucket.isExists()) { // refresh expiry time if exists
-            rBucket.expire(scanInterval, TimeUnit.MILLISECONDS);
-        } else {
-            rBucket.set(relPath);
-        }
+        PATH_CACHE.put(relPath, relPath);
     }
 
     /**
      * Get all relative paths
      */
     public Iterable<String> getAll() {
-        RKeys rKeys = redisson.getKeys();
-        Iterable<String> keys = rKeys.getKeys(Integer.MAX_VALUE); // TODO, temporary solution
-        return keys;
+        return PATH_CACHE.asMap().values();
     }
 
-    @Scheduled(fixedRate = scanInterval)
+    @Scheduled(fixedRate = SCAN_INTERVAL_MILLISEC)
     private void scanDir() {
         try {
             Stream<Path> absPathStream = ioHandler.scanDir(pathResolver.getBaseDir());
