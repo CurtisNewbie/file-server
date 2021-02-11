@@ -70,9 +70,9 @@ public class LogAspect {
         ResponseEntity respEntity;
         if (object instanceof ResponseEntity) {
             respEntity = (ResponseEntity) object;
-            StringBuilder sb = new StringBuilder("{ ");
+            StringBuilder sb = new StringBuilder("@ResponseEntity{ ");
             sb.append("statusCode: ").append(respEntity.getStatusCode()).append(", ");
-            sb.append("body: ").append(respEntity.getBody()).append(" }");
+            sb.append("body: ").append(respEntity.getBody() instanceof byte[] ? "byte[]" : respEntity.getBody()).append(" }");
             return sb.toString();
         } else {
             return object.toString();
