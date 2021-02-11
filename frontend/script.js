@@ -1,7 +1,10 @@
-function upload() {
-  const uploadNameInput = document.getElementById("uploadName");
-  const uploadFileInput = document.getElementById("uploadFile");
+// global var
+const uploadNameInput = document.getElementById("uploadName");
+const uploadFileInput = document.getElementById("uploadFile");
+const listDiv = document.getElementById("listDiv");
+const fileExtSpan = document.getElementById("fileExtSpan");
 
+function upload() {
   const uploadNameStr = uploadNameInput.value;
   if (!uploadNameStr || uploadNameStr.length === 0) {
     window.alert("File name cannot be empty");
@@ -56,7 +59,6 @@ function getList() {
         window.alert(json.msg);
       } else {
         const list = json.data;
-        const outerDiv = document.getElementById("listDiv");
         for (let p of list) {
           let li = document.createElement("li");
           let innerLink = document.createElement("a");
@@ -67,7 +69,7 @@ function getList() {
           li.classList.add("list-group-item-action");
           li.setAttribute("target", "_blank");
           li.style.wordBreak = "break-all";
-          outerDiv.appendChild(li);
+          listDiv.appendChild(li);
         }
       }
     })
@@ -91,7 +93,6 @@ function getSupportedFileExtension() {
         window.alert(result.msg);
       } else {
         const list = result.data;
-        const fileExtSpan = document.getElementById("fileExtSpan");
         let listStr = "";
         for (let i = 0; i < list.length; i++) {
           if (i > 0) listStr += ", ";
@@ -107,5 +108,9 @@ function getSupportedFileExtension() {
 }
 
 // ------------------------------- main ------------------------------
+uploadFileInput.onchange = (e) => {
+  uploadNameInput.value = uploadFileInput.files[0].name;
+  console.log(uploadFileInput.files[0].name);
+};
 getList();
 getSupportedFileExtension();
