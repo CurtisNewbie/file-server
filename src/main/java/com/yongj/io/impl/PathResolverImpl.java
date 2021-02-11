@@ -33,15 +33,19 @@ public class PathResolverImpl implements PathResolver {
      */
     private Set<String> supportedFileExtension;
 
+    /** base path, or the base directory for this file-server */
     @Value("${base.path}")
-    private String basePath;
+    private String BASE_PATH;
+
+    /** URI of {@link #BASE_PATH} */
+    private URI BASE_PATH_URI;
 
     @Value("${supported.file.extension}")
     private List<String> configSupportedExt;
 
     @PostConstruct
     void init() {
-        logger.info("[INIT] PathResolver using base path: '{}'", basePath);
+        logger.info("[INIT] PathResolver using base path: '{}'", BASE_PATH);
         Set<String> tempSet = new TreeSet<>();
         configSupportedExt.forEach(ext -> {
             final String trimmedExt = ext.trim();
@@ -51,13 +55,14 @@ public class PathResolverImpl implements PathResolver {
         if (tempSet.isEmpty())
             throw new IllegalStateException("${supported.file.extension} is empty");
         supportedFileExtension = Collections.unmodifiableSet(tempSet);
+        BASE_PATH_URI = Paths.get(BASE_PATH).toUri();
     }
 
     @Override
     public String resolvePath(String relPath) {
         if (relPath.contains(".."))
             throw new IllegalPathException("Path contains '..', which is illegal");
-        return relPath.startsWith(File.separator) ? basePath + relPath : basePath + File.separator + relPath;
+        return relPath.startsWith(File.separator) ? BASE_PATH + relPath : BASE_PATH + File.separator + relPath;
     }
 
     @Override
@@ -85,16 +90,26 @@ public class PathResolverImpl implements PathResolver {
 
     @Override
     public String getBaseDir() {
-        return basePath;
+        return BASE_PATH;
     }
 
     @Override
-    public List<String> relativizePaths(Stream<Path> absPath) {
+    public List<String> relativizePaths(Stream<Path> pathStream) {
         List<String> relPaths = new ArrayList<>();
-        final URI baseUri = Paths.get(basePath).toUri();
-        absPath.forEach(ap -> {
-            relPaths.add(baseUri.relativize(ap.toUri()).getPath());
+        pathStream.forEach(path -> {
+            relPaths.add(relativizePath(path));
         });
         return relPaths;
+    }
+
+    @Override
+    public String relativizePath(Path absPath) {
+        return BASE_PATH_URI.relativize(absPath.toUri()).getPath();
+    }
+
+    @Override
+    public String relativizePath(String absPath) {
+        Path path = Paths.get(absPath);
+        return relativizePath(path);
     }
 }

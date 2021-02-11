@@ -54,6 +54,7 @@ public class FileController {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(filePath);
         ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
+        fileManager.cache(pathResolver.relativizePath(absPath));
         return ResponseEntity.ok(Resp.ok());
     }
 

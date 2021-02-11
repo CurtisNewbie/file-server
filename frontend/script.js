@@ -32,9 +32,7 @@ function upload() {
         window.alert(json.msg);
         return;
       } else {
-        uploadNameInput.value = null;
-        uploadFileInput.value = null;
-        window.alert("File uploaded");
+        window.location.reload();
       }
     })
     .catch((error) => {

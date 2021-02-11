@@ -44,4 +44,18 @@ public interface PathResolver {
      * @return
      */
     List<String> relativizePaths(Stream<Path> absPath);
+
+    /**
+     * Extract relative path from the base path
+     * @param absPath
+     * @return
+     */
+    String relativizePath(Path absPath);
+
+    /**
+     * Extract relative path from the base path
+     * @param absPath
+     * @return
+     */
+    String relativizePath(String absPath);
 }
