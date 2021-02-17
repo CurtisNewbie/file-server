@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -20,10 +21,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
- * Manager of files inside the base dir, it internally uses redisson to handle cache.
+ * Manager of files inside the base dir, it internally uses Guava's Cache to handle cache.
  *
  * <p>
- * The way it uses redis cache is basically that:
+ * The way it uses cache is basically that:
  * <li>
  * 1. scan the whole directory periodically,
  * </li>
@@ -41,11 +42,11 @@ import java.util.stream.Stream;
 @Component
 public class FileManagerImpl implements FileManager {
 
-    /** 10s */
+    /** 10 seconds */
     private static final int SCAN_INTERVAL_MILLISEC = 10_000;
     private static final int MAXIMUM_SIZE = Integer.MAX_VALUE;
     private static final Logger logger = LoggerFactory.getLogger(com.yongj.io.api.FileManager.class);
-    private static final Cache<String, String> PATH_CACHE = CacheBuilder.newBuilder()
+    private static final Cache<String, String> REL_PATH_CACHE = CacheBuilder.newBuilder()
             .maximumSize(MAXIMUM_SIZE)
             .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
             .build();
@@ -69,7 +70,8 @@ public class FileManagerImpl implements FileManager {
      */
     @Override
     public void cache(String relPath) {
-        PATH_CACHE.put(relPath, relPath);
+        logger.debug("Cache relative path: '{}'", relPath);
+        REL_PATH_CACHE.put(relPath, relPath);
     }
 
     /**
@@ -77,11 +79,19 @@ public class FileManagerImpl implements FileManager {
      */
     @Override
     public Iterable<String> getAll() {
-        return PATH_CACHE.asMap().values();
+        logger.debug("Get all cached values");
+        Iterable<String> relPaths = REL_PATH_CACHE.asMap().values();
+        return relPaths;
     }
 
     @Scheduled(fixedRate = SCAN_INTERVAL_MILLISEC)
-    protected void scanDir() {
+    protected void _scanDir() {
+        logger.debug("Start scanning base dir");
+        StopWatch stopWatch = null;
+        if (logger.isDebugEnabled()) {
+            stopWatch = new StopWatch();
+            stopWatch.start();
+        }
         try {
             Stream<Path> absPathStream = ioHandler.scanDir(pathResolver.getBaseDir());
             List<String> relPaths = pathResolver.relativizePaths(absPathStream);
@@ -92,6 +102,10 @@ public class FileManagerImpl implements FileManager {
             });
         } catch (IOException e) {
             logger.info("Scan base directory failed, will retry next time", e);
+        }
+        if (logger.isDebugEnabled()) {
+            stopWatch.stop();
+            logger.debug("Finish scanning base dir, took {} millisec", stopWatch.getTotalTimeMillis());
         }
     }
 }

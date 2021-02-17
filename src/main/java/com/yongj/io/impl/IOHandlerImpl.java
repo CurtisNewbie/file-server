@@ -36,7 +36,7 @@ public class IOHandlerImpl implements IOHandler {
 
     @Override
     public Future<byte[]> asyncRead(String absPath) {
-        logger.info("Async read from {}", absPath);
+        logger.info("Async read from '{}'", absPath);
         return executorService.submit(() -> {
             return Files.readAllBytes(Path.of(absPath));
         });
@@ -44,7 +44,7 @@ public class IOHandlerImpl implements IOHandler {
 
     @Override
     public void asyncWrite(String absPath, byte[] data) {
-        logger.info("Async write to {}", absPath);
+        logger.info("Async write {} bytes to '{}'", data.length, absPath);
         executorService.execute(() -> {
             try {
                 Files.write(Path.of(absPath), data);

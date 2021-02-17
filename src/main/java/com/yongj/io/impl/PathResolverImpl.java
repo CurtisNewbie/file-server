@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Path;
@@ -31,7 +30,7 @@ public class PathResolverImpl implements PathResolver {
     private static final Pattern INVALID_CHAR_PATTERN = Pattern.compile("^.*[\\&\\|\\*:\\?\"\\<\\>\\t].*$");
 
     /**
-     * unmodifiable, initialised set of supported file extension, use this instead of {@link #configSupportedExt} in any
+     * unmodifiable, initialised set of supported file extension, use this instead of {@link #_supportedExt} in any
      * operation
      */
     private Set<String> supportedFileExtension;
@@ -43,14 +42,15 @@ public class PathResolverImpl implements PathResolver {
     /** URI of {@link #BASE_PATH} */
     private URI BASE_PATH_URI;
 
+    /** list of supported file extension read from *.properties, do not use this for validation */
     @Value("${supported.file.extension}")
-    private List<String> configSupportedExt;
+    private List<String> _supportedExt;
 
     @PostConstruct
     void init() {
         logger.info("[INIT] PathResolver using base path: '{}'", BASE_PATH);
         Set<String> tempSet = new TreeSet<>();
-        configSupportedExt.forEach(ext -> {
+        _supportedExt.forEach(ext -> {
             final String trimmedExt = ext.trim();
             if (StringUtils.hasText(trimmedExt))
                 tempSet.add(trimmedExt);
@@ -65,11 +65,13 @@ public class PathResolverImpl implements PathResolver {
     public String resolvePath(String relPath) {
         if (relPath.contains(".."))
             throw new IllegalPathException("Path contains '..', which is illegal");
-        return relPath.startsWith(File.separator) ? BASE_PATH + relPath : BASE_PATH + File.separator + relPath;
+        String absPath = relPath.startsWith(File.separator) ? BASE_PATH + relPath : BASE_PATH + File.separator + relPath;
+        logger.debug("Resolving path of '{}', resolved absolute path: '{}'", relPath, absPath);
+        return absPath;
     }
 
     @Override
-    public String validatePath(@NotEmpty String relPath) {
+    public String validatePath(String relPath) {
         if (relPath.isEmpty() || relPath.matches("\\.[a-zA-Z]+"))
             throw new IllegalPathException("Path doesn't include filename");
         if (INVALID_CHAR_PATTERN.matcher(relPath).matches())
@@ -117,7 +119,9 @@ public class PathResolverImpl implements PathResolver {
 
     @Override
     public String relativizePath(Path absPath) {
-        return BASE_PATH_URI.relativize(absPath.toUri()).getPath();
+        String relPath = BASE_PATH_URI.relativize(absPath.toUri()).getPath();
+        logger.debug("Relativize path '{}', to relative path: '{}'", absPath, relPath);
+        return relPath;
     }
 
     @Override
