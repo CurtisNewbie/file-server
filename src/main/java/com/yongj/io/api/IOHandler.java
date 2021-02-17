@@ -1,5 +1,7 @@
 package com.yongj.io.api;
 
+import org.springframework.validation.annotation.Validated;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.util.stream.Stream;
  *
  * @author yongjie.zhuang
  */
+@Validated
 public interface IOHandler {
 
     /**
@@ -29,7 +32,10 @@ public interface IOHandler {
      */
     boolean exists(@NotEmpty String absPath);
 
-    /** scan the dir
-     * @return*/
-    Stream<Path> scanDir(String path) throws IOException;
+    /**
+     * scan the dir
+     *
+     * @return
+     */
+    Stream<Path> scanDir(@NotEmpty String path) throws IOException;
 }

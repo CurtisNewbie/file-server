@@ -1,5 +1,9 @@
 package com.yongj.io.api;
 
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotEmpty;
+
 /**
  * Manager of files inside the base dir, it internally uses redisson to handle cache.
  *
@@ -19,6 +23,7 @@ package com.yongj.io.api;
  *
  * @author yongjie.zhuang
  */
+@Validated
 public interface FileManager {
 
     /**
@@ -26,7 +31,7 @@ public interface FileManager {
      *
      * @param relPath
      */
-    void cache(String relPath);
+    void cache(@NotEmpty String relPath);
 
     /**
      * Get all relative paths
