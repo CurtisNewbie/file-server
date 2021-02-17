@@ -86,9 +86,9 @@ public class FileManagerImpl implements FileManager {
 
     @Scheduled(fixedRate = SCAN_INTERVAL_MILLISEC)
     protected void _scanDir() {
-        logger.debug("Start scanning base dir");
         StopWatch stopWatch = null;
         if (logger.isDebugEnabled()) {
+            logger.debug("Start scanning base dir");
             stopWatch = new StopWatch();
             stopWatch.start();
         }
@@ -101,7 +101,7 @@ public class FileManagerImpl implements FileManager {
                 }
             });
         } catch (IOException e) {
-            logger.info("Scan base directory failed, will retry next time", e);
+            logger.warn("Scan base directory failed, will retry next time", e);
         }
         if (logger.isDebugEnabled()) {
             stopWatch.stop();
