@@ -81,7 +81,7 @@ public class FileManagerImpl implements FileManager {
     }
 
     @Scheduled(fixedRate = SCAN_INTERVAL_MILLISEC)
-    private void scanDir() {
+    protected void scanDir() {
         try {
             Stream<Path> absPathStream = ioHandler.scanDir(pathResolver.getBaseDir());
             List<String> relPaths = pathResolver.relativizePaths(absPathStream);
