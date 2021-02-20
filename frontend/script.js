@@ -33,9 +33,9 @@ function upload() {
       if (result.hasError) {
         window.alert(result.msg);
         return;
-      } else {
-        window.location.reload();
       }
+
+      window.location.reload();
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -51,24 +51,26 @@ function getList() {
     .then((result) => {
       if (!result) {
         console.log("Returned response abnormal");
+        return;
       }
       console.log(result);
       if (result.hasError) {
         window.alert(result.msg);
-      } else {
-        const list = result.data;
-        for (let p of list) {
-          let li = document.createElement("li");
-          let innerLink = document.createElement("a");
-          innerLink.href = "file/download?filePath=" + p;
-          innerLink.textContent = p;
-          li.appendChild(innerLink);
-          li.classList.add("list-group-item");
-          li.classList.add("list-group-item-action");
-          li.setAttribute("target", "_blank");
-          li.style.wordBreak = "break-all";
-          listDiv.appendChild(li);
-        }
+        return;
+      }
+
+      const list = result.data;
+      for (let p of list) {
+        let li = document.createElement("li");
+        let innerLink = document.createElement("a");
+        innerLink.href = "file/download?filePath=" + p;
+        innerLink.textContent = p;
+        li.appendChild(innerLink);
+        li.classList.add("list-group-item");
+        li.classList.add("list-group-item-action");
+        li.setAttribute("target", "_blank");
+        li.style.wordBreak = "break-all";
+        listDiv.appendChild(li);
       }
     })
     .catch((error) => {
@@ -85,19 +87,21 @@ function getSupportedFileExtension() {
     .then((result) => {
       if (!result) {
         console.log("Returned response abnormal");
+        return;
       }
       console.log(result);
       if (result.hasError) {
         window.alert(result.msg);
-      } else {
-        const list = result.data;
-        let listStr = "";
-        for (let i = 0; i < list.length; i++) {
-          if (i > 0) listStr += ", ";
-          listStr += list[i];
-        }
-        fileExtSpan.textContent = listStr;
+        return;
       }
+
+      const list = result.data;
+      let listStr = "";
+      for (let i = 0; i < list.length; i++) {
+        if (i > 0) listStr += ", ";
+        listStr += list[i];
+      }
+      fileExtSpan.textContent = listStr;
     })
     .catch((error) => {
       console.error("Error:", error);
