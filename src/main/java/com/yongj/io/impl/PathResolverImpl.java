@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -56,11 +55,13 @@ public class PathResolverImpl implements PathResolver {
         BASE_PATH_URI = basePath.toUri();
 
         Set<String> tempSet = new TreeSet<>();
-        _supportedExt.forEach(ext -> {
+        for (String ext : _supportedExt) {
             final String trimmedExt = ext.trim();
-            if (StringUtils.hasText(trimmedExt))
+            if (trimmedExt.matches("[a-zA-Z0-9]{1,}"))
                 tempSet.add(trimmedExt);
-        });
+            else
+                logger.warn("File extension: '{}' is illegal", ext);
+        }
         if (tempSet.isEmpty())
             throw new IllegalStateException("${supported.file.extension} is empty");
         supportedFileExtension = Collections.unmodifiableSet(tempSet);
