@@ -49,7 +49,7 @@ public class FileManagerImpl implements FileManager {
     private static final int SCAN_INTERVAL_MILLISEC = 10_000;
     /** Object stored inside cache's value, it doesn't have any practical meaning or usage */
     private static final EmptyObject IN_CACHE = new EmptyObject();
-    private static final Logger logger = LoggerFactory.getLogger(com.yongj.io.api.FileManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileManagerImpl.class);
 
     /** Maximum size of the cache */
     @Value("${max.scanned.file.count}")
