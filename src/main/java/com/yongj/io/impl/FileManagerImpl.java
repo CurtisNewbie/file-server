@@ -49,9 +49,9 @@ public class FileManagerImpl implements FileManager {
 
     /** Maximum size of the cache */
     @Value("${max.scanned.file.count}")
-    private long maxCacheSize;
+    private long MAX_CACHE_SIZE;
 
-    /** A Cache is thread-safe, thus require no external synchronisation */
+    /** Cache of relative paths to base directory */
     private Cache<String, String> REL_PATH_CACHE;
 
     @Autowired
@@ -63,11 +63,11 @@ public class FileManagerImpl implements FileManager {
     @PostConstruct
     void init() {
         logger.info("[INIT] FileManager setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
-        logger.info("[INIT] FileManager setting cache's maximum size : {}", maxCacheSize);
-        if (maxCacheSize <= 0 || maxCacheSize > Long.MAX_VALUE)
+        logger.info("[INIT] FileManager setting cache's maximum size : {}", MAX_CACHE_SIZE);
+        if (MAX_CACHE_SIZE <= 0 || MAX_CACHE_SIZE > Long.MAX_VALUE)
             throw new IllegalArgumentException("Cache's size should be greater than 0 and less than " + Long.MAX_VALUE);
         REL_PATH_CACHE = CacheBuilder.newBuilder()
-                .maximumSize(maxCacheSize)
+                .maximumSize(MAX_CACHE_SIZE)
                 .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
                 .build();
     }
