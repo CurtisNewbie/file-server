@@ -68,10 +68,10 @@ public class FileController {
 
         Future<byte[]> result = ioHandlerService.asyncRead(absPath);
         byte[] bytes;
-        if (readTimeOut == -1)
-            bytes = result.get();
-        else
+        if (readTimeOut >= 0)
             bytes = result.get(readTimeOut, TimeUnit.SECONDS);
+        else
+            bytes = result.get();
         ResponseEntity respEntity = ResponseEntity.ok()
                 .header("Content-Disposition", "attachment; filename=" + URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8))
                 .contentLength(bytes.length)
@@ -85,7 +85,7 @@ public class FileController {
     }
 
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<List<String>>> listSupportedFileExtension(){
+    public ResponseEntity<Resp<List<String>>> listSupportedFileExtension() {
         return ResponseEntity.ok(Resp.of(pathResolver.getSupportedFileExtension()));
     }
 }

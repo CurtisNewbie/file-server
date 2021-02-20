@@ -8,6 +8,7 @@ import com.yongj.io.api.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
@@ -44,12 +45,14 @@ public class FileManagerImpl implements FileManager {
 
     /** 10 seconds */
     private static final int SCAN_INTERVAL_MILLISEC = 10_000;
-    private static final int MAXIMUM_SIZE = Integer.MAX_VALUE;
     private static final Logger logger = LoggerFactory.getLogger(com.yongj.io.api.FileManager.class);
-    private static final Cache<String, String> REL_PATH_CACHE = CacheBuilder.newBuilder()
-            .maximumSize(MAXIMUM_SIZE)
-            .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
-            .build();
+
+    /** Maximum size of the cache */
+    @Value("${max.scanned.file.count}")
+    private long maxCacheSize;
+
+    /** A Cache is thread-safe, thus require no external synchronisation */
+    private Cache<String, String> REL_PATH_CACHE;
 
     @Autowired
     private IOHandler ioHandler;
@@ -60,6 +63,13 @@ public class FileManagerImpl implements FileManager {
     @PostConstruct
     void init() {
         logger.info("[INIT] FileManager setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
+        logger.info("[INIT] FileManager setting cache's maximum size : {}", maxCacheSize);
+        if (maxCacheSize <= 0 || maxCacheSize > Long.MAX_VALUE)
+            throw new IllegalArgumentException("Cache's size should be greater than 0 and less than " + Long.MAX_VALUE);
+        REL_PATH_CACHE = CacheBuilder.newBuilder()
+                .maximumSize(maxCacheSize)
+                .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
+                .build();
     }
 
 

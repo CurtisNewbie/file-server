@@ -24,14 +24,14 @@ public class IOHandlerImpl implements IOHandler {
     private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
 
     @Value("${io.thread.number}")
-    private int ioThreads;
+    private int ioThreadNum;
 
     private ExecutorService executorService;
 
     @PostConstruct
     void init() {
-        executorService = Executors.newFixedThreadPool(ioThreads);
-        logger.info("[INIT] IOHandler using {} threads", ioThreads);
+        executorService = Executors.newFixedThreadPool(ioThreadNum);
+        logger.info("[INIT] IOHandler using {} threads", ioThreadNum);
     }
 
     @Override
