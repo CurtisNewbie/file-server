@@ -35,7 +35,7 @@ public class FileController {
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Autowired
-    private IOHandler ioHandlerService;
+    private IOHandler ioHandler;
 
     @Autowired
     private PathResolver pathResolver;
@@ -58,7 +58,7 @@ public class FileController {
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(pathResolver.validatePath(filePath));
-        ioHandlerService.asyncWrite(absPath, multipartFile.getBytes());
+        ioHandler.asyncWrite(absPath, multipartFile.getBytes());
         fileManager.cache(pathResolver.relativizePath(absPath));
         return ResponseEntity.ok(Resp.ok());
     }
@@ -66,10 +66,10 @@ public class FileController {
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> download(@PathParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
         String absPath = pathResolver.resolvePath(filePath);
-        if (!ioHandlerService.exists(absPath))
+        if (!ioHandler.exists(absPath))
             return ResponseEntity.notFound().build();
 
-        Future<byte[]> result = ioHandlerService.asyncRead(absPath);
+        Future<byte[]> result = ioHandler.asyncRead(absPath);
         byte[] bytes;
         if (readTimeOut >= 0)
             bytes = result.get(readTimeOut, TimeUnit.SECONDS);
