@@ -11,7 +11,9 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -47,8 +49,12 @@ public class PathResolverImpl implements PathResolver {
     private List<String> _supportedExt;
 
     @PostConstruct
-    void init() {
+    void init() throws IOException {
         logger.info("[INIT] Using base path: '{}'", BASE_PATH);
+        Path basePath = Paths.get(BASE_PATH);
+        Files.createDirectories(basePath);
+        BASE_PATH_URI = basePath.toUri();
+
         Set<String> tempSet = new TreeSet<>();
         _supportedExt.forEach(ext -> {
             final String trimmedExt = ext.trim();
@@ -58,7 +64,6 @@ public class PathResolverImpl implements PathResolver {
         if (tempSet.isEmpty())
             throw new IllegalStateException("${supported.file.extension} is empty");
         supportedFileExtension = Collections.unmodifiableSet(tempSet);
-        BASE_PATH_URI = Paths.get(BASE_PATH).toUri();
     }
 
     @Override
