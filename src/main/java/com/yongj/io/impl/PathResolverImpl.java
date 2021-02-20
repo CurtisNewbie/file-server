@@ -132,8 +132,6 @@ public class PathResolverImpl implements PathResolver {
 
     @Override
     public List<String> getSupportedFileExtension() {
-        List<String> list = new ArrayList<>(supportedFileExtension.size());
-        supportedFileExtension.forEach(e -> list.add(e));
-        return list;
+        return new ArrayList<>(supportedFileExtension);
     }
 }
