@@ -48,7 +48,10 @@ public class FileController {
 
     @PostConstruct
     void init() {
-        logger.info("[INIT] Setting timeout '{}' seconds for IOHandler's operations", readTimeOut);
+        if (readTimeOut >= 0)
+            logger.info("[INIT] Setting timeout '{}' seconds for IOHandler's operations", readTimeOut);
+        else
+            logger.info("[INIT] Setting no timeout for IOHandler's operations");
     }
 
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)

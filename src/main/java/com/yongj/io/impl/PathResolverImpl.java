@@ -48,7 +48,7 @@ public class PathResolverImpl implements PathResolver {
 
     @PostConstruct
     void init() {
-        logger.info("[INIT] PathResolver using base path: '{}'", BASE_PATH);
+        logger.info("[INIT] Using base path: '{}'", BASE_PATH);
         Set<String> tempSet = new TreeSet<>();
         _supportedExt.forEach(ext -> {
             final String trimmedExt = ext.trim();

@@ -35,6 +35,9 @@ public interface FileManager {
 
     /**
      * Get all relative paths
+     * <p>
+     * This method obtains a deep copy of all the relative paths in cache, so the returned Iterable is not backed by any
+     * other data structure
      */
     Iterable<String> getAll();
 }

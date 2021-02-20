@@ -33,9 +33,11 @@ public interface IOHandler {
     boolean exists(@NotEmpty String absPath);
 
     /**
-     * scan the dir
+     * Scan/walk the directory asynchronously
      *
-     * @return
+     * @param dir
+     * @return A stream of Path under the directory
+     * @throws IOException
      */
-    Stream<Path> scanDir(@NotEmpty String path) throws IOException;
+    Future<Stream<Path>> asyncWalkDir(@NotEmpty String dir);
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ public class IOHandlerImpl implements IOHandler {
     @PostConstruct
     void init() {
         executorService = Executors.newFixedThreadPool(ioThreadNum);
-        logger.info("[INIT] IOHandler using {} threads", ioThreadNum);
+        logger.info("[INIT] Using {} threads", ioThreadNum);
     }
 
     @Override
@@ -60,7 +61,9 @@ public class IOHandlerImpl implements IOHandler {
     }
 
     @Override
-    public Stream<Path> scanDir(String dir) throws IOException {
-        return Files.walk(Path.of(dir));
+    public Future<Stream<Path>> asyncWalkDir(@NotEmpty String dir) {
+        return executorService.submit(() -> {
+            return Files.walk(Path.of(dir));
+        });
     }
 }

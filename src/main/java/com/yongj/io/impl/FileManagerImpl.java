@@ -15,9 +15,11 @@ import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -45,6 +47,8 @@ public class FileManagerImpl implements FileManager {
 
     /** 10 seconds */
     private static final int SCAN_INTERVAL_MILLISEC = 10_000;
+    /** Object stored inside cache's value, it doesn't have any practical meaning or usage */
+    private static final EmptyObject IN_CACHE = new EmptyObject();
     private static final Logger logger = LoggerFactory.getLogger(com.yongj.io.api.FileManager.class);
 
     /** Maximum size of the cache */
@@ -52,7 +56,7 @@ public class FileManagerImpl implements FileManager {
     private long MAX_CACHE_SIZE;
 
     /** Cache of relative paths to base directory */
-    private Cache<String, String> REL_PATH_CACHE;
+    private Cache<String, EmptyObject> REL_PATH_CACHE;
 
     @Autowired
     private IOHandler ioHandler;
@@ -62,8 +66,8 @@ public class FileManagerImpl implements FileManager {
 
     @PostConstruct
     void init() {
-        logger.info("[INIT] FileManager setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
-        logger.info("[INIT] FileManager setting cache's maximum size : {}", MAX_CACHE_SIZE);
+        logger.info("[INIT] Setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
+        logger.info("[INIT] Setting cache's maximum size : {}", MAX_CACHE_SIZE);
         if (MAX_CACHE_SIZE <= 0 || MAX_CACHE_SIZE > Long.MAX_VALUE)
             throw new IllegalArgumentException("Cache's size should be greater than 0 and less than " + Long.MAX_VALUE);
         REL_PATH_CACHE = CacheBuilder.newBuilder()
@@ -81,17 +85,13 @@ public class FileManagerImpl implements FileManager {
     @Override
     public void cache(String relPath) {
         logger.debug("Cache relative path: '{}'", relPath);
-        REL_PATH_CACHE.put(relPath, relPath);
+        REL_PATH_CACHE.put(relPath, IN_CACHE);
     }
 
-    /**
-     * Get all relative paths
-     */
     @Override
     public Iterable<String> getAll() {
         logger.debug("Get all cached values");
-        Iterable<String> relPaths = REL_PATH_CACHE.asMap().values();
-        return relPaths;
+        return new ArrayList<>(REL_PATH_CACHE.asMap().keySet());
     }
 
     @Scheduled(fixedRate = SCAN_INTERVAL_MILLISEC)
@@ -103,19 +103,23 @@ public class FileManagerImpl implements FileManager {
             stopWatch.start();
         }
         try {
-            Stream<Path> absPathStream = ioHandler.scanDir(pathResolver.getBaseDir());
+            Future<Stream<Path>> absPathStreamFuture = ioHandler.asyncWalkDir(pathResolver.getBaseDir());
+            Stream<Path> absPathStream = absPathStreamFuture.get();
             List<String> relPaths = pathResolver.relativizePaths(absPathStream);
             relPaths.forEach(p -> {
                 if (!p.isEmpty() && !p.endsWith(File.separator)) {
                     cache(p);
                 }
             });
-        } catch (IOException e) {
+        } catch (InterruptedException | ExecutionException e) {
             logger.warn("Scan base directory failed, will retry next time", e);
         }
         if (logger.isDebugEnabled()) {
             stopWatch.stop();
             logger.debug("Finish scanning base dir, took {} millisec", stopWatch.getTotalTimeMillis());
         }
+    }
+
+    private static final class EmptyObject {
     }
 }
