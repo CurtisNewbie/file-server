@@ -46,6 +46,9 @@ public class FileController {
     @Value("${io.timeout}")
     private int readTimeOut;
 
+    @Value("${io.channel.threshold}")
+    private long ioChannelThreshold;
+
     @PostConstruct
     void init() {
         if (readTimeOut >= 0)
@@ -58,7 +61,11 @@ public class FileController {
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(pathResolver.validatePath(filePath));
-        ioHandler.asyncWrite(absPath, multipartFile.getBytes());
+        if (multipartFile.getSize() > ioChannelThreshold) {
+            ioHandler.asyncWriteWithStream(absPath, multipartFile.getInputStream());
+        } else {
+            ioHandler.asyncWrite(absPath, multipartFile.getBytes());
+        }
         fileManager.cache(pathResolver.relativizePath(absPath));
         return ResponseEntity.ok(Resp.ok());
     }

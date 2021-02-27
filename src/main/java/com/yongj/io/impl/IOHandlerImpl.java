@@ -8,7 +8,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
-import java.io.IOException;
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -49,6 +52,20 @@ public class IOHandlerImpl implements IOHandler {
         executorService.execute(() -> {
             try {
                 Files.write(Path.of(absPath), data);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public void asyncWriteWithStream(String absPath, InputStream inputStream) throws IOException {
+        logger.info("Async write bytes from stream to '{}'", absPath);
+        executorService.execute(() -> {
+            File file = new File(absPath);
+            try (FileChannel fileChannel = new FileOutputStream(file).getChannel();
+                 ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream)) {
+                fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             } catch (IOException e) {
                 e.printStackTrace();
             }
