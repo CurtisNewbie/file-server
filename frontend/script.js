@@ -34,8 +34,11 @@ function upload() {
         window.alert(result.msg);
         return;
       }
-
-      window.location.reload();
+      // clear the fileName
+      uploadNameInput.value = "";
+      // clear the list, and reload the new one
+      listDiv.innerHTML = "";
+      getList();
     })
     .catch((error) => {
       console.error("Error:", error);
