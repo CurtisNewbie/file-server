@@ -34,6 +34,8 @@ function upload() {
         window.alert(result.msg);
         return;
       }
+      // clear the files selected
+      uploadFileInput.files = [];
       // clear the fileName
       uploadNameInput.value = "";
       // clear the list, and reload the new one
