@@ -15,7 +15,7 @@ function upload() {
     window.alert("Please select a file to upload");
     return;
   }
-  let fileExt = getFileExt(uploadNameStr);
+  let fileExt = parseFileExt(uploadNameStr);
   console.log(fileExt);
   if (!fileExt) {
     window.alert("Please specify file extension");
@@ -132,8 +132,9 @@ function getSupportedFileExtension() {
 /**
  * Get file extension
  * @param {*} path
+ * @returns fileExtension, or "" if there isn't one
  */
-function getFileExt(path) {
+function parseFileExt(path) {
   if (!path || path.length === 0 || path.endsWith(".")) {
     return "";
   }
