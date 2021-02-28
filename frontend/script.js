@@ -2,6 +2,7 @@
 const uploadNameInput = document.getElementById("uploadName");
 const uploadFileInput = document.getElementById("uploadFile");
 const listDiv = document.getElementById("listDiv");
+let supportedExtensions = new Set();
 const fileExtSpan = document.getElementById("fileExtSpan");
 
 function upload() {
@@ -12,6 +13,16 @@ function upload() {
   }
   if (uploadFileInput.files.length === 0) {
     window.alert("Please select a file to upload");
+    return;
+  }
+  let fileExt = getFileExt(uploadNameStr);
+  console.log(fileExt);
+  if (!fileExt) {
+    window.alert("Please specify file extension");
+    return;
+  }
+  if (!supportedExtensions.has(fileExt)) {
+    window.alert(`File extension '${fileExt}' isn't supported`);
     return;
   }
 
@@ -103,8 +114,12 @@ function getSupportedFileExtension() {
       const list = result.data;
       let listStr = "";
       for (let i = 0; i < list.length; i++) {
-        if (i > 0) listStr += ", ";
-        listStr += list[i];
+        if (i > 0) {
+          listStr += ", ";
+        }
+        let currStr = String(list[i]);
+        listStr += currStr;
+        supportedExtensions.add(currStr);
       }
       fileExtSpan.textContent = listStr;
     })
@@ -112,6 +127,21 @@ function getSupportedFileExtension() {
       console.error("Error:", error);
       window.alert("Failed to fetch supported file extensions");
     });
+}
+
+/**
+ * Get file extension
+ * @param {*} path
+ */
+function getFileExt(path) {
+  if (!path || path.length === 0 || path.endsWith(".")) {
+    return "";
+  }
+  let i = path.lastIndexOf(".");
+  if (i <= 0) {
+    return "";
+  }
+  return path.substring(i + 1);
 }
 
 // ------------------------------- main ------------------------------
