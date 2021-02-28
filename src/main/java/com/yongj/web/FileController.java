@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,31 +62,27 @@ public class FileController {
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(pathResolver.validatePath(filePath));
-        if (multipartFile.getSize() > ioChannelThreshold) {
-            ioHandler.asyncWriteWithStream(absPath, multipartFile.getInputStream());
-        } else {
-            ioHandler.asyncWrite(absPath, multipartFile.getBytes());
-        }
+        // Use channel by default
+        ioHandler.asyncWriteWithChannel(absPath, multipartFile.getInputStream());
         fileManager.cache(pathResolver.relativizePath(absPath));
         return ResponseEntity.ok(Resp.ok());
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> download(@PathParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException {
+    public ResponseEntity<Resource> download(@PathParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException, IOException {
         String absPath = pathResolver.resolvePath(filePath);
         if (!ioHandler.exists(absPath))
             return ResponseEntity.notFound().build();
 
-        Future<byte[]> result = ioHandler.asyncRead(absPath);
-        byte[] bytes;
+        Future<Resource> result = ioHandler.getFileResource(absPath);
+        Resource fileResource;
         if (readTimeOut >= 0)
-            bytes = result.get(readTimeOut, TimeUnit.SECONDS);
+            fileResource = result.get(readTimeOut, TimeUnit.SECONDS);
         else
-            bytes = result.get();
+            fileResource = result.get();
         ResponseEntity respEntity = ResponseEntity.ok()
                 .header("Content-Disposition", "attachment; filename=" + URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8))
-                .contentLength(bytes.length)
-                .body(bytes);
+                .body(fileResource);
         return respEntity;
     }
 

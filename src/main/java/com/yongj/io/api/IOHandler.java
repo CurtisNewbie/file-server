@@ -1,5 +1,6 @@
 package com.yongj.io.api;
 
+import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
@@ -36,7 +37,7 @@ public interface IOHandler {
     /**
      * Write data (from an InputStream) to file of absolute path asynchronously
      */
-    void asyncWriteWithStream(String absPath, InputStream inputStream) throws IOException;
+    void asyncWriteWithChannel(String absPath, InputStream inputStream) throws IOException;
 
     /**
      * Scan/walk the directory asynchronously
@@ -46,4 +47,12 @@ public interface IOHandler {
      * @throws IOException
      */
     Future<Stream<Path>> asyncWalkDir(@NotEmpty String dir);
+
+    /**
+     * Get Resource of the file
+     *
+     * @param absPath absolute path
+     * @return Resource
+     */
+    Future<Resource> getFileResource(String absPath);
 }

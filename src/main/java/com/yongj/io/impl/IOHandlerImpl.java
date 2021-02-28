@@ -4,11 +4,16 @@ import com.yongj.io.api.IOHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -59,9 +64,9 @@ public class IOHandlerImpl implements IOHandler {
     }
 
     @Override
-    public void asyncWriteWithStream(String absPath, InputStream inputStream) throws IOException {
-        logger.info("Async write bytes from stream to '{}'", absPath);
-        executorService.execute(() -> {
+    public void asyncWriteWithChannel(String absPath, InputStream inputStream) {
+        logger.info("Async write bytes from stream to '{}' using Channel", absPath);
+        executorService.submit(() -> {
             File file = new File(absPath);
             try (FileChannel fileChannel = new FileOutputStream(file).getChannel();
                  ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream)) {
@@ -81,6 +86,13 @@ public class IOHandlerImpl implements IOHandler {
     public Future<Stream<Path>> asyncWalkDir(@NotEmpty String dir) {
         return executorService.submit(() -> {
             return Files.walk(Path.of(dir));
+        });
+    }
+
+    @Override
+    public Future<Resource> getFileResource(String absPath) {
+        return executorService.submit(() -> {
+            return new FileSystemResource(Path.of(absPath));
         });
     }
 }
