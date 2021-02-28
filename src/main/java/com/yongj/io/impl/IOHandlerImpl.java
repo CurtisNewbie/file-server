@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
@@ -65,8 +66,9 @@ public class IOHandlerImpl implements IOHandler {
 
     @Override
     public void asyncWriteWithChannel(String absPath, InputStream inputStream) {
-        logger.info("Async write bytes from stream to '{}' using Channel", absPath);
         executorService.submit(() -> {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             File file = new File(absPath);
             try (FileChannel fileChannel = new FileOutputStream(file).getChannel();
                  ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream)) {
@@ -74,6 +76,8 @@ public class IOHandlerImpl implements IOHandler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            stopWatch.stop();
+            logger.info(String.format("Finished writing data to '%s' using Channel, took: %.3f seconds", absPath, stopWatch.getTotalTimeSeconds()));
         });
     }
 

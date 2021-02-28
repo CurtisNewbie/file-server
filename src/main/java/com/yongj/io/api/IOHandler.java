@@ -37,7 +37,7 @@ public interface IOHandler {
     /**
      * Write data (from an InputStream) to file of absolute path asynchronously
      */
-    void asyncWriteWithChannel(String absPath, InputStream inputStream) throws IOException;
+    void asyncWriteWithChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
 
     /**
      * Scan/walk the directory asynchronously
@@ -54,5 +54,5 @@ public interface IOHandler {
      * @param absPath absolute path
      * @return Resource
      */
-    Future<Resource> getFileResource(String absPath);
+    Future<Resource> getFileResource(@NotEmpty String absPath);
 }
