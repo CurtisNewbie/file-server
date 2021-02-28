@@ -35,7 +35,7 @@ function upload() {
         return;
       }
       // clear the files selected
-      uploadFileInput.files = [];
+      uploadFileInput.value = [];
       // clear the fileName
       uploadNameInput.value = "";
       // clear the list, and reload the new one
