@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@ComponentScan(basePackages = "com.curtisnewbie.module")
+@ComponentScan(basePackages = {"com.curtisnewbie.module", "com.yongj"})
 public class FileServerApplication {
 
     public static void main(String[] args) {
