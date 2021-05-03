@@ -1,5 +1,6 @@
 package com.yongj.web;
 
+import com.yongj.dao.FileExtensionMapper;
 import com.yongj.dto.Resp;
 import com.yongj.io.api.FileManager;
 import com.yongj.io.api.IOHandler;
@@ -43,6 +44,9 @@ public class FileController {
 
     @Autowired
     private FileManager fileManager;
+
+    @Autowired
+    private FileExtensionMapper fileExtensionMapper;
 
     @Value("${io.timeout}")
     private int readTimeOut;
@@ -93,6 +97,8 @@ public class FileController {
 
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<List<String>>> listSupportedFileExtension() {
-        return ResponseEntity.ok(Resp.of(pathResolver.getSupportedFileExtension()));
+        return ResponseEntity.ok(Resp.of(
+                fileExtensionMapper.findNamesOfAllEnabled()
+        ));
     }
 }

@@ -71,9 +71,4 @@ public interface PathResolver {
      * @return
      */
     String relativizePath(String absPath);
-
-    /**
-     * Get the supported file extensions in a list
-     */
-    List<String> getSupportedFileExtension();
 }

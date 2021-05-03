@@ -1,10 +1,12 @@
 package com.yongj.io.impl;
 
+import com.yongj.dao.FileExtensionMapper;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
 import com.yongj.io.api.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,11 +32,8 @@ public class PathResolverImpl implements PathResolver {
     private static final String FILE_EXT_DELIMITER = ".";
     private static final Pattern INVALID_CHAR_PATTERN = Pattern.compile("^.*[\\&\\|\\*:\\?\"\\<\\>\\t].*$");
 
-    /**
-     * unmodifiable, initialised set of supported file extension, use this instead of {@link #_supportedExt} in any
-     * operation
-     */
-    private Set<String> supportedFileExtension;
+    @Autowired
+    private FileExtensionMapper fileExtensionMapper;
 
     /** base path, or the base directory for this file-server */
     @Value("${base.path}")
@@ -43,28 +42,12 @@ public class PathResolverImpl implements PathResolver {
     /** URI of {@link #BASE_PATH} */
     private URI BASE_PATH_URI;
 
-    /** list of supported file extension read from *.properties, do not use this for validation */
-    @Value("${supported.file.extension}")
-    private List<String> _supportedExt;
-
     @PostConstruct
     void init() throws IOException {
         logger.info("[INIT] Using base path: '{}'", BASE_PATH);
         Path basePath = Paths.get(BASE_PATH);
         Files.createDirectories(basePath);
         BASE_PATH_URI = basePath.toUri();
-
-        Set<String> tempSet = new TreeSet<>();
-        for (String ext : _supportedExt) {
-            final String trimmedExt = ext.trim();
-            if (trimmedExt.matches("[a-zA-Z0-9]{1,}"))
-                tempSet.add(trimmedExt);
-            else
-                logger.warn("File extension: '{}' is illegal", ext);
-        }
-        if (tempSet.isEmpty())
-            throw new IllegalStateException("${supported.file.extension} is empty");
-        supportedFileExtension = Collections.unmodifiableSet(tempSet);
     }
 
     @Override
@@ -104,7 +87,8 @@ public class PathResolverImpl implements PathResolver {
         if (parsedExt.length() == 0)
             throw new IllegalExtException("File extension not found");
 
-        if (!supportedFileExtension.contains(parsedExt.toString())) {
+        Set<String> fileExtSet = new HashSet<>(fileExtensionMapper.findNamesOfAllEnabled());
+        if (!fileExtSet.contains(parsedExt.toString())) {
             throw new IllegalExtException(String.format("File extension '%s' not supported", parsedExt));
         }
     }
@@ -134,10 +118,5 @@ public class PathResolverImpl implements PathResolver {
     public String relativizePath(String absPath) {
         Path path = Paths.get(absPath);
         return relativizePath(path);
-    }
-
-    @Override
-    public List<String> getSupportedFileExtension() {
-        return new ArrayList<>(supportedFileExtension);
     }
 }
