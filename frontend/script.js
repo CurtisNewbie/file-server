@@ -145,6 +145,14 @@ function parseFileExt(path) {
   return path.substring(i + 1);
 }
 
+/**
+ * logout current user by navigating to /logout url
+ *
+ */
+function logout() {
+  window.location.replace("/logout");
+}
+
 // ------------------------------- main ------------------------------
 uploadFileInput.onchange = (e) => {
   uploadNameInput.value = uploadFileInput.files[0].name;
