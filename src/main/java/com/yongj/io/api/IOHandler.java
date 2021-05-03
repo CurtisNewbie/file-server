@@ -1,16 +1,13 @@
 package com.yongj.io.api;
 
-import org.springframework.core.io.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 /**
@@ -22,16 +19,6 @@ import java.util.stream.Stream;
 public interface IOHandler {
 
     /**
-     * Read file from absolute path asynchronously
-     */
-    Future<byte[]> asyncRead(@NotEmpty String absPath);
-
-    /**
-     * Writ data to file of absolute path asynchronously
-     */
-    void asyncWrite(@NotEmpty String absPath, @NotNull byte[] data);
-
-    /**
      * Check if a file exists
      */
     boolean exists(@NotEmpty String absPath);
@@ -39,24 +26,16 @@ public interface IOHandler {
     /**
      * Write data (from an InputStream) to file of absolute path asynchronously
      */
-    void asyncWriteWithChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
+    void writeByChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
 
     /**
-     * Scan/walk the directory asynchronously
+     * Walk the directory
      *
      * @param dir
      * @return A stream of Path under the directory
      * @throws IOException
      */
-    Future<Stream<Path>> asyncWalkDir(@NotEmpty String dir);
-
-    /**
-     * Get Resource of the file
-     *
-     * @param absPath absolute path
-     * @return Resource
-     */
-    Future<Resource> getFileResource(@NotEmpty String absPath);
+    Stream<Path> walkDir(@NotEmpty String dir) throws IOException;
 
     /**
      * Transfer data directly from {@code absPath} to {@code outputStream}
@@ -64,5 +43,5 @@ public interface IOHandler {
      * @param absPath
      * @param outputStream
      */
-    void transferByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
+    void readByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
 }

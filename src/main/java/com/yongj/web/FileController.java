@@ -9,14 +9,12 @@ import com.yongj.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
@@ -45,26 +43,12 @@ public class FileController {
     @Autowired
     private FileExtensionMapper fileExtensionMapper;
 
-    @Value("${io.timeout}")
-    private int readTimeOut;
-
-    @Value("${io.channel.threshold}")
-    private long ioChannelThreshold;
-
-    @PostConstruct
-    void init() {
-        if (readTimeOut >= 0)
-            logger.info("[INIT] Setting timeout '{}' seconds for IOHandler's operations", readTimeOut);
-        else
-            logger.info("[INIT] Setting no timeout for IOHandler's operations");
-    }
-
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         pathResolver.validateFileExtension(filePath);
         String absPath = pathResolver.resolvePath(pathResolver.validatePath(filePath));
         // Use channel by default
-        ioHandler.asyncWriteWithChannel(absPath, multipartFile.getInputStream());
+        ioHandler.writeByChannel(absPath, multipartFile.getInputStream());
         fileManager.cache(pathResolver.relativizePath(absPath));
         return ResponseEntity.ok(Resp.ok());
     }
@@ -80,7 +64,7 @@ public class FileController {
         // set header for the downloaded file
         resp.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8));
         // transfer file using nio
-        ioHandler.transferByChannel(absPath, resp.getOutputStream());
+        ioHandler.readByChannel(absPath, resp.getOutputStream());
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -18,8 +18,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -103,16 +101,15 @@ public class FileManagerImpl implements FileManager {
             stopWatch.start();
         }
         try {
-            Future<Stream<Path>> absPathStreamFuture = ioHandler.asyncWalkDir(pathResolver.getBaseDir());
-            Stream<Path> absPathStream = absPathStreamFuture.get();
+            Stream<Path> absPathStream = ioHandler.walkDir(pathResolver.getBaseDir());
             List<String> relPaths = pathResolver.relativizePaths(absPathStream);
             relPaths.forEach(p -> {
                 if (!p.isEmpty() && !p.endsWith(File.separator)) {
                     cache(p);
                 }
             });
-        } catch (InterruptedException | ExecutionException e) {
-            logger.warn("Scan base directory failed, will retry next time", e);
+        } catch (Exception ignored) {
+            logger.warn("Scan base directory failed, will retry next time", ignored);
         }
         if (logger.isDebugEnabled()) {
             stopWatch.stop();
