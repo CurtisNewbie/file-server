@@ -10,22 +10,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author yongjie.zhuang
@@ -73,21 +70,17 @@ public class FileController {
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Resource> download(@PathParam("filePath") String filePath) throws ExecutionException, InterruptedException, TimeoutException, IOException {
+    public void download(@PathParam("filePath") String filePath, HttpServletResponse resp) throws IOException {
         String absPath = pathResolver.resolvePath(filePath);
-        if (!ioHandler.exists(absPath))
-            return ResponseEntity.notFound().build();
+        if (!ioHandler.exists(absPath)) {
+            resp.setStatus(HttpStatus.NOT_FOUND.value());
+            return;
+        }
 
-        Future<Resource> result = ioHandler.getFileResource(absPath);
-        Resource fileResource;
-        if (readTimeOut >= 0)
-            fileResource = result.get(readTimeOut, TimeUnit.SECONDS);
-        else
-            fileResource = result.get();
-        ResponseEntity respEntity = ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=" + URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8))
-                .body(fileResource);
-        return respEntity;
+        // set header for the downloaded file
+        resp.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8));
+        // transfer file using nio
+        ioHandler.transferByChannel(absPath, resp.getOutputStream());
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

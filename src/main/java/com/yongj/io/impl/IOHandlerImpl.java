@@ -11,10 +11,8 @@ import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.validation.constraints.NotNull;
+import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -98,5 +96,12 @@ public class IOHandlerImpl implements IOHandler {
         return executorService.submit(() -> {
             return new FileSystemResource(Path.of(absPath));
         });
+    }
+
+    @Override
+    public void transferByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException {
+        RandomAccessFile file = new RandomAccessFile(absPath, "r");
+        var fChannel = file.getChannel();
+        fChannel.transferTo(0, fChannel.size(), Channels.newChannel(outputStream));
     }
 }

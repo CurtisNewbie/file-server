@@ -5,8 +5,10 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
@@ -55,4 +57,12 @@ public interface IOHandler {
      * @return Resource
      */
     Future<Resource> getFileResource(@NotEmpty String absPath);
+
+    /**
+     * Transfer data directly from {@code absPath} to {@code outputStream}
+     *
+     * @param absPath
+     * @param outputStream
+     */
+    void transferByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
 }

@@ -67,9 +67,8 @@ public class LogAspect {
         if (object == null)
             return "null";
 
-        ResponseEntity respEntity;
         if (object instanceof ResponseEntity) {
-            respEntity = (ResponseEntity) object;
+            ResponseEntity respEntity = (ResponseEntity) object;
             StringBuilder sb = new StringBuilder("@ResponseEntity{ ");
             sb.append("statusCode: ").append(respEntity.getStatusCode()).append(", ");
             sb.append("body: ").append(respEntity.getBody() instanceof byte[] ? ((byte[]) respEntity.getBody()).length + " bytes" :
