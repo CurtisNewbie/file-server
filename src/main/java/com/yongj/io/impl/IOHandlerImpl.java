@@ -101,7 +101,8 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public void transferByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException {
         RandomAccessFile file = new RandomAccessFile(absPath, "r");
-        var fChannel = file.getChannel();
-        fChannel.transferTo(0, fChannel.size(), Channels.newChannel(outputStream));
+        try (var fChannel = file.getChannel()) {
+            fChannel.transferTo(0, fChannel.size(), Channels.newChannel(outputStream));
+        }
     }
 }
