@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,22 +21,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
- * Manager of files inside the base dir, it internally uses Guava's Cache to handle cache.
- *
- * <p>
- * The way it uses cache is basically that:
- * <li>
- * 1. scan the whole directory periodically,
- * </li>
- * <li>
- * 2. cache the file scanned and set a expiry time (if the file path is already cached, refresh the expiry time),
- * </li>
- * <li>
- * 3. the file that no longer exists will be expired.
- * </li>
- * <p>
- * Thus, there may be a latency for the list of path being cached, but it should provide acceptable performance.
- *
  * @author yongjie.zhuang
  */
 @Component
@@ -46,34 +29,27 @@ public class FileManagerImpl implements FileManager {
     /** 10 seconds */
     private static final int SCAN_INTERVAL_MILLISEC = 10_000;
     /** Object stored inside cache's value, it doesn't have any practical meaning or usage */
-    private static final EmptyObject IN_CACHE = new EmptyObject();
+    private static final EmptyObject EMPTY_OBJECT = new EmptyObject();
     private static final Logger logger = LoggerFactory.getLogger(FileManagerImpl.class);
 
-    /** Maximum size of the cache */
-    @Value("${max.scanned.file.count}")
-    private long MAX_CACHE_SIZE;
-
     /** Cache of relative paths to base directory */
-    private Cache<String, EmptyObject> REL_PATH_CACHE;
+    private final Cache<String, EmptyObject> REL_PATH_CACHE;
 
     @Autowired
     private IOHandler ioHandler;
-
     @Autowired
     private PathResolver pathResolver;
 
-    @PostConstruct
-    void init() {
+    public FileManagerImpl(@Value("${max.scanned.file.count}") long maxCacheSize) {
         logger.info("[INIT] Setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
-        logger.info("[INIT] Setting cache's maximum size : {}", MAX_CACHE_SIZE);
-        if (MAX_CACHE_SIZE <= 0 || MAX_CACHE_SIZE > Long.MAX_VALUE)
+        logger.info("[INIT] Setting cache's maximum size : {}", maxCacheSize);
+        if (maxCacheSize <= 0 || maxCacheSize > Long.MAX_VALUE)
             throw new IllegalArgumentException("Cache's size should be greater than 0 and less than " + Long.MAX_VALUE);
         REL_PATH_CACHE = CacheBuilder.newBuilder()
-                .maximumSize(MAX_CACHE_SIZE)
+                .maximumSize(maxCacheSize)
                 .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
                 .build();
     }
-
 
     /**
      * Cache a relative path
@@ -83,7 +59,7 @@ public class FileManagerImpl implements FileManager {
     @Override
     public void cache(String relPath) {
         logger.debug("Cache relative path: '{}'", relPath);
-        REL_PATH_CACHE.put(relPath, IN_CACHE);
+        REL_PATH_CACHE.put(relPath, EMPTY_OBJECT);
     }
 
     @Override

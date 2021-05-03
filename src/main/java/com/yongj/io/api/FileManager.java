@@ -5,10 +5,10 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * Manager of files inside the base dir, it internally uses redisson to handle cache.
+ * Manager of files inside the base dir, it internally uses Guava's Cache to handle cache.
  *
  * <p>
- * The way it uses redis cache is basically that:
+ * The way it uses cache is basically that:
  * <li>
  * 1. scan the whole directory periodically,
  * </li>
