@@ -2,7 +2,7 @@
 CREATE TABLE file_extension (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(15) NOT NULL COMMENT 'name of file extension, e.g., txt',
-    is_enabled INT NOT NULL DEFAULT 0 COMMENT 'indicates whether current file extension is disabled'
+    is_enabled INT NOT NULL DEFAULT 0 COMMENT 'indicates whether current file extension is disabled, 0-enabled, 1-disabled'
 );
 
 -- script for inserting some default file extension, these are optional
