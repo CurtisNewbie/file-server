@@ -1,6 +1,7 @@
 package com.yongj.web;
 
 import com.yongj.dao.FileExtensionMapper;
+import com.yongj.dto.FileInfo;
 import com.yongj.dto.Resp;
 import com.yongj.io.api.FileManager;
 import com.yongj.io.api.IOHandler;
@@ -68,7 +69,7 @@ public class FileController {
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<Iterable<String>>> listAll() {
+    public ResponseEntity<Resp<Iterable<FileInfo>>> listAll() {
         return ResponseEntity.ok(Resp.of(fileManager.getAll()));
     }
 

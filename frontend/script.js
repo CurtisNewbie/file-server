@@ -4,8 +4,12 @@ const uploadFileInput = document.getElementById("uploadFile");
 const listDiv = document.getElementById("listDiv");
 let supportedExtensions = new Set();
 const fileExtSpan = document.getElementById("fileExtSpan");
+const statusStr = "";
+const KB_UNIT = 1024;
+const MB_UNIT = 1024 * 1024;
+const GB_UNIT = 1024 * 1024 * 1024;
 
-function upload() {
+async function upload() {
   const uploadNameStr = uploadNameInput.value;
   if (!uploadNameStr || uploadNameStr.length === 0) {
     window.alert("File name cannot be empty");
@@ -79,8 +83,10 @@ function getList() {
       for (let p of list) {
         let li = document.createElement("li");
         let innerLink = document.createElement("a");
-        innerLink.href = "file/download?filePath=" + p;
-        innerLink.textContent = p;
+        innerLink.href = "file/download?filePath=" + p.fileName;
+        innerLink.textContent = `'${p.fileName}', size: ${resolveSize(
+          p.sizeInBytes
+        )}`;
         li.appendChild(innerLink);
         li.classList.add("list-group-item");
         li.classList.add("list-group-item-action");
@@ -143,6 +149,20 @@ function parseFileExt(path) {
     return "";
   }
   return path.substring(i + 1);
+}
+
+function resolveSize(size) {
+  if (size > GB_UNIT) {
+    return divideUnit(size, GB_UNIT) + " gb";
+  }
+  if (size > MB_UNIT) {
+    return divideUnit(size, MB_UNIT) + " mb";
+  }
+  return divideUnit(size, KB_UNIT) + " kb";
+}
+
+function divideUnit(size, unit) {
+  return (size / unit).toFixed(1);
 }
 
 /**

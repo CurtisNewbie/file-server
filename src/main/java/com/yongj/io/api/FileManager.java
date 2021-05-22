@@ -1,5 +1,6 @@
 package com.yongj.io.api;
 
+import com.yongj.dto.FileInfo;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
@@ -30,14 +31,22 @@ public interface FileManager {
      * Cache a relative path
      *
      * @param relPath
+     * @param sizeInBytes
+     */
+    void cache(@NotEmpty String relPath, long sizeInBytes);
+
+    /**
+     * Cache a relative path
+     *
+     * @param relPath
      */
     void cache(@NotEmpty String relPath);
 
     /**
-     * Get all relative paths
+     * Get all cached file infos
      * <p>
      * This method obtains a deep copy of all the relative paths in cache, so the returned Iterable is not backed by any
      * other data structure
      */
-    Iterable<String> getAll();
+    Iterable<FileInfo> getAll();
 }
