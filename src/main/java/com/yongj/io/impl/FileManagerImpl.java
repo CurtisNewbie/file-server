@@ -32,9 +32,7 @@ import java.util.stream.Stream;
 public class FileManagerImpl implements FileManager {
 
     /** 10 seconds */
-    private static final int SCAN_INTERVAL_MILLISEC = 10_000;
-    /** Object stored inside cache's value, it doesn't have any practical meaning or usage */
-    private static final EmptyObject EMPTY_OBJECT = new EmptyObject();
+    private static final int SCAN_INTERVAL_MILLI_SECONDS = 10_000;
     private static final Logger logger = LoggerFactory.getLogger(FileManagerImpl.class);
 
     /** Cache of relative paths to base directory */
@@ -46,13 +44,13 @@ public class FileManagerImpl implements FileManager {
     private PathResolver pathResolver;
 
     public FileManagerImpl(@Value("${max.scanned.file.count}") long maxCacheSize) {
-        logger.info("[INIT] Setting scan interval: {} seconds", SCAN_INTERVAL_MILLISEC / 1000);
+        logger.info("[INIT] Setting scan interval: {} seconds", SCAN_INTERVAL_MILLI_SECONDS / 1000);
         logger.info("[INIT] Setting cache's maximum size : {}", maxCacheSize);
         if (maxCacheSize <= 0 || maxCacheSize > Long.MAX_VALUE)
             throw new IllegalArgumentException("Cache's size should be greater than 0 and less than " + Long.MAX_VALUE);
         REL_PATH_CACHE = CacheBuilder.newBuilder()
                 .maximumSize(maxCacheSize)
-                .expireAfterWrite(SCAN_INTERVAL_MILLISEC, TimeUnit.MILLISECONDS)
+                .expireAfterWrite(SCAN_INTERVAL_MILLI_SECONDS, TimeUnit.MILLISECONDS)
                 .build();
     }
 
@@ -87,7 +85,7 @@ public class FileManagerImpl implements FileManager {
                 .collect(Collectors.toList()));
     }
 
-    @Scheduled(fixedRate = SCAN_INTERVAL_MILLISEC)
+    @Scheduled(fixedRate = SCAN_INTERVAL_MILLI_SECONDS)
     protected void _scanDir() {
         StopWatch stopWatch = null;
         if (logger.isDebugEnabled()) {
@@ -114,8 +112,5 @@ public class FileManagerImpl implements FileManager {
             stopWatch.stop();
             logger.debug("Finish scanning base dir, took {} millisec", stopWatch.getTotalTimeMillis());
         }
-    }
-
-    private static final class EmptyObject {
     }
 }
