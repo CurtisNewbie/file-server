@@ -1,6 +1,6 @@
 package com.yongj.web;
 
-import com.curtisnewbie.module.auth.consts.Role;
+import com.curtisnewbie.module.auth.consts.UserRole;
 import com.curtisnewbie.module.auth.dao.RegisterUserDto;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
@@ -9,6 +9,7 @@ import com.curtisnewbie.module.auth.vo.RegisterUserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,11 +26,12 @@ public class RegisterController {
     private UserService userService;
 
     @PostMapping("/guest")
+    @Secured("admin")
     public ResponseEntity<?> guestRegister(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
             ExceededMaxAdminCountException {
         RegisterUserDto dto = new RegisterUserDto();
         BeanUtils.copyProperties(registerUserVo, dto);
-        dto.setRole(Role.GUEST.val);
+        dto.setRole(UserRole.GUEST.val);
         userService.register(dto);
         return ResponseEntity.ok().build();
     }
