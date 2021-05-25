@@ -1,5 +1,7 @@
 package com.yongj.web;
 
+import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
+import com.curtisnewbie.module.auth.exception.UserRegisteredException;
 import com.yongj.dto.Resp;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
@@ -7,6 +9,7 @@ import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,7 +31,7 @@ public class CtrlAdvice {
     }
 
     // TODO This doesn't really wrap the exception with a custom response
-    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class })
+    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class})
     @ResponseBody
     public ResponseEntity<Resp<?>> handleSizeLimitExceededException(Exception e) {
         logger.warn("Size limit exceeded - '{}'", e.getMessage());
@@ -40,6 +43,24 @@ public class CtrlAdvice {
     public ResponseEntity<Resp<?>> handleExpectedException(Exception e) {
         logger.warn("Request invalid - '{}'", e.getMessage());
         return ResponseEntity.ok(Resp.error("Request invalid: " + e.getMessage()));
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    @ResponseBody
+    public ResponseEntity<Resp<?>> handleAccessDeniedException(Exception e) {
+        return ResponseEntity.ok(Resp.error("Operation not allowed"));
+    }
+
+    @ExceptionHandler({ExceededMaxAdminCountException.class})
+    @ResponseBody
+    public ResponseEntity<Resp<?>> handleExceededMaxAminCountException(Exception e) {
+        return ResponseEntity.ok(Resp.error("Maximum number of admin is exceeded"));
+    }
+
+    @ExceptionHandler({UserRegisteredException.class})
+    @ResponseBody
+    public ResponseEntity<Resp<?>> handleUserRegisteredException(Exception e) {
+        return ResponseEntity.ok(Resp.error("User registered already"));
     }
 
 }

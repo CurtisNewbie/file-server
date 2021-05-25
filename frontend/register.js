@@ -23,8 +23,17 @@ function register() {
       password: pwd,
     }),
   })
-    .then((resp) => {
-      console.log(resp);
+    .then((response) => response.json())
+    .then((result) => {
+      if (!result) {
+        console.log("Returned response abnormal");
+        return;
+      }
+      console.log(result);
+      if (result.hasError) {
+        window.alert(result.msg);
+        return;
+      }
     })
     .catch((e) => {
       window.alert("Register failed");
