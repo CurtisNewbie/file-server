@@ -19,3 +19,4 @@ INSERT INTO fileServer.file_extension (name,is_enabled) VALUES
 	 ('rar',0),
 	 ('docx',0),
 	 ('xlsx',0);
+

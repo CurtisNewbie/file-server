@@ -14,7 +14,28 @@
         <h2>File Server</h2>
         <div class="text-right">
             <button type="button" class="btn btn-secondary m-2 " id="logoutBtn" onclick="logout()">Logout</button>
+            <button type="button" class="btn btn-secondary m-2 " id="logoutBtn"
+                onclick="swapRegisterFormVisibility()">Add
+                User</button>
         </div>
+        <div class="container bootstrap mt-3 mb-5 p-3 shadow" id="registerDiv" hidden="true">
+            <h2>Register</h2>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Username:</span>
+                </div>
+                <input type="text" id="usernameInput" class="form-control" placeholder="username"
+                    aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Password:</span>
+                </div>
+                <input type="password" id="passwordInput" class="form-control" aria-describedby="basic-addon1">
+            </div>
+            <button type="button" class="btn btn-secondary" id="uploadBtn" onclick="register()">Register</button>
+        </div>
+
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">File Name:</span>
@@ -40,6 +61,7 @@
     </div>
 
     <script src="./script.js"></script>
+    <script src="./register.js"></script>
 </body>
 
 </html>
