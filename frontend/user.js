@@ -2,6 +2,7 @@ const usernameInput = document.getElementById("usernameInput");
 const passwordInput = document.getElementById("passwordInput");
 const registerDiv = document.getElementById("registerDiv");
 const userp = document.getElementById("userp");
+const addUserBtn = document.getElementById("addUserBtn");
 
 function fetchUserInfo() {
   fetch("/user/info", {
@@ -19,6 +20,9 @@ function fetchUserInfo() {
         return;
       }
       userp.textContent = `${result.data.username} (${result.data.role})`;
+      if (result.data.role !== "admin") {
+        addUserBtn.hidden = true;
+      }
     })
     .catch((e) => {
       console.log("Failed to fetch user info", e);
