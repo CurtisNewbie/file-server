@@ -63,6 +63,8 @@ function register() {
       console.log("Register failed", e);
     })
     .finally(() => {
+      usernameInput.value = "";
+      passwordInput.value = "";
       swapRegisterFormVisibility();
     });
 }
