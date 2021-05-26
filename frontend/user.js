@@ -1,6 +1,29 @@
 const usernameInput = document.getElementById("usernameInput");
 const passwordInput = document.getElementById("passwordInput");
 const registerDiv = document.getElementById("registerDiv");
+const userp = document.getElementById("userp");
+
+function fetchUserInfo() {
+  fetch("/user/info", {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((result) => {
+      if (!result) {
+        console.log("Returned response abnormal");
+        return;
+      }
+      console.log(result);
+      if (result.hasError) {
+        window.alert(result.msg);
+        return;
+      }
+      userp.textContent = `${result.data.username} (${result.data.role})`;
+    })
+    .catch((e) => {
+      console.log("Failed to fetch user info", e);
+    });
+}
 
 function swapRegisterFormVisibility() {
   registerDiv.hidden = !registerDiv.hidden;
@@ -43,3 +66,5 @@ function register() {
       swapRegisterFormVisibility();
     });
 }
+
+fetchUserInfo();
