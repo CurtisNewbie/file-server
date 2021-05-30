@@ -6,9 +6,10 @@ import { AppComponent } from "./app.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { APP_BASE_HREF } from "@angular/common";
 import { LoginComponent } from './login/login.component';
+import { ManagerUserComponent } from './manager-user/manager-user.component';
 
 @NgModule({
-  declarations: [AppComponent, HomePageComponent, LoginComponent],
+  declarations: [AppComponent, HomePageComponent, LoginComponent, ManagerUserComponent],
   imports: [BrowserModule, AppRoutingModule],
   providers: [{ provide: APP_BASE_HREF, useValue: "/" }],
   bootstrap: [AppComponent],
