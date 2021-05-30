@@ -15,6 +15,9 @@ target/
 .sts4-cache
 *.p12
 
+### node ###
+node_modules/
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
