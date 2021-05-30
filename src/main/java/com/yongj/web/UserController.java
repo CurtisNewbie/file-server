@@ -6,15 +6,20 @@ import com.curtisnewbie.module.auth.dao.UserEntity;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
 import com.curtisnewbie.module.auth.services.api.UserService;
-import com.curtisnewbie.module.auth.vo.RegisterUserVo;
-import com.yongj.UserVo;
+import com.curtisnewbie.module.auth.util.AuthUtil;
+import com.curtisnewbie.module.auth.util.PasswordUtil;
 import com.yongj.dto.Resp;
+import com.yongj.exceptions.ParamInvalidException;
+import com.yongj.util.ValidUtils;
+import com.yongj.vo.RegisterUserVo;
+import com.yongj.vo.UpdatePasswordVo;
+import com.yongj.vo.UserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 /**
  * @author yongjie.zhuang
@@ -39,14 +44,29 @@ public class UserController {
 
     @GetMapping("/info")
     public Resp<UserVo> getUserInfo() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null)
-            return Resp.error("Please login first");
-        if (auth.getPrincipal() == null || !(auth.getPrincipal() instanceof UserEntity))
-            throw new IllegalStateException("Authentication#principal is null or not instance of UserEntity");
-        UserEntity ue = UserEntity.class.cast(auth.getPrincipal());
+        UserEntity ue = AuthUtil.getUserEntity();
         return Resp.of(toUserVo(ue));
     }
+
+    @PostMapping("/password/update")
+    public Resp<UserVo> updatePassword(@RequestBody UpdatePasswordVo vo) throws ParamInvalidException {
+        ValidUtils.requireNonNull(vo.getNewPassword());
+        ValidUtils.requireNonNull(vo.getPrevPassword());
+        if (Objects.equals(vo.getNewPassword(), vo.getPrevPassword()))
+            return Resp.error("New password must be different");
+
+        UserEntity ue = AuthUtil.getUserEntity();
+        boolean isPasswordMatched = PasswordUtil.getValidator()
+                .givenPassword(vo.getPrevPassword())
+                .compareTo(ue.getPassword())
+                .withSalt(ue.getSalt())
+                .isMatched();
+        if (!isPasswordMatched)
+            return Resp.error("Password incorrect");
+        userService.updatePassword(vo.getNewPassword(), ue.getUsername(), ue.getId());
+        return Resp.ok();
+    }
+
 
     private UserVo toUserVo(UserEntity ue) {
         UserVo uv = new UserVo();

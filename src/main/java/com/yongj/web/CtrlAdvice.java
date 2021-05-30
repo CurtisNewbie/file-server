@@ -1,10 +1,12 @@
 package com.yongj.web;
 
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
+import com.curtisnewbie.module.auth.exception.InvalidAuthenticationException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
 import com.yongj.dto.Resp;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
+import com.yongj.exceptions.ParamInvalidException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,18 @@ public class CtrlAdvice {
     @ResponseBody
     public ResponseEntity<Resp<?>> handleUserRegisteredException(Exception e) {
         return ResponseEntity.ok(Resp.error("User registered already"));
+    }
+
+    @ExceptionHandler({InvalidAuthenticationException.class})
+    @ResponseBody
+    public ResponseEntity<Resp<?>> handleInvalidAuthenticationException(Exception e) {
+        return ResponseEntity.ok(Resp.error("Authentication invalid, please re-login"));
+    }
+
+    @ExceptionHandler({ParamInvalidException.class})
+    @ResponseBody
+    public ResponseEntity<Resp<?>> handleParamInvalidException(ParamInvalidException e) {
+        return ResponseEntity.ok(Resp.error(e.getMsg()));
     }
 
 }

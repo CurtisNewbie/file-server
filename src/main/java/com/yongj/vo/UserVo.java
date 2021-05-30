@@ -1,4 +1,4 @@
-package com.yongj;
+package com.yongj.vo;
 
 /**
  * @author yongjie.zhuang
