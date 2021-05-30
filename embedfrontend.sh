@@ -6,6 +6,6 @@ fi
 
 mkdir src/main/resources/static/  
 
-cp -r frontend/* src/main/resources/static/  
+cp -r frontend/vanilla/* src/main/resources/static/  
 
 
