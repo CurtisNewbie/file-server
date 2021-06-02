@@ -42,13 +42,6 @@ public interface PathResolver {
     void validateFileExtension(@NotEmpty String relPath);
 
     /**
-     * Get base dir
-     *
-     * @return path
-     */
-    String getBaseDir();
-
-    /**
      * Extract relative path from the base path
      *
      * @param absPath

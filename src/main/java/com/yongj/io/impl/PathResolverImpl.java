@@ -1,5 +1,6 @@
 package com.yongj.io.impl;
 
+import com.yongj.config.PathConfig;
 import com.yongj.dao.FileExtensionMapper;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
@@ -7,14 +8,9 @@ import com.yongj.io.api.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -34,27 +30,16 @@ public class PathResolverImpl implements PathResolver {
 
     @Autowired
     private FileExtensionMapper fileExtensionMapper;
-
-    /** base path, or the base directory for this file-server */
-    @Value("${base.path}")
-    private String BASE_PATH;
-
-    /** URI of {@link #BASE_PATH} */
-    private URI BASE_PATH_URI;
-
-    @PostConstruct
-    void init() throws IOException {
-        logger.info("[INIT] Using base path: '{}'", BASE_PATH);
-        Path basePath = Paths.get(BASE_PATH);
-        Files.createDirectories(basePath);
-        BASE_PATH_URI = basePath.toUri();
-    }
+    @Autowired
+    private PathConfig pathConfig;
 
     @Override
     public String resolvePath(String relPath) {
         if (relPath.contains(".."))
             throw new IllegalPathException("Path contains '..', which is illegal");
-        String absPath = relPath.startsWith(File.separator) ? BASE_PATH + relPath : BASE_PATH + File.separator + relPath;
+        String absPath = relPath.startsWith(File.separator) ?
+                pathConfig.getBasePath() + relPath :
+                pathConfig.getBasePath() + File.separator + relPath;
         logger.debug("Resolving path of '{}', resolved absolute path: '{}'", relPath, absPath);
         return absPath;
     }
@@ -94,11 +79,6 @@ public class PathResolverImpl implements PathResolver {
     }
 
     @Override
-    public String getBaseDir() {
-        return BASE_PATH;
-    }
-
-    @Override
     public List<String> relativizePaths(Stream<Path> pathStream) {
         List<String> relPaths = new ArrayList<>();
         pathStream.forEach(path -> {
@@ -109,7 +89,7 @@ public class PathResolverImpl implements PathResolver {
 
     @Override
     public String relativizePath(Path absPath) {
-        String relPath = BASE_PATH_URI.relativize(absPath.toUri()).getPath();
+        String relPath = pathConfig.getBasePathUri().relativize(absPath.toUri()).getPath();
         logger.debug("Relativize path '{}', to relative path: '{}'", absPath, relPath);
         return relPath;
     }

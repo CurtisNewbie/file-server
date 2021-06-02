@@ -2,6 +2,7 @@ package com.yongj.io.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.yongj.config.PathConfig;
 import com.yongj.dto.FileInfo;
 import com.yongj.io.api.FileManager;
 import com.yongj.io.api.IOHandler;
@@ -42,6 +43,8 @@ public class FileManagerImpl implements FileManager {
     private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
+    @Autowired
+    private PathConfig pathConfig;
 
     public FileManagerImpl(@Value("${max.scanned.file.count}") long maxCacheSize) {
         logger.info("[INIT] Setting scan interval: {} seconds", SCAN_INTERVAL_MILLI_SECONDS / 1000);
@@ -68,7 +71,7 @@ public class FileManagerImpl implements FileManager {
     @Override
     public void cache(@NotEmpty String relPath) {
         logger.debug("Cache relative path: '{}'", relPath);
-        Path p = Paths.get(pathResolver.getBaseDir(), relPath);
+        Path p = Paths.get(pathConfig.getBasePath(), relPath);
         try {
             REL_PATH_CACHE.put(relPath, Files.size(p));
         } catch (IOException e) {
@@ -94,7 +97,7 @@ public class FileManagerImpl implements FileManager {
             stopWatch.start();
         }
         try {
-            Stream<Path> absPathStream = ioHandler.walkDir(pathResolver.getBaseDir());
+            Stream<Path> absPathStream = ioHandler.walkDir(pathConfig.getBasePath());
             absPathStream.forEach(p -> {
                 String ps = pathResolver.relativizePath(p);
                 if (!ps.isEmpty() && !ps.endsWith(File.separator)) {

@@ -1,11 +1,11 @@
 package com.yongj.web;
 
-import com.yongj.dao.FileExtensionMapper;
 import com.yongj.dto.FileInfo;
 import com.yongj.dto.Resp;
 import com.yongj.io.api.FileManager;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
+import com.yongj.services.FileExtensionService;
 import com.yongj.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,15 +34,12 @@ public class FileController {
 
     @Autowired
     private IOHandler ioHandler;
-
     @Autowired
     private PathResolver pathResolver;
-
     @Autowired
     private FileManager fileManager;
-
     @Autowired
-    private FileExtensionMapper fileExtensionMapper;
+    private FileExtensionService fileExtensionService;
 
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<?>> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile multipartFile) throws IOException {
@@ -76,7 +73,7 @@ public class FileController {
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<List<String>>> listSupportedFileExtension() {
         return ResponseEntity.ok(Resp.of(
-                fileExtensionMapper.findNamesOfAllEnabled()
+                fileExtensionService.getNamesOfAllEnabled()
         ));
     }
 }
