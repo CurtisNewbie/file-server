@@ -20,5 +20,9 @@
 
 <div class="container bootstrap mt-4 mb-3">
     <div class="list-group" id="listDiv">
+        <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
+            <a [href]="concatFilePath(f.fileName)" target="_blank" style="word-break: break-all">{{f.fileName}}, size:
+                {{resolveSize(f.sizeInBytes)}}</a>
+        </li>
     </div>
 </div>
