@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { FileInfo } from "../models/file-info";
 import { Resp } from "../models/resp";
+import { UserInfo } from "src/models/user-info";
 
-const BASE_URL: string = "https://localhost:8443";
 const headers = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
@@ -42,5 +42,19 @@ export class HttpClientService {
     formData.append("username", username);
     formData.append("password", password);
     return this.http.post<any>(`/login`, formData, { withCredentials: true });
+  }
+
+  /**
+   * Fetch current user info
+   */
+  public fetchUserInfo(): Observable<UserInfo> {
+    return this.http.get<UserInfo>("/user/info", { withCredentials: true });
+  }
+
+  /**
+   * Logout current user
+   */
+  public logout(): Observable<void> {
+    return this.http.get<void>("/logout", { withCredentials: true });
   }
 }

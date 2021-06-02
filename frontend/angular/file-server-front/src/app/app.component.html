@@ -1,12 +1,16 @@
 <div>
   <div class="container bootstrap mt-4 mb-3">
     <h2>File Server</h2>
+    <div class="text-right">
+      <button type="button" [hidden]="!isUserLoggedIn()" class="btn btn-secondary m-2 text-right" id="logoutBtn"
+        (click)="logout()">Logout</button>
+    </div>
     <nav>
       <ul>
         <!-- todo fix this  -->
-        <li><a routerLink="/home-page" routerLinkActive="active">Home Page</a></li>
-        <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
-        <li><a routerLink="/manage-user" routerLinkActive="active">Manage Users</a></li>
+        <li [hidden]="!isUserLoggedIn()"><a routerLink="/home-page" routerLinkActive="active">Home Page</a></li>
+        <li [hidden]="isUserLoggedIn()"><a routerLink="/login" routerLinkActive="active">Login</a></li>
+        <li [hidden]="!isUserLoggedIn()"><a routerLink="/manage-user" routerLinkActive="active">Manage Users</a></li>
       </ul>
     </nav>
     <div>

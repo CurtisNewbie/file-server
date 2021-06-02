@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { HttpClientService } from "../http-client-service.service";
+import { Router } from "@angular/router";
+import { UserService } from "../user.service";
 
 @Component({
   selector: "app-login",
@@ -10,7 +11,7 @@ export class LoginComponent implements OnInit {
   usernameInput: string = "";
   passwordInput: string = "";
 
-  constructor(private httpClient: HttpClientService) {}
+  constructor(private userService: UserService, private router: Router) {}
 
   ngOnInit() {}
 
@@ -23,18 +24,17 @@ export class LoginComponent implements OnInit {
    * login request
    */
   public login(): void {
-    console.log(this.usernameInput, this.passwordInput);
     if (!this.usernameInput || !this.passwordInput) {
       window.alert("Please enter username and password");
     }
+    this.userService.login(
+      this.usernameInput,
+      this.passwordInput,
+      this.routeToHomePage
+    );
+  }
 
-    this.httpClient.login(this.usernameInput, this.passwordInput).subscribe({
-      next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
-      },
-    });
+  private routeToHomePage(): void {
+    this.router.navigateByUrl("home-page");
   }
 }
