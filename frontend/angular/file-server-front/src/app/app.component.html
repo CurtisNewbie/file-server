@@ -1,11 +1,7 @@
 <div>
   <div class="container bootstrap mt-4 mb-3">
     <h2>File Server</h2>
-    <div class="text-right">
-      <button type="button" [hidden]="!isUserLoggedIn()" class="btn btn-secondary m-2 text-right" id="logoutBtn"
-        (click)="logout()">Logout</button>
-    </div>
-    <nav>
+    <nav [hidden]="!isLoggedIn">
       <ul class="nav">
         <li class="nav-item">
           <a class="nav-link" routerLink="/home-page" routerLinkActive="active">Home Page</a>
@@ -13,9 +9,6 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>
         </li>
-
-        <!-- todo this shouldn't be here -->
-        <!-- <li><a routerLink="/login" routerLinkActive="active">Login</a></li> -->
       </ul>
     </nav>
     <div>

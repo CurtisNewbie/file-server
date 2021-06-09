@@ -1,6 +1,8 @@
 import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import { FileInfo } from "src/models/file-info";
 import { HttpClientService } from "../http-client-service.service";
+import { UserService } from "../user.service";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -16,11 +18,25 @@ export class HomePageComponent implements OnInit {
   fileExtList: string[] = [];
   fileInfoList: FileInfo[] = [];
 
-  constructor(private httpClient: HttpClientService) {}
+  constructor(
+    private httpClient: HttpClientService,
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.fetchSupportedExtensions();
     this.fetchFileInfoList();
+  }
+
+  /** log out current user and navigate back to login page */
+  logout(): void {
+    this.userService.logout().subscribe({
+      complete: () => {
+        console.log("Logged out user, navigate back to login page");
+        this.router.navigate(["/login-page"]);
+      },
+    });
   }
 
   /** fetch supported file extension */

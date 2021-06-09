@@ -16,25 +16,23 @@ export class LoginComponent implements OnInit {
   ngOnInit() {}
 
   /**
-   * add user (only admin is allowed)
-   */
-  public addUser(): void {}
-
-  /**
    * login request
    */
   public login(): void {
     if (!this.usernameInput || !this.passwordInput) {
       window.alert("Please enter username and password");
     }
-    this.userService.login(
-      this.usernameInput,
-      this.passwordInput,
-      this.routeToHomePage
-    );
+    this.userService.login(this.usernameInput, this.passwordInput).subscribe({
+      next: (resp) => {
+        if (resp.hasError) {
+          window.alert(resp.msg);
+        }
+        this.routeToHomePage();
+      },
+    });
   }
 
   private routeToHomePage(): void {
-    this.router.navigateByUrl("home-page");
+    this.router.navigate(["/home-page"]);
   }
 }

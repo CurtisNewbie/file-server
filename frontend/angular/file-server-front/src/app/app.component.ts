@@ -8,15 +8,6 @@ import { UserService } from "./user.service";
   styleUrls: ["./app.component.css"],
 })
 export class AppComponent {
-  constructor(private userService: UserService) {}
-
-  /** logout user  */
-  public logout(): void {
-    this.userService.logout();
-  }
-
-  // todo optimise this, use boolean field instead, might need to find a way for chile-parent components to communicate
-  public isUserLoggedIn(): boolean {
-    return this.userService.isUserSignedIn();
-  }
+  isLoggedIn: boolean = false;
+  constructor() {}
 }

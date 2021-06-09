@@ -37,11 +37,13 @@ export class HttpClientService {
    * @param username
    * @param password
    */
-  public login(username: string, password: string): Observable<any> {
+  public login(username: string, password: string): Observable<Resp<any>> {
     let formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
-    return this.http.post<any>(`/login`, formData, { withCredentials: true });
+    return this.http.post<Resp<any>>(`/login`, formData, {
+      withCredentials: true,
+    });
   }
 
   /**

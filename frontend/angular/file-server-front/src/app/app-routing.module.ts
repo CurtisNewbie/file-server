@@ -19,6 +19,7 @@ const routes: Routes = [
     path: "manage-user",
     component: ManagerUserComponent,
   },
+  { path: "", redirectTo: "/login-page", pathMatch: "full" },
 ];
 
 @NgModule({
