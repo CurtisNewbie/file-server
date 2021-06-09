@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { UserInfo } from "src/models/user-info";
 import { UserService } from "../user.service";
 
 @Component({
@@ -9,9 +10,12 @@ import { UserService } from "../user.service";
 export class ManagerUserComponent implements OnInit {
   usernameToBeAdded: string = null;
   passswordToBeAdded: string = null;
+  userInfoList: UserInfo[] = [];
   constructor(private userService: UserService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.fetchUserInfoList();
+  }
 
   /**
    * add user (only admin is allowed)
@@ -32,6 +36,21 @@ export class ManagerUserComponent implements OnInit {
           this.usernameToBeAdded = null;
           this.passswordToBeAdded = null;
         },
+        complete: () => {
+          this.fetchUserInfoList();
+        },
       });
+  }
+
+  public fetchUserInfoList(): void {
+    this.userService.fetchUserList().subscribe({
+      next: (resp) => {
+        if (resp.hasError) {
+          window.alert(resp.msg);
+          return;
+        }
+        this.userInfoList = resp.data;
+      },
+    });
   }
 }

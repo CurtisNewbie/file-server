@@ -65,4 +65,11 @@ export class UserService {
   public hasUserInfo(): boolean {
     return this.userInfo != null;
   }
+
+  /**
+   * Fetch list of user infos (only admin is allowed to do so)
+   */
+  public fetchUserList(): Observable<Resp<UserInfo[]>> {
+    return this.httpClient.fetchUserList();
+  }
 }

@@ -77,4 +77,11 @@ export class HttpClientService {
       headers
     );
   }
+
+  /**
+   * Fetch list of user infos
+   */
+  public fetchUserList(): Observable<Resp<UserInfo[]>> {
+    return this.http.get<Resp<UserInfo[]>>("/user/list", headers);
+  }
 }

@@ -16,3 +16,26 @@
     </div>
     <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="addUser()">Add User</button>
 </div>
+<div class="container bootstrap mt-3 mb-5 ">
+    <h3>User List</h3>
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let u of userInfoList">
+                    <th scope="row">{{u.id}}</th>
+                    <td>{{u.username}}</td>
+                    <td>{{u.role}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
