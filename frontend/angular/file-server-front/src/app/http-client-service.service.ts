@@ -49,8 +49,10 @@ export class HttpClientService {
   /**
    * Fetch current user info
    */
-  public fetchUserInfo(): Observable<UserInfo> {
-    return this.http.get<UserInfo>("/user/info", { withCredentials: true });
+  public fetchUserInfo(): Observable<Resp<UserInfo>> {
+    return this.http.get<Resp<UserInfo>>("/user/info", {
+      withCredentials: true,
+    });
   }
 
   /**

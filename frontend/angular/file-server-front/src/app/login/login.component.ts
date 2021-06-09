@@ -28,6 +28,7 @@ export class LoginComponent implements OnInit {
           window.alert(resp.msg);
           return;
         }
+        // login successful
         this.routeToHomePage();
       },
       error: () => {

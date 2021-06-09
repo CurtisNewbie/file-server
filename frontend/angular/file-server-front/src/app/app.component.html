@@ -1,16 +1,6 @@
 <div>
   <div class="container bootstrap mt-4 mb-3">
     <h2>File Server</h2>
-    <nav [hidden]="!isLoggedIn">
-      <ul class="nav">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/home-page" routerLinkActive="active">Home Page</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>
-        </li>
-      </ul>
-    </nav>
     <div>
       <router-outlet></router-outlet>
     </div>
