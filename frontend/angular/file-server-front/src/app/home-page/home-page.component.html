@@ -10,7 +10,10 @@
             placeholder="name of file to be uploaded" aria-describedby="basic-addon1">
     </div>
     <div>
-        <p style="color: grey;">Supported File Extensions: {{fileExtList}}</p>
+        <p style="color: grey;">Supported File Extensions:
+            <span *ngFor="let e of fileExtList; let i = index">
+                {{ e + (i < fileExtList.length - 1 ? "," : "" )}} </span>
+        </p>
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">

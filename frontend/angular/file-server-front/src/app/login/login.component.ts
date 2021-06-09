@@ -26,8 +26,12 @@ export class LoginComponent implements OnInit {
       next: (resp) => {
         if (resp.hasError) {
           window.alert(resp.msg);
+          return;
         }
         this.routeToHomePage();
+      },
+      error: () => {
+        window.alert("Unknown error occurred, please try again later");
       },
     });
   }
