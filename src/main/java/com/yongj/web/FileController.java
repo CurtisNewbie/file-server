@@ -21,7 +21,6 @@ import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -32,7 +31,6 @@ import java.util.List;
 public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
-    private static final MessageFormat attachmentMsgFormat = new MessageFormat("attachment; filename={0}");
 
     @Autowired
     private IOHandler ioHandler;
@@ -62,7 +60,7 @@ public class FileController {
         }
 
         // set header for the downloaded file
-        resp.setHeader("Content-Disposition", attachmentMsgFormat.format(encodeAttachmentName(filePath)));
+        resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filePath));
         // transfer file using nio
         ioHandler.readByChannel(absPath, resp.getOutputStream());
     }
