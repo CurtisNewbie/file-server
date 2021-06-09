@@ -5,6 +5,8 @@ package com.yongj.vo;
  */
 public class UserVo {
 
+    private Integer id;
+
     /**
      * username
      */
@@ -29,5 +31,13 @@ public class UserVo {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

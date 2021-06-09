@@ -3,6 +3,7 @@ package com.yongj.web;
 import com.curtisnewbie.module.auth.consts.UserRole;
 import com.curtisnewbie.module.auth.dao.RegisterUserDto;
 import com.curtisnewbie.module.auth.dao.UserEntity;
+import com.curtisnewbie.module.auth.dao.UserInfo;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
 import com.curtisnewbie.module.auth.services.api.UserService;
@@ -19,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author yongjie.zhuang
@@ -42,6 +45,12 @@ public class UserController {
         return Resp.ok();
     }
 
+    @PreAuthorize("hasAuthority('admin')")
+    @GetMapping("/list")
+    public Resp<List<UserVo>> getUserList() {
+        return Resp.of(toUserVoList(userService.findUserInfoList(), AuthUtil.getUserEntity().getId()));
+    }
+
     @GetMapping("/info")
     public Resp<UserVo> getUserInfo() {
         UserEntity ue = AuthUtil.getUserEntity();
@@ -49,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping("/password/update")
-    public Resp<UserVo> updatePassword(@RequestBody UpdatePasswordVo vo) throws ParamInvalidException {
+    public Resp<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws ParamInvalidException {
         ValidUtils.requireNonNull(vo.getNewPassword());
         ValidUtils.requireNonNull(vo.getPrevPassword());
         if (Objects.equals(vo.getNewPassword(), vo.getPrevPassword()))
@@ -73,6 +82,17 @@ public class UserController {
         uv.setUsername(ue.getUsername());
         uv.setRole(ue.getRole());
         return uv;
+    }
+
+    private List<UserVo> toUserVoList(List<UserInfo> userInfoList, int currUserId) {
+        return userInfoList.stream().filter(ui -> {
+            // exclude current user
+            return !Objects.equals(ui.getId(), currUserId);
+        }).map(ui -> {
+            UserVo uv = new UserVo();
+            BeanUtils.copyProperties(ui, uv);
+            return uv;
+        }).collect(Collectors.toList());
     }
 
 //
