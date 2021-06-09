@@ -7,6 +7,9 @@
             <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
                 <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" (click)="logout()">Logout</a>
+            </li>
         </ul>
     </nav>
 </div>

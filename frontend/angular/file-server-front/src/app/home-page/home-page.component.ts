@@ -31,16 +31,6 @@ export class HomePageComponent implements OnInit {
     this.fetchFileInfoList();
   }
 
-  /** log out current user and navigate back to login page */
-  logout(): void {
-    this.userService.logout().subscribe({
-      complete: () => {
-        console.log("Logged out user, navigate back to login page");
-        this.router.navigate(["/login-page"]);
-      },
-    });
-  }
-
   /** fetch supported file extension */
   private fetchSupportedExtensions(): void {
     this.httpClient.fetchSupportedFileExtensions().subscribe({

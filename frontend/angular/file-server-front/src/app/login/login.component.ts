@@ -29,16 +29,7 @@ export class LoginComponent implements OnInit {
           return;
         }
         // login successful
-        this.userService.fetchUserInfo().subscribe({
-          next: (resp) => {
-            if (resp.hasError) {
-              window.alert(resp.msg);
-              return;
-            }
-            this.userService.setUserInfo(resp.data);
-            this.routeToHomePage();
-          },
-        });
+        this.routeToHomePage();
       },
       error: () => {
         window.alert("Unknown error occurred, please try again later");
