@@ -4,8 +4,6 @@ import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManagerUserComponent } from "./manager-user/manager-user.component";
 
-// todo login component
-// todo register component
 const routes: Routes = [
   {
     path: "home-page",
@@ -19,7 +17,7 @@ const routes: Routes = [
     path: "manage-user",
     component: ManagerUserComponent,
   },
-  { path: "", redirectTo: "/login-page", pathMatch: "full" },
+  { path: "**", redirectTo: "/login-page" },
 ];
 
 @NgModule({
