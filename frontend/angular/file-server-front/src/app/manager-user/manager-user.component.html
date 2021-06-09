@@ -1,2 +1,18 @@
 <app-nav></app-nav>
-<p>manager-user works!</p>
+<div class="container bootstrap mt-3 mb-5 p-3 shadow">
+    <h2>Add User</h2>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">Username:</span>
+        </div>
+        <input type="text" [(ngModel)]="usernameToBeAdded" class="form-control" placeholder="username"
+            aria-describedby="basic-addon1">
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">Password:</span>
+        </div>
+        <input type="password" [(ngModel)]="passswordToBeAdded" class="form-control" aria-describedby="basic-addon1">
+    </div>
+    <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="addUser()">Add User</button>
+</div>

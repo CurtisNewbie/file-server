@@ -61,4 +61,20 @@ export class HttpClientService {
   public logout(): Observable<void> {
     return this.http.get<void>("/logout", { withCredentials: true });
   }
+
+  /**
+   * Add guest user
+   * @param username
+   * @param password
+   */
+  public addGuest(username: string, password: string): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      "/user/register/guest",
+      JSON.stringify({
+        username: username,
+        password: password,
+      }),
+      headers
+    );
+  }
 }
