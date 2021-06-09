@@ -6,11 +6,16 @@
         (click)="logout()">Logout</button>
     </div>
     <nav>
-      <ul>
-        <!-- todo fix this  -->
-        <li [hidden]="!isUserLoggedIn()"><a routerLink="/home-page" routerLinkActive="active">Home Page</a></li>
-        <li [hidden]="isUserLoggedIn()"><a routerLink="/login" routerLinkActive="active">Login</a></li>
-        <li [hidden]="!isUserLoggedIn()"><a routerLink="/manage-user" routerLinkActive="active">Manage Users</a></li>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home-page" routerLinkActive="active">Home Page</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>
+        </li>
+
+        <!-- todo this shouldn't be here -->
+        <!-- <li><a routerLink="/login" routerLinkActive="active">Login</a></li> -->
       </ul>
     </nav>
     <div>
