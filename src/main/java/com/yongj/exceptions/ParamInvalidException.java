@@ -15,6 +15,10 @@ public class ParamInvalidException extends Exception {
         this.msg = msg;
     }
 
+    public ParamInvalidException() {
+
+    }
+
     public String getMsg() {
         return msg;
     }

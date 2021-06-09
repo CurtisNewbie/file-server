@@ -12,6 +12,7 @@ import com.curtisnewbie.module.auth.util.PasswordUtil;
 import com.yongj.dto.Resp;
 import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.util.ValidUtils;
+import com.yongj.vo.DeleteUserByIdVo;
 import com.yongj.vo.RegisterUserVo;
 import com.yongj.vo.UpdatePasswordVo;
 import com.yongj.vo.UserVo;
@@ -50,6 +51,19 @@ public class UserController {
     public Resp<List<UserVo>> getUserList() {
         return Resp.of(toUserVoList(userService.findUserInfoList(), AuthUtil.getUserEntity().getId()));
     }
+
+    @PreAuthorize("hasAuthority('admin')")
+    @PostMapping("/delete")
+    public Resp<Void> deleteUserById(@RequestBody DeleteUserByIdVo param) throws ParamInvalidException {
+        if (param.getId() == null)
+            throw new ParamInvalidException();
+        if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
+            throw new ParamInvalidException("You cannot delete yourself");
+        }
+        userService.deleteUserById(param.getId());
+        return Resp.ok();
+    }
+
 
     @GetMapping("/info")
     public Resp<UserVo> getUserInfo() {
