@@ -8,22 +8,22 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">File Name:</span>
         </div>
-        <input type="text" id="uploadName" [value]="nameInput" class="form-control"
-            placeholder="name of file to be uploaded" aria-describedby="basic-addon1">
+        <input type="text" [(ngModel)]="uploadName" class="form-control" placeholder="name of file to be uploaded"
+            aria-describedby="basic-addon1">
     </div>
     <div>
         <p style="color: grey;">Supported File Extensions:
-            <span *ngFor="let e of fileExtList; let i = index">
-                {{ e + (i < fileExtList.length - 1 ? "," : "" )}} </span>
+            <span *ngFor="let e of fileExtSet; let i = index">
+                {{ e + (i < fileExtSet.size - 1 ? "," : "" )}} </span>
         </p>
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">Upload File:</span>
         </div>
-        <input type="file" id="uploadFile" class="form-control" aria-describedby="basic-addon1">
+        <input type="file" class="form-control" (change)="onFileSelected($event)" aria-describedby="basic-addon1">
     </div>
-    <button type="button" class="btn btn-secondary" id="uploadBtn" onclick="upload()">Upload</button>
+    <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="upload()">Upload</button>
 </div>
 
 <div class="container bootstrap mt-4 mb-3">

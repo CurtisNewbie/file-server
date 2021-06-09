@@ -15,8 +15,10 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
 })
 export class HomePageComponent implements OnInit {
   nameInput: string = "";
-  fileExtList: string[] = [];
+  fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
+  uploadName: string = null;
+  uploadFile: File = null;
 
   constructor(
     private httpClient: HttpClientService,
@@ -47,7 +49,10 @@ export class HomePageComponent implements OnInit {
           window.alert(resp.msg);
           return;
         }
-        this.fileExtList = resp.data;
+        this.fileExtSet.clear();
+        for (let e of resp.data) {
+          this.fileExtSet.add(e);
+        }
       },
       error: (err) => {
         console.log(err);
@@ -89,5 +94,62 @@ export class HomePageComponent implements OnInit {
 
   private divideUnit(size: number, unit: number): string {
     return (size / unit).toFixed(1);
+  }
+
+  /** Upload file */
+  public upload(): void {
+    if (!this.uploadName) {
+      window.alert("File name cannot be empty");
+      return;
+    }
+    if (!this.uploadFile) {
+      window.alert("Please select a file to upload");
+      return;
+    }
+    let fileExt = this.parseFileExt(this.uploadName);
+    console.log("Parsed file extension:", fileExt);
+    if (!fileExt) {
+      window.alert("Please specify file extension");
+      return;
+    }
+    if (!this.fileExtSet.has(fileExt)) {
+      window.alert(`File extension '${fileExt}' isn't supported`);
+      return;
+    }
+    this.httpClient.postFile(this.uploadName, this.uploadFile).subscribe({
+      complete: () => {
+        this.uploadFile = null;
+        this.uploadName = null;
+        this.fetchFileInfoList();
+      },
+      error: () => {
+        window.alert("Failed to upload file");
+      },
+    });
+  }
+
+  /** Handle events on file selected/changed */
+  public onFileSelected(event): void {
+    console.log(event);
+    if (event.target.files.length > 0) {
+      this.uploadFile = event.target.files[0];
+      this.uploadName = this.uploadFile.name;
+    }
+  }
+
+  /**
+   * Get file extension
+   * @param {*} path
+   * @returns fileExtension, or "" if there isn't one
+   */
+  private parseFileExt(path: string): string {
+    if (!path || path.endsWith(".")) {
+      return "";
+    }
+    let i = path.lastIndexOf(".");
+    if (i <= 0) {
+      return "";
+    }
+    return path.substring(i + 1);
   }
 }
