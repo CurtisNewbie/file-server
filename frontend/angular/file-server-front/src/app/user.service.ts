@@ -67,9 +67,17 @@ export class UserService {
   }
 
   /**
-   * Fetch list of user infos (only admin is allowed to do so)
+   * Fetch list of user infos (only admin is allowed)
    */
   public fetchUserList(): Observable<Resp<UserInfo[]>> {
     return this.httpClient.fetchUserList();
+  }
+
+  /**
+   * Delete user by id (only admin is allowed)
+   * @param id
+   */
+  public deleteUserById(id: number): Observable<Resp<any>> {
+    return this.httpClient.deleteUserById(id);
   }
 }

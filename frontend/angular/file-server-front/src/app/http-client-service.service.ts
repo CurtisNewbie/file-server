@@ -84,4 +84,18 @@ export class HttpClientService {
   public fetchUserList(): Observable<Resp<UserInfo[]>> {
     return this.http.get<Resp<UserInfo[]>>("/user/list", headers);
   }
+
+  /**
+   * Delete user by id
+   * @param id
+   */
+  public deleteUserById(id: number): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      "/user/delete",
+      {
+        id: id,
+      },
+      headers
+    );
+  }
 }

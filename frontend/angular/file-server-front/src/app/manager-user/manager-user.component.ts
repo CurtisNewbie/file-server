@@ -53,4 +53,16 @@ export class ManagerUserComponent implements OnInit {
       },
     });
   }
+
+  public deleteUserById(id: number): void {
+    this.userService.deleteUserById(id).subscribe({
+      next: (resp) => {
+        if (resp.hasError) {
+          window.alert(resp.msg);
+          return;
+        }
+        this.fetchUserInfoList();
+      },
+    });
+  }
 }

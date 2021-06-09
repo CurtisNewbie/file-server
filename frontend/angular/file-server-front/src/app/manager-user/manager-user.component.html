@@ -32,6 +32,7 @@
                     <th scope="row">{{u.id}}</th>
                     <td>{{u.username}}</td>
                     <td>{{u.role}}</td>
+                    <td><button class="btn btn-primary" (click)="deleteUserById(u.id)">Delete</button></td>
                 </tr>
             </tbody>
         </table>
