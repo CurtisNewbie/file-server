@@ -13,7 +13,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Stream;
 
 /**
  * @author yongjie.zhuang
@@ -35,11 +34,6 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public boolean exists(String absPath) {
         return Files.exists(Path.of(absPath));
-    }
-
-    @Override
-    public Stream<Path> walkDir(@NotEmpty String dir) throws IOException {
-            return Files.walk(Path.of(dir));
     }
 
     @Override
