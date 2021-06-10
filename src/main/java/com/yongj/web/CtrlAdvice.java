@@ -3,7 +3,7 @@ package com.yongj.web;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.InvalidAuthenticationException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
-import com.yongj.dto.Resp;
+import com.yongj.vo.Resp;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
 import com.yongj.exceptions.ParamInvalidException;

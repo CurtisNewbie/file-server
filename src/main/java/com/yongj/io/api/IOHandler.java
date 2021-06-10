@@ -7,8 +7,6 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.util.stream.Stream;
 
 /**
  * Handler of IO operation
@@ -27,15 +25,6 @@ public interface IOHandler {
      * Write data (from an InputStream) to file of absolute path asynchronously
      */
     void writeByChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
-
-    /**
-     * Walk the directory
-     *
-     * @param dir
-     * @return A stream of Path under the directory
-     * @throws IOException
-     */
-    Stream<Path> walkDir(@NotEmpty String dir) throws IOException;
 
     /**
      * Transfer data directly from {@code absPath} to {@code outputStream}

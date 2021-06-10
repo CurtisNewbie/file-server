@@ -1,7 +1,7 @@
 package com.yongj.config;
 
 import com.curtisnewbie.module.auth.config.AuthenticationFailureHandlerExtender;
-import com.yongj.dto.Resp;
+import com.yongj.vo.Resp;
 import com.yongj.util.JsonUtils;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;

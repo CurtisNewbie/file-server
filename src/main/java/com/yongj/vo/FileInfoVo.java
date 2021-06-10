@@ -1,9 +1,14 @@
-package com.yongj.dto;
+package com.yongj.vo;
 
 /**
  * @author yongjie.zhuang
  */
-public class FileInfo {
+public class FileInfoVo {
+
+    /**
+     * UUID
+     */
+    private String uuid;
 
     /**
      * fileName
@@ -14,14 +19,6 @@ public class FileInfo {
      * size in bytes
      */
     private long sizeInBytes;
-
-    public FileInfo(String fileName, Long sizeInBytes) {
-        this.fileName = fileName;
-        if (sizeInBytes == null)
-            this.sizeInBytes = 0;
-        else
-            this.sizeInBytes = sizeInBytes;
-    }
 
     public String getFileName() {
         return fileName;
@@ -37,5 +34,13 @@ public class FileInfo {
 
     public void setSizeInBytes(long sizeInBytes) {
         this.sizeInBytes = sizeInBytes;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

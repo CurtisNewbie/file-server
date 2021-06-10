@@ -11,11 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 
 /**
@@ -76,27 +74,5 @@ public class PathResolverImpl implements PathResolver {
         if (!fileExtSet.contains(parsedExt.toString())) {
             throw new IllegalExtException(String.format("File extension '%s' not supported", parsedExt));
         }
-    }
-
-    @Override
-    public List<String> relativizePaths(Stream<Path> pathStream) {
-        List<String> relPaths = new ArrayList<>();
-        pathStream.forEach(path -> {
-            relPaths.add(relativizePath(path));
-        });
-        return relPaths;
-    }
-
-    @Override
-    public String relativizePath(Path absPath) {
-        String relPath = pathConfig.getBasePathUri().relativize(absPath.toUri()).getPath();
-        logger.debug("Relativize path '{}', to relative path: '{}'", absPath, relPath);
-        return relPath;
-    }
-
-    @Override
-    public String relativizePath(String absPath) {
-        Path path = Paths.get(absPath);
-        return relativizePath(path);
     }
 }

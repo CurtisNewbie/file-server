@@ -1,4 +1,4 @@
-package com.yongj.dto;
+package com.yongj.vo;
 
 import java.io.Serializable;
 

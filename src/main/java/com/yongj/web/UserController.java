@@ -9,7 +9,7 @@ import com.curtisnewbie.module.auth.exception.UserRegisteredException;
 import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.auth.util.PasswordUtil;
-import com.yongj.dto.Resp;
+import com.yongj.vo.Resp;
 import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.util.ValidUtils;
 import com.yongj.vo.DeleteUserByIdVo;
