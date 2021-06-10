@@ -1,8 +1,11 @@
 package com.yongj.services;
 
+import com.yongj.dao.FileInfo;
+import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.vo.FileInfoVo;
 
 import javax.servlet.ServletOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -18,8 +21,9 @@ public interface FileInfoService {
      * @param fileName    fileName
      * @param userGroup   userGroup
      * @param inputStream file's inputStream
+     * @return the saved fileInfo
      */
-    void saveFileInfo(int userId, String fileName, String userGroup, InputStream inputStream);
+    FileInfo saveFileInfo(int userId, String fileName, FileUserGroupEnum userGroup, InputStream inputStream) throws IOException;
 
     /**
      * Find file info for user

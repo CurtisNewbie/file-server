@@ -1,6 +1,7 @@
 package com.yongj.web;
 
 import com.curtisnewbie.module.auth.util.AuthUtil;
+import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
 import com.yongj.services.FileExtensionService;
@@ -44,27 +45,23 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<?>> upload(@RequestParam("fileName") String fileName,
                                           @RequestParam("file") MultipartFile multipartFile,
-                                          @RequestParam("userGroup") String userGroup) throws IOException {
+                                          @RequestParam("userGroup") Integer userGroup) throws IOException {
         pathResolver.validateFileExtension(fileName);
-        fileName = pathResolver.validatePath(fileName);
-        fileInfoService.saveFileInfo(AuthUtil.getUserId(), fileName, userGroup, multipartFile.getInputStream());
+        FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parseGroup(userGroup);
+        if (userGroupEnum == null) {
+            return ResponseEntity.ok(Resp.error("Incorrect user group"));
+        }
+        fileInfoService.saveFileInfo(AuthUtil.getUserId(), fileName, userGroupEnum, multipartFile.getInputStream());
         return ResponseEntity.ok(Resp.ok());
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws IOException {
-//        String absPath = pathResolver.resolvePath(filePath);
-//        if (!ioHandler.exists(absPath)) {
-//            resp.setStatus(HttpStatus.NOT_FOUND.value());
-//            return;
-//        }
-
         String filePath = "demo";
         // set header for the downloaded file
         resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filePath));
         // transfer file using nio
         fileInfoService.downloadFile(uuid, resp.getOutputStream());
-//        ioHandler.readByChannel(absPath, resp.getOutputStream());
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

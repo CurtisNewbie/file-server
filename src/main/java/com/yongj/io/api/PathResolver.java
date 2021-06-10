@@ -13,22 +13,13 @@ import javax.validation.constraints.NotEmpty;
 public interface PathResolver {
 
     /**
-     * Resolve the given relative path
+     * Resolve absolute path for the given uuid and userId
      *
-     * @param relPath
+     * @param uuid
+     * @param userId
      * @return absolute path
-     * @throws com.yongj.exceptions.IllegalPathException if the path contains illegal character, such as ".."
      */
-    String resolvePath(@NotEmpty String relPath);
-
-    /**
-     * Delete or escape special characters if necessary
-     *
-     * @param relPath
-     * @return escaped path
-     * @throws com.yongj.exceptions.IllegalPathException if the path only contains illegal character
-     */
-    String validatePath(@NotEmpty String relPath);
+    String resolveAbsolutePath(@NotEmpty String uuid, int userId);
 
     /**
      * Validate the file extension of the given path
