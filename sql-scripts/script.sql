@@ -8,15 +8,14 @@ CREATE TABLE IF NOT EXISTS file_extension (
 CREATE TABLE IF NOT EXISTS file_info (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(15) NOT NULL COMMENT "name of the file",
-    rel_path VARCHAR(255) NOT NULL COMMENT "file's relative path",
     uuid VARCHAR(255) NOT NULL COMMENT "file's uuid",
-    is_logic_deleted TINYINT NOT NULL DEFAULT 0 COMMENT "whether the file is logically deleted, 0-normal, 1-deleted",
-    is_physic_deleted TINYINT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
+    is_logic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is logically deleted, 0-normal, 1-deleted",
+    is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
     uploader_id INT NOT NULL COMMENT "uploader id, i.e., user.id",
     upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
     logic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is logically deleted",
     physic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is physically deleted",
-    user_group VARCHAR(30) NOT NULL COMMENT "the group that the file belongs to, either 'public' or 'private'"
+    user_group INT NOT NULL COMMENT "the group that the file belongs to, 0-public, 1-private"
 );
 
 -- script for inserting some default file extension, these are optional
