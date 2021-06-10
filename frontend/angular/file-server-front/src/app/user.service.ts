@@ -1,6 +1,5 @@
 import { Injectable, Output } from "@angular/core";
-import { EventEmitter } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { Resp } from "src/models/resp";
 import { UserInfo } from "src/models/user-info";
 import { HttpClientService } from "./http-client-service.service";
@@ -10,6 +9,13 @@ import { HttpClientService } from "./http-client-service.service";
 })
 export class UserService {
   private userInfo: UserInfo = null;
+  private roleSubject = new Subject<string>();
+  private isLoggedInSubject = new Subject<boolean>();
+
+  roleObservable: Observable<string> = this.roleSubject.asObservable();
+  isLoggedInObservable: Observable<boolean> =
+    this.isLoggedInSubject.asObservable();
+
   constructor(private httpClient: HttpClientService) {}
 
   /**
@@ -25,6 +31,7 @@ export class UserService {
    * Logout current user
    */
   public logout(): Observable<void> {
+    this.notifyLoginStatus(false);
     return this.httpClient.logout();
   }
 
@@ -41,15 +48,31 @@ export class UserService {
   /**
    * Fetch user info
    */
-  public fetchUserInfo(): Observable<Resp<UserInfo>> {
-    return this.httpClient.fetchUserInfo();
+  public fetchUserInfo(): void {
+    this.httpClient.fetchUserInfo().subscribe({
+      next: (resp) => {
+        if (resp.hasError) {
+          window.alert(resp.msg);
+          return;
+        }
+
+        if (resp.data) {
+          this.userInfo = resp.data;
+          this.notifyRole(this.userInfo.role);
+          this.notifyLoginStatus(true);
+        }
+      },
+    });
   }
 
-  /**
-   * Set user info that is previously fetched
-   */
-  public setUserInfo(userInfo: UserInfo): void {
-    this.userInfo = userInfo;
+  /** Notify the role of the user via observable */
+  private notifyRole(role: string): void {
+    this.roleSubject.next(role);
+  }
+
+  /** Notify the login status of the user via observable */
+  private notifyLoginStatus(isLoggedIn: boolean): void {
+    this.isLoggedInSubject.next(isLoggedIn);
   }
 
   /**

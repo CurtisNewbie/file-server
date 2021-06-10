@@ -1,8 +1,9 @@
-<div class="mt-2 mb-2">
+<div class="mt-2 mb-2" [hidden]="!isLoggedIn">
     <nav>
         <ul class="nav">
             <li class="nav-item">
-                <a class="nav-link" routerLink="/home-page" routerLinkActive="active">Home Page</a>
+                <a class="nav-link" routerLink="/home-page" routerLinkActive="active">Home
+                    Page</a>
             </li>
             <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
                 <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>

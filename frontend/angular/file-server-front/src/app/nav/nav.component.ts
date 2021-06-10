@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 import { UserService } from "../user.service";
 
@@ -7,24 +7,21 @@ import { UserService } from "../user.service";
   templateUrl: "./nav.component.html",
   styleUrls: ["./nav.component.css"],
 })
-export class NavComponent implements OnInit {
+export class NavComponent {
   shouldDisplayManagerUser: boolean = false;
+  isLoggedIn: boolean = false;
 
-  constructor(private userService: UserService, private router: Router) {}
-
-  ngOnInit() {
-    if (!this.userService.hasUserInfo()) {
-      this.userService.fetchUserInfo().subscribe({
-        next: (resp) => {
-          if (resp.hasError) {
-            window.alert(resp.msg);
-            return;
-          }
-          this.userService.setUserInfo(resp.data);
-          this.shouldDisplayManagerUser = resp.data.role === "admin";
-        },
-      });
-    }
+  constructor(private userService: UserService, private router: Router) {
+    this.userService.roleObservable.subscribe({
+      next: (role) => {
+        this.shouldDisplayManagerUser = role === "admin";
+      },
+    });
+    this.userService.isLoggedInObservable.subscribe({
+      next: (isLoggedIn) => {
+        this.isLoggedIn = isLoggedIn;
+      },
+    });
   }
 
   /** log out current user and navigate back to login page */

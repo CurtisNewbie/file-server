@@ -29,6 +29,7 @@ export class LoginComponent implements OnInit {
           return;
         }
         // login successful
+        this.userService.fetchUserInfo();
         this.routeToHomePage();
       },
       error: () => {
