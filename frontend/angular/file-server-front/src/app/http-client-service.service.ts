@@ -104,10 +104,15 @@ export class HttpClientService {
    * @param uploadName
    * @param uploadFile
    */
-  public postFile(uploadName: string, uploadFile: File): Observable<any> {
+  public postFile(
+    uploadName: string,
+    uploadFile: File,
+    uploadUserGroup: number
+  ): Observable<any> {
     let formData = new FormData();
-    formData.append("filePath", uploadName);
+    formData.append("fileName", uploadName);
     formData.append("file", uploadFile);
+    formData.append("userGroup", uploadUserGroup.toString());
     return this.http.post<any>("/file/upload", formData, {
       withCredentials: true,
     });

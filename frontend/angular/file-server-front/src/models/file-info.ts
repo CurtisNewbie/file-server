@@ -1,8 +1,12 @@
 export interface FileInfo {
   /**
+   * uuid
+   */
+  uuid: string;
+  /**
    * fileName
    */
-  fileName: string;
+  name: string;
 
   /**
    * size in bytes

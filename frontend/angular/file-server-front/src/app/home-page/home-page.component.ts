@@ -7,6 +7,10 @@ import { UserService } from "../user.service";
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
 const GB_UNIT: number = 1024 * 1024 * 1024;
+/** file's user group: public, meaning everyone can download the file */
+const USER_GROUP_PUBLIC = 0;
+/** file's user group: private, meaning only current user can download the file */
+const USER_GROUP_PRIVATE = 1;
 
 @Component({
   selector: "app-home-page",
@@ -19,12 +23,9 @@ export class HomePageComponent implements OnInit {
   fileInfoList: FileInfo[] = [];
   uploadName: string = null;
   uploadFile: File = null;
+  uploadUserGroup: number = null;
 
-  constructor(
-    private httpClient: HttpClientService,
-    private userService: UserService,
-    private router: Router
-  ) {}
+  constructor(private httpClient: HttpClientService) {}
 
   ngOnInit() {
     this.fetchSupportedExtensions();
@@ -67,8 +68,8 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Concatenate url for downloading the file  */
-  public concatFilePath(fileName: string): string {
-    return "file/download?filePath=" + fileName;
+  public concatFileHref(uuid: string): string {
+    return "file/download?uuid=" + uuid;
   }
 
   /** Convert number of bytes to apporpriate unit */
@@ -96,6 +97,10 @@ export class HomePageComponent implements OnInit {
       window.alert("Please select a file to upload");
       return;
     }
+    if (!this.uploadUserGroup) {
+      // default private group
+      this.uploadUserGroup = USER_GROUP_PRIVATE;
+    }
     let fileExt = this.parseFileExt(this.uploadName);
     console.log("Parsed file extension:", fileExt);
     if (!fileExt) {
@@ -106,16 +111,23 @@ export class HomePageComponent implements OnInit {
       window.alert(`File extension '${fileExt}' isn't supported`);
       return;
     }
-    this.httpClient.postFile(this.uploadName, this.uploadFile).subscribe({
-      complete: () => {
-        this.uploadFile = null;
-        this.uploadName = null;
-        this.fetchFileInfoList();
-      },
-      error: () => {
-        window.alert("Failed to upload file");
-      },
-    });
+    this.httpClient
+      .postFile(this.uploadName, this.uploadFile, this.uploadUserGroup)
+      .subscribe({
+        next: (resp) => {
+          if (resp.hasError) {
+            window.alert(resp.msg);
+          }
+        },
+        complete: () => {
+          this.uploadFile = null;
+          this.uploadName = null;
+          this.fetchFileInfoList();
+        },
+        error: () => {
+          window.alert("Failed to upload file");
+        },
+      });
   }
 
   /** Handle events on file selected/changed */
