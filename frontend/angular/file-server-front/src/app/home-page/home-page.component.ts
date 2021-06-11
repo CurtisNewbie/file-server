@@ -1,16 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { FileInfo } from "src/models/file-info";
+import { FileInfo, FileUserGroupConst } from "src/models/file-info";
 import { HttpClientService } from "../http-client-service.service";
 import { UserService } from "../user.service";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
 const GB_UNIT: number = 1024 * 1024 * 1024;
-/** file's user group: public, meaning everyone can download the file */
-const USER_GROUP_PUBLIC = 0;
-/** file's user group: private, meaning only current user can download the file */
-const USER_GROUP_PRIVATE = 1;
 
 @Component({
   selector: "app-home-page",
@@ -99,7 +95,7 @@ export class HomePageComponent implements OnInit {
     }
     if (!this.uploadUserGroup) {
       // default private group
-      this.uploadUserGroup = USER_GROUP_PRIVATE;
+      this.uploadUserGroup = FileUserGroupConst.USER_GROUP_PRIVATE;
     }
     let fileExt = this.parseFileExt(this.uploadName);
     console.log("Parsed file extension:", fileExt);
@@ -153,5 +149,17 @@ export class HomePageComponent implements OnInit {
       return "";
     }
     return path.substring(i + 1);
+  }
+
+  /**
+   * Convert userGroup in number to the corresponding name
+   */
+  resolveUserGroupName(userGroup: number): string {
+    if (userGroup === FileUserGroupConst.USER_GROUP_PUBLIC) {
+      return "public";
+    } else if (userGroup === FileUserGroupConst.USER_GROUP_PRIVATE) {
+      return "private";
+    }
+    return "";
   }
 }

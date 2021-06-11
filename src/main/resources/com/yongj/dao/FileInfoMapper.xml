@@ -84,7 +84,7 @@
     from file_info
   </select>
   <select id="selectBasicInfoByUserId" resultType="com.yongj.dao.FileInfo">
-    select name, uuid, size_in_bytes
+    select name, uuid, size_in_bytes, user_group
     from file_info
     where user_group = 0
     or (user_group = 1 and uploader_id = #{userId})
