@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS file_extension (
 
 CREATE TABLE IF NOT EXISTS file_info (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(15) NOT NULL COMMENT "name of the file",
+    name VARCHAR(255) NOT NULL COMMENT "name of the file",
     uuid VARCHAR(255) NOT NULL COMMENT "file's uuid",
     is_logic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is logically deleted, 0-normal, 1-deleted",
     is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",

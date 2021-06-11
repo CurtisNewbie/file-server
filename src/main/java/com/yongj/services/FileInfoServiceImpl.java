@@ -48,6 +48,8 @@ public class FileInfoServiceImpl implements FileInfoService {
         final String uuid = UUID.randomUUID().toString();
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
+        // create directories if not exists
+        ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
         final long sizeInBytes = ioHandler.writeByChannel(absPath, inputStream);
         // save file info record
@@ -66,7 +68,8 @@ public class FileInfoServiceImpl implements FileInfoService {
 
     @Override
     public List<FileInfoVo> findFilesForUser(int userId) {
-        return BeanCopyUtils.toTypeList(mapper.selectBasicInfoByUserId(userId), FileInfoVo.class);
+        List<FileInfo> fList = mapper.selectBasicInfoByUserId(userId);
+        return BeanCopyUtils.toTypeList(fList, FileInfoVo.class);
     }
 
     @Override

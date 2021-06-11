@@ -13,26 +13,26 @@ public class FileInfoVo {
     /**
      * fileName
      */
-    private String fileName;
+    private String name;
 
     /**
      * size in bytes
      */
-    private long sizeInBytes;
+    private Long sizeInBytes;
 
-    public String getFileName() {
-        return fileName;
+    public String getName() {
+        return name;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public long getSizeInBytes() {
+    public Long getSizeInBytes() {
         return sizeInBytes;
     }
 
-    public void setSizeInBytes(long sizeInBytes) {
+    public void setSizeInBytes(Long sizeInBytes) {
         this.sizeInBytes = sizeInBytes;
     }
 

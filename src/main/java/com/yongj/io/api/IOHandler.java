@@ -27,6 +27,11 @@ public interface IOHandler {
     long writeByChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
 
     /**
+     * Create the parent directory for given absolute path
+     */
+    void createParentDirIfNotExists(@NotEmpty String absPath) throws IOException;
+
+    /**
      * Transfer data directly from {@code absPath} to {@code outputStream}
      *
      * @param absPath

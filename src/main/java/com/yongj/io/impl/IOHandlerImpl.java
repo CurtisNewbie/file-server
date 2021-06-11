@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author yongjie.zhuang
@@ -30,6 +31,11 @@ public class IOHandlerImpl implements IOHandler {
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         }
         return file.length();
+    }
+
+    @Override
+    public void createParentDirIfNotExists(@NotEmpty String absPath) throws IOException {
+        Files.createDirectories(Paths.get(absPath).getParent());
     }
 
     @Override
