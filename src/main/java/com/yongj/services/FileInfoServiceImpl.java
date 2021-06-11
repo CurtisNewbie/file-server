@@ -73,7 +73,13 @@ public class FileInfoServiceImpl implements FileInfoService {
     public void downloadFile(int userId, String uuid, OutputStream outputStream) throws IOException, ParamInvalidException {
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(outputStream);
+        // read file from channel
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
+        ioHandler.readByChannel(absPath, outputStream);
+    }
 
+    @Override
+    public void validateUserDownload(int userId, String uuid) throws ParamInvalidException {
         // validate whether this file can be downloaded by current user
         FileValidateInfo f = mapper.selectValidateInfoByUuid(uuid);
         ValidUtils.requireNonNull(f, "File not found");
@@ -84,8 +90,10 @@ public class FileInfoServiceImpl implements FileInfoService {
                 && !Objects.equals(f.getUploaderId(), userId)) {
             throw new ParamInvalidException("You are not allowed to download this file");
         }
-        // read file from channel
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
-        ioHandler.readByChannel(absPath, outputStream);
+    }
+
+    @Override
+    public String getFilename(String uuid) {
+        return mapper.selectNameByUuid(uuid);
     }
 }

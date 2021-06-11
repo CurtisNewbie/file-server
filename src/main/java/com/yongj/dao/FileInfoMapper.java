@@ -49,4 +49,9 @@ public interface FileInfoMapper {
      * Select user_group, user_id, is_logic_deleted
      */
     FileValidateInfo selectValidateInfoByUuid(@Param("uuid") String uuid);
+
+    /**
+     * Select name
+     */
+    String selectNameByUuid(@Param("uuid") String uuid);
 }

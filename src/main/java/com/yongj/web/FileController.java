@@ -58,11 +58,15 @@ public class FileController {
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws IOException, ParamInvalidException {
-        String filePath = "demo";
+        final int userId = AuthUtil.getUserId();
+        // validate user authority
+        fileInfoService.validateUserDownload(userId, uuid);
+        // get fileName
+        final String filename = fileInfoService.getFilename(uuid);
         // set header for the downloaded file
-        resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filePath));
+        resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filename));
         // transfer file using nio
-        fileInfoService.downloadFile(AuthUtil.getUserId(), uuid, resp.getOutputStream());
+        fileInfoService.downloadFile(userId, uuid, resp.getOutputStream());
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

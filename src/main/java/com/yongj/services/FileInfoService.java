@@ -41,4 +41,19 @@ public interface FileInfoService {
      * @param outputStream outputStream
      */
     void downloadFile(int userId, String uuid, OutputStream outputStream) throws IOException, ParamInvalidException;
+
+    /**
+     * Validate whether current user can download this file
+     *
+     * @param userId user.id
+     * @param uuid   uuid
+     * @throws ParamInvalidException
+     */
+    void validateUserDownload(int userId, String uuid) throws ParamInvalidException;
+
+    /**
+     * Get filename of file
+     * @param uuid uuid
+     */
+    String getFilename(String uuid);
 }

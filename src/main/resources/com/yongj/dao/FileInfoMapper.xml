@@ -94,4 +94,9 @@
     from file_info
     where uuid = #{uuid}
   </select>
+  <select id="selectNameByUuid" resultType="java.lang.String">
+    select name
+    from file_info
+    where uuid = #{uuid}
+  </select>
 </mapper>
