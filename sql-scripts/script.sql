@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS file_info (
     uuid VARCHAR(255) NOT NULL COMMENT "file's uuid",
     is_logic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is logically deleted, 0-normal, 1-deleted",
     is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
+    size_in_bytes BIGINT NOT NULL COMMENT "size of file in bytes",
     uploader_id INT NOT NULL COMMENT "uploader id, i.e., user.id",
     upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
     logic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is logically deleted",
