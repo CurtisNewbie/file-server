@@ -17,6 +17,9 @@ public class FileInfo {
     /** whether the file is physically deleted, 0-normal, 1-deleted */
     private Integer isPhysicDeleted;
 
+    /** size of file in bytes */
+    private Long sizeInBytes;
+
     /** uploader id, i.e., user.id */
     private Integer uploaderId;
 
@@ -70,6 +73,14 @@ public class FileInfo {
 
     public void setIsPhysicDeleted(Integer isPhysicDeleted) {
         this.isPhysicDeleted = isPhysicDeleted;
+    }
+
+    public Long getSizeInBytes() {
+        return sizeInBytes;
+    }
+
+    public void setSizeInBytes(Long sizeInBytes) {
+        this.sizeInBytes = sizeInBytes;
     }
 
     public Integer getUploaderId() {

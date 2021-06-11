@@ -24,7 +24,7 @@ public interface IOHandler {
     /**
      * Write data (from an InputStream) to file of absolute path asynchronously
      */
-    void writeByChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
+    long writeByChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
 
     /**
      * Transfer data directly from {@code absPath} to {@code outputStream}

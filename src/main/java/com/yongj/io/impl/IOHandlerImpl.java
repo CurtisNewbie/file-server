@@ -23,12 +23,13 @@ public class IOHandlerImpl implements IOHandler {
     private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
 
     @Override
-    public void writeByChannel(String absPath, InputStream inputStream) throws IOException{
+    public long writeByChannel(String absPath, InputStream inputStream) throws IOException {
         File file = new File(absPath);
         try (FileChannel fileChannel = new FileOutputStream(file).getChannel();
              ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream)) {
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         }
+        return file.length();
     }
 
     @Override

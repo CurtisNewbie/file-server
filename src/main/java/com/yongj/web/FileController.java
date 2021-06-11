@@ -2,6 +2,7 @@ package com.yongj.web;
 
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
 import com.yongj.services.FileExtensionService;
@@ -51,17 +52,17 @@ public class FileController {
         if (userGroupEnum == null) {
             return ResponseEntity.ok(Resp.error("Incorrect user group"));
         }
-        fileInfoService.saveFileInfo(AuthUtil.getUserId(), fileName, userGroupEnum, multipartFile.getInputStream());
+        fileInfoService.uploadFile(AuthUtil.getUserId(), fileName, userGroupEnum, multipartFile.getInputStream());
         return ResponseEntity.ok(Resp.ok());
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws IOException {
+    public void download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws IOException, ParamInvalidException {
         String filePath = "demo";
         // set header for the downloaded file
         resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filePath));
         // transfer file using nio
-        fileInfoService.downloadFile(uuid, resp.getOutputStream());
+        fileInfoService.downloadFile(AuthUtil.getUserId(), uuid, resp.getOutputStream());
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
