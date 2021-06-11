@@ -90,7 +90,7 @@
     or (user_group = 1 and uploader_id = #{userId})
   </select>
   <select id="selectValidateInfoByUuid" resultType="com.yongj.dao.FileValidateInfo">
-    select user_group, user_id, is_logic_deleted
+    select user_group, uploader_id, is_logic_deleted
     from file_info
     where uuid = #{uuid}
   </select>
