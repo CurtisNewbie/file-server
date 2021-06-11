@@ -73,7 +73,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void downloadFile(int userId, String uuid, OutputStream outputStream) throws IOException, ParamInvalidException {
+    public void downloadFile(String uuid, OutputStream outputStream) throws IOException, ParamInvalidException {
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(outputStream);
         final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);

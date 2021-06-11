@@ -66,7 +66,7 @@ public class FileController {
         // set header for the downloaded file
         resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filename));
         // transfer file using nio
-        fileInfoService.downloadFile(userId, uuid, resp.getOutputStream());
+        fileInfoService.downloadFile(uuid, resp.getOutputStream());
     }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
