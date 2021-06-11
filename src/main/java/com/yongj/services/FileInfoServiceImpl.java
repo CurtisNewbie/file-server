@@ -76,8 +76,10 @@ public class FileInfoServiceImpl implements FileInfoService {
     public void downloadFile(int userId, String uuid, OutputStream outputStream) throws IOException, ParamInvalidException {
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(outputStream);
+        final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
+        Objects.requireNonNull(uploaderId);
         // read file from channel
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId);
         ioHandler.readByChannel(absPath, outputStream);
     }
 

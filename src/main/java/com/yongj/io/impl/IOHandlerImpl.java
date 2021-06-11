@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,8 +47,9 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public void readByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException {
         RandomAccessFile file = new RandomAccessFile(absPath, "r");
-        try (var fChannel = file.getChannel()) {
-            fChannel.transferTo(0, fChannel.size(), Channels.newChannel(outputStream));
+        try (FileChannel fChannel = file.getChannel();
+             WritableByteChannel outChannel = Channels.newChannel(outputStream);) {
+            fChannel.transferTo(0, Long.MAX_VALUE, outChannel);
         }
     }
 }

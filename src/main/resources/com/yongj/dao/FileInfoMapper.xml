@@ -93,10 +93,18 @@
     select user_group, uploader_id, is_logic_deleted
     from file_info
     where uuid = #{uuid}
+    limit 1
   </select>
   <select id="selectNameByUuid" resultType="java.lang.String">
     select name
     from file_info
     where uuid = #{uuid}
+    limit 1
+  </select>
+  <select id="selectUploaderIdByUuid" resultType="java.lang.Integer">
+    select uploader_id
+    from file_info
+    where uuid = #{uuid}
+    limit 1
   </select>
 </mapper>

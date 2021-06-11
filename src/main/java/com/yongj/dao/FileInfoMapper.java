@@ -54,4 +54,9 @@ public interface FileInfoMapper {
      * Select name
      */
     String selectNameByUuid(@Param("uuid") String uuid);
+
+    /**
+     * Select uploader_id
+     */
+    Integer selectUploaderIdByUuid(@Param("uuid") String uuid);
 }
