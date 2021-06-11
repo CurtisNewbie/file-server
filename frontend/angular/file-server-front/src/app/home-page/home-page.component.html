@@ -19,6 +19,23 @@
         <input type="file" class="form-control" [(ngModel)]="uploadFile" (change)="onFileSelected($event)"
             aria-describedby="basic-addon1">
     </div>
+    <div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="usergroup" checked id="userGroupPrivate" checked
+                (change)="setUserGroup(1)">
+            <label class="form-check-label" for="userGroupPrivate">
+                Private
+            </label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="usergroup" id="userGroupPublic"
+                (change)="setUserGroup(0)">
+            <label class="form-check-label" for="userGroupPublic">
+                Public
+            </label>
+        </div>
+    </div>
     <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="upload()">Upload</button>
 </div>
 

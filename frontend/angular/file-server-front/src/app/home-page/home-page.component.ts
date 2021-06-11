@@ -162,4 +162,8 @@ export class HomePageComponent implements OnInit {
     }
     return "";
   }
+
+  setUserGroup(userGroup: number): void {
+    this.uploadUserGroup = userGroup;
+  }
 }
