@@ -4,8 +4,7 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">Username:</span>
         </div>
-        <input type="text" [(ngModel)]="usernameToBeAdded" class="form-control" placeholder="username"
-            aria-describedby="basic-addon1">
+        <input type="text" [(ngModel)]="usernameToBeAdded" class="form-control" aria-describedby="basic-addon1">
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
@@ -30,7 +29,7 @@
             </label>
         </div>
     </div>
-    <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="addUser()">Add User</button>
+    <button type="button" class="btn btn-secondary mt-2" (click)="addUser()">Add User</button>
 </div>
 <div class="container bootstrap mt-3 mb-5 ">
     <div class="list-group">

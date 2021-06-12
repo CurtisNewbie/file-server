@@ -17,7 +17,7 @@ export class HomePageComponent implements OnInit {
   nameInput: string = "";
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
-  uploadName: string = null;
+  uploadFileName: string = null;
   uploadFile: File = null;
   uploadUserGroup: number = null;
   isGuest: boolean = true;
@@ -95,7 +95,7 @@ export class HomePageComponent implements OnInit {
 
   /** Upload file */
   public upload(): void {
-    if (!this.uploadName) {
+    if (!this.uploadFileName) {
       window.alert("File name cannot be empty");
       return;
     }
@@ -107,7 +107,7 @@ export class HomePageComponent implements OnInit {
       // default private group
       this.uploadUserGroup = FileUserGroupConst.USER_GROUP_PRIVATE;
     }
-    let fileExt = this.parseFileExt(this.uploadName);
+    let fileExt = this.parseFileExt(this.uploadFileName);
     console.log("Parsed file extension:", fileExt);
     if (!fileExt) {
       window.alert("Please specify file extension");
@@ -118,7 +118,7 @@ export class HomePageComponent implements OnInit {
       return;
     }
     this.httpClient
-      .postFile(this.uploadName, this.uploadFile, this.uploadUserGroup)
+      .postFile(this.uploadFileName, this.uploadFile, this.uploadUserGroup)
       .subscribe({
         next: (resp) => {
           if (resp.hasError) {
@@ -127,7 +127,7 @@ export class HomePageComponent implements OnInit {
         },
         complete: () => {
           this.uploadFile = null;
-          this.uploadName = null;
+          this.uploadFileName = null;
           this.fetchFileInfoList();
         },
         error: () => {
@@ -141,7 +141,7 @@ export class HomePageComponent implements OnInit {
     console.log(event);
     if (event.target.files.length > 0) {
       this.uploadFile = event.target.files[0];
-      this.uploadName = this.uploadFile.name;
+      this.uploadFileName = this.uploadFile.name;
     }
   }
 
