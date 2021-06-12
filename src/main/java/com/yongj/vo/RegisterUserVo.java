@@ -15,6 +15,11 @@ public class RegisterUserVo {
      */
     private String password;
 
+    /**
+     * User role
+     */
+    private String userRole;
+
     public String getUsername() {
         return username;
     }
@@ -29,5 +34,13 @@ public class RegisterUserVo {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 }

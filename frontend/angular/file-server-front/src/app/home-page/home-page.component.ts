@@ -20,8 +20,18 @@ export class HomePageComponent implements OnInit {
   uploadName: string = null;
   uploadFile: File = null;
   uploadUserGroup: number = null;
+  isGuest: boolean = true;
 
-  constructor(private httpClient: HttpClientService) {}
+  constructor(
+    private httpClient: HttpClientService,
+    private userService: UserService
+  ) {
+    this.userService.roleObservable.subscribe({
+      next: (role) => {
+        this.isGuest = role === "guest";
+      },
+    });
+  }
 
   ngOnInit() {
     this.fetchSupportedExtensions();

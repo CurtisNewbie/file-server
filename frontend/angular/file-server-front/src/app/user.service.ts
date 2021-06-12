@@ -36,13 +36,17 @@ export class UserService {
   }
 
   /**
-   * Add guest user, only admin is allowed to add user
+   * Add user, only admin is allowed to add user
    * @param username
    * @param password
    * @returns
    */
-  public addGuest(username: string, password: string): Observable<Resp<any>> {
-    return this.httpClient.addGuest(username, password);
+  public addUser(
+    username: string,
+    password: string,
+    userRole: string
+  ): Observable<Resp<any>> {
+    return this.httpClient.addUser(username, password, userRole);
   }
 
   /**

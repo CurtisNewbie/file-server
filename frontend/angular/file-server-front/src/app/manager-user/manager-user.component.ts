@@ -10,6 +10,7 @@ import { UserService } from "../user.service";
 export class ManagerUserComponent implements OnInit {
   usernameToBeAdded: string = null;
   passswordToBeAdded: string = null;
+  userRoleOfAddedUser: string = null;
   userInfoList: UserInfo[] = [];
   constructor(private userService: UserService) {}
 
@@ -25,7 +26,11 @@ export class ManagerUserComponent implements OnInit {
       window.alert("Please enter username and password");
     }
     this.userService
-      .addGuest(this.usernameToBeAdded, this.passswordToBeAdded)
+      .addUser(
+        this.usernameToBeAdded,
+        this.passswordToBeAdded,
+        this.userRoleOfAddedUser
+      )
       .subscribe({
         next: (resp) => {
           if (resp.hasError) {
@@ -64,5 +69,9 @@ export class ManagerUserComponent implements OnInit {
         this.fetchUserInfoList();
       },
     });
+  }
+
+  public setUserRole(userRole: string): void {
+    this.userRoleOfAddedUser = userRole;
   }
 }

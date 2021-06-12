@@ -63,16 +63,21 @@ export class HttpClientService {
   }
 
   /**
-   * Add guest user
+   * Add user
    * @param username
    * @param password
    */
-  public addGuest(username: string, password: string): Observable<Resp<any>> {
+  public addUser(
+    username: string,
+    password: string,
+    userRole: string
+  ): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      "/user/register/guest",
+      "/user/register",
       JSON.stringify({
         username: username,
         password: password,
+        userRole: userRole,
       }),
       headers
     );

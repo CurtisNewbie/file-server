@@ -19,6 +19,7 @@ import com.yongj.vo.UserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,16 +33,40 @@ import java.util.stream.Collectors;
 @RequestMapping("/user")
 public class UserController {
 
+    private static final int PASSWORD_LENGTH = 6;
+
     @Autowired
     private UserService userService;
 
     @PreAuthorize("hasAuthority('admin')")
-    @PostMapping("/register/guest")
-    public Resp<?> guestRegister(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
-            ExceededMaxAdminCountException {
+    @PostMapping("/register")
+    public Resp<?> addUser(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
+            ExceededMaxAdminCountException, ParamInvalidException {
         RegisterUserDto dto = new RegisterUserDto();
         BeanUtils.copyProperties(registerUserVo, dto);
-        dto.setRole(UserRole.GUEST.val);
+        // validate whether username and password is entered
+        if (!StringUtils.hasText(dto.getUsername()))
+            return Resp.error("Please enter username");
+        if (!StringUtils.hasText(dto.getPassword()))
+            return Resp.error("Please enter password");
+        // validate if the username and password is the same
+        if (Objects.equals(dto.getUsername(), dto.getPassword()))
+            return Resp.error("Username and password must be different");
+        // validate if the password is too short
+        if (dto.getPassword().length() < PASSWORD_LENGTH)
+            return Resp.error("Password must have at least " + PASSWORD_LENGTH + "characters");
+
+        // if not specified, the role will be guest
+        UserRole role = UserRole.GUEST;
+        if (registerUserVo.getUserRole() != null) {
+            role = UserRole.parseUserRole(registerUserVo.getUserRole());
+            ValidUtils.requireNonNull(role, "Illegal user role");
+        }
+        // do not support adding administrator
+        if (Objects.equals(role, UserRole.ADMIN)) {
+            return Resp.error("Do not support adding administrator");
+        }
+        dto.setRole(role);
         userService.register(dto);
         return Resp.ok();
     }
@@ -63,7 +88,6 @@ public class UserController {
         userService.deleteUserById(param.getId());
         return Resp.ok();
     }
-
 
     @GetMapping("/info")
     public Resp<UserVo> getUserInfo() {
