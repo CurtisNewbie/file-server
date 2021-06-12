@@ -103,7 +103,7 @@ export class HomePageComponent implements OnInit {
       window.alert("Please select a file to upload");
       return;
     }
-    if (!this.uploadUserGroup) {
+    if (this.uploadUserGroup == null) {
       // default private group
       this.uploadUserGroup = FileUserGroupConst.USER_GROUP_PRIVATE;
     }
