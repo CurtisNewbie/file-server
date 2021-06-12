@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +44,7 @@ public class FileController {
     @Autowired
     private FileInfoService fileInfoService;
 
+    @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<?>> upload(@RequestParam("fileName") String fileName,
                                           @RequestParam("file") MultipartFile multipartFile,
