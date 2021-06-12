@@ -60,7 +60,7 @@ export class HomePageComponent implements OnInit {
   }
 
   /** fetch file info list */
-  private fetchFileInfoList(): void {
+  fetchFileInfoList(): void {
     this.httpClient.fetchFileInfoList().subscribe({
       next: (resp) => {
         if (resp.hasError) {

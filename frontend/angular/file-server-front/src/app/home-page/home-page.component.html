@@ -39,6 +39,11 @@
 </div>
 
 <div class="container bootstrap mt-4 mb-3">
+    <h3>File List</h3>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-3">
+        <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
+            (click)="fetchFileInfoList()">Reload</button>
+    </div>
     <div class="list-group" id="listDiv">
         <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
             <a [href]="concatFileHref(f.uuid)" target="_blank"
