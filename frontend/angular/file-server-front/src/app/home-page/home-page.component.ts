@@ -25,15 +25,17 @@ export class HomePageComponent implements OnInit {
   constructor(
     private httpClient: HttpClientService,
     private userService: UserService
-  ) {
+  ) {}
+
+  ngOnInit() {
+    if (this.userService.hasUserInfo()) {
+      this.isGuest = this.userService.getUserInfo().role === "guest";
+    }
     this.userService.roleObservable.subscribe({
       next: (role) => {
         this.isGuest = role === "guest";
       },
     });
-  }
-
-  ngOnInit() {
     this.fetchSupportedExtensions();
     this.fetchFileInfoList();
   }
