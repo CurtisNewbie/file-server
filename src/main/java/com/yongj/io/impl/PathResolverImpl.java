@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.File;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -56,9 +56,13 @@ public class PathResolverImpl implements PathResolver {
         }
         if (parsedExt.length() == 0)
             throw new IllegalExtException("File extension not found");
-
-        Set<String> fileExtSet = new HashSet<>(fileExtensionMapper.findNamesOfAllEnabled());
-        if (!fileExtSet.contains(parsedExt.toString())) {
+        Set<String> fileExtSet = fileExtensionMapper
+                .findNamesOfAllEnabled()
+                .stream()
+                .map(e -> e.toLowerCase())
+                .collect(Collectors.toSet());
+        final String extToBeValidated = parsedExt.toString().trim().toLowerCase();
+        if (!fileExtSet.contains(extToBeValidated)) {
             throw new IllegalExtException(String.format("File extension '%s' not supported", parsedExt));
         }
     }
