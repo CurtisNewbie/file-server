@@ -82,11 +82,15 @@ export class HomePageComponent implements OnInit {
     });
   }
 
+  /** Update the list of pages that it can select */
   private updatePages(total: number): void {
     this.pages = [];
     let maxPage = Math.floor(total / this.paging.limit);
     for (let i = 1; i <= maxPage; i++) {
       this.pages.push(i);
+    }
+    if (this.pages.length === 0) {
+      this.pages.push(1);
     }
   }
 
@@ -191,18 +195,26 @@ export class HomePageComponent implements OnInit {
     return "";
   }
 
+  /** Set usergruop for the uploading file */
   setUserGroup(userGroup: number): void {
     this.uploadUserGroup = userGroup;
   }
 
+  /**
+   * Set the specified page and fetch the file info list
+   * @param page
+   */
   gotoPage(page: number): void {
-    console.log(page);
     this.paging.page = page;
     this.fetchFileInfoList();
   }
 
+  /**
+   * Set current page size and fetch the file info list
+   * @param pageSize
+   */
   setPageSize(pageSize: number): void {
-    console.log(pageSize);
     this.paging.limit = pageSize;
+    this.fetchFileInfoList();
   }
 }
