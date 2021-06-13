@@ -96,7 +96,7 @@ export class HomePageComponent implements OnInit {
   /** Update the list of pages that it can select */
   private updatePages(total: number): void {
     this.pages = [];
-    let maxPage = Math.floor(total / this.paging.limit);
+    let maxPage = Math.ceil(total / this.paging.limit);
     for (let i = 1; i <= maxPage; i++) {
       this.pages.push(i);
     }
