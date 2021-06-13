@@ -1,8 +1,12 @@
 package com.yongj.dao;
 
+import lombok.Data;
+
 import java.util.Date;
 
+@Data
 public class FileInfo {
+
     private Integer id;
 
     /** name of the file */
@@ -34,92 +38,4 @@ public class FileInfo {
 
     /** the group that the file belongs to, 0-public, 1-private */
     private Integer userGroup;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name == null ? null : name.trim();
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid == null ? null : uuid.trim();
-    }
-
-    public Integer getIsLogicDeleted() {
-        return isLogicDeleted;
-    }
-
-    public void setIsLogicDeleted(Integer isLogicDeleted) {
-        this.isLogicDeleted = isLogicDeleted;
-    }
-
-    public Integer getIsPhysicDeleted() {
-        return isPhysicDeleted;
-    }
-
-    public void setIsPhysicDeleted(Integer isPhysicDeleted) {
-        this.isPhysicDeleted = isPhysicDeleted;
-    }
-
-    public Long getSizeInBytes() {
-        return sizeInBytes;
-    }
-
-    public void setSizeInBytes(Long sizeInBytes) {
-        this.sizeInBytes = sizeInBytes;
-    }
-
-    public Integer getUploaderId() {
-        return uploaderId;
-    }
-
-    public void setUploaderId(Integer uploaderId) {
-        this.uploaderId = uploaderId;
-    }
-
-    public Date getUploadTime() {
-        return uploadTime;
-    }
-
-    public void setUploadTime(Date uploadTime) {
-        this.uploadTime = uploadTime;
-    }
-
-    public Date getLogicDeleteTime() {
-        return logicDeleteTime;
-    }
-
-    public void setLogicDeleteTime(Date logicDeleteTime) {
-        this.logicDeleteTime = logicDeleteTime;
-    }
-
-    public Date getPhysicDeleteTime() {
-        return physicDeleteTime;
-    }
-
-    public void setPhysicDeleteTime(Date physicDeleteTime) {
-        this.physicDeleteTime = physicDeleteTime;
-    }
-
-    public Integer getUserGroup() {
-        return userGroup;
-    }
-
-    public void setUserGroup(Integer userGroup) {
-        this.userGroup = userGroup;
-    }
 }

@@ -1,8 +1,11 @@
 package com.yongj.dao;
 
+import lombok.Data;
+
 /**
  * @author yongjie.zhuang
  */
+@Data
 public class FileExtension {
 
     /**
@@ -19,28 +22,4 @@ public class FileExtension {
      * whether this file extension is enabled
      */
     private boolean isEnabled;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isEnabled() {
-        return isEnabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        isEnabled = enabled;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 }

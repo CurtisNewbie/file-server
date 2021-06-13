@@ -6,7 +6,10 @@ import com.yongj.exceptions.ParamInvalidException;
 import java.util.Objects;
 
 /**
- * Validate Utility class, for condition that doesn's match the rule, a {@code ParamInvalidException} is thrown
+ * Validate Utility class,
+ * <p>
+ * For condition that does not match the rule, a {@code ParamInvalidException} is thrown
+ * </p>
  *
  * @author yongjie.zhuang
  */
