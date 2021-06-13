@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import {
   FetchFileInfoList,
+  FetchFileInfoListParam,
   FileInfo,
   UploadFileParam,
 } from "../models/file-info";
@@ -27,11 +28,11 @@ export class HttpClientService {
    * Fetch list of file info
    */
   public fetchFileInfoList(
-    paging: Paging
+    param: FetchFileInfoListParam
   ): Observable<Resp<FetchFileInfoList>> {
     return this.http.post<Resp<FetchFileInfoList>>(
       `/file/list`,
-      paging,
+      param,
       headers
     );
   }

@@ -14,10 +14,11 @@ import com.yongj.io.api.PathResolver;
 import com.yongj.util.BeanCopyUtils;
 import com.yongj.util.ValidUtils;
 import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.PagingVo;
+import com.yongj.vo.ListFileInfoReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,9 +77,16 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public PageInfo<FileInfoVo> findPagedFilesForUser(int userId, PagingVo pagingVo) {
-        PageHelper.startPage(pagingVo.getPage(), pagingVo.getLimit());
-        PageInfo<FileInfo> pageInfo = PageInfo.of(mapper.selectBasicInfoByUserId(userId));
+    public PageInfo<FileInfoVo> findPagedFilesForUser(int userId, ListFileInfoReqVo reqVo) {
+        Objects.requireNonNull(reqVo);
+        Objects.requireNonNull(reqVo.getPagingVo());
+        PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
+        PageInfo<FileInfo> pageInfo;
+        if (StringUtils.hasText(reqVo.getFilename())) {
+            pageInfo = PageInfo.of(mapper.selectBasicInfoByUserIdAndName(userId, reqVo.getFilename()));
+        } else {
+            pageInfo = PageInfo.of(mapper.selectBasicInfoByUserId(userId));
+        }
         return BeanCopyUtils.toPageList(pageInfo, FileInfoVo.class);
     }
 

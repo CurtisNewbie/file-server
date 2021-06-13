@@ -5,7 +5,7 @@ import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.PagingVo;
+import com.yongj.vo.ListFileInfoReqVo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +39,9 @@ public interface FileInfoService {
      * Find file info for user (with pagination)
      *
      * @param userId user.id
+     * @param reqVo filter and paging parameter
      */
-    PageInfo<FileInfoVo> findPagedFilesForUser(int userId, PagingVo pagingVo);
+    PageInfo<FileInfoVo> findPagedFilesForUser(int userId, ListFileInfoReqVo reqVo);
 
     /**
      * Download file via uuid to the given outputStream

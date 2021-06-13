@@ -43,9 +43,17 @@
 <div class="mt-4">
     <h3>File List</h3>
     <div class="container bootstrap mt-2 mb-3">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Search File Name:</span>
+            </div>
+            <input type="text" [(ngModel)]="searchFilename" class="form-control" aria-describedby="basic-addon1">
+        </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-3">
             <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
-                (click)="fetchFileInfoList()">Reload</button>
+                (click)="fetchFileInfoList()">Fetch</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary " id="resetBtn"
+                (click)="resetSearchParam()">Reset</button>
         </div>
         <div class="list-group" id="listDiv">
             <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">

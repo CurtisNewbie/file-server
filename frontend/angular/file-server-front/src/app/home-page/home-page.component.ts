@@ -21,6 +21,7 @@ export class HomePageComponent implements OnInit {
   readonly pageLimitOptions: number[] = [5, 10, 20, 50];
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
+  searchFilename: string = null;
   uploadParam: UploadFileParam = {
     file: null,
     name: null,
@@ -69,22 +70,27 @@ export class HomePageComponent implements OnInit {
 
   /** fetch file info list */
   fetchFileInfoList(): void {
-    this.httpClient.fetchFileInfoList(this.paging).subscribe({
-      next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
-        this.fileInfoList = resp.data.fileInfoList;
-        let total = resp.data.pagingVo.total;
-        if (total != null) {
-          this.updatePages(total);
-        }
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+    this.httpClient
+      .fetchFileInfoList({
+        pagingVo: this.paging,
+        filename: this.searchFilename,
+      })
+      .subscribe({
+        next: (resp) => {
+          if (resp.hasError) {
+            window.alert(resp.msg);
+            return;
+          }
+          this.fileInfoList = resp.data.fileInfoList;
+          let total = resp.data.pagingVo.total;
+          if (total != null) {
+            this.updatePages(total);
+          }
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
   }
 
   /** Update the list of pages that it can select */
@@ -231,5 +237,10 @@ export class HomePageComponent implements OnInit {
     if (this.paging.page > 1) {
       this.gotoPage(this.paging.page - 1);
     }
+  }
+
+  /** Reset all parameters used for searching */
+  resetSearchParam(): void {
+    this.searchFilename = null;
   }
 }

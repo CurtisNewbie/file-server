@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListFileInfoVo {
+public class ListFileInfoRespVo {
 
     private Iterable<FileInfoVo> fileInfoList;
 

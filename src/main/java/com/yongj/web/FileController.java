@@ -10,10 +10,7 @@ import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
 import com.yongj.util.PathUtils;
 import com.yongj.util.ValidUtils;
-import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.ListFileInfoVo;
-import com.yongj.vo.PagingVo;
-import com.yongj.vo.Resp;
+import com.yongj.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,13 +73,14 @@ public class FileController {
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<ListFileInfoVo>> listAll(@RequestBody PagingVo pagingVo) throws ParamInvalidException {
-        ValidUtils.requireNonNull(pagingVo.getLimit());
-        ValidUtils.requireNonNull(pagingVo.getPage());
-        PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(AuthUtil.getUserId(), pagingVo);
+    public ResponseEntity<Resp<ListFileInfoRespVo>> listAll(@RequestBody ListFileInfoReqVo reqVo) throws ParamInvalidException {
+        ValidUtils.requireNonNull(reqVo.getPagingVo());
+        ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
+        ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
+        PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(AuthUtil.getUserId(), reqVo);
         PagingVo paging = new PagingVo();
         paging.setTotal(fileInfoVoPageInfo.getTotal());
-        return ResponseEntity.ok(Resp.of(new ListFileInfoVo(fileInfoVoPageInfo.getList(), paging)));
+        return ResponseEntity.ok(Resp.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging)));
     }
 
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)

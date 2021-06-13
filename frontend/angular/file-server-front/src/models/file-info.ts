@@ -48,3 +48,11 @@ export interface UploadFileParam {
   /** user group that the file belongs to */
   userGruop: number;
 }
+
+/** Parameters for fetch list of file info */
+export interface FetchFileInfoListParam {
+  /** filename */
+  filename: string;
+  /** paging  */
+  pagingVo: Paging;
+}
