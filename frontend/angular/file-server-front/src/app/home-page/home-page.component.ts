@@ -217,4 +217,16 @@ export class HomePageComponent implements OnInit {
     this.paging.limit = pageSize;
     this.fetchFileInfoList();
   }
+
+  nextPage(): void {
+    if (this.paging.page < this.pages[this.pages.length - 1]) {
+      this.gotoPage(this.paging.page + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.paging.page > 1) {
+      this.gotoPage(this.paging.page - 1);
+    }
+  }
 }

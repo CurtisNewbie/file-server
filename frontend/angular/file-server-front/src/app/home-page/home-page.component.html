@@ -76,6 +76,12 @@
                     <option value="{{p}}" *ngFor="let p of pages">Page {{p}}</option>
                 </select>
             </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="prevPageBtn"
+                    (click)="prevPage()">Previous Page</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="nextPageBtn"
+                    (click)="nextPage()">Next Page</button>
+            </div>
         </form>
     </div>
 </div>
