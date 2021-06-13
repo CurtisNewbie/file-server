@@ -35,20 +35,30 @@
             </label>
         </div>
     </div>
-    <button type="button" class="btn btn-secondary mt-2 mb-2" id="uploadBtn" (click)="upload()">Upload</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary mt-2 mb-2" id="uploadBtn"
+        (click)="upload()">Upload</button>
 </div>
 
-<div class="container bootstrap mt-4 mb-3">
+
+<div class="mt-4">
     <h3>File List</h3>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-3">
-        <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
-            (click)="fetchFileInfoList()">Reload</button>
-    </div>
-    <div class="list-group" id="listDiv">
-        <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
-            <a [href]="concatFileHref(f.uuid)" target="_blank"
-                style="word-break: break-all; text-decoration: none;">{{f.name}}, Size:
-                {{resolveSize(f.sizeInBytes)}}, Group: {{resolveUserGroupName(f.userGroup)}}</a>
-        </li>
+    <div class="container bootstrap mt-2 mb-3">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
+                (click)="fetchFileInfoList()">Reload</button>
+        </div>
+        <div class="list-group" id="listDiv">
+            <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
+                <div>
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{f.name}}</h5>
+                        <small>Group: {{resolveUserGroupName(f.userGroup)}}</small>
+                    </div>
+                    <p class="mb-1 mt-1">Size: {{resolveSize(f.sizeInBytes)}}</p>
+                    <a [href]="concatFileHref(f.uuid)" target="_blank"
+                        style="word-break: break-all; text-decoration: none;">Download</a>
+                </div>
+            </li>
+        </div>
     </div>
 </div>

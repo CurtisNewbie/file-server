@@ -29,19 +29,20 @@
             </label>
         </div>
     </div>
-    <button type="button" class="btn btn-secondary mt-2" (click)="addUser()">Add User</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm mt-2" (click)="addUser()">Add User</button>
 </div>
 <div class="container bootstrap mt-3 mb-5 ">
     <div class="list-group">
-        <a *ngFor="let u of userInfoList" href="#" class="list-group-item list-group-item-action " aria-current="true">
+        <div *ngFor="let u of userInfoList" href="#" class="list-group-item list-group-item-action "
+            aria-current="true">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">{{u.username}}</h5>
                 <small>ID: {{u.id}}</small>
-
             </div>
             <p class="mb-1">Role: {{u.role}}</p>
-            <small><button class="btn btn-primary" (click)="deleteUserById(u.id)">Delete</button></small>
-        </a>
+            <small><button class="btn btn-outline-secondary btn-sm"
+                    (click)="deleteUserById(u.id)">Delete</button></small>
+        </div>
     </div>
 
 </div>
