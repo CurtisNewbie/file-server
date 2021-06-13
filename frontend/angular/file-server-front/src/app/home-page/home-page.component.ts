@@ -19,7 +19,6 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
 })
 export class HomePageComponent implements OnInit {
   readonly pageLimitOptions: number[] = [5, 10, 20, 50];
-  nameInput: string = "";
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
   uploadParam: UploadFileParam = {
@@ -29,7 +28,7 @@ export class HomePageComponent implements OnInit {
   };
   isGuest: boolean = true;
   paging: Paging = { page: 1, limit: this.pageLimitOptions[0], total: 0 };
-  pages: number[] = [1, 2, 3, 4, 5];
+  pages: number[] = [1];
 
   constructor(
     private httpClient: HttpClientService,
