@@ -34,6 +34,7 @@ export class LoginComponent implements OnInit {
       },
       error: () => {
         window.alert("Unknown error occurred, please try again later");
+        this.passwordInput = "";
       },
     });
   }
