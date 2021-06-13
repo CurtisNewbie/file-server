@@ -97,12 +97,12 @@ export class HomePageComponent implements OnInit {
 
   /** Upload file */
   public upload(): void {
-    if (!this.uploadFileName) {
-      window.alert("File name cannot be empty");
-      return;
-    }
     if (!this.uploadFile) {
       window.alert("Please select a file to upload");
+      return;
+    }
+    if (!this.uploadFileName) {
+      window.alert("File name cannot be empty");
       return;
     }
     if (this.uploadUserGroup == null) {
