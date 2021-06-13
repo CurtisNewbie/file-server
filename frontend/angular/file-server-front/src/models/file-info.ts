@@ -30,8 +30,21 @@ export class FileUserGroupConst {
   public static readonly USER_GROUP_PRIVATE = 1;
 }
 
+/** Response model for fetching file info list */
 export interface FetchFileInfoList {
+  /** list of file info */
   fileInfoList: FileInfo[];
 
+  /** paging vo */
   pagingVo: Paging;
+}
+
+/** Parameters for uploading a file */
+export interface UploadFileParam {
+  /** name of the file */
+  name: string;
+  /** file */
+  file: File;
+  /** user group that the file belongs to */
+  userGruop: number;
 }

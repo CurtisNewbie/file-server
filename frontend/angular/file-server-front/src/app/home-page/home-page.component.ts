@@ -1,5 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { FileInfo, FileUserGroupConst } from "src/models/file-info";
+import {
+  FileInfo,
+  FileUserGroupConst,
+  UploadFileParam,
+} from "src/models/file-info";
 import { Paging } from "src/models/paging";
 import { HttpClientService } from "../http-client-service.service";
 import { UserService } from "../user.service";
@@ -18,9 +22,11 @@ export class HomePageComponent implements OnInit {
   nameInput: string = "";
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
-  uploadFileName: string = null;
-  uploadFile: File = null;
-  uploadUserGroup: number = null;
+  uploadParam: UploadFileParam = {
+    file: null,
+    name: null,
+    userGruop: null,
+  };
   isGuest: boolean = true;
   paging: Paging = { page: 1, limit: this.pageLimitOptions[0], total: 0 };
   pages: number[] = [1, 2, 3, 4, 5];
@@ -116,19 +122,19 @@ export class HomePageComponent implements OnInit {
 
   /** Upload file */
   public upload(): void {
-    if (!this.uploadFile) {
+    if (!this.uploadParam.file) {
       window.alert("Please select a file to upload");
       return;
     }
-    if (!this.uploadFileName) {
+    if (!this.uploadParam.name) {
       window.alert("File name cannot be empty");
       return;
     }
-    if (this.uploadUserGroup == null) {
+    if (this.uploadParam.userGruop == null) {
       // default private group
-      this.uploadUserGroup = FileUserGroupConst.USER_GROUP_PRIVATE;
+      this.uploadParam.userGruop = FileUserGroupConst.USER_GROUP_PRIVATE;
     }
-    let fileExt = this.parseFileExt(this.uploadFileName);
+    let fileExt = this.parseFileExt(this.uploadParam.name);
     console.log("Parsed file extension:", fileExt);
     if (!fileExt) {
       window.alert("Please specify file extension");
@@ -139,31 +145,29 @@ export class HomePageComponent implements OnInit {
       window.alert(`File extension '${fileExt}' isn't supported`);
       return;
     }
-    this.httpClient
-      .postFile(this.uploadFileName, this.uploadFile, this.uploadUserGroup)
-      .subscribe({
-        next: (resp) => {
-          if (resp.hasError) {
-            window.alert(resp.msg);
-          }
-        },
-        complete: () => {
-          this.uploadFile = null;
-          this.uploadFileName = null;
-          this.fetchFileInfoList();
-        },
-        error: () => {
-          window.alert("Failed to upload file");
-        },
-      });
+    this.httpClient.postFile(this.uploadParam).subscribe({
+      next: (resp) => {
+        if (resp.hasError) {
+          window.alert(resp.msg);
+        }
+      },
+      complete: () => {
+        this.uploadParam.file = null;
+        this.uploadParam.name = null;
+        this.fetchFileInfoList();
+      },
+      error: () => {
+        window.alert("Failed to upload file");
+      },
+    });
   }
 
   /** Handle events on file selected/changed */
   public onFileSelected(event): void {
     console.log(event);
     if (event.target.files.length > 0) {
-      this.uploadFile = event.target.files[0];
-      this.uploadFileName = this.uploadFile.name;
+      this.uploadParam.file = event.target.files[0];
+      this.uploadParam.name = this.uploadParam.file.name;
     }
   }
 
@@ -197,7 +201,7 @@ export class HomePageComponent implements OnInit {
 
   /** Set usergruop for the uploading file */
   setUserGroup(userGroup: number): void {
-    this.uploadUserGroup = userGroup;
+    this.uploadParam.userGruop = userGroup;
   }
 
   /**

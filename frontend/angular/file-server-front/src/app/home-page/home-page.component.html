@@ -3,7 +3,7 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">File Name:</span>
         </div>
-        <input type="text" [(ngModel)]="uploadFileName" class="form-control" aria-describedby="basic-addon1">
+        <input type="text" [(ngModel)]="uploadParam.name" class="form-control" aria-describedby="basic-addon1">
     </div>
     <div>
         <p style="color: grey;">Supported File Extensions:
@@ -15,7 +15,7 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">Upload File:</span>
         </div>
-        <input type="file" class="form-control" [(ngModel)]="uploadFile" (change)="onFileSelected($event)"
+        <input type="file" class="form-control" [(ngModel)]="uploadParam.file" (change)="onFileSelected($event)"
             aria-describedby="basic-addon1">
     </div>
     <div>
