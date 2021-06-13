@@ -1,6 +1,7 @@
 package com.yongj.web;
 
 import com.curtisnewbie.module.auth.util.AuthUtil;
+import com.github.pagehelper.PageInfo;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.io.api.IOHandler;
@@ -8,7 +9,10 @@ import com.yongj.io.api.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
 import com.yongj.util.PathUtils;
+import com.yongj.util.ValidUtils;
 import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.ListFileInfoVo;
+import com.yongj.vo.PagingVo;
 import com.yongj.vo.Resp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +75,14 @@ public class FileController {
         fileInfoService.downloadFile(uuid, resp.getOutputStream());
     }
 
-    @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<Iterable<FileInfoVo>>> listAll() {
-        return ResponseEntity.ok(Resp.of(fileInfoService.findFilesForUser(AuthUtil.getUserId())));
+    @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Resp<ListFileInfoVo>> listAll(@RequestBody PagingVo pagingVo) throws ParamInvalidException {
+        ValidUtils.requireNonNull(pagingVo.getLimit());
+        ValidUtils.requireNonNull(pagingVo.getPage());
+        PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(AuthUtil.getUserId(), pagingVo);
+        PagingVo paging = new PagingVo();
+        paging.setTotal(fileInfoVoPageInfo.getTotal());
+        return ResponseEntity.ok(Resp.of(new ListFileInfoVo(fileInfoVoPageInfo.getList(), paging)));
     }
 
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)

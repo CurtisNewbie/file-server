@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
 import { FileInfo, FileUserGroupConst } from "src/models/file-info";
+import { Paging } from "src/models/paging";
 import { HttpClientService } from "../http-client-service.service";
 import { UserService } from "../user.service";
 
@@ -14,6 +14,7 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   styleUrls: ["./home-page.component.css"],
 })
 export class HomePageComponent implements OnInit {
+  readonly pageLimitOptions: number[] = [5, 10, 20, 50];
   nameInput: string = "";
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
@@ -21,6 +22,8 @@ export class HomePageComponent implements OnInit {
   uploadFile: File = null;
   uploadUserGroup: number = null;
   isGuest: boolean = true;
+  paging: Paging = { page: 1, limit: this.pageLimitOptions[0], total: 0 };
+  pages: number[] = [1, 2, 3, 4, 5];
 
   constructor(
     private httpClient: HttpClientService,
@@ -50,7 +53,7 @@ export class HomePageComponent implements OnInit {
         }
         this.fileExtSet.clear();
         for (let e of resp.data) {
-          this.fileExtSet.add(e);
+          this.fileExtSet.add(e.toLowerCase());
         }
       },
       error: (err) => {
@@ -61,18 +64,30 @@ export class HomePageComponent implements OnInit {
 
   /** fetch file info list */
   fetchFileInfoList(): void {
-    this.httpClient.fetchFileInfoList().subscribe({
+    this.httpClient.fetchFileInfoList(this.paging).subscribe({
       next: (resp) => {
         if (resp.hasError) {
           window.alert(resp.msg);
           return;
         }
-        this.fileInfoList = resp.data;
+        this.fileInfoList = resp.data.fileInfoList;
+        let total = resp.data.pagingVo.total;
+        if (total != null) {
+          this.updatePages(total);
+        }
       },
       error: (err) => {
         console.log(err);
       },
     });
+  }
+
+  private updatePages(total: number): void {
+    this.pages = [];
+    let maxPage = Math.floor(total / this.paging.limit);
+    for (let i = 1; i <= maxPage; i++) {
+      this.pages.push(i);
+    }
   }
 
   /** Concatenate url for downloading the file  */
@@ -115,6 +130,7 @@ export class HomePageComponent implements OnInit {
       window.alert("Please specify file extension");
       return;
     }
+    fileExt = fileExt.toLowerCase();
     if (!this.fileExtSet.has(fileExt)) {
       window.alert(`File extension '${fileExt}' isn't supported`);
       return;
@@ -177,5 +193,16 @@ export class HomePageComponent implements OnInit {
 
   setUserGroup(userGroup: number): void {
     this.uploadUserGroup = userGroup;
+  }
+
+  gotoPage(page: number): void {
+    console.log(page);
+    this.paging.page = page;
+    this.fetchFileInfoList();
+  }
+
+  setPageSize(pageSize: number): void {
+    console.log(pageSize);
+    this.paging.limit = pageSize;
   }
 }

@@ -1,3 +1,5 @@
+import { Paging } from "./paging";
+
 export interface FileInfo {
   /**
    * uuid
@@ -26,4 +28,10 @@ export class FileUserGroupConst {
 
   /** private user group, only the uploader can access the file */
   public static readonly USER_GROUP_PRIVATE = 1;
+}
+
+export interface FetchFileInfoList {
+  fileInfoList: FileInfo[];
+
+  pagingVo: Paging;
 }

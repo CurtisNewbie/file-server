@@ -1,5 +1,7 @@
 package com.yongj.services;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileInfo;
 import com.yongj.dao.FileInfoMapper;
 import com.yongj.dao.FileValidateInfo;
@@ -12,6 +14,7 @@ import com.yongj.io.api.PathResolver;
 import com.yongj.util.BeanCopyUtils;
 import com.yongj.util.ValidUtils;
 import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.PagingVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +73,13 @@ public class FileInfoServiceImpl implements FileInfoService {
     public List<FileInfoVo> findFilesForUser(int userId) {
         List<FileInfo> fList = mapper.selectBasicInfoByUserId(userId);
         return BeanCopyUtils.toTypeList(fList, FileInfoVo.class);
+    }
+
+    @Override
+    public PageInfo<FileInfoVo> findPagedFilesForUser(int userId, PagingVo pagingVo) {
+        PageHelper.startPage(pagingVo.getPage(), pagingVo.getLimit());
+        PageInfo<FileInfo> pageInfo = PageInfo.of(mapper.selectBasicInfoByUserId(userId));
+        return BeanCopyUtils.toPageList(pageInfo, FileInfoVo.class);
     }
 
     @Override

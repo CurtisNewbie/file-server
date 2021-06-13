@@ -85,6 +85,12 @@
       <version>1.18.20</version>
       <scope>compile</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper -->
+    <dependency>
+      <groupId>com.github.pagehelper</groupId>
+      <artifactId>pagehelper</artifactId>
+      <version>5.2.0</version>
+    </dependency>
   </dependencies>
 
   <build>

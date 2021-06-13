@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { FileInfo } from "../models/file-info";
+import { FetchFileInfoList, FileInfo } from "../models/file-info";
 import { Resp } from "../models/resp";
 import { UserInfo } from "src/models/user-info";
+import { Paging } from "src/models/paging";
 
 const headers = {
   headers: new HttpHeaders({
@@ -21,8 +22,14 @@ export class HttpClientService {
   /**
    * Fetch list of file info
    */
-  public fetchFileInfoList(): Observable<Resp<FileInfo[]>> {
-    return this.http.get<Resp<FileInfo[]>>(`/file/list`, headers);
+  public fetchFileInfoList(
+    paging: Paging
+  ): Observable<Resp<FetchFileInfoList>> {
+    return this.http.post<Resp<FetchFileInfoList>>(
+      `/file/list`,
+      paging,
+      headers
+    );
   }
 
   /**

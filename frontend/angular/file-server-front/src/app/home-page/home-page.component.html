@@ -60,5 +60,22 @@
                 </div>
             </li>
         </div>
+        <form class="row row-cols-lg-auto g-3 align-items-center mt-5">
+            <div class="col-12">
+                <span class="input-group-text" id="basic-addon1">Current Page: {{paging.page}}</span>
+            </div>
+            <div class="col-12">
+                <select class="form-select" (change)="setPageSize($event.target.value)">
+                    <option value="{{limit}}" *ngFor="let limit of pageLimitOptions">Page
+                        Size:
+                        {{limit}}</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <select class="form-select" (change)="gotoPage($event.target.value)">
+                    <option value="{{p}}" *ngFor="let p of pages">Page {{p}}</option>
+                </select>
+            </div>
+        </form>
     </div>
 </div>

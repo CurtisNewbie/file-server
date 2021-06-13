@@ -1,5 +1,6 @@
 package com.yongj.util;
 
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public final class BeanCopyUtils {
      * @param targetType targetType
      * @param <T>        target's generic type
      * @param <V>        source's generic type
-     * @return targetObject (that is created using default constructor)
+     * @return targetObject list (wherein each object is created using default constructor)
      */
     public static <T, V> List<V> toTypeList(List<T> srcList, Class<V> targetType) {
         Objects.requireNonNull(targetType);
@@ -58,6 +59,25 @@ public final class BeanCopyUtils {
         return srcList.stream().map(t -> {
             return toType(t, targetType);
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * Copy properties, and convert to the given type
+     *
+     * @param srcPageInfo source object page info
+     * @param targetType  targetType
+     * @param <T>         target's generic type
+     * @param <V>         source's generic type
+     * @return targetObject pageinfo (wherein each object is created using default constructor)
+     */
+    public static <T, V> PageInfo<V> toPageList(PageInfo<T> srcPageInfo, Class<V> targetType) {
+        Objects.requireNonNull(targetType);
+        if (srcPageInfo == null) {
+            return new PageInfo<>();
+        }
+        PageInfo<V> vPage = PageInfo.of(toTypeList(srcPageInfo.getList(), targetType));
+        vPage.setTotal(srcPageInfo.getTotal());
+        return vPage;
     }
 
 }
