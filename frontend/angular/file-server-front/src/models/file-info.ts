@@ -19,6 +19,11 @@ export interface FileInfo {
    * file user group, 0-public, 1-private
    */
   userGroup: number;
+
+  /**
+   * Where the file is owned by current user
+   */
+  isOwner: boolean;
 }
 
 /** Constants class for FileInfo.userGroup */

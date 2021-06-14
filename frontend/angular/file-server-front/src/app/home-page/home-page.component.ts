@@ -255,7 +255,23 @@ export class HomePageComponent implements OnInit {
     this.defaultSearchUserGroup.nativeElement.selected = true;
   }
 
+  /** Set userGroup to the searching param */
   setSearchUserGroup(userGroup: number): void {
     this.searchParam.userGroup = userGroup;
+  }
+
+  /**
+   * Delete file
+   */
+  deleteFile(uuid: string): void {
+    this.httpClient.deleteFile(uuid).subscribe({
+      next: (resp) => {
+        if (resp.hasError) {
+          window.alert(resp.msg);
+          return;
+        }
+        this.fetchFileInfoList();
+      },
+    });
   }
 }

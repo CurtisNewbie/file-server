@@ -70,8 +70,16 @@
                         <small>Group: {{resolveUserGroupName(f.userGroup)}}</small>
                     </div>
                     <p class="mb-1 mt-1">Size: {{resolveSize(f.sizeInBytes)}}</p>
-                    <a [href]="concatFileHref(f.uuid)" target="_blank"
-                        style="word-break: break-all; text-decoration: none;">Download</a>
+                    <div class="row row-cols-lg-auto g-3 align-items-center">
+                        <div class="col-12">
+                            <a [href]="concatFileHref(f.uuid)" target="_blank"
+                                style="word-break: break-all; text-decoration: none;">Download</a>
+                        </div>
+                        <div class="col-12" [hidden]="!f.isOwner">
+                            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="deleteFileBtn"
+                                (click)="deleteFile(f.uuid)">Delete</button>
+                        </div>
+                    </div>
                 </div>
             </li>
         </div>

@@ -62,6 +62,11 @@
     user_group = #{userGroup,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <update id="logicDelete">
+    UPDATE file_info
+    SET is_logic_deleted = 1
+    WHERE uuid = #{uuid}
+  </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated
@@ -90,7 +95,7 @@
     and (user_group = 0 or (user_group = 1 and uploader_id = #{userId}))
   </select>
   <select id="selectBasicInfoByUserIdSelective" resultType="com.yongj.dao.FileInfo">
-    select name, uuid, size_in_bytes, user_group
+    select name, uuid, size_in_bytes, user_group, uploader_id
     from file_info
     <where>
       is_logic_deleted = 0

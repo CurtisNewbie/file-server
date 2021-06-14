@@ -83,6 +83,13 @@ public class FileController {
         return ResponseEntity.ok(Resp.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging)));
     }
 
+    @PostMapping(path = "/delete")
+    public Resp<Void> deleteFile(@RequestBody DeleteFileReqVo reqVo) throws ParamInvalidException {
+        ValidUtils.requireNonNull(reqVo.getUuid());
+        fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getUuid());
+        return Resp.ok();
+    }
+
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Resp<List<String>>> listSupportedFileExtension() {
         return ResponseEntity.ok(Resp.of(

@@ -39,7 +39,7 @@ public interface FileInfoService {
      * Find file info for user (with pagination)
      *
      * @param userId user.id
-     * @param reqVo filter and paging parameter
+     * @param reqVo  filter and paging parameter
      */
     PageInfo<FileInfoVo> findPagedFilesForUser(int userId, ListFileInfoReqVo reqVo);
 
@@ -62,7 +62,16 @@ public interface FileInfoService {
 
     /**
      * Get filename of file
+     *
      * @param uuid uuid
      */
     String getFilename(String uuid);
+
+    /**
+     * Logically delete the file
+     *
+     * @param userId id of the user
+     * @param uuid   uuid
+     */
+    void deleteFileLogically(int userId, String uuid) throws ParamInvalidException;
 }

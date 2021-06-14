@@ -64,4 +64,9 @@ public interface FileInfoMapper {
      * Select uploader_id
      */
     Integer selectUploaderIdByUuid(@Param("uuid") String uuid);
+
+    /**
+     * Logically delete the file by uuid
+     */
+    void logicDelete(@Param("uuid") String uuid);
 }

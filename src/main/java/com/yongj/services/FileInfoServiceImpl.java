@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileInfo;
@@ -23,10 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author yongjie.zhuang
@@ -80,11 +79,18 @@ public class FileInfoServiceImpl implements FileInfoService {
     public PageInfo<FileInfoVo> findPagedFilesForUser(int userId, ListFileInfoReqVo reqVo) {
         Objects.requireNonNull(reqVo);
         Objects.requireNonNull(reqVo.getPagingVo());
-        PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
+        Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
         SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
         param.setUserId(userId);
         PageInfo<FileInfo> pageInfo = PageInfo.of(mapper.selectBasicInfoByUserIdSelective(param));
-        return BeanCopyUtils.toPageList(pageInfo, FileInfoVo.class);
+        List<FileInfoVo> voList = pageInfo.getList().stream().map(e -> {
+            FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
+            v.setIsOwner(Objects.equals(e.getUploaderId(), userId));
+            return v;
+        }).collect(Collectors.toList());
+        PageInfo<FileInfoVo> voPageInfo = PageInfo.of(voList);
+        voPageInfo.setTotal(page.getTotal());
+        return voPageInfo;
     }
 
     @Override
@@ -115,5 +121,15 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Override
     public String getFilename(String uuid) {
         return mapper.selectNameByUuid(uuid);
+    }
+
+    @Override
+    public void deleteFileLogically(int userId, String uuid) throws ParamInvalidException {
+        // check if the file is owned by this user
+        Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
+        if (!Objects.equals(userId, uploaderId)) {
+            throw new ParamInvalidException("You can only delete file that you uploaded");
+        }
+        mapper.logicDelete(uuid);
     }
 }

@@ -25,4 +25,7 @@ public class FileInfoVo {
 
     /** the group that the file belongs to, 0-public, 1-private */
     private Integer userGroup;
+
+    /** Whether current user is the owner of this file */
+    private Boolean isOwner;
 }

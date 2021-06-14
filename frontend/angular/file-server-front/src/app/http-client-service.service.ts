@@ -129,4 +129,12 @@ export class HttpClientService {
       withCredentials: true,
     });
   }
+
+  /**
+   * Delete file
+   * @param uuid
+   */
+  public deleteFile(uuid: string): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>("/file/delete", { uuid: uuid }, headers);
+  }
 }
