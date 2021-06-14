@@ -1,5 +1,4 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
-import { AttachSession } from "protractor/built/driverProviders";
 import { FileInfo, FileUserGroupConst } from "src/models/file-info";
 import { Paging } from "src/models/paging";
 import { SearchFileInfoParam, UploadFileParam } from "src/models/request-model";

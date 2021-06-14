@@ -64,8 +64,10 @@
   </update>
   <update id="logicDelete">
     UPDATE file_info
-    SET is_logic_deleted = 1
+    SET is_logic_deleted = 1,
+    logic_delete_time = NOW()
     WHERE uuid = #{uuid}
+    AND is_logic_deleted = 0
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
