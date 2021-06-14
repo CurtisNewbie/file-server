@@ -50,7 +50,7 @@
             <div class="col-12">
                 <select class="form-select" id="searchUserGroupSelect"
                     (change)="setSearchUserGroup($event.target.value)">
-                    <option value="" selected>All Groups</option>
+                    <option value="" selected #defSearchUserGroup>All Groups</option>
                     <option value="1">Private Group</option>
                     <option value="0">Public Group</option>
                 </select>

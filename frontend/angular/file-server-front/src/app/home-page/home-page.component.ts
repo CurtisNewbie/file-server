@@ -35,6 +35,9 @@ export class HomePageComponent implements OnInit {
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
 
+  @ViewChild("defSearchUserGroup", { static: true })
+  defaultSearchUserGroup: ElementRef<HTMLOptionElement>;
+
   constructor(
     private httpClient: HttpClientService,
     private userService: UserService
@@ -249,6 +252,7 @@ export class HomePageComponent implements OnInit {
   resetSearchParam(): void {
     this.searchParam.name = null;
     this.searchParam.userGroup = null;
+    this.defaultSearchUserGroup.nativeElement.selected = true;
   }
 
   setSearchUserGroup(userGroup: number): void {
