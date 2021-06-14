@@ -38,10 +38,9 @@ public interface FileInfoService {
     /**
      * Find file info for user (with pagination)
      *
-     * @param userId user.id
      * @param reqVo  filter and paging parameter
      */
-    PageInfo<FileInfoVo> findPagedFilesForUser(int userId, ListFileInfoReqVo reqVo);
+    PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo);
 
     /**
      * Download file via uuid to the given outputStream

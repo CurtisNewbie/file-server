@@ -77,7 +77,8 @@ public class FileController {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
-        PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(AuthUtil.getUserId(), reqVo);
+        reqVo.setUserId(AuthUtil.getUserId());
+        PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(reqVo);
         PagingVo paging = new PagingVo();
         paging.setTotal(fileInfoVoPageInfo.getTotal());
         return ResponseEntity.ok(Resp.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging)));

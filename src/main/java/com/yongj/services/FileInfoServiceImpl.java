@@ -14,6 +14,7 @@ import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.io.api.IOHandler;
 import com.yongj.io.api.PathResolver;
 import com.yongj.util.BeanCopyUtils;
+import com.yongj.util.PagingUtil;
 import com.yongj.util.ValidUtils;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
@@ -76,21 +77,19 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public PageInfo<FileInfoVo> findPagedFilesForUser(int userId, ListFileInfoReqVo reqVo) {
+    public PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo) {
         Objects.requireNonNull(reqVo);
         Objects.requireNonNull(reqVo.getPagingVo());
-        Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
         SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
-        param.setUserId(userId);
-        PageInfo<FileInfo> pageInfo = PageInfo.of(mapper.selectBasicInfoByUserIdSelective(param));
-        List<FileInfoVo> voList = pageInfo.getList().stream().map(e -> {
-            FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
-            v.setIsOwner(Objects.equals(e.getUploaderId(), userId));
-            return v;
-        }).collect(Collectors.toList());
-        PageInfo<FileInfoVo> voPageInfo = PageInfo.of(voList);
-        voPageInfo.setTotal(page.getTotal());
-        return voPageInfo;
+        Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
+        List<FileInfoVo> voList = mapper.selectBasicInfoByUserIdSelective(param)
+                .stream()
+                .map(e -> {
+                    FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
+                    v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
+                    return v;
+                }).collect(Collectors.toList());
+        return PagingUtil.pageInfoOf(voList, page.getTotal());
     }
 
     @Override
