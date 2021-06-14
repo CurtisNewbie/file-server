@@ -1,10 +1,8 @@
-import { Component, OnInit } from "@angular/core";
-import {
-  FileInfo,
-  FileUserGroupConst,
-  UploadFileParam,
-} from "src/models/file-info";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { AttachSession } from "protractor/built/driverProviders";
+import { FileInfo, FileUserGroupConst } from "src/models/file-info";
 import { Paging } from "src/models/paging";
+import { SearchFileInfoParam, UploadFileParam } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
 import { UserService } from "../user.service";
 
@@ -21,7 +19,10 @@ export class HomePageComponent implements OnInit {
   readonly pageLimitOptions: number[] = [5, 10, 20, 50];
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
-  searchFilename: string = null;
+  searchParam: SearchFileInfoParam = {
+    name: null,
+    userGroup: null,
+  };
   uploadParam: UploadFileParam = {
     file: null,
     name: null,
@@ -30,6 +31,9 @@ export class HomePageComponent implements OnInit {
   isGuest: boolean = true;
   paging: Paging = { page: 1, limit: this.pageLimitOptions[0], total: 0 };
   pages: number[] = [1];
+
+  @ViewChild("uploadFileInput", { static: true })
+  uploadFileInput: ElementRef<HTMLInputElement>;
 
   constructor(
     private httpClient: HttpClientService,
@@ -73,7 +77,8 @@ export class HomePageComponent implements OnInit {
     this.httpClient
       .fetchFileInfoList({
         pagingVo: this.paging,
-        filename: this.searchFilename,
+        filename: this.searchParam.name,
+        userGroup: this.searchParam.userGroup,
       })
       .subscribe({
         next: (resp) => {
@@ -159,6 +164,7 @@ export class HomePageComponent implements OnInit {
       complete: () => {
         this.uploadParam.file = null;
         this.uploadParam.name = null;
+        this.uploadFileInput.nativeElement.value = null;
         this.fetchFileInfoList();
       },
       error: () => {
@@ -168,11 +174,11 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Handle events on file selected/changed */
-  public onFileSelected(event): void {
-    console.log(event);
-    if (event.target.files.length > 0) {
-      this.uploadParam.file = event.target.files[0];
-      this.uploadParam.name = this.uploadParam.file.name;
+  public onFileSelected(files: File[]): void {
+    if (files.length > 0) {
+      let firstFile: File = files[0];
+      this.uploadParam.file = firstFile;
+      this.uploadParam.name = firstFile.name;
     }
   }
 
@@ -205,7 +211,7 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Set usergruop for the uploading file */
-  setUserGroup(userGroup: number): void {
+  setUploadUserGroup(userGroup: number): void {
     this.uploadParam.userGruop = userGroup;
   }
 
@@ -241,6 +247,11 @@ export class HomePageComponent implements OnInit {
 
   /** Reset all parameters used for searching */
   resetSearchParam(): void {
-    this.searchFilename = null;
+    this.searchParam.name = null;
+    this.searchParam.userGroup = null;
+  }
+
+  setSearchUserGroup(userGroup: number): void {
+    this.searchParam.userGroup = userGroup;
   }
 }

@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileInfo;
 import com.yongj.dao.FileInfoMapper;
 import com.yongj.dao.FileValidateInfo;
+import com.yongj.dao.SelectBasicFileInfoParam;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
@@ -18,7 +19,6 @@ import com.yongj.vo.ListFileInfoReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,12 +81,9 @@ public class FileInfoServiceImpl implements FileInfoService {
         Objects.requireNonNull(reqVo);
         Objects.requireNonNull(reqVo.getPagingVo());
         PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
-        PageInfo<FileInfo> pageInfo;
-        if (StringUtils.hasText(reqVo.getFilename())) {
-            pageInfo = PageInfo.of(mapper.selectBasicInfoByUserIdAndName(userId, reqVo.getFilename()));
-        } else {
-            pageInfo = PageInfo.of(mapper.selectBasicInfoByUserId(userId));
-        }
+        SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
+        param.setUserId(userId);
+        PageInfo<FileInfo> pageInfo = PageInfo.of(mapper.selectBasicInfoByUserIdSelective(param));
         return BeanCopyUtils.toPageList(pageInfo, FileInfoVo.class);
     }
 

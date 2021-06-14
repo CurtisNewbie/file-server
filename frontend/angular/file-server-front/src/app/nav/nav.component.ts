@@ -29,8 +29,8 @@ export class NavComponent {
     this.userService.logout().subscribe({
       complete: () => {
         console.log("Logged out user, navigate back to login page");
-        this.router.navigate(["/login-page"]);
       },
     });
+    this.router.navigate(["/login-page"]);
   }
 }

@@ -48,7 +48,7 @@ public interface FileInfoMapper {
     /**
      * Select name, uuid, size_in_bytes
      */
-    List<FileInfo> selectBasicInfoByUserIdAndName(@Param("userId") int userId, @Param("name") String name);
+    List<FileInfo> selectBasicInfoByUserIdSelective(SelectBasicFileInfoParam param);
 
     /**
      * Select user_group, user_id, is_logic_deleted

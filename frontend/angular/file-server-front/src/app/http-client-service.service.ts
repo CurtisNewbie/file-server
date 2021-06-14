@@ -1,15 +1,14 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import {
-  FetchFileInfoList,
-  FetchFileInfoListParam,
-  FileInfo,
-  UploadFileParam,
-} from "../models/file-info";
+import { FetchFileInfoList, FileInfo } from "../models/file-info";
 import { Resp } from "../models/resp";
 import { UserInfo } from "src/models/user-info";
 import { Paging } from "src/models/paging";
+import {
+  FetchFileInfoListParam,
+  UploadFileParam,
+} from "src/models/request-model";
 
 const headers = {
   headers: new HttpHeaders({

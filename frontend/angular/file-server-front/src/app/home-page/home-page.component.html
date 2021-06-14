@@ -15,41 +15,48 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">Upload File:</span>
         </div>
-        <input type="file" class="form-control" [(ngModel)]="uploadParam.file" (change)="onFileSelected($event)"
+        <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
             aria-describedby="basic-addon1">
     </div>
     <div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="usergroup" checked id="userGroupPrivate" checked
-                (change)="setUserGroup(1)">
-            <label class="form-check-label" for="userGroupPrivate">
-                Private
-            </label>
-        </div>
-
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="usergroup" id="userGroupPublic"
-                (change)="setUserGroup(0)">
-            <label class="form-check-label" for="userGroupPublic">
-                Public
-            </label>
-        </div>
+        <form class="row row-cols-lg-auto g-3 align-items-center">
+            <div class="col-12">
+                <select class="form-select" id="uploadUserGroupSelect"
+                    (change)="setUploadUserGroup($event.target.value)">
+                    <option value="1" selected>Private Group</option>
+                    <option value="0">Public Group</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="uploadBtn"
+                    (click)="upload()">Upload</button>
+            </div>
+        </form>
     </div>
-    <button type="button" class="btn btn-sm btn-outline-secondary mt-2 mb-2" id="uploadBtn"
-        (click)="upload()">Upload</button>
 </div>
 
 
-<div class="mt-4">
+<div class="mt-5">
     <h3>File List</h3>
-    <div class="container bootstrap mt-2 mb-3">
-        <div class="input-group mb-3">
-            <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon1">Search File Name:</span>
+    <div class="container bootstrap mt-3 mb-3">
+        <form class="row row-cols-lg-auto g-3 align-items-center mt-3">
+            <div class="input-group mb-2 col-12">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Search File Name:</span>
+                </div>
+                <input type="text" [(ngModel)]="searchParam.name" [ngModelOptions]="{standalone:true}"
+                    class="form-control" aria-describedby="basic-addon1">
             </div>
-            <input type="text" [(ngModel)]="searchFilename" class="form-control" aria-describedby="basic-addon1">
-        </div>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 mb-3">
+            <div class="col-12">
+                <select class="form-select" id="searchUserGroupSelect"
+                    (change)="setSearchUserGroup($event.target.value)">
+                    <option value="" selected>All Groups</option>
+                    <option value="1">Private Group</option>
+                    <option value="0">Public Group</option>
+                </select>
+            </div>
+        </form>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
             <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
                 (click)="fetchFileInfoList()">Fetch</button>
             <button type="button" class="btn btn-sm btn-outline-secondary " id="resetBtn"

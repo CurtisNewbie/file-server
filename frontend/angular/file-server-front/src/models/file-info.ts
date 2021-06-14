@@ -38,21 +38,3 @@ export interface FetchFileInfoList {
   /** paging vo */
   pagingVo: Paging;
 }
-
-/** Parameters for uploading a file */
-export interface UploadFileParam {
-  /** name of the file */
-  name: string;
-  /** file */
-  file: File;
-  /** user group that the file belongs to */
-  userGruop: number;
-}
-
-/** Parameters for fetch list of file info */
-export interface FetchFileInfoListParam {
-  /** filename */
-  filename: string;
-  /** paging  */
-  pagingVo: Paging;
-}
