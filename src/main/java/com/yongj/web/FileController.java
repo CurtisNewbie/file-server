@@ -51,7 +51,7 @@ public class FileController {
                                           @RequestParam("file") MultipartFile multipartFile,
                                           @RequestParam("userGroup") Integer userGroup) throws IOException {
         pathResolver.validateFileExtension(fileName);
-        FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parseGroup(userGroup);
+        FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         if (userGroupEnum == null) {
             return ResponseEntity.ok(Resp.error("Incorrect user group"));
         }

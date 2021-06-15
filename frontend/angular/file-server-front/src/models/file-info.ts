@@ -35,6 +35,14 @@ export class FileUserGroupConst {
   public static readonly USER_GROUP_PRIVATE = 1;
 }
 
+/** Constants class for file's ownership */
+export class FileOwnershipConst {
+  /** all files  */
+  public static readonly FILE_OWNERSHIP_ALL_FILES = 0;
+  /** my files  */
+  public static readonly FILE_OWNERSHIP_MY_FILES = 1;
+}
+
 /** Response model for fetching file info list */
 export interface FetchFileInfoList {
   /** list of file info */

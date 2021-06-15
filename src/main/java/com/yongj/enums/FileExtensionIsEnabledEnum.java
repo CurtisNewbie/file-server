@@ -3,7 +3,7 @@ package com.yongj.enums;
 /**
  * @author yongjie.zhuang
  */
-public enum FileExtensionIsEnabledEnum {
+public enum FileExtensionIsEnabledEnum implements IntEnum<FileExtensionIsEnabledEnum> {
 
     /** current file extension is disabled */
     DISABLED(0),
@@ -14,5 +14,10 @@ public enum FileExtensionIsEnabledEnum {
 
     FileExtensionIsEnabledEnum(int isEnabled) {
         this.value = isEnabled;
+    }
+
+    @Override
+    public int getValue() {
+        return this.value;
     }
 }

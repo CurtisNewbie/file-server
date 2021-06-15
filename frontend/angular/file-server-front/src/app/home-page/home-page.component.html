@@ -23,8 +23,8 @@
             <div class="col-12">
                 <select class="form-select" id="uploadUserGroupSelect"
                     (change)="setUploadUserGroup($event.target.value)">
-                    <option value="1" selected>Private Group</option>
-                    <option value="0">Public Group</option>
+                    <option [value]="PRIVATE_GROUP" selected>Private Group</option>
+                    <option [value]="PUBLIC_GROUP">Public Group</option>
                 </select>
             </div>
             <div class="col-12">
@@ -51,8 +51,14 @@
                 <select class="form-select" id="searchUserGroupSelect"
                     (change)="setSearchUserGroup($event.target.value)">
                     <option value="" selected #defSearchUserGroup>All Groups</option>
-                    <option value="1">Private Group</option>
-                    <option value="0">Public Group</option>
+                    <option [value]="PRIVATE_GROUP">Private Group</option>
+                    <option [value]="PUBLIC_GROUP">Public Group</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <select class="form-select" id="searchOwnerSelect" (change)="setSearchOwnership($event.target.value)">
+                    <option [value]="OWNERSHIP_ALL_FILES" selected #defSearchOwner>All Files</option>
+                    <option [value]="OWNERSHIP_MY_FILES">My Files</option>
                 </select>
             </div>
         </form>
@@ -89,7 +95,7 @@
             </div>
             <div class="col-12">
                 <select class="form-select" (change)="setPageSize($event.target.value)">
-                    <option value="{{limit}}" *ngFor="let limit of pageLimitOptions">Page
+                    <option value="{{limit}}" *ngFor="let limit of PAGE_LIMIT_OPTIONS">Page
                         Size:
                         {{limit}}</option>
                 </select>

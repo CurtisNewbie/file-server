@@ -8,6 +8,7 @@ import com.yongj.dao.FileInfoMapper;
 import com.yongj.dao.FileValidateInfo;
 import com.yongj.dao.SelectBasicFileInfoParam;
 import com.yongj.enums.FileLogicDeletedEnum;
+import com.yongj.enums.FileOwnership;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.ParamInvalidException;
@@ -81,6 +82,10 @@ public class FileInfoServiceImpl implements FileInfoService {
         Objects.requireNonNull(reqVo);
         Objects.requireNonNull(reqVo.getPagingVo());
         SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
+        if (reqVo.getOwnership() != null &&
+                Objects.equals(FileOwnership.parse(reqVo.getOwnership()), FileOwnership.FILES_OF_THE_REQUESTER)) {
+            param.setUploaderId(reqVo.getUserId());
+        }
         Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
         List<FileInfoVo> voList = mapper.selectBasicInfoByUserIdSelective(param)
                 .stream()

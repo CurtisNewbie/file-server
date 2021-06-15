@@ -19,6 +19,9 @@ public class ListFileInfoReqVo {
     /** name of the file */
     private String filename;
 
+    /** ownership of file, 0-all files, 1-files that belong to current users */
+    private Integer ownership;
+
     /** id of the user */
     @JsonIgnore
     private Integer userId;

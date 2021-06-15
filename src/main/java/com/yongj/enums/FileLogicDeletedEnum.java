@@ -5,7 +5,7 @@ package com.yongj.enums;
  *
  * @author yongjie.zhuang
  */
-public enum FileLogicDeletedEnum implements IntEnum {
+public enum FileLogicDeletedEnum implements IntEnum<FileLogicDeletedEnum> {
 
     /** Normal */
     NORMAL(0),

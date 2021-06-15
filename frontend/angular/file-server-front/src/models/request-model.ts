@@ -2,8 +2,12 @@ import { Paging } from "./paging";
 
 /** Parameters used for fetching list of file info */
 export interface SearchFileInfoParam {
+  /** filename */
   name: string;
+  /** user group */
   userGroup: number;
+  /** ownership */
+  ownership: number;
 }
 
 /** Parameters for uploading a file */
@@ -24,4 +28,28 @@ export interface FetchFileInfoListParam {
   userGroup: number;
   /** paging  */
   pagingVo: Paging;
+  /** ownership */
+  ownership: number;
+}
+
+/**
+ * Empty object with all properties being null values
+ */
+export function emptySearchFileInfoParam(): SearchFileInfoParam {
+  return {
+    name: null,
+    userGroup: null,
+    ownership: null,
+  };
+}
+
+/**
+ * Empty object with all properties being null values
+ */
+export function emptyUploadFileParam(): UploadFileParam {
+  return {
+    file: null,
+    name: null,
+    userGruop: null,
+  };
 }

@@ -1,7 +1,16 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
-import { FileInfo, FileUserGroupConst } from "src/models/file-info";
+import {
+  FileInfo,
+  FileOwnershipConst,
+  FileUserGroupConst,
+} from "src/models/file-info";
 import { Paging } from "src/models/paging";
-import { SearchFileInfoParam, UploadFileParam } from "src/models/request-model";
+import {
+  emptySearchFileInfoParam,
+  emptyUploadFileParam,
+  SearchFileInfoParam,
+  UploadFileParam,
+} from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
 import { UserService } from "../user.service";
 
@@ -15,20 +24,18 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   styleUrls: ["./home-page.component.css"],
 })
 export class HomePageComponent implements OnInit {
-  readonly pageLimitOptions: number[] = [5, 10, 20, 50];
+  readonly PAGE_LIMIT_OPTIONS: number[] = [5, 10, 20, 50];
+  readonly OWNERSHIP_ALL_FILES = FileOwnershipConst.FILE_OWNERSHIP_ALL_FILES;
+  readonly OWNERSHIP_MY_FILES = FileOwnershipConst.FILE_OWNERSHIP_MY_FILES;
+  readonly PRIVATE_GROUP = FileUserGroupConst.USER_GROUP_PRIVATE;
+  readonly PUBLIC_GROUP = FileUserGroupConst.USER_GROUP_PUBLIC;
+
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
-  searchParam: SearchFileInfoParam = {
-    name: null,
-    userGroup: null,
-  };
-  uploadParam: UploadFileParam = {
-    file: null,
-    name: null,
-    userGruop: null,
-  };
+  searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
+  uploadParam: UploadFileParam = emptyUploadFileParam();
   isGuest: boolean = true;
-  paging: Paging = { page: 1, limit: this.pageLimitOptions[0], total: 0 };
+  paging: Paging = { page: 1, limit: this.PAGE_LIMIT_OPTIONS[0], total: 0 };
   pages: number[] = [1];
 
   @ViewChild("uploadFileInput", { static: true })
@@ -36,6 +43,9 @@ export class HomePageComponent implements OnInit {
 
   @ViewChild("defSearchUserGroup", { static: true })
   defaultSearchUserGroup: ElementRef<HTMLOptionElement>;
+
+  @ViewChild("defSearchOwner", { static: true })
+  defaultSearchOwner: ElementRef<HTMLOptionElement>;
 
   constructor(
     private httpClient: HttpClientService,
@@ -81,6 +91,7 @@ export class HomePageComponent implements OnInit {
         pagingVo: this.paging,
         filename: this.searchParam.name,
         userGroup: this.searchParam.userGroup,
+        ownership: this.searchParam.ownership,
       })
       .subscribe({
         next: (resp) => {
@@ -249,9 +260,9 @@ export class HomePageComponent implements OnInit {
 
   /** Reset all parameters used for searching */
   resetSearchParam(): void {
-    this.searchParam.name = null;
-    this.searchParam.userGroup = null;
+    this.searchParam = emptySearchFileInfoParam();
     this.defaultSearchUserGroup.nativeElement.selected = true;
+    this.defaultSearchOwner.nativeElement.selected = true;
   }
 
   /** Set userGroup to the searching param */
@@ -272,5 +283,13 @@ export class HomePageComponent implements OnInit {
         this.fetchFileInfoList();
       },
     });
+  }
+
+  /**
+   * Set ownership of files to the searching param
+   * @param ownership
+   */
+  setSearchOwnership(ownership: number): void {
+    this.searchParam.ownership = ownership;
   }
 }

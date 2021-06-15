@@ -96,15 +96,24 @@
     where is_logic_deleted = 0
     and (user_group = 0 or (user_group = 1 and uploader_id = #{userId}))
   </select>
+
+  <!-- when uploaderId is present, ignore user_group, but keep name as a parameter -->
   <select id="selectBasicInfoByUserIdSelective" resultType="com.yongj.dao.FileInfo">
     select name, uuid, size_in_bytes, user_group, uploader_id
     from file_info
     <where>
       is_logic_deleted = 0
-      and (user_group = 0 or (user_group = 1 and uploader_id = #{userId}))
-      <if test="userGroup != null">
-        and user_group = #{userGroup}
-      </if>
+      <choose>
+        <when test="uploaderId != null">
+          and uploader_id = #{uploaderId}
+        </when>
+        <otherwise>
+          and (user_group = 0 or (user_group = 1 and uploader_id = #{userId}))
+          <if test="userGroup != null">
+            and user_group = #{userGroup}
+          </if>
+        </otherwise>
+      </choose>
       <if test="filename != null and filename != ''">
         and name like "%"#{filename}"%"
       </if>

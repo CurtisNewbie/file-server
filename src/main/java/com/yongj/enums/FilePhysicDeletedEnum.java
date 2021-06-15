@@ -5,7 +5,7 @@ package com.yongj.enums;
  *
  * @author yongjie.zhuang
  */
-public enum FilePhysicDeletedEnum implements IntEnum {
+public enum FilePhysicDeletedEnum implements IntEnum<FilePhysicDeletedEnum> {
 
     /** Normal */
     NORMAL(0),

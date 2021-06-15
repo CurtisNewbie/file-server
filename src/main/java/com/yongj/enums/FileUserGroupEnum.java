@@ -1,11 +1,13 @@
 package com.yongj.enums;
 
+import com.yongj.util.EnumUtils;
+
 /**
  * enum for file_info.user_group
  *
  * @author yongjie.zhuang
  */
-public enum FileUserGroupEnum implements IntEnum {
+public enum FileUserGroupEnum implements IntEnum<FileUserGroupEnum> {
 
     /** public group */
     PUBLIC(0),
@@ -19,12 +21,8 @@ public enum FileUserGroupEnum implements IntEnum {
         this.value = v;
     }
 
-    public static FileUserGroupEnum parseGroup(int userGroup) {
-        for (FileUserGroupEnum e : FileUserGroupEnum.values()) {
-            if (e.getValue() == userGroup)
-                return e;
-        }
-        return null;
+    public static FileUserGroupEnum parse(int userGroup) {
+        return EnumUtils.parse(userGroup, FileUserGroupEnum.class);
     }
 
     @Override
