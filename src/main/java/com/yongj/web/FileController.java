@@ -19,10 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.List;
 public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+    private static final int BUFFER_SIZE = 8192;
 
     @Autowired
     private IOHandler ioHandler;
@@ -60,7 +63,7 @@ public class FileController {
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws IOException, ParamInvalidException {
+    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws ParamInvalidException {
         final int userId = AuthUtil.getUserId();
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);
@@ -68,8 +71,15 @@ public class FileController {
         final String filename = fileInfoService.getFilename(uuid);
         // set header for the downloaded file
         resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filename));
-        // transfer file using nio
-        fileInfoService.downloadFile(uuid, resp.getOutputStream());
+        // write file directly to outputStream without holdingup servlet's thread
+        return outputStream -> {
+            int bytesRead;
+            byte[] buffer = new byte[BUFFER_SIZE];
+            InputStream inputStream = fileInfoService.retrieveFileInputStream(uuid);
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        };
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)

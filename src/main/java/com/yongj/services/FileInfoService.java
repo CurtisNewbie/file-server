@@ -38,7 +38,7 @@ public interface FileInfoService {
     /**
      * Find file info for user (with pagination)
      *
-     * @param reqVo  filter and paging parameter
+     * @param reqVo filter and paging parameter
      */
     PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo);
 
@@ -48,7 +48,14 @@ public interface FileInfoService {
      * @param uuid         uuid
      * @param outputStream outputStream
      */
-    void downloadFile(String uuid, OutputStream outputStream) throws IOException, ParamInvalidException;
+    void downloadFile(String uuid, OutputStream outputStream) throws IOException;
+
+    /**
+     * Retrieve file's inputStream via uuid
+     *
+     * @param uuid uuid
+     */
+    InputStream retrieveFileInputStream(String uuid) throws IOException;
 
     /**
      * Validate whether current user can download this file

@@ -26,7 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -98,7 +103,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void downloadFile(String uuid, OutputStream outputStream) throws IOException, ParamInvalidException {
+    public void downloadFile(String uuid, OutputStream outputStream) throws IOException{
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(outputStream);
         final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
@@ -106,6 +111,17 @@ public class FileInfoServiceImpl implements FileInfoService {
         // read file from channel
         final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId);
         ioHandler.readByChannel(absPath, outputStream);
+    }
+
+    @Override
+    public InputStream retrieveFileInputStream(String uuid) throws IOException{
+        Objects.requireNonNull(uuid);
+        final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
+        Objects.requireNonNull(uploaderId);
+        // read file from channel
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId);
+        // open inputStream
+        return Files.newInputStream(Paths.get(absPath));
     }
 
     @Override
