@@ -79,13 +79,13 @@
 
                     <div class="d-flex w-100 justify-content-between">
                         <a [href]="concatFileHref(f.uuid)" target="_blank">Download</a>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="deleteFileBtn"
-                            (click)="deleteFile(f.uuid)">Delete</button>
+                        <button type="button" [hidden]="!f.isOwner" class="btn btn-sm btn-outline-secondary"
+                            id="deleteFileBtn" (click)="deleteFile(f.uuid)">Delete</button>
                     </div>
                 </div>
             </li>
         </div>
-        <form class="row row-cols-lg-auto g-3 align-items-center mt-5">
+        <form class="row row-cols-lg-auto g-3 align-items-center mt-1">
             <div class="col-12">
                 <span class="input-group-text" id="basic-addon1">Current Page: {{paging.page}}</span>
             </div>
