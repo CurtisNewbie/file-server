@@ -104,9 +104,8 @@ public class UserController {
 
         UserEntity ue = AuthUtil.getUserEntity();
         boolean isPasswordMatched = PasswordUtil.getValidator()
-                .givenPassword(vo.getPrevPassword())
+                .givenPasswordAndSalt(vo.getPrevPassword(), ue.getSalt())
                 .compareTo(ue.getPassword())
-                .withSalt(ue.getSalt())
                 .isMatched();
         if (!isPasswordMatched)
             return Resp.error("Password incorrect");
