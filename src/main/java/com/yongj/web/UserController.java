@@ -12,7 +12,7 @@ import com.curtisnewbie.module.auth.util.PasswordUtil;
 import com.yongj.vo.Resp;
 import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.util.ValidUtils;
-import com.yongj.vo.DeleteUserByIdVo;
+import com.yongj.vo.DisableUserById;
 import com.yongj.vo.RegisterUserVo;
 import com.yongj.vo.UpdatePasswordVo;
 import com.yongj.vo.UserVo;
@@ -67,6 +67,7 @@ public class UserController {
             return Resp.error("Do not support adding administrator");
         }
         dto.setRole(role);
+        dto.setCreateBy(AuthUtil.getUsername());
         userService.register(dto);
         return Resp.ok();
     }
@@ -79,13 +80,13 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/delete")
-    public Resp<Void> deleteUserById(@RequestBody DeleteUserByIdVo param) throws ParamInvalidException {
+    public Resp<Void> disableUserById(@RequestBody DisableUserById param) throws ParamInvalidException {
         if (param.getId() == null)
             throw new ParamInvalidException();
         if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
             throw new ParamInvalidException("You cannot delete yourself");
         }
-        userService.deleteUserById(param.getId());
+        userService.disabledUserById(param.getId(), AuthUtil.getUsername());
         return Resp.ok();
     }
 

@@ -3,6 +3,7 @@ package com.yongj.config;
 import com.curtisnewbie.module.auth.config.AuthenticationFailureHandlerExtender;
 import com.yongj.vo.Resp;
 import com.yongj.util.JsonUtils;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,10 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
             throws IOException, ServletException {
-        response.getWriter().write(JsonUtils.writeValueAsString(Resp.error("Incorrect credentials")));
+        String errorMsg = "Incorrect credentials";
+        if (exception instanceof DisabledException) {
+            errorMsg = "User is disabled";
+        }
+        response.getWriter().write(JsonUtils.writeValueAsString(Resp.error(errorMsg)));
     }
 }

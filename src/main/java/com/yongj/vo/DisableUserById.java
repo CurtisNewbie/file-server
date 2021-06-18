@@ -6,7 +6,7 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class DeleteUserByIdVo {
+public class DisableUserById {
 
     private Integer id;
 }
