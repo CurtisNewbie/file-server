@@ -1,9 +1,8 @@
-package com.yongj.io.impl;
+package com.yongj.io;
 
 import com.yongj.config.PathConfig;
 import com.yongj.dao.FileExtensionMapper;
 import com.yongj.exceptions.IllegalExtException;
-import com.yongj.io.api.PathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

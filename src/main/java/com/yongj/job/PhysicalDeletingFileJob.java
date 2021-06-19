@@ -1,8 +1,8 @@
 package com.yongj.job;
 
 import com.github.pagehelper.PageInfo;
-import com.yongj.io.api.IOHandler;
-import com.yongj.io.api.PathResolver;
+import com.yongj.io.IOHandler;
+import com.yongj.io.PathResolver;
 import com.yongj.services.FileInfoService;
 import com.yongj.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;

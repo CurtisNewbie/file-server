@@ -1,7 +1,5 @@
-package com.yongj.io.impl;
+package com.yongj.io;
 
-import com.yongj.io.api.DeleteFileOperation;
-import com.yongj.io.api.IOHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

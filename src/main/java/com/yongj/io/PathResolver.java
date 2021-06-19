@@ -1,4 +1,4 @@
-package com.yongj.io.api;
+package com.yongj.io;
 
 import org.springframework.validation.annotation.Validated;
 
