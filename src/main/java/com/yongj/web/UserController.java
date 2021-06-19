@@ -10,7 +10,7 @@ import com.curtisnewbie.module.auth.services.api.AccessLogService;
 import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.auth.util.PasswordUtil;
-import com.curtisnewbie.common.vo.Resp;
+import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.vo.DisableUserById;
@@ -43,21 +43,21 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
-    public Resp<?> addUser(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
+    public Result<?> addUser(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
             ExceededMaxAdminCountException, MsgEmbeddedException {
         RegisterUserDto dto = new RegisterUserDto();
         BeanUtils.copyProperties(registerUserVo, dto);
         // validate whether username and password is entered
         if (!StringUtils.hasText(dto.getUsername()))
-            return Resp.error("Please enter username");
+            return Result.error("Please enter username");
         if (!StringUtils.hasText(dto.getPassword()))
-            return Resp.error("Please enter password");
+            return Result.error("Please enter password");
         // validate if the username and password is the same
         if (Objects.equals(dto.getUsername(), dto.getPassword()))
-            return Resp.error("Username and password must be different");
+            return Result.error("Username and password must be different");
         // validate if the password is too short
         if (dto.getPassword().length() < PASSWORD_LENGTH)
-            return Resp.error("Password must have at least " + PASSWORD_LENGTH + "characters");
+            return Result.error("Password must have at least " + PASSWORD_LENGTH + "characters");
 
         // if not specified, the role will be guest
         UserRole role = UserRole.GUEST;
@@ -67,36 +67,36 @@ public class UserController {
         }
         // do not support adding administrator
         if (Objects.equals(role, UserRole.ADMIN)) {
-            return Resp.error("Do not support adding administrator");
+            return Result.error("Do not support adding administrator");
         }
         dto.setRole(role);
         dto.setCreateBy(AuthUtil.getUsername());
         userService.register(dto);
-        return Resp.ok();
+        return Result.ok();
     }
 
     @PreAuthorize("hasAuthority('admin')")
     @GetMapping("/list")
-    public Resp<List<UserVo>> getUserList() {
-        return Resp.of(toUserVoList(userService.findUserInfoList(), AuthUtil.getUserEntity().getId()));
+    public Result<List<UserVo>> getUserList() {
+        return Result.of(toUserVoList(userService.findUserInfoList(), AuthUtil.getUserEntity().getId()));
     }
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/delete")
-    public Resp<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
+    public Result<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
         if (param.getId() == null)
             throw new MsgEmbeddedException();
         if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
             throw new MsgEmbeddedException("You cannot delete yourself");
         }
         userService.disabledUserById(param.getId(), AuthUtil.getUsername());
-        return Resp.ok();
+        return Result.ok();
     }
 
     @GetMapping("/info")
-    public Resp<UserVo> getUserInfo() {
+    public Result<UserVo> getUserInfo() {
         UserEntity ue = AuthUtil.getUserEntity();
-        return Resp.of(toUserVo(ue));
+        return Result.of(toUserVo(ue));
     }
 
 //    @PreAuthorize("hasAuthority('admin')")
@@ -106,11 +106,11 @@ public class UserController {
 //    }
 
     @PostMapping("/password/update")
-    public Resp<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException {
+    public Result<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getNewPassword());
         ValidUtils.requireNonNull(vo.getPrevPassword());
         if (Objects.equals(vo.getNewPassword(), vo.getPrevPassword()))
-            return Resp.error("New password must be different");
+            return Result.error("New password must be different");
 
         UserEntity ue = AuthUtil.getUserEntity();
         boolean isPasswordMatched = PasswordUtil.getValidator()
@@ -118,9 +118,9 @@ public class UserController {
                 .compareTo(ue.getPassword())
                 .isMatched();
         if (!isPasswordMatched)
-            return Resp.error("Password incorrect");
+            return Result.error("Password incorrect");
         userService.updatePassword(vo.getNewPassword(), ue.getUsername(), ue.getId());
-        return Resp.ok();
+        return Result.ok();
     }
 
 

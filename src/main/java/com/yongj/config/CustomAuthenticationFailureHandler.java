@@ -1,7 +1,7 @@
 package com.yongj.config;
 
 import com.curtisnewbie.module.auth.config.AuthenticationFailureHandlerExtender;
-import com.curtisnewbie.common.vo.Resp;
+import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.common.util.JsonUtils;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
@@ -25,6 +25,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         if (exception instanceof DisabledException) {
             errorMsg = "User is disabled";
         }
-        response.getWriter().write(JsonUtils.writeValueAsString(Resp.error(errorMsg)));
+        response.getWriter().write(JsonUtils.writeValueAsString(Result.error(errorMsg)));
     }
 }

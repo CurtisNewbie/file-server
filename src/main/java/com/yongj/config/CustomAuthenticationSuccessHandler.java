@@ -1,7 +1,7 @@
 package com.yongj.config;
 
 import com.curtisnewbie.module.auth.config.AuthenticationSuccessHandlerExtender;
-import com.curtisnewbie.common.vo.Resp;
+import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.common.util.JsonUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
-        response.getWriter().write(JsonUtils.writeValueAsString(Resp.ok()));
+        response.getWriter().write(JsonUtils.writeValueAsString(Result.ok()));
     }
 
 }

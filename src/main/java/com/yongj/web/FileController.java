@@ -1,7 +1,7 @@
 package com.yongj.web;
 
 import com.curtisnewbie.common.vo.PagingVo;
-import com.curtisnewbie.common.vo.Resp;
+import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.github.pagehelper.PageInfo;
 import com.yongj.enums.FileUserGroupEnum;
@@ -10,7 +10,7 @@ import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
-import com.curtisnewbie.common.util.PathUtils;
+import com.yongj.util.PathUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.vo.*;
 import org.slf4j.Logger;
@@ -52,16 +52,16 @@ public class FileController {
 
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<?>> upload(@RequestParam("fileName") String fileName,
-                                          @RequestParam("file") MultipartFile multipartFile,
-                                          @RequestParam("userGroup") Integer userGroup) throws IOException {
+    public ResponseEntity<Result<?>> upload(@RequestParam("fileName") String fileName,
+                                            @RequestParam("file") MultipartFile multipartFile,
+                                            @RequestParam("userGroup") Integer userGroup) throws IOException {
         pathResolver.validateFileExtension(fileName);
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         if (userGroupEnum == null) {
-            return ResponseEntity.ok(Resp.error("Incorrect user group"));
+            return ResponseEntity.ok(Result.error("Incorrect user group"));
         }
         fileInfoService.uploadFile(AuthUtil.getUserId(), fileName, userGroupEnum, multipartFile.getInputStream());
-        return ResponseEntity.ok(Resp.ok());
+        return ResponseEntity.ok(Result.ok());
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -85,7 +85,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<ListFileInfoRespVo>> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException {
+    public ResponseEntity<Result<ListFileInfoRespVo>> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
@@ -93,19 +93,19 @@ public class FileController {
         PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(reqVo);
         PagingVo paging = new PagingVo();
         paging.setTotal(fileInfoVoPageInfo.getTotal());
-        return ResponseEntity.ok(Resp.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging)));
+        return ResponseEntity.ok(Result.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging)));
     }
 
     @PostMapping(path = "/delete")
-    public Resp<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException {
+    public Result<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getUuid());
         fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getUuid());
-        return Resp.ok();
+        return Result.ok();
     }
 
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<List<String>>> listSupportedFileExtension() {
-        return ResponseEntity.ok(Resp.of(
+    public ResponseEntity<Result<List<String>>> listSupportedFileExtension() {
+        return ResponseEntity.ok(Result.of(
                 fileExtensionService.getNamesOfAllEnabled()
         ));
     }
