@@ -14,7 +14,9 @@ export class AccessLogComponent implements OnInit {
 
   constructor(private httpClient: HttpClientService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.fetchAccessLogList();
+  }
 
   /**
    * Fetch access log list
@@ -43,7 +45,7 @@ export class AccessLogComponent implements OnInit {
   }
 
   /**
-   * Set the specified page and fetch the file info list
+   * Set the specified page and access log list
    * @param page
    */
   gotoPage(page: number): void {
@@ -52,7 +54,7 @@ export class AccessLogComponent implements OnInit {
   }
 
   /**
-   * Set current page size and fetch the file info list
+   * Set current page size and fetch the access log list
    * @param pageSize
    */
   setPageSize(pageSize: number): void {
@@ -62,13 +64,15 @@ export class AccessLogComponent implements OnInit {
 
   nextPage(): void {
     if (this.pagingController.canGoToNextPage()) {
-      this.gotoPage(this.pagingController.paging.page + 1);
+      this.pagingController.nextPage();
+      this.fetchAccessLogList();
     }
   }
 
   prevPage(): void {
     if (this.pagingController.canGoToPrevPage()) {
-      this.gotoPage(this.pagingController.paging.page - 1);
+      this.pagingController.prevPage();
+      this.fetchAccessLogList();
     }
   }
 

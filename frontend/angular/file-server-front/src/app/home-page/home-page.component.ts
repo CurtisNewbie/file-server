@@ -234,13 +234,15 @@ export class HomePageComponent implements OnInit {
 
   nextPage(): void {
     if (this.pagingController.canGoToNextPage()) {
-      this.gotoPage(this.pagingController.paging.page + 1);
+      this.pagingController.nextPage();
+      this.fetchFileInfoList();
     }
   }
 
   prevPage(): void {
     if (this.pagingController.canGoToPrevPage()) {
-      this.gotoPage(this.pagingController.paging.page - 1);
+      this.pagingController.prevPage();
+      this.fetchFileInfoList();
     }
   }
 

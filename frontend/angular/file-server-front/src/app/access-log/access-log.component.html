@@ -21,14 +21,14 @@
             <span class="input-group-text" id="basic-addon1">Current Page: {{pagingController.paging.page}}</span>
         </div>
         <div class="col-12">
-            <select class="form-select" (change)="setPageSize($event.target.value)">
+            <select class="form-select" (click)="setPageSize($event.target.value)">
                 <option value="{{limit}}" *ngFor="let limit of pagingController.PAGE_LIMIT_OPTIONS">Page
                     Size:
                     {{limit}}</option>
             </select>
         </div>
         <div class="col-12">
-            <select class="form-select" (change)="gotoPage($event.target.value)">
+            <select class="form-select" (click)="gotoPage($event.target.value)">
                 <option value="{{p}}" *ngFor="let p of pagingController.pages">Page {{p}}</option>
             </select>
         </div>
