@@ -1,5 +1,6 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.vo.Result;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -63,19 +64,42 @@ public class LogAspect {
                 || o instanceof Float;
     }
 
-    private static final String respToStr(Object object) {
-        if (object == null)
+    private static final String respToStr(Object o) {
+        if (o == null)
             return "null";
 
-        if (object instanceof ResponseEntity) {
-            ResponseEntity respEntity = (ResponseEntity) object;
+        if (o instanceof ResponseEntity) {
+            ResponseEntity respEntity = (ResponseEntity) o;
             StringBuilder sb = new StringBuilder("@ResponseEntity{ ");
             sb.append("statusCode: ").append(respEntity.getStatusCode()).append(", ");
-            sb.append("body: ").append(respEntity.getBody() instanceof byte[] ? ((byte[]) respEntity.getBody()).length + " bytes" :
-                    respEntity.getBody()).append(" }");
+            sb.append("body: ");
+            if (respEntity.getBody() == null) {
+                sb.append("null");
+            } else {
+                if (respEntity.getBody() instanceof byte[]) {
+                    sb.append(((byte[]) respEntity.getBody()).length + " bytes");
+                } else if (respEntity.getBody() instanceof Result) {
+                    Result r = Result.class.cast(respEntity.getBody());
+                    sb.append(resultToStr(r));
+                } else {
+                    sb.append(respEntity.getBody().toString());
+                }
+            }
+            sb.append(" }");
             return sb.toString();
+        } else if (o instanceof Result) {
+            Result r = Result.class.cast(o);
+            return resultToStr(r);
         } else {
-            return object.toString();
+            return o.toString();
         }
+    }
+
+    private static final String resultToStr(Result r) {
+        StringBuilder sb = new StringBuilder("@Result{ ");
+        sb.append("hasError: ").append(r.isHasError()).append(", ");
+        sb.append("msg: ").append(r.getMsg()).append(", ");
+        sb.append("data: ").append(r.getData() == null ? "null" : "...").append(" }");
+        return sb.toString();
     }
 }
