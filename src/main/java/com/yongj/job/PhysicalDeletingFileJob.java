@@ -45,6 +45,7 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     @Scheduled(cron = "0 0 0/2 ? * *")
     @Override
     public void _exec() {
+        logger.info("Physical file deleting job started");
         PagingVo paging = new PagingVo();
         paging.setLimit(LIMIT);
         paging.setPage(1);
@@ -59,6 +60,7 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
             idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
             paging.setPage(paging.getPage() + 1);
         }
+        logger.info("Physical file deleting job finished");
     }
 
     // files that are unable to deleted, won't cause a transaction roll back
