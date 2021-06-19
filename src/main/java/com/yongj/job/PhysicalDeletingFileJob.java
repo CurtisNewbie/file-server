@@ -9,6 +9,7 @@ import com.yongj.vo.PhysicDeleteFileVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,8 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
+    @Value("${physical.deleting.is-enabled:true}")
+    private boolean isEnabled;
 
     /**
      * Physically delete files in every 2 hours
@@ -45,6 +48,9 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     @Scheduled(cron = "0 0 0/2 ? * *")
     @Override
     public void _exec() {
+        if (!isEnabled)
+            return;
+
         logger.info("Physical file deleting job started");
         PagingVo paging = new PagingVo();
         paging.setLimit(LIMIT);
