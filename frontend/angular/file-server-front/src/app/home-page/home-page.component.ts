@@ -4,7 +4,7 @@ import {
   FileOwnershipConst,
   FileUserGroupConst,
 } from "src/models/file-info";
-import { Paging } from "src/models/paging";
+import { Paging, PagingConst, PagingController } from "src/models/paging";
 import {
   emptySearchFileInfoParam,
   emptyUploadFileParam,
@@ -24,7 +24,6 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   styleUrls: ["./home-page.component.css"],
 })
 export class HomePageComponent implements OnInit {
-  readonly PAGE_LIMIT_OPTIONS: number[] = [5, 10, 20, 50];
   readonly OWNERSHIP_ALL_FILES = FileOwnershipConst.FILE_OWNERSHIP_ALL_FILES;
   readonly OWNERSHIP_MY_FILES = FileOwnershipConst.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupConst.USER_GROUP_PRIVATE;
@@ -35,8 +34,7 @@ export class HomePageComponent implements OnInit {
   searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
   uploadParam: UploadFileParam = emptyUploadFileParam();
   isGuest: boolean = true;
-  paging: Paging = { page: 1, limit: this.PAGE_LIMIT_OPTIONS[0], total: 0 };
-  pages: number[] = [1];
+  pagingController: PagingController = new PagingController();
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
@@ -88,7 +86,7 @@ export class HomePageComponent implements OnInit {
   fetchFileInfoList(): void {
     this.httpClient
       .fetchFileInfoList({
-        pagingVo: this.paging,
+        pagingVo: this.pagingController.paging,
         filename: this.searchParam.name,
         userGroup: this.searchParam.userGroup,
         ownership: this.searchParam.ownership,
@@ -102,7 +100,7 @@ export class HomePageComponent implements OnInit {
           this.fileInfoList = resp.data.fileInfoList;
           let total = resp.data.pagingVo.total;
           if (total != null) {
-            this.updatePages(total);
+            this.pagingController.updatePages(total);
           }
         },
         error: (err) => {
@@ -111,25 +109,13 @@ export class HomePageComponent implements OnInit {
       });
   }
 
-  /** Update the list of pages that it can select */
-  private updatePages(total: number): void {
-    this.pages = [];
-    let maxPage = Math.ceil(total / this.paging.limit);
-    for (let i = 1; i <= maxPage; i++) {
-      this.pages.push(i);
-    }
-    if (this.pages.length === 0) {
-      this.pages.push(1);
-    }
-  }
-
   /** Concatenate url for downloading the file  */
-  public concatFileHref(uuid: string): string {
+  concatFileHref(uuid: string): string {
     return "file/download?uuid=" + uuid;
   }
 
   /** Convert number of bytes to apporpriate unit */
-  public resolveSize(sizeInBytes: number): string {
+  resolveSize(sizeInBytes: number): string {
     if (sizeInBytes > GB_UNIT) {
       return this.divideUnit(sizeInBytes, GB_UNIT) + " gb";
     }
@@ -144,7 +130,7 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Upload file */
-  public upload(): void {
+  upload(): void {
     if (!this.uploadParam.file) {
       window.alert("Please select a file to upload");
       return;
@@ -187,7 +173,7 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Handle events on file selected/changed */
-  public onFileSelected(files: File[]): void {
+  onFileSelected(files: File[]): void {
     if (files.length > 0) {
       let firstFile: File = files[0];
       this.uploadParam.file = firstFile;
@@ -233,7 +219,7 @@ export class HomePageComponent implements OnInit {
    * @param page
    */
   gotoPage(page: number): void {
-    this.paging.page = page;
+    this.pagingController.setPage(page);
     this.fetchFileInfoList();
   }
 
@@ -242,19 +228,19 @@ export class HomePageComponent implements OnInit {
    * @param pageSize
    */
   setPageSize(pageSize: number): void {
-    this.paging.limit = pageSize;
+    this.pagingController.setPageLimit(pageSize);
     this.fetchFileInfoList();
   }
 
   nextPage(): void {
-    if (this.paging.page < this.pages[this.pages.length - 1]) {
-      this.gotoPage(this.paging.page + 1);
+    if (this.pagingController.canGoToNextPage()) {
+      this.gotoPage(this.pagingController.paging.page + 1);
     }
   }
 
   prevPage(): void {
-    if (this.paging.page > 1) {
-      this.gotoPage(this.paging.page - 1);
+    if (this.pagingController.canGoToPrevPage()) {
+      this.gotoPage(this.pagingController.paging.page - 1);
     }
   }
 
