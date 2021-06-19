@@ -1,5 +1,7 @@
 package com.yongj.io.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -16,6 +18,8 @@ import java.util.Objects;
 @Component
 public class DefaultDeleteFileOperation implements DeleteFileOperation {
 
+    private static final Logger logger = LoggerFactory.getLogger(DefaultDeleteFileOperation.class);
+
     @Override
     public void deleteFile(String absPath) throws IOException {
         Objects.requireNonNull(absPath);
@@ -28,8 +32,11 @@ public class DefaultDeleteFileOperation implements DeleteFileOperation {
         // does not support deleting directory
         if (f.isDirectory())
             throw new IOException("Not support deleting directory: " + absPath);
+
+
         if (!f.delete()) {
             throw new IOException("Cannot delete file" + absPath);
         }
+        logger.info("Deleted file {}", absPath);
     }
 }

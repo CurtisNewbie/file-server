@@ -39,8 +39,10 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     @Autowired
     private PathResolver pathResolver;
 
-    /** Physically delete files in every 2 hours */
-    @Scheduled(cron = "0 0 0/2 ? * * *")
+    /**
+     * Physically delete files in every 2 hours
+     */
+    @Scheduled(cron = "0 0 0/2 ? * *")
     @Override
     public void _exec() {
         PagingVo paging = new PagingVo();
