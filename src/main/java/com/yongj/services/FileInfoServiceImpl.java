@@ -19,8 +19,11 @@ import com.yongj.util.PagingUtil;
 import com.yongj.util.ValidUtils;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
+import com.yongj.vo.PagingVo;
+import com.yongj.vo.PhysicDeleteFileVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -103,7 +106,15 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void downloadFile(String uuid, OutputStream outputStream) throws IOException{
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public PageInfo<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(PagingVo pagingVo) {
+        Objects.requireNonNull(pagingVo);
+        PageHelper.startPage(pagingVo.getPage(), pagingVo.getLimit());
+        return BeanCopyUtils.toPageList(PageInfo.of(mapper.findInfoForPhysicalDeleting()), PhysicDeleteFileVo.class);
+    }
+
+    @Override
+    public void downloadFile(String uuid, OutputStream outputStream) throws IOException {
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(outputStream);
         final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
@@ -114,7 +125,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public InputStream retrieveFileInputStream(String uuid) throws IOException{
+    public InputStream retrieveFileInputStream(String uuid) throws IOException {
         Objects.requireNonNull(uuid);
         final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
         Objects.requireNonNull(uploaderId);
@@ -151,5 +162,10 @@ public class FileInfoServiceImpl implements FileInfoService {
             throw new ParamInvalidException("You can only delete file that you uploaded");
         }
         mapper.logicDelete(uuid);
+    }
+
+    @Override
+    public void markFileDeletedPhysically(int id) {
+        mapper.markFilePhysicDeleted(id, new Date());
     }
 }

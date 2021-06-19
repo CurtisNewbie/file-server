@@ -1,8 +1,10 @@
 package com.yongj.io.impl;
 
+import com.yongj.io.api.DeleteFileOperation;
 import com.yongj.io.api.IOHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotEmpty;
@@ -23,6 +25,9 @@ import java.nio.file.Paths;
 public class IOHandlerImpl implements IOHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
+
+    @Autowired
+    private DeleteFileOperation deleteFileOperation;
 
     @Override
     public long writeByChannel(String absPath, InputStream inputStream) throws IOException {
@@ -51,5 +56,10 @@ public class IOHandlerImpl implements IOHandler {
              WritableByteChannel outChannel = Channels.newChannel(outputStream);) {
             fChannel.transferTo(0, Long.MAX_VALUE, outChannel);
         }
+    }
+
+    @Override
+    public void deleteFile(@NotEmpty String absPath) throws IOException {
+        deleteFileOperation.deleteFile(absPath);
     }
 }

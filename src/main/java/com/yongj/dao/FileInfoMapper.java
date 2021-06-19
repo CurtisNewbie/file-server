@@ -2,6 +2,7 @@ package com.yongj.dao;
 
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface FileInfoMapper {
@@ -69,4 +70,17 @@ public interface FileInfoMapper {
      * Logically delete the file by uuid
      */
     void logicDelete(@Param("uuid") String uuid);
+
+    /**
+     * Select id of files that are logically deleted but not physically deleted
+     */
+    List<FileInfo> findInfoForPhysicalDeleting();
+
+    /**
+     * Mark file being physically deleted
+     *
+     * @param id         id
+     * @param deleteDate the date that is marked as physically deleted
+     */
+    void markFilePhysicDeleted(@Param("id") int id, @Param("deleteDate") Date deleteDate);
 }

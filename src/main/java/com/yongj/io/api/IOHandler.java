@@ -38,4 +38,11 @@ public interface IOHandler {
      * @param outputStream
      */
     void readByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
+
+    /**
+     * Delete file
+     *
+     * @param absPath
+     */
+    void deleteFile(@NotEmpty String absPath) throws IOException;
 }

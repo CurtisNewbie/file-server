@@ -6,6 +6,8 @@ import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.ParamInvalidException;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
+import com.yongj.vo.PagingVo;
+import com.yongj.vo.PhysicDeleteFileVo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +43,13 @@ public interface FileInfoService {
      * @param reqVo filter and paging parameter
      */
     PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo);
+
+    /**
+     * Find logically deleted, but not physically deleted files' id (with pagination)
+     *
+     * @param pagingVo paging parameter
+     */
+    PageInfo<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(PagingVo pagingVo);
 
     /**
      * Download file via uuid to the given outputStream
@@ -80,4 +89,11 @@ public interface FileInfoService {
      * @param uuid   uuid
      */
     void deleteFileLogically(int userId, String uuid) throws ParamInvalidException;
+
+    /**
+     * Physically delete the file (this method should be invoked by the scheduler
+     *
+     * @param id id of the file
+     */
+    void markFileDeletedPhysically(int id);
 }

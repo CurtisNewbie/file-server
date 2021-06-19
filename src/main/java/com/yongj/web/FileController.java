@@ -95,7 +95,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/delete")
-    public Resp<Void> deleteFile(@RequestBody DeleteFileReqVo reqVo) throws ParamInvalidException {
+    public Resp<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws ParamInvalidException {
         ValidUtils.requireNonNull(reqVo.getUuid());
         fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getUuid());
         return Resp.ok();
