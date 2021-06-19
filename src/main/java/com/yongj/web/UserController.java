@@ -1,18 +1,17 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.consts.UserRole;
 import com.curtisnewbie.module.auth.dao.RegisterUserDto;
 import com.curtisnewbie.module.auth.dao.UserEntity;
 import com.curtisnewbie.module.auth.dao.UserInfo;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
-import com.curtisnewbie.module.auth.services.api.AccessLogService;
 import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.auth.util.PasswordUtil;
-import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.vo.DisableUserById;
 import com.yongj.vo.RegisterUserVo;
 import com.yongj.vo.UpdatePasswordVo;
@@ -38,8 +37,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private AccessLogService accessLogService;
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
@@ -98,12 +95,6 @@ public class UserController {
         UserEntity ue = AuthUtil.getUserEntity();
         return Result.of(toUserVo(ue));
     }
-
-//    @PreAuthorize("hasAuthority('admin')")
-//    @PostMapping("/info")
-//    public Resp<UserVo> getAccessLogInfo(GetAccessLogInfoVo vo) {
-//        return accessLogService
-//    }
 
     @PostMapping("/password/update")
     public Result<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException {

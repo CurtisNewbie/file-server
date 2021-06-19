@@ -6,9 +6,11 @@ import { Resp } from "../models/resp";
 import { UserInfo } from "src/models/user-info";
 import { Paging } from "src/models/paging";
 import {
+  FetchAccessLogListParam,
   FetchFileInfoListParam,
   UploadFileParam,
 } from "src/models/request-model";
+import { AccessLog, FetchAccessLogList } from "src/models/access-log";
 
 const headers = {
   headers: new HttpHeaders({
@@ -31,6 +33,19 @@ export class HttpClientService {
   ): Observable<Resp<FetchFileInfoList>> {
     return this.http.post<Resp<FetchFileInfoList>>(
       `/file/list`,
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Fetch list of file info
+   */
+  public fetchAccessLogList(
+    param: FetchAccessLogListParam
+  ): Observable<Resp<FetchAccessLogList>> {
+    return this.http.post<Resp<FetchAccessLogList>>(
+      `/access/history`,
       param,
       headers
     );

@@ -18,7 +18,7 @@ public class LogAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
-    @Around("execution(* com.yongj.web.FileController.*(..))")
+    @Around("execution(* com.yongj.web.*Controller.*(..))")
     public Object logBeforeOperation(ProceedingJoinPoint pjp) throws Throwable {
         StopWatch sw = new StopWatch();
         Object result = null;

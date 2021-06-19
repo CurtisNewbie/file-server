@@ -20,7 +20,7 @@ export interface UploadFileParam {
   userGruop: number;
 }
 
-/** Parameters for fetch list of file info */
+/** Parameters for fetching list of file info */
 export interface FetchFileInfoListParam {
   /** filename */
   filename: string;
@@ -52,4 +52,11 @@ export function emptyUploadFileParam(): UploadFileParam {
     name: null,
     userGruop: null,
   };
+}
+
+/**
+ * Parameters for fetching list of access log
+ */
+export interface FetchAccessLogListParam {
+  pagingVo: Paging;
 }

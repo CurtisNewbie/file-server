@@ -8,6 +8,9 @@
             <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
                 <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>
             </li>
+            <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
+                <a class="nav-link" routerLink="/access-log" routerLinkActive="active">Access History</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" (click)="logout()">Logout</a>
             </li>

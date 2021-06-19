@@ -10,6 +10,7 @@ import { ManagerUserComponent } from "./manager-user/manager-user.component";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { NavComponent } from './nav/nav.component';
+import { AccessLogComponent } from './access-log/access-log.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { NavComponent } from './nav/nav.component';
     LoginComponent,
     ManagerUserComponent,
     NavComponent,
+    AccessLogComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [{ provide: APP_BASE_HREF, useValue: "/" }],

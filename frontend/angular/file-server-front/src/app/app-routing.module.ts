@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
+import { AccessLogComponent } from "./access-log/access-log.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManagerUserComponent } from "./manager-user/manager-user.component";
@@ -16,6 +17,10 @@ const routes: Routes = [
   {
     path: "manage-user",
     component: ManagerUserComponent,
+  },
+  {
+    path: "access-log",
+    component: AccessLogComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

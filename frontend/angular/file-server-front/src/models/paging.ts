@@ -22,7 +22,7 @@ export class PagingConst {
  * Controller for pagination, internal properties are non-private, thus can be directly bound with directive
  */
 export class PagingController {
-  readonly PAGE_LIMIT_OPTIONS: number[] = PagingConst.getPagingLimitOptions();
+  PAGE_LIMIT_OPTIONS: number[] = PagingConst.getPagingLimitOptions();
   paging: Paging = {
     page: 1,
     limit: this.PAGE_LIMIT_OPTIONS[0],
