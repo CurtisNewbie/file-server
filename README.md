@@ -4,16 +4,30 @@ Upload file, list files, and download file :D
 
 ## Dependencies
 
-This project, dependens on following modules that must be manually installed (mvn install)
+This project depends on the following modules that you must manually install (using `mvn clean install`)
 
-### 1. authmodule
+### 1. auth-module
 
-url: https://github.com/CurtisNewbie/authmodule
+For authentication related functionalities
+
+URL: https://github.com/CurtisNewbie/authmodule
 
 ```
     <dependency>
         <groupId>com.curtisnewbie</groupId>
         <artifactId>authmodule</artifactId>
-        <version>0.0.2</version>
+    </dependency>
+```
+
+### 2. common-module
+
+For common functionalities, such as utility classes
+
+URL: https://github.com/CurtisNewbie/common-module
+
+```
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>common-module</artifactId>
     </dependency>
 ```
