@@ -11,15 +11,15 @@ import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileOwnership;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.exceptions.ParamInvalidException;
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
-import com.yongj.util.BeanCopyUtils;
-import com.yongj.util.PagingUtil;
-import com.yongj.util.ValidUtils;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.PagingUtil;
+import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
-import com.yongj.vo.PagingVo;
+import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -136,7 +136,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void validateUserDownload(int userId, String uuid) throws ParamInvalidException {
+    public void validateUserDownload(int userId, String uuid) throws MsgEmbeddedException {
         // validate whether this file can be downloaded by current user
         FileValidateInfo f = mapper.selectValidateInfoByUuid(uuid);
         ValidUtils.requireNonNull(f, "File not found");
@@ -145,7 +145,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         // file belongs to private group && uploaderId unmatched
         if (!Objects.equals(f.getUserGroup(), FileUserGroupEnum.PUBLIC.getValue())
                 && !Objects.equals(f.getUploaderId(), userId)) {
-            throw new ParamInvalidException("You are not allowed to download this file");
+            throw new MsgEmbeddedException("You are not allowed to download this file");
         }
     }
 
@@ -155,11 +155,11 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void deleteFileLogically(int userId, String uuid) throws ParamInvalidException {
+    public void deleteFileLogically(int userId, String uuid) throws MsgEmbeddedException {
         // check if the file is owned by this user
         Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
         if (!Objects.equals(userId, uploaderId)) {
-            throw new ParamInvalidException("You can only delete file that you uploaded");
+            throw new MsgEmbeddedException("You can only delete file that you uploaded");
         }
         mapper.logicDelete(uuid);
     }

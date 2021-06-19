@@ -4,7 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileInfoService;
-import com.yongj.vo.PagingVo;
+import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

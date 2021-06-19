@@ -3,10 +3,10 @@ package com.yongj.services;
 import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.exceptions.ParamInvalidException;
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
-import com.yongj.vo.PagingVo;
+import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
 
 import java.io.IOException;
@@ -71,9 +71,9 @@ public interface FileInfoService {
      *
      * @param userId user.id
      * @param uuid   uuid
-     * @throws ParamInvalidException
+     * @throws MsgEmbeddedException
      */
-    void validateUserDownload(int userId, String uuid) throws ParamInvalidException;
+    void validateUserDownload(int userId, String uuid) throws MsgEmbeddedException;
 
     /**
      * Get filename of file
@@ -88,7 +88,7 @@ public interface FileInfoService {
      * @param userId id of the user
      * @param uuid   uuid
      */
-    void deleteFileLogically(int userId, String uuid) throws ParamInvalidException;
+    void deleteFileLogically(int userId, String uuid) throws MsgEmbeddedException;
 
     /**
      * Physically delete the file (this method should be invoked by the scheduler

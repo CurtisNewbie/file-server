@@ -1,5 +1,7 @@
 package com.yongj.enums;
 
+import com.curtisnewbie.common.enums.IntEnum;
+
 /**
  * Enum for file_info.is_logic_deleted
  *

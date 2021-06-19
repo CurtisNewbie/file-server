@@ -1,15 +1,17 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.Resp;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.github.pagehelper.PageInfo;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.exceptions.ParamInvalidException;
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
-import com.yongj.util.PathUtils;
-import com.yongj.util.ValidUtils;
+import com.curtisnewbie.common.util.PathUtils;
+import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +65,7 @@ public class FileController {
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws ParamInvalidException {
+    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws MsgEmbeddedException {
         final int userId = AuthUtil.getUserId();
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);
@@ -83,7 +85,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resp<ListFileInfoRespVo>> listAll(@RequestBody ListFileInfoReqVo reqVo) throws ParamInvalidException {
+    public ResponseEntity<Resp<ListFileInfoRespVo>> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
@@ -95,7 +97,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/delete")
-    public Resp<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws ParamInvalidException {
+    public Resp<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getUuid());
         fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getUuid());
         return Resp.ok();

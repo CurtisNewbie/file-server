@@ -6,12 +6,13 @@ import com.curtisnewbie.module.auth.dao.UserEntity;
 import com.curtisnewbie.module.auth.dao.UserInfo;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
+import com.curtisnewbie.module.auth.services.api.AccessLogService;
 import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.auth.util.PasswordUtil;
-import com.yongj.vo.Resp;
-import com.yongj.exceptions.ParamInvalidException;
-import com.yongj.util.ValidUtils;
+import com.curtisnewbie.common.vo.Resp;
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.vo.DisableUserById;
 import com.yongj.vo.RegisterUserVo;
 import com.yongj.vo.UpdatePasswordVo;
@@ -37,11 +38,13 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private AccessLogService accessLogService;
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
     public Resp<?> addUser(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
-            ExceededMaxAdminCountException, ParamInvalidException {
+            ExceededMaxAdminCountException, MsgEmbeddedException {
         RegisterUserDto dto = new RegisterUserDto();
         BeanUtils.copyProperties(registerUserVo, dto);
         // validate whether username and password is entered
@@ -80,11 +83,11 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/delete")
-    public Resp<Void> disableUserById(@RequestBody DisableUserById param) throws ParamInvalidException {
+    public Resp<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
         if (param.getId() == null)
-            throw new ParamInvalidException();
+            throw new MsgEmbeddedException();
         if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
-            throw new ParamInvalidException("You cannot delete yourself");
+            throw new MsgEmbeddedException("You cannot delete yourself");
         }
         userService.disabledUserById(param.getId(), AuthUtil.getUsername());
         return Resp.ok();
@@ -96,8 +99,14 @@ public class UserController {
         return Resp.of(toUserVo(ue));
     }
 
+//    @PreAuthorize("hasAuthority('admin')")
+//    @PostMapping("/info")
+//    public Resp<UserVo> getAccessLogInfo(GetAccessLogInfoVo vo) {
+//        return accessLogService
+//    }
+
     @PostMapping("/password/update")
-    public Resp<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws ParamInvalidException {
+    public Resp<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getNewPassword());
         ValidUtils.requireNonNull(vo.getPrevPassword());
         if (Objects.equals(vo.getNewPassword(), vo.getPrevPassword()))

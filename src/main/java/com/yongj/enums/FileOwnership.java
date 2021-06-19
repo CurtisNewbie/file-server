@@ -1,6 +1,7 @@
 package com.yongj.enums;
 
-import com.yongj.util.EnumUtils;
+import com.curtisnewbie.common.enums.IntEnum;
+import com.curtisnewbie.common.util.EnumUtils;
 
 /**
  * Ownership of the files being queried

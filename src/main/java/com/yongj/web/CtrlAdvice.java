@@ -3,10 +3,10 @@ package com.yongj.web;
 import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.module.auth.exception.InvalidAuthenticationException;
 import com.curtisnewbie.module.auth.exception.UserRegisteredException;
-import com.yongj.vo.Resp;
+import com.curtisnewbie.common.vo.Resp;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
-import com.yongj.exceptions.ParamInvalidException;
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +72,9 @@ public class CtrlAdvice {
         return ResponseEntity.ok(Resp.error("Authentication invalid, please re-login"));
     }
 
-    @ExceptionHandler({ParamInvalidException.class})
+    @ExceptionHandler({MsgEmbeddedException.class})
     @ResponseBody
-    public ResponseEntity<Resp<?>> handleParamInvalidException(ParamInvalidException e) {
+    public ResponseEntity<Resp<?>> handleMsgEmbeddedException(MsgEmbeddedException e) {
         String errorMsg = e.getMsg();
         if (!StringUtils.hasText(errorMsg)) {
             errorMsg = "Invalid parameters";

@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.curtisnewbie.common.vo.PagingVo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
