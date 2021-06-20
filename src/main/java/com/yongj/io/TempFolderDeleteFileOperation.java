@@ -12,7 +12,10 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
- * Implementation of {@link DeleteFileOperation}, which move files to a temporary folder
+ * Implementation of {@link DeleteFileOperation}
+ * <p>
+ * This implementation moves files to a temporary folder, see {@link #TEMP_FOLDER_NAME}
+ * </p>
  *
  * @author yongjie.zhuang
  */
@@ -28,24 +31,26 @@ public class TempFolderDeleteFileOperation implements DeleteFileOperation {
     public void deleteFile(String absPath) throws IOException {
         Objects.requireNonNull(absPath);
 
-        Path p = Paths.get(absPath);
-        File f = p.toFile();
+        Path filePath = Paths.get(absPath);
+        File file = filePath.toFile();
         // if the file doesn't exist, we can also consider it as deleted already
-        if (!f.exists()) {
+        if (!file.exists()) {
             logger.info("File {} not exists, skipped", absPath);
             return;
         }
         // does not support deleting directory
-        if (f.isDirectory())
-            throw new IOException("Not support deleting directory: " + absPath);
+        if (file.isDirectory())
+            throw new IOException("Not support moving directory: " + absPath);
 
-        // move file to temporary folder
-        Path fp = Paths.get(pathResolver.resolveFolder(TEMP_FOLDER_NAME));
-        Files.move(p, fp);
-
-        if (!f.delete()) {
-            throw new IOException("Cannot delete file" + absPath);
+        Path folderPath = Paths.get(pathResolver.resolveFolder(TEMP_FOLDER_NAME));
+        // create folder if not exists
+        if (!Files.exists(folderPath)) {
+            Files.createDirectory(folderPath);
         }
-        logger.info("Deleted file {}", absPath);
+        // create the target file, which is under the temp folder
+        File targetFile = new File(folderPath.toFile(), file.getName());
+        // move file to temporary folder
+        Files.move(filePath, targetFile.toPath());
+        logger.info("Moved file {} to {}", absPath, targetFile.getAbsolutePath());
     }
 }

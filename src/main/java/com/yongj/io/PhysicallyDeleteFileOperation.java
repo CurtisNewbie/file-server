@@ -10,13 +10,16 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
- * Default implementation of {@link DeleteFileOperation}
+ * Implementation of {@link DeleteFileOperation}
+ * <p>
+ * This operation delete the file directly, using {@link File#delete()}
+ * </p>
  *
  * @author yongjie.zhuang
  */
-public class DefaultDeleteFileOperation implements DeleteFileOperation {
+public class PhysicallyDeleteFileOperation implements DeleteFileOperation {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultDeleteFileOperation.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhysicallyDeleteFileOperation.class);
 
     @Override
     public void deleteFile(String absPath) throws IOException {
