@@ -67,10 +67,6 @@ export class HomePageComponent implements OnInit {
   private fetchSupportedExtensions(): void {
     this.httpClient.fetchSupportedFileExtensions().subscribe({
       next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
         this.fileExtSet.clear();
         for (let e of resp.data) {
           this.fileExtSet.add(e.toLowerCase());
@@ -93,10 +89,6 @@ export class HomePageComponent implements OnInit {
       })
       .subscribe({
         next: (resp) => {
-          if (resp.hasError) {
-            window.alert(resp.msg);
-            return;
-          }
           this.fileInfoList = resp.data.fileInfoList;
           let total = resp.data.pagingVo.total;
           if (total != null) {
@@ -155,11 +147,6 @@ export class HomePageComponent implements OnInit {
       return;
     }
     this.httpClient.postFile(this.uploadParam).subscribe({
-      next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-        }
-      },
       complete: () => {
         this.uploadParam.file = null;
         this.uploadParam.name = null;
@@ -264,10 +251,6 @@ export class HomePageComponent implements OnInit {
   deleteFile(uuid: string): void {
     this.httpClient.deleteFile(uuid).subscribe({
       next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
         this.fetchFileInfoList();
       },
     });

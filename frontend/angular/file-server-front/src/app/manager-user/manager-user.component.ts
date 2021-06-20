@@ -33,10 +33,6 @@ export class ManagerUserComponent implements OnInit {
       )
       .subscribe({
         next: (resp) => {
-          if (resp.hasError) {
-            window.alert(resp.msg);
-            return;
-          }
           console.log("Successfully added guest:", this.usernameToBeAdded);
           this.usernameToBeAdded = null;
           this.passswordToBeAdded = null;
@@ -50,10 +46,6 @@ export class ManagerUserComponent implements OnInit {
   public fetchUserInfoList(): void {
     this.userService.fetchUserList().subscribe({
       next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
         this.userInfoList = resp.data;
       },
     });
@@ -62,10 +54,6 @@ export class ManagerUserComponent implements OnInit {
   public deleteUserById(id: number): void {
     this.userService.deleteUserById(id).subscribe({
       next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
         this.fetchUserInfoList();
       },
     });

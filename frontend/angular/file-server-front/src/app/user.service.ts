@@ -55,11 +55,6 @@ export class UserService {
   public fetchUserInfo(): void {
     this.httpClient.fetchUserInfo().subscribe({
       next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
-
         if (resp.data) {
           this.userInfo = resp.data;
           this.notifyRole(this.userInfo.role);

@@ -28,10 +28,6 @@ export class AccessLogComponent implements OnInit {
       })
       .subscribe({
         next: (resp) => {
-          if (resp.hasError) {
-            window.alert(resp.msg);
-            return;
-          }
           this.accessLogList = resp.data.accessLogInfoList;
           let total = resp.data.pagingVo.total;
           if (total != null) {

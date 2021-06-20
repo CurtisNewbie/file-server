@@ -24,10 +24,6 @@ export class LoginComponent implements OnInit {
     }
     this.userService.login(this.usernameInput, this.passwordInput).subscribe({
       next: (resp) => {
-        if (resp.hasError) {
-          window.alert(resp.msg);
-          return;
-        }
         // login successful
         this.userService.fetchUserInfo();
         this.routeToHomePage();
