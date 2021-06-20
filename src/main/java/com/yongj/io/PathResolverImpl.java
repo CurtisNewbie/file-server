@@ -65,4 +65,13 @@ public class PathResolverImpl implements PathResolver {
             throw new IllegalExtException(String.format("File extension '%s' not supported", parsedExt));
         }
     }
+
+    @Override
+    public String resolveFolder(@NotEmpty String folder) {
+        String absPath = pathConfig.getBasePath() + File.separator
+                + folder;
+        logger.debug("Resolving path for folder: '{}', resolved absolute path: '{}'",
+                folder, absPath);
+        return absPath;
+    }
 }

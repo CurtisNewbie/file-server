@@ -4,6 +4,9 @@ import java.io.IOException;
 
 /**
  * Defines how the file deleting operation is committed
+ * <p>
+ * To specify or provide your own implementation, see {@link IOOperationConfig}
+ * </p>
  *
  * @author yongjie.zhuang
  */

@@ -28,4 +28,12 @@ public interface PathResolver {
      * @throws com.yongj.exceptions.IllegalExtException if file extension is invalid
      */
     void validateFileExtension(@NotEmpty String relPath);
+
+    /**
+     * Resolve absolute path for the folder
+     *
+     * @param folder folder name
+     * @return absolute path
+     */
+    String resolveFolder(@NotEmpty String folder);
 }

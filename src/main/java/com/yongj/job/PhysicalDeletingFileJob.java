@@ -60,6 +60,7 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
         PageInfo<PhysicDeleteFileVo> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
         // while there is items in page
         while (!idsInPage.getList().isEmpty()) {
+            logger.info("Found {} files, preparing to delete them", idsInPage.getList().size());
             // delete the file physically
             deleteFilesPhysically(idsInPage);
             // next page
