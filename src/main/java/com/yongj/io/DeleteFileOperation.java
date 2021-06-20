@@ -3,7 +3,7 @@ package com.yongj.io;
 import java.io.IOException;
 
 /**
- * Defines how the file deleting operation is committed
+ * Defines how the file deleting operation is undertaken
  * <p>
  * To specify or provide your own implementation, see {@link IOOperationConfig}
  * </p>

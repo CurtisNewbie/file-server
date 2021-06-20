@@ -31,7 +31,21 @@ public class IOOperationConfig {
         } else {
             impl = new TempFolderDeleteFileOperation();
         }
-        logger.info("File Deleting Operation will use implementation: {}", impl.getClass().getName());
+        logger.info("File deleting operation will use implementation: {}", impl.getClass().getName());
+        return impl;
+    }
+
+    @Bean
+    public ReadFileOperation readFileOperation() {
+        ReadFileOperation impl = new ChannelReadFileOperation();
+        logger.info("File reading operation will use implementation: {}", impl.getClass().getName());
+        return impl;
+    }
+
+    @Bean
+    public WriteFileOperation writeFileOperation() {
+        WriteFileOperation impl = new ChannelWriteFileOperation();
+        logger.info("File writing operation will use implementation: {}", impl.getClass().getName());
         return impl;
     }
 }

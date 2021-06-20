@@ -24,7 +24,7 @@ public interface IOHandler {
     /**
      * Write data (from an InputStream) to file of absolute path asynchronously
      */
-    long writeByChannel(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
+    long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
 
     /**
      * Create the parent directory for given absolute path
@@ -37,7 +37,7 @@ public interface IOHandler {
      * @param absPath
      * @param outputStream
      */
-    void readByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
+    void readFile(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
 
     /**
      * Delete file

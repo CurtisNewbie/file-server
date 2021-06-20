@@ -64,7 +64,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
-        final long sizeInBytes = ioHandler.writeByChannel(absPath, inputStream);
+        final long sizeInBytes = ioHandler.writeFile(absPath, inputStream);
         // save file info record
         FileInfo f = new FileInfo();
         f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
@@ -121,7 +121,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         Objects.requireNonNull(uploaderId);
         // read file from channel
         final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId);
-        ioHandler.readByChannel(absPath, outputStream);
+        ioHandler.readFile(absPath, outputStream);
     }
 
     @Override

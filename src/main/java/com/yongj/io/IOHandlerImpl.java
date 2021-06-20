@@ -7,11 +7,9 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.*;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,15 +24,14 @@ public class IOHandlerImpl implements IOHandler {
 
     @Autowired
     private DeleteFileOperation deleteFileOperation;
+    @Autowired
+    private ReadFileOperation readFileOperation;
+    @Autowired
+    private WriteFileOperation writeFileOperation;
 
     @Override
-    public long writeByChannel(String absPath, InputStream inputStream) throws IOException {
-        File file = new File(absPath);
-        try (FileChannel fileChannel = new FileOutputStream(file).getChannel();
-             ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream)) {
-            fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-        }
-        return file.length();
+    public long writeFile(String absPath, InputStream inputStream) throws IOException {
+        return writeFileOperation.writeFile(absPath, inputStream);
     }
 
     @Override
@@ -48,12 +45,8 @@ public class IOHandlerImpl implements IOHandler {
     }
 
     @Override
-    public void readByChannel(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException {
-        RandomAccessFile file = new RandomAccessFile(absPath, "r");
-        try (FileChannel fChannel = file.getChannel();
-             WritableByteChannel outChannel = Channels.newChannel(outputStream);) {
-            fChannel.transferTo(0, Long.MAX_VALUE, outChannel);
-        }
+    public void readFile(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException {
+        readFileOperation.readFile(absPath, outputStream);
     }
 
     @Override
