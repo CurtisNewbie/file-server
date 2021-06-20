@@ -30,7 +30,7 @@ public class IOHandlerImpl implements IOHandler {
     private WriteFileOperation writeFileOperation;
 
     @Override
-    public long writeFile(String absPath, InputStream inputStream) throws IOException {
+    public long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException {
         return writeFileOperation.writeFile(absPath, inputStream);
     }
 
@@ -40,7 +40,7 @@ public class IOHandlerImpl implements IOHandler {
     }
 
     @Override
-    public boolean exists(String absPath) {
+    public boolean exists(@NotEmpty String absPath) {
         return Files.exists(Path.of(absPath));
     }
 
