@@ -27,7 +27,7 @@ public final class PathConfig {
 
     public PathConfig(@Value("${base.path}") String basePath) throws IOException {
         this.basePath = basePath;
-        logger.info("[INIT] Using base path: '{}'", this.basePath);
+        logger.info("Using base path: '{}'", this.basePath);
         Path bp = Paths.get(this.basePath);
         Files.createDirectories(bp);
         basePathUri = bp.toUri();
