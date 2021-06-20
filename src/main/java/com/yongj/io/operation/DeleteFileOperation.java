@@ -1,4 +1,6 @@
-package com.yongj.io;
+package com.yongj.io.operation;
+
+import com.yongj.io.IOOperationConfig;
 
 import java.io.IOException;
 
