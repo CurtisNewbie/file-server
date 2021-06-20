@@ -71,14 +71,4 @@ export class AccessLogComponent implements OnInit {
       this.fetchAccessLogList();
     }
   }
-
-  dateToStr(date: Date): string {
-    console.log(typeof date, date);
-    let dd = date.getDate();
-    let mm = date.getMonth();
-    let yyyy = date.getFullYear();
-    let HH = date.getHours();
-    let MM = date.getMinutes();
-    return `${dd}/${mm}/${yyyy} ${HH}:${MM}`;
-  }
 }
