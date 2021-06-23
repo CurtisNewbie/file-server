@@ -62,12 +62,12 @@
                     <option [value]="OWNERSHIP_MY_FILES">My Files</option>
                 </select>
             </div>
-            <div class="col-12">
-                <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="reloadBtn"
-                    (click)="fetchFileInfoList()">Fetch</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="resetBtn"
-                    (click)="resetSearchParam()">Reset</button>
-            </div>
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="reloadBtn"
+                (click)="fetchFileInfoList()">Fetch</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="resetBtn"
+                (click)="resetSearchParam()">Reset</button>
         </div>
         <div class="list-group" id="listDiv">
             <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
