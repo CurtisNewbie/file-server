@@ -39,6 +39,9 @@ export class HomePageComponent implements OnInit {
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
 
+  @ViewChild("uploadFileNameInput", { static: true })
+  uploadFileNameInput: ElementRef<HTMLInputElement>;
+
   @ViewChild("defSearchUserGroup", { static: true })
   defaultSearchUserGroup: ElementRef<HTMLOptionElement>;
 
@@ -151,6 +154,7 @@ export class HomePageComponent implements OnInit {
         this.uploadParam.file = null;
         this.uploadParam.name = null;
         this.uploadFileInput.nativeElement.value = null;
+        this.uploadFileNameInput.nativeElement.value = null;
         this.fetchFileInfoList();
       },
       error: () => {
