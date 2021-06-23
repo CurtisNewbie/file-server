@@ -12,7 +12,7 @@
             <span class="input-group-text" id="basic-addon1">Password:</span>
         </div>
         <input type="password" id="passwordInput" [(ngModel)]="passwordInput" class="form-control"
-            aria-describedby="basic-addon1">
+            (keyup)="passwordInputKeyPressed($event)" aria-describedby="basic-addon1">
     </div>
     <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="login()">Login</button>
 </div>

@@ -38,4 +38,11 @@ export class LoginComponent implements OnInit {
   private routeToHomePage(): void {
     this.router.navigate(["/home-page"]);
   }
+
+  passwordInputKeyPressed(event: any): void {
+    if (event.key === "Enter") {
+      console.log("Pressed enter, init sign-in procedure");
+      this.login();
+    }
+  }
 }
