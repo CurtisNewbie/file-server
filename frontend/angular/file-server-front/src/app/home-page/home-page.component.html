@@ -40,7 +40,7 @@
 <div class="mt-5">
     <h3>File List</h3>
     <div class="container bootstrap mt-3 mb-3">
-        <form class="row row-cols-lg-auto g-3 align-items-center mt-3">
+        <div class="row row-cols-lg-auto g-3 align-items-center mt-3">
             <div class="input-group mb-2 col-12">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Search File Name:</span>
@@ -62,12 +62,12 @@
                     <option [value]="OWNERSHIP_MY_FILES">My Files</option>
                 </select>
             </div>
-        </form>
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-            <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
-                (click)="fetchFileInfoList()">Fetch</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary " id="resetBtn"
-                (click)="resetSearchParam()">Reset</button>
+            <div class="col-12">
+                <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="reloadBtn"
+                    (click)="fetchFileInfoList()">Fetch</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="resetBtn"
+                    (click)="resetSearchParam()">Reset</button>
+            </div>
         </div>
         <div class="list-group" id="listDiv">
             <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
