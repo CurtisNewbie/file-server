@@ -6,7 +6,8 @@ import {
   HttpRequest,
   HttpHandler,
 } from "@angular/common/http";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
+import { filter } from "rxjs/operators";
 import { Resp } from "src/models/resp";
 
 /**
@@ -18,23 +19,18 @@ export class RespInterceptor implements HttpInterceptor {
     httpRequest: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    let s = new Subject<any>();
-    let o = s.asObservable();
-
-    next.handle(httpRequest).subscribe({
-      next: (e) => {
+    return next.handle(httpRequest).pipe(
+      filter((e, i) => {
         if (e instanceof HttpResponse) {
           let r: Resp<any> = e.body as Resp<any>;
           if (r.hasError) {
             window.alert(r.msg);
-            // complete the subject, thus close all subscriptions
-            s.complete();
-            return;
+            // filter out this value
+            return false;
           }
         }
-        s.next(e);
-      },
-    });
-    return o;
+        return true;
+      })
+    );
   }
 }

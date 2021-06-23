@@ -150,6 +150,7 @@ export class HomePageComponent implements OnInit {
       return;
     }
     this.httpClient.postFile(this.uploadParam).subscribe({
+      next: (r) => {},
       complete: () => {
         this.uploadParam.file = null;
         this.uploadParam.name = null;
