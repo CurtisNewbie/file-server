@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { UserInfo } from "src/models/user-info";
+import { UserInfo, UserIsDisabledConst } from "src/models/user-info";
 import { UserService } from "../user.service";
 
 @Component({
@@ -8,6 +8,8 @@ import { UserService } from "../user.service";
   styleUrls: ["./manager-user.component.css"],
 })
 export class ManagerUserComponent implements OnInit {
+  readonly USER_IS_NORMAL = UserIsDisabledConst.NORMAL;
+  readonly USER_IS_DISABLED = UserIsDisabledConst.IS_DISABLED;
   usernameToBeAdded: string = null;
   passswordToBeAdded: string = null;
   userRoleOfAddedUser: string = null;
@@ -51,8 +53,16 @@ export class ManagerUserComponent implements OnInit {
     });
   }
 
-  public deleteUserById(id: number): void {
-    this.userService.deleteUserById(id).subscribe({
+  public disableUserById(id: number): void {
+    this.userService.disableUserById(id).subscribe({
+      next: (resp) => {
+        this.fetchUserInfoList();
+      },
+    });
+  }
+
+  public enableUserById(id: number): void {
+    this.userService.enableUserById(id).subscribe({
       next: (resp) => {
         this.fetchUserInfoList();
       },

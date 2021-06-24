@@ -1,6 +1,7 @@
 package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.consts.UserRole;
@@ -12,10 +13,7 @@ import com.curtisnewbie.module.auth.exception.UserRegisteredException;
 import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.auth.util.PasswordUtil;
-import com.yongj.vo.DisableUserById;
-import com.yongj.vo.RegisterUserVo;
-import com.yongj.vo.UpdatePasswordVo;
-import com.yongj.vo.UserVo;
+import com.yongj.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -74,29 +72,40 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @GetMapping("/list")
-    public Result<List<UserVo>> getUserList() {
-        return Result.of(toUserVoList(userService.findUserInfoList(), AuthUtil.getUserEntity().getId()));
+    public Result<List<UserInfoVo>> getUserList() {
+        return Result.of(toUserInfoVoList(userService.findAllUserInfoList(), AuthUtil.getUserEntity().getId()));
     }
 
     @PreAuthorize("hasAuthority('admin')")
-    @PostMapping("/delete")
+    @PostMapping("/disable")
     public Result<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
-        if (param.getId() == null)
-            throw new MsgEmbeddedException();
+        ValidUtils.requireNonNull(param.getId());
         if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
-            throw new MsgEmbeddedException("You cannot delete yourself");
+            throw new MsgEmbeddedException("You cannot disable yourself");
         }
-        userService.disabledUserById(param.getId(), AuthUtil.getUsername());
+        userService.disableUserById(param.getId(), AuthUtil.getUsername());
+        return Result.ok();
+    }
+
+    @PreAuthorize("hasAuthority('admin')")
+    @PostMapping("/enable")
+    public Result<Void> enableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
+        ValidUtils.requireNonNull(param.getId());
+        if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
+            throw new MsgEmbeddedException("You cannot enable yourself");
+        }
+        userService.enableUserById(param.getId(), AuthUtil.getUsername());
         return Result.ok();
     }
 
     @GetMapping("/info")
     public Result<UserVo> getUserInfo() {
         UserEntity ue = AuthUtil.getUserEntity();
-        return Result.of(toUserVo(ue));
+        return Result.of(BeanCopyUtils.toType(ue, UserVo.class));
     }
 
-    @PostMapping("/password/update")
+    // TODO, not supported so far
+//    @PostMapping("/password/update")
     public Result<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getNewPassword());
         ValidUtils.requireNonNull(vo.getPrevPassword());
@@ -114,23 +123,12 @@ public class UserController {
         return Result.ok();
     }
 
-
-    private UserVo toUserVo(UserEntity ue) {
-        UserVo uv = new UserVo();
-        uv.setUsername(ue.getUsername());
-        uv.setRole(ue.getRole());
-        return uv;
-    }
-
-    private List<UserVo> toUserVoList(List<UserInfo> userInfoList, int currUserId) {
+    private List<UserInfoVo> toUserInfoVoList(List<UserInfo> userInfoList, int currUserId) {
         return userInfoList.stream().filter(ui -> {
             // exclude current user
             return !Objects.equals(ui.getId(), currUserId);
-        }).map(ui -> {
-            UserVo uv = new UserVo();
-            BeanUtils.copyProperties(ui, uv);
-            return uv;
-        }).collect(Collectors.toList());
+        }).map(ui -> BeanCopyUtils.toType(ui, UserInfoVo.class))
+                .collect(Collectors.toList());
     }
 
 //

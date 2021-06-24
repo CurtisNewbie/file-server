@@ -104,10 +104,18 @@ export class UserService {
   }
 
   /**
-   * Delete user by id (only admin is allowed)
+   * Disable user by id (only admin is allowed)
    * @param id
    */
-  public deleteUserById(id: number): Observable<Resp<any>> {
-    return this.httpClient.deleteUserById(id);
+  public disableUserById(id: number): Observable<Resp<any>> {
+    return this.httpClient.disableUserByid(id);
+  }
+
+  /**
+   * Enable user by id (only admin is allowed)
+   * @param id
+   */
+  public enableUserById(id: number): Observable<Resp<any>> {
+    return this.httpClient.enableUserById(id);
   }
 }

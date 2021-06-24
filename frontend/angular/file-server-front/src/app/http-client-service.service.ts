@@ -120,9 +120,23 @@ export class HttpClientService {
    * Delete user by id
    * @param id
    */
-  public deleteUserById(id: number): Observable<Resp<any>> {
+  public disableUserByid(id: number): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      "/user/delete",
+      "/user/disable",
+      {
+        id: id,
+      },
+      headers
+    );
+  }
+
+  /**
+   * Enable user by id
+   * @param id
+   */
+  public enableUserById(id: number): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      "/user/enable",
       {
         id: id,
       },

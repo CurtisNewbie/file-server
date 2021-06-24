@@ -40,8 +40,16 @@
                 <small>ID: {{u.id}}</small>
             </div>
             <p class="mb-1">Role: {{u.role}}</p>
-            <small><button class="btn btn-outline-secondary btn-sm"
-                    (click)="deleteUserById(u.id)">Delete</button></small>
+
+            <div class="d-flex w-100 justify-content-between">
+                <p>Status: {{u.isDisabled === USER_IS_DISABLED ? "disabled" : "normal"}}</p>
+                <div>
+                    <small [hidden]="u.isDisabled === USER_IS_DISABLED"><button class="btn btn-outline-secondary btn-sm"
+                            (click)="disableUserById(u.id)">Disable</button></small>
+                    <small [hidden]="u.isDisabled === USER_IS_NORMAL"><button class="btn btn-outline-secondary btn-sm"
+                            (click)="enableUserById(u.id)">Enable</button></small>
+                </div>
+            </div>
         </div>
     </div>
 
