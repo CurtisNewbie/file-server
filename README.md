@@ -4,7 +4,7 @@ Upload file, list files, and download file :D
 
 ## Dependencies
 
-This project depends on the following modules that you must manually install (using `mvn clean install`)
+This project depends on the following modules that you must manually install (using `mvn clean install`). For in-db branch, please use the `dev` branch for the modules below. For the `main` branch, please use the `main` branch for the modules below.
 
 ### 1. auth-module
 
