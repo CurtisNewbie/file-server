@@ -30,8 +30,8 @@ export class ErrorInterceptor implements HttpInterceptor {
         if (e instanceof HttpErrorResponse) {
           console.log("Http error response status:", e.status);
           let statusStr = e.status.toString();
-          // status code 5xx, redirect to login page
-          if (e.status >= 500) {
+          // status code 5xx or 0, redirect to login page
+          if (e.status >= 500 || e.status == 0) {
             window.alert("Server is down");
             this.setLogout();
           } else if (e.status === 401 || e.status === 403) {
