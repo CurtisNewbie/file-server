@@ -28,10 +28,6 @@ export class LoginComponent implements OnInit {
         this.userService.fetchUserInfo();
         this.routeToHomePage();
       },
-      error: () => {
-        window.alert("Unknown error occurred, please try again later");
-        this.passwordInput = "";
-      },
     });
   }
 

@@ -31,8 +31,16 @@ export class UserService {
    * Logout current user
    */
   public logout(): Observable<void> {
-    this.notifyLoginStatus(false);
+    this.setLogout();
     return this.httpClient.logout();
+  }
+
+  /**
+   * Set user being logged out
+   */
+  public setLogout(): void {
+    this.userInfo = null;
+    this.notifyLoginStatus(false);
   }
 
   /**

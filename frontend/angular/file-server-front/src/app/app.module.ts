@@ -12,6 +12,7 @@ import { FormsModule } from "@angular/forms";
 import { NavComponent } from "./nav/nav.component";
 import { AccessLogComponent } from "./access-log/access-log.component";
 import { RespInterceptor } from "./interceptors/resp-interceptor";
+import { ErrorInterceptor } from "./interceptors/error-interceptor";
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { RespInterceptor } from "./interceptors/resp-interceptor";
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [
     { provide: APP_BASE_HREF, useValue: "/" },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: RespInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
