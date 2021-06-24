@@ -268,4 +268,11 @@ export class HomePageComponent implements OnInit {
   setSearchOwnership(ownership: number): void {
     this.searchParam.ownership = ownership;
   }
+
+  searchNameInputKeyPressed(event: any): void {
+    if (event.key === "Enter") {
+      console.log("Pressed 'Enter' key, init search file list procedure");
+      this.fetchFileInfoList();
+    }
+  }
 }

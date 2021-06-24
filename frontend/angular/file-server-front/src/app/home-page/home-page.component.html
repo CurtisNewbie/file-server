@@ -46,7 +46,7 @@
                     <span class="input-group-text" id="basic-addon1">Search File Name:</span>
                 </div>
                 <input type="text" [(ngModel)]="searchParam.name" [ngModelOptions]="{standalone:true}"
-                    class="form-control" aria-describedby="basic-addon1">
+                    class="form-control" aria-describedby="basic-addon1" (keyup)="searchNameInputKeyPressed($event)">
             </div>
             <div class="col-12">
                 <select class="form-select" id="searchUserGroupSelect"
