@@ -60,3 +60,40 @@ export function emptyUploadFileParam(): UploadFileParam {
 export interface FetchAccessLogListParam {
   pagingVo: Paging;
 }
+
+/**
+ * Parameters for adding a new user
+ */
+export interface AddUserParam {
+  /** username */
+  username: string;
+  /** password */
+  password: string;
+  /** user role */
+  userRole: string;
+}
+
+/**
+ * Parameters for changing password
+ */
+export interface ChangePasswordParam {
+  /**
+   * Previous password
+   */
+  prevPassword: string;
+
+  /**
+   * New password
+   */
+  newPassword: string;
+}
+
+/**
+ * Empty object with all properties being null values
+ */
+export function emptyChangePasswordParam(): ChangePasswordParam {
+  return {
+    prevPassword: null,
+    newPassword: null,
+  };
+}

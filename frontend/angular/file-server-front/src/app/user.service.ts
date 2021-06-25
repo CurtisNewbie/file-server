@@ -54,7 +54,7 @@ export class UserService {
     password: string,
     userRole: string
   ): Observable<Resp<any>> {
-    return this.httpClient.addUser(username, password, userRole);
+    return this.httpClient.addUser({ username, password, userRole });
   }
 
   /**

@@ -6,6 +6,8 @@ import { Resp } from "../models/resp";
 import { UserInfo } from "src/models/user-info";
 import { Paging } from "src/models/paging";
 import {
+  AddUserParam,
+  ChangePasswordParam,
   FetchAccessLogListParam,
   FetchFileInfoListParam,
   UploadFileParam,
@@ -93,20 +95,8 @@ export class HttpClientService {
    * @param username
    * @param password
    */
-  public addUser(
-    username: string,
-    password: string,
-    userRole: string
-  ): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>(
-      "/user/register",
-      JSON.stringify({
-        username: username,
-        password: password,
-        userRole: userRole,
-      }),
-      headers
-    );
+  public addUser(param: AddUserParam): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>("/user/register", param, headers);
   }
 
   /**
@@ -165,5 +155,12 @@ export class HttpClientService {
    */
   public deleteFile(uuid: string): Observable<Resp<any>> {
     return this.http.post<Resp<any>>("/file/delete", { uuid: uuid }, headers);
+  }
+
+  /**
+   * Change password
+   */
+  public changePassword(param: ChangePasswordParam): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>("/user/password/update", param, headers);
   }
 }

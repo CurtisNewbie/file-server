@@ -13,6 +13,7 @@ import { NavComponent } from "./nav/nav.component";
 import { AccessLogComponent } from "./access-log/access-log.component";
 import { RespInterceptor } from "./interceptors/resp-interceptor";
 import { ErrorInterceptor } from "./interceptors/error-interceptor";
+import { ChangePasswordComponent } from './change-password/change-password.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { ErrorInterceptor } from "./interceptors/error-interceptor";
     ManagerUserComponent,
     NavComponent,
     AccessLogComponent,
+    ChangePasswordComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [
