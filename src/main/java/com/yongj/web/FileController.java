@@ -1,23 +1,25 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.github.pagehelper.PageInfo;
 import com.yongj.enums.FileUserGroupEnum;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
 import com.yongj.util.PathUtils;
-import com.curtisnewbie.common.util.ValidUtils;
-import com.yongj.vo.*;
+import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.ListFileInfoReqVo;
+import com.yongj.vo.ListFileInfoRespVo;
+import com.yongj.vo.LogicDeleteFileReqVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,16 +54,16 @@ public class FileController {
 
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Result<?>> upload(@RequestParam("fileName") String fileName,
-                                            @RequestParam("file") MultipartFile multipartFile,
-                                            @RequestParam("userGroup") Integer userGroup) throws IOException {
+    public Result<?> upload(@RequestParam("fileName") String fileName,
+                            @RequestParam("file") MultipartFile multipartFile,
+                            @RequestParam("userGroup") Integer userGroup) throws IOException {
         pathResolver.validateFileExtension(fileName);
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         if (userGroupEnum == null) {
-            return ResponseEntity.ok(Result.error("Incorrect user group"));
+            return Result.error("Incorrect user group");
         }
         fileInfoService.uploadFile(AuthUtil.getUserId(), fileName, userGroupEnum, multipartFile.getInputStream());
-        return ResponseEntity.ok(Result.ok());
+        return Result.ok();
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -85,7 +87,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Result<ListFileInfoRespVo>> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException {
+    public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
@@ -93,7 +95,7 @@ public class FileController {
         PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(reqVo);
         PagingVo paging = new PagingVo();
         paging.setTotal(fileInfoVoPageInfo.getTotal());
-        return ResponseEntity.ok(Result.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging)));
+        return Result.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging));
     }
 
     @PostMapping(path = "/delete")
@@ -104,10 +106,10 @@ public class FileController {
     }
 
     @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Result<List<String>>> listSupportedFileExtension() {
-        return ResponseEntity.ok(Result.of(
+    public Result<List<String>> listSupportedFileExtension() {
+        return Result.of(
                 fileExtensionService.getNamesOfAllEnabled()
-        ));
+        );
     }
 
     private static final String encodeAttachmentName(String filePath) {
