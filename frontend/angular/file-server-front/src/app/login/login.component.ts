@@ -28,6 +28,9 @@ export class LoginComponent implements OnInit {
         this.userService.fetchUserInfo();
         this.routeToHomePage();
       },
+      complete: () => {
+        this.passwordInput = "";
+      },
     });
   }
 
