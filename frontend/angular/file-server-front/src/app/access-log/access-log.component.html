@@ -1,5 +1,5 @@
 <div class="container bootstrap mt-3 mb-5 ">
-    <h3>Access History</h3>
+    <h3 class="m-2">Access History</h3>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
         <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
             (click)="fetchAccessLogList()">Fetch</button>
@@ -8,7 +8,7 @@
         <div *ngFor="let a of accessLogList" href="#" class="list-group-item list-group-item-action "
             aria-current="true">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{a.username}}</h5>
+                <h6 class="mb-1">User: {{a.username}}</h6>
                 <small>ID: {{a.userId}}</small>
             </div>
             <small class="m-1">Access Time:
@@ -21,14 +21,14 @@
             <span class="input-group-text" id="basic-addon1">Current Page: {{pagingController.paging.page}}</span>
         </div>
         <div class="col-12">
-            <select class="form-select" (click)="setPageSize($event.target.value)">
+            <select class="form-select form-select-sm" (click)="setPageSize($event.target.value)">
                 <option value="{{limit}}" *ngFor="let limit of pagingController.PAGE_LIMIT_OPTIONS">Page
                     Size:
                     {{limit}}</option>
             </select>
         </div>
         <div class="col-12">
-            <select class="form-select" (click)="gotoPage($event.target.value)">
+            <select class="form-select form-select-sm" (click)="gotoPage($event.target.value)">
                 <option value="{{p}}" *ngFor="let p of pagingController.pages">Page {{p}}</option>
             </select>
         </div>

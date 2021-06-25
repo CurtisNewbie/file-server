@@ -1,28 +1,18 @@
 <div [hidden]="isGuest">
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">File Name:</span>
-        </div>
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="basic-addon1">File Name:</span>
         <input type="text" #uploadFileNameInput [(ngModel)]="uploadParam.name" class="form-control"
             aria-describedby="basic-addon1">
     </div>
-    <div>
-        <p style="color: grey;">Supported File Extensions:
-            <span *ngFor="let e of fileExtSet; let i = index">
-                {{ (i < fileExtSet.size - 1 ? e + "," : e )}} </span>
-        </p>
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Upload File:</span>
-        </div>
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="basic-addon1">Upload File:</span>
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
             aria-describedby="basic-addon1">
     </div>
     <div>
         <form class="row row-cols-lg-auto g-3 align-items-center">
             <div class="col-12">
-                <select class="form-select" id="uploadUserGroupSelect"
+                <select class="form-select form-select-sm" id="uploadUserGroupSelect"
                     (change)="setUploadUserGroup($event.target.value)">
                     <option [value]="PRIVATE_GROUP" selected>Private Group</option>
                     <option [value]="PUBLIC_GROUP">Public Group</option>
@@ -34,6 +24,12 @@
             </div>
         </form>
     </div>
+    <div class="m-2">
+        <small style="color: grey;">Supported File Extensions:
+            <span *ngFor="let e of fileExtSet; let i = index">
+                {{ (i < fileExtSet.size - 1 ? e + "," : e )}} </span>
+        </small>
+    </div>
 </div>
 
 
@@ -41,15 +37,13 @@
     <h3>File List</h3>
     <div class="container bootstrap mt-3 mb-3">
         <div class="row row-cols-lg-auto g-3 align-items-center mt-3">
-            <div class="input-group mb-2 col-12">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Search File Name:</span>
-                </div>
+            <div class="input-group input-group-sm mb-2 col-12">
+                <span class="input-group-text" id="basic-addon1">Search File Name:</span>
                 <input type="text" [(ngModel)]="searchParam.name" [ngModelOptions]="{standalone:true}"
                     class="form-control" aria-describedby="basic-addon1" (keyup)="searchNameInputKeyPressed($event)">
             </div>
             <div class="col-12">
-                <select class="form-select" id="searchUserGroupSelect"
+                <select class="form-select form-select-sm" id="searchUserGroupSelect"
                     (change)="setSearchUserGroup($event.target.value)">
                     <option value="" selected #defSearchUserGroup>All Groups</option>
                     <option [value]="PRIVATE_GROUP">Private Group</option>
@@ -57,7 +51,8 @@
                 </select>
             </div>
             <div class="col-12">
-                <select class="form-select" id="searchOwnerSelect" (change)="setSearchOwnership($event.target.value)">
+                <select class="form-select form-select-sm" id="searchOwnerSelect"
+                    (change)="setSearchOwnership($event.target.value)">
                     <option [value]="OWNERSHIP_ALL_FILES" selected #defSearchOwner>All Files</option>
                     <option [value]="OWNERSHIP_MY_FILES">My Files</option>
                 </select>
@@ -73,10 +68,10 @@
             <li *ngFor="let f of fileInfoList" class="list-group-item list-group-item-action">
                 <div>
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1" style="word-break: break-all;">{{f.name}}</h5>
+                        <h6 class="mb-1" style="word-break: break-all;">{{f.name}}</h6>
                         <small>Group: {{resolveUserGroupName(f.userGroup)}}</small>
                     </div>
-                    <p class="mb-1 mt-1">Size: {{resolveSize(f.sizeInBytes)}}</p>
+                    <small class="mb-1 mt-1">Size: {{resolveSize(f.sizeInBytes)}}</small>
 
                     <div class="d-flex w-100 justify-content-between">
                         <a [href]="concatFileHref(f.uuid)" target="_blank">Download</a>
@@ -91,14 +86,14 @@
                 <span class="input-group-text" id="basic-addon1">Current Page: {{pagingController.paging.page}}</span>
             </div>
             <div class="col-12">
-                <select class="form-select" (change)="setPageSize($event.target.value)">
+                <select class="form-select form-select-sm" (change)="setPageSize($event.target.value)">
                     <option value="{{limit}}" *ngFor="let limit of pagingController.PAGE_LIMIT_OPTIONS">Page
                         Size:
                         {{limit}}</option>
                 </select>
             </div>
             <div class="col-12">
-                <select class="form-select" (change)="gotoPage($event.target.value)">
+                <select class="form-select form-select-sm" (change)="gotoPage($event.target.value)">
                     <option value="{{p}}" *ngFor="let p of pagingController.pages">Page {{p}}</option>
                 </select>
             </div>

@@ -1,18 +1,16 @@
-<div class="container bootstrap mt-3 mb-5 p-3 shadow">
-    <h2>Login</h2>
+<div class="container bootstrap mt-3 mb-5 p-3 ml-5 mr-5 shadow">
+    <h3 class="mt-2 mb-3">Login</h3>
     <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Username:</span>
-        </div>
-        <input type="text" id="usernameInput" [(ngModel)]="usernameInput" class="form-control" placeholder="username"
+        <span class="input-group-text" id="basic-addon1">Username:</span>
+        <input type="text" id="usernameInput" [(ngModel)]="usernameInput" class="form-control"
             aria-describedby="basic-addon1">
     </div>
     <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Password:</span>
-        </div>
+        <span class="input-group-text" id="basic-addon1">Password:</span>
         <input type="password" id="passwordInput" [(ngModel)]="passwordInput" class="form-control"
             (keyup)="passwordInputKeyPressed($event)" aria-describedby="basic-addon1">
     </div>
-    <button type="button" class="btn btn-secondary" id="uploadBtn" (click)="login()">Login</button>
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-sm btn-outline-secondary " id="uploadBtn" (click)="login()">Login</button>
+    </div>
 </div>

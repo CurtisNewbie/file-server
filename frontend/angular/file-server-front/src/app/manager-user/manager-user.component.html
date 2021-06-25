@@ -1,15 +1,11 @@
-<div class="container bootstrap mt-3 mb-5 p-3 shadow">
-    <h2>Add User</h2>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Username:</span>
-        </div>
+<div class="container bootstrap mt-3 mb-5 p-3 ml-5 mr-5 shadow">
+    <h3 class="mt-2 mb-3">Add User</h3>
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="basic-addon1">Username:</span>
         <input type="text" [(ngModel)]="usernameToBeAdded" class="form-control" aria-describedby="basic-addon1">
     </div>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Password:</span>
-        </div>
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text" id="basic-addon1">Password:</span>
         <input type="password" [(ngModel)]="passswordToBeAdded" class="form-control" aria-describedby="basic-addon1">
     </div>
     <div>
@@ -36,13 +32,13 @@
         <div *ngFor="let u of userInfoList" href="#" class="list-group-item list-group-item-action "
             aria-current="true">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{u.username}}</h5>
+                <h6 class="mb-1">User: {{u.username}}</h6>
                 <small>ID: {{u.id}}</small>
             </div>
-            <p class="mb-1">Role: {{u.role}}</p>
+            <small class="mb-1">Role: {{u.role}}</small>
 
             <div class="d-flex w-100 justify-content-between">
-                <p>Status: {{u.isDisabled === USER_IS_DISABLED ? "disabled" : "normal"}}</p>
+                <small class="mt-1 mb-1">Status: {{u.isDisabled === USER_IS_DISABLED ? "disabled" : "normal"}}</small>
                 <div>
                     <small [hidden]="u.isDisabled === USER_IS_DISABLED"><button class="btn btn-outline-secondary btn-sm"
                             (click)="disableUserById(u.id)">Disable</button></small>
