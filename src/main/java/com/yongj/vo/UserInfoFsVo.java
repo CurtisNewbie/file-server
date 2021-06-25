@@ -6,7 +6,7 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class UserInfoVo {
+public class UserInfoFsVo {
 
     /** id */
     private Integer id;

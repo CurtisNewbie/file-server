@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ListAccessLogInfoRespVo {
 
-    private Iterable<AccessLogInfoVo> accessLogInfoList;
+    private Iterable<AccessLogInfoFsVo> accessLogInfoList;
 
     private PagingVo pagingVo;
 

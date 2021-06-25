@@ -5,10 +5,10 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.module.auth.dao.AccessLogInfo;
+import com.curtisnewbie.module.auth.vo.AccessLogInfoVo;
 import com.curtisnewbie.module.auth.services.api.AccessLogService;
 import com.github.pagehelper.PageInfo;
-import com.yongj.vo.AccessLogInfoVo;
+import com.yongj.vo.AccessLogInfoFsVo;
 import com.yongj.vo.ListAccessLogInfoReqVo;
 import com.yongj.vo.ListAccessLogInfoRespVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class AccessLogController {
     public Result<ListAccessLogInfoRespVo> listAccessLogInfo(@RequestBody ListAccessLogInfoReqVo vo)
             throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getPagingVo());
-        PageInfo<AccessLogInfo> pageInfo = accessLogService.findAccessLogInfoByPage(vo.getPagingVo());
+        PageInfo<AccessLogInfoVo> pageInfo = accessLogService.findAccessLogInfoByPage(vo.getPagingVo());
         PagingVo paging = new PagingVo();
         paging.setTotal(pageInfo.getTotal());
         return Result.of(
@@ -47,9 +47,9 @@ public class AccessLogController {
         );
     }
 
-    private static List<AccessLogInfoVo> toAccessLogInfoVoList(List<AccessLogInfo> list) {
+    private static List<AccessLogInfoFsVo> toAccessLogInfoVoList(List<AccessLogInfoVo> list) {
         return list.stream().map(d -> {
-            AccessLogInfoVo v = BeanCopyUtils.toType(d, AccessLogInfoVo.class);
+            AccessLogInfoFsVo v = BeanCopyUtils.toType(d, AccessLogInfoFsVo.class);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             v.setAccessTime(sdf.format(d.getAccessTime()));
             return v;

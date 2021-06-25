@@ -5,15 +5,16 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.consts.UserRole;
-import com.curtisnewbie.module.auth.dao.RegisterUserDto;
 import com.curtisnewbie.module.auth.dao.UserEntity;
-import com.curtisnewbie.module.auth.dao.UserInfo;
-import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
-import com.curtisnewbie.module.auth.exception.UserRegisteredException;
+import com.curtisnewbie.module.auth.exception.UserRelatedException;
 import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
-import com.curtisnewbie.module.auth.util.PasswordUtil;
-import com.yongj.vo.*;
+import com.curtisnewbie.module.auth.vo.RegisterUserVo;
+import com.curtisnewbie.module.auth.vo.UserInfoVo;
+import com.yongj.vo.DisableUserById;
+import com.yongj.vo.UpdatePasswordVo;
+import com.yongj.vo.UserInfoFsVo;
+import com.yongj.vo.UserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,9 +39,9 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
-    public Result<?> addUser(@RequestBody RegisterUserVo registerUserVo) throws UserRegisteredException,
-            ExceededMaxAdminCountException, MsgEmbeddedException {
-        RegisterUserDto dto = new RegisterUserDto();
+    public Result<?> addUser(@RequestBody com.yongj.vo.RegisterUserVo registerUserVo) throws UserRelatedException,
+            MsgEmbeddedException {
+        RegisterUserVo dto = new RegisterUserVo();
         BeanUtils.copyProperties(registerUserVo, dto);
         // validate whether username and password is entered
         if (!StringUtils.hasText(dto.getUsername()))
@@ -72,7 +73,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @GetMapping("/list")
-    public Result<List<UserInfoVo>> getUserList() {
+    public Result<List<UserInfoFsVo>> getUserList() {
         return Result.of(toUserInfoVoList(userService.findAllUserInfoList(), AuthUtil.getUserEntity().getId()));
     }
 
@@ -113,21 +114,19 @@ public class UserController {
             return Result.error("New password must be different");
 
         UserEntity ue = AuthUtil.getUserEntity();
-        boolean isPasswordMatched = PasswordUtil.getValidator()
-                .givenPasswordAndSalt(vo.getPrevPassword(), ue.getSalt())
-                .compareTo(ue.getPassword())
-                .isMatched();
-        if (!isPasswordMatched)
+        try {
+            userService.updatePassword(vo.getNewPassword(), vo.getPrevPassword(), ue.getId());
+        } catch (UserRelatedException ignore) {
             return Result.error("Password incorrect");
-        userService.updatePassword(vo.getNewPassword(), ue.getUsername(), ue.getId());
+        }
         return Result.ok();
     }
 
-    private List<UserInfoVo> toUserInfoVoList(List<UserInfo> userInfoList, int currUserId) {
+    private List<UserInfoFsVo> toUserInfoVoList(List<UserInfoVo> userInfoList, int currUserId) {
         return userInfoList.stream().filter(ui -> {
             // exclude current user
             return !Objects.equals(ui.getId(), currUserId);
-        }).map(ui -> BeanCopyUtils.toType(ui, UserInfoVo.class))
+        }).map(ui -> BeanCopyUtils.toType(ui, UserInfoFsVo.class))
                 .collect(Collectors.toList());
     }
 
