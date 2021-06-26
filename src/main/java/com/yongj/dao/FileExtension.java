@@ -21,5 +21,5 @@ public class FileExtension {
     /**
      * whether this file extension is enabled
      */
-    private boolean isEnabled;
+    private Boolean isEnabled;
 }
