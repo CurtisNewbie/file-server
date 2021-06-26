@@ -36,4 +36,16 @@
   <select id="findAll" resultType="com.yongj.dao.FileExtension">
     SELECT * FROM file_extension
   </select>
+
+  <select id="findAllSelective" resultType="com.yongj.dao.FileExtension">
+    SELECT * FROM file_extension
+    <where>
+      <if test="name != null and name != ''">
+        AND name LIKE "%"#{name}"%"
+      </if>
+      <if test="isEnabled != null">
+        AND is_enabled = #{isEnabled}
+      </if>
+    </where>
+  </select>
 </mapper>

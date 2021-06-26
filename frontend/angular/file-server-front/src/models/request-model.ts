@@ -97,3 +97,29 @@ export function emptyChangePasswordParam(): ChangePasswordParam {
     newPassword: null,
   };
 }
+
+/**
+ * Parameters for search file extensions
+ */
+export interface SearchFileExtParam {
+  /**
+   * name of file extension, e.g., "txt"
+   */
+  name: string;
+
+  /**
+   * whether this file extension is enabled
+   */
+  isEnabled: number;
+
+  /** paging  */
+  pagingVo: Paging;
+}
+
+export function emptySearchFileExtParam(): SearchFileExtParam {
+  return {
+    name: null,
+    isEnabled: null,
+    pagingVo: null,
+  };
+}

@@ -1,3 +1,5 @@
+import { Paging } from "./paging";
+
 /** File extension */
 export interface FileExt {
   /**
@@ -14,6 +16,12 @@ export interface FileExt {
    * whether this file extension is enabled
    */
   isEnabled: number;
+}
+
+export interface FetchFileExtList {
+  fileExtList: FileExt[];
+
+  pagingVo: Paging;
 }
 
 export enum FileExtIsEnabled {

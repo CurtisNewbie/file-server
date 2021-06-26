@@ -1,6 +1,21 @@
 <div class="mt-5">
-    <h3>File List</h3>
+    <h3>Manage File Extensions</h3>
     <div class="container bootstrap mt-3 mb-3">
+        <div class="row row-cols-lg-auto g-3 align-items-center mt-3">
+            <div class="input-group input-group-sm mb-2 col-12">
+                <span class="input-group-text" id="basic-addon1">Search Name:</span>
+                <input type="text" [(ngModel)]="searchParam.name" class=" form-control" aria-describedby="basic-addon1"
+                    (keyup)="searchNameInputKeyPressed($event)">
+            </div>
+            <div class="col-12">
+                <select class="form-select form-select-sm" id="searchUserGroupSelect"
+                    (change)="setIsEnabled($event.target.value)">
+                    <option [value]="null" selected #defSearchUserGroup>All</option>
+                    <option [value]="FILE_EXT_ENABLED">Enabled</option>
+                    <option [value]="FILE_EXT_DISABLED">Disabled</option>
+                </select>
+            </div>
+        </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
             <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="reloadBtn"
                 (click)="fetchSupportedExtensionsDetails()">Fetch</button>
@@ -26,5 +41,28 @@
                 </div>
             </li>
         </div>
-
     </div>
+    <div class="row row-cols-lg-auto g-3 align-items-center mt-1">
+        <div class="col-12">
+            <span class="input-group-text" id="basic-addon1">Current Page: {{pagingController.paging.page}}</span>
+        </div>
+        <div class="col-12">
+            <select class="form-select form-select-sm" (change)="setPageSize($event.target.value)">
+                <option value="{{limit}}" *ngFor="let limit of pagingController.PAGE_LIMIT_OPTIONS">Page
+                    Size:
+                    {{limit}}</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <select class="form-select form-select-sm" (change)="gotoPage($event.target.value)">
+                <option value="{{p}}" *ngFor="let p of pagingController.pages">Page {{p}}</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="prevPageBtn"
+                (click)="prevPage()">Previous Page</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="nextPageBtn"
+                (click)="nextPage()">Next Page</button>
+        </div>
+    </div>
+</div>

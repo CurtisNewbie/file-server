@@ -26,4 +26,9 @@ public interface FileExtensionMapper {
      * Update selective
      */
     void updateSelective(FileExtension fileExt);
+
+    /**
+     * Select * selectively
+     */
+    List<FileExtension> findAllSelective(FileExtension param);
 }

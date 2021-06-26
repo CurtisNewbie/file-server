@@ -112,11 +112,13 @@ public class FileController {
         );
     }
 
-    @GetMapping(path = "/extension/detail", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<List<FileExtVo>> listSupportedFileExtensionDetails() {
-        return Result.of(
-                fileExtensionService.getDetailsOfAll()
-        );
+    @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
+        ValidUtils.requireNonNull(vo.getPagingVo());
+        PageInfo<FileExtVo> pageInfo = fileExtensionService.getDetailsOfAllByPageSelective(vo);
+        PagingVo pagingVo = new PagingVo();
+        pagingVo.setTotal(pageInfo.getTotal());
+        return Result.of(new ListFileExtRespVo(pageInfo.getList(), pagingVo));
     }
 
     @PreAuthorize("hasAuthority('admin')")
