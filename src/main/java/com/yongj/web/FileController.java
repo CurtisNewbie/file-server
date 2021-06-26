@@ -37,7 +37,7 @@ import java.util.List;
  * @author yongjie.zhuang
  */
 @RestController
-@RequestMapping("/file")
+@RequestMapping("${web.base-path}/file")
 public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);

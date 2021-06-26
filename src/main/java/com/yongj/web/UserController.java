@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @author yongjie.zhuang
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("${web.base-path}/user")
 public class UserController {
 
     private static final int PASSWORD_LENGTH = 6;

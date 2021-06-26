@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  * @author yongjie.zhuang
  */
 @RestController
-@RequestMapping("/access")
+@RequestMapping("${web.base-path}/access")
 public class AccessLogController {
 
     @Autowired

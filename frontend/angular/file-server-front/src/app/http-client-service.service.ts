@@ -14,6 +14,8 @@ import {
 } from "src/models/request-model";
 import { AccessLog, FetchAccessLogList } from "src/models/access-log";
 
+const BASE_API = "/api/";
+
 const headers = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
@@ -34,7 +36,7 @@ export class HttpClientService {
     param: FetchFileInfoListParam
   ): Observable<Resp<FetchFileInfoList>> {
     return this.http.post<Resp<FetchFileInfoList>>(
-      `/file/list`,
+      this.buildApiPath("/file/list"),
       param,
       headers
     );
@@ -47,7 +49,7 @@ export class HttpClientService {
     param: FetchAccessLogListParam
   ): Observable<Resp<FetchAccessLogList>> {
     return this.http.post<Resp<FetchAccessLogList>>(
-      `/access/history`,
+      this.buildApiPath("/access/history"),
       param,
       headers
     );
@@ -57,7 +59,10 @@ export class HttpClientService {
    * Fetch the supported file extensions
    */
   public fetchSupportedFileExtensions(): Observable<Resp<string[]>> {
-    return this.http.get<Resp<string[]>>(`/file/extension`, headers);
+    return this.http.get<Resp<string[]>>(
+      this.buildApiPath("/file/extension"),
+      headers
+    );
   }
 
   /**
@@ -69,7 +74,7 @@ export class HttpClientService {
     let formData = new FormData();
     formData.append("username", username);
     formData.append("password", password);
-    return this.http.post<Resp<any>>(`/login`, formData, {
+    return this.http.post<Resp<any>>(this.buildApiPath("/login"), formData, {
       withCredentials: true,
     });
   }
@@ -78,7 +83,7 @@ export class HttpClientService {
    * Fetch current user info
    */
   public fetchUserInfo(): Observable<Resp<UserInfo>> {
-    return this.http.get<Resp<UserInfo>>("/user/info", {
+    return this.http.get<Resp<UserInfo>>(this.buildApiPath("/user/info"), {
       withCredentials: true,
     });
   }
@@ -87,7 +92,9 @@ export class HttpClientService {
    * Logout current user
    */
   public logout(): Observable<void> {
-    return this.http.get<void>("/logout", { withCredentials: true });
+    return this.http.get<void>(this.buildApiPath("/logout"), {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -96,14 +103,21 @@ export class HttpClientService {
    * @param password
    */
   public addUser(param: AddUserParam): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>("/user/register", param, headers);
+    return this.http.post<Resp<any>>(
+      this.buildApiPath("/user/register"),
+      param,
+      headers
+    );
   }
 
   /**
    * Fetch list of user infos
    */
   public fetchUserList(): Observable<Resp<UserInfo[]>> {
-    return this.http.get<Resp<UserInfo[]>>("/user/list", headers);
+    return this.http.get<Resp<UserInfo[]>>(
+      this.buildApiPath("/user/list"),
+      headers
+    );
   }
 
   /**
@@ -112,7 +126,7 @@ export class HttpClientService {
    */
   public disableUserByid(id: number): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      "/user/disable",
+      this.buildApiPath("/user/disable"),
       {
         id: id,
       },
@@ -126,7 +140,7 @@ export class HttpClientService {
    */
   public enableUserById(id: number): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      "/user/enable",
+      this.buildApiPath("/user/enable"),
       {
         id: id,
       },
@@ -144,7 +158,7 @@ export class HttpClientService {
     formData.append("fileName", uploadParam.name);
     formData.append("file", uploadParam.file);
     formData.append("userGroup", uploadParam.userGruop.toString());
-    return this.http.post<any>("/file/upload", formData, {
+    return this.http.post<any>(this.buildApiPath("/file/upload"), formData, {
       withCredentials: true,
     });
   }
@@ -154,13 +168,25 @@ export class HttpClientService {
    * @param uuid
    */
   public deleteFile(uuid: string): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>("/file/delete", { uuid: uuid }, headers);
+    return this.http.post<Resp<any>>(
+      this.buildApiPath("/file/delete"),
+      { uuid: uuid },
+      headers
+    );
   }
 
   /**
    * Change password
    */
   public changePassword(param: ChangePasswordParam): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>("/user/password/update", param, headers);
+    return this.http.post<Resp<any>>(
+      this.buildApiPath("/user/password/update"),
+      param,
+      headers
+    );
+  }
+
+  private buildApiPath(subPath: string): string {
+    return BASE_API + subPath;
   }
 }
