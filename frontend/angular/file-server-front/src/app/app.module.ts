@@ -14,6 +14,7 @@ import { AccessLogComponent } from "./access-log/access-log.component";
 import { RespInterceptor } from "./interceptors/resp-interceptor";
 import { ErrorInterceptor } from "./interceptors/error-interceptor";
 import { ChangePasswordComponent } from './change-password/change-password.component';
+import { ManageExtensionComponent } from './manage-extension/manage-extension.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
     NavComponent,
     AccessLogComponent,
     ChangePasswordComponent,
+    ManageExtensionComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [

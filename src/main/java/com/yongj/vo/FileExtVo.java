@@ -1,4 +1,4 @@
-package com.yongj.dao;
+package com.yongj.vo;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class FileExtension {
+public class FileExtVo {
 
     /**
      * primary key

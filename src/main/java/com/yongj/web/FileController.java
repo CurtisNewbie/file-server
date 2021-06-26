@@ -1,26 +1,26 @@
 package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.github.pagehelper.PageInfo;
+import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
 import com.yongj.util.PathUtils;
-import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.ListFileInfoReqVo;
-import com.yongj.vo.ListFileInfoRespVo;
-import com.yongj.vo.LogicDeleteFileReqVo;
+import com.yongj.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -105,11 +105,34 @@ public class FileController {
         return Result.ok();
     }
 
-    @GetMapping(path = "/extension", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<List<String>> listSupportedFileExtension() {
+    @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Result<List<String>> listSupportedFileExtensionNames() {
         return Result.of(
                 fileExtensionService.getNamesOfAllEnabled()
         );
+    }
+
+    @GetMapping(path = "/extension/detail", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Result<List<FileExtVo>> listSupportedFileExtensionDetails() {
+        return Result.of(
+                fileExtensionService.getDetailsOfAll()
+        );
+    }
+
+    @PreAuthorize("hasAuthority('admin')")
+    @PostMapping(path = "/extension/update")
+    public Result<Void> updateFileExtensionStatus(@RequestBody FileExtVo vo) throws MsgEmbeddedException {
+        ValidUtils.requireNonNull(vo.getId());
+        // either the name or isEnabled should be entered
+        if (vo.getIsEnabled() == null && !StringUtils.hasText(vo.getName())) {
+            throw new MsgEmbeddedException("Required parameters should not be null");
+        }
+        // check if the isEnabled value is valid
+        FileExtensionIsEnabledEnum isEnabledEnum = EnumUtils.parse(vo.getIsEnabled(),
+                FileExtensionIsEnabledEnum.class);
+        ValidUtils.requireNonNull(isEnabledEnum);
+        fileExtensionService.updateFileExtSelective(vo);
+        return Result.ok();
     }
 
     private static final String encodeAttachmentName(String filePath) {

@@ -16,4 +16,14 @@ public interface FileExtensionMapper {
      * Find names of all enabled file extensions
      */
     List<String> findNamesOfAllEnabled();
+
+    /**
+     * Select * of all extensions
+     */
+    List<FileExtension> findAll();
+
+    /**
+     * Update selective
+     */
+    void updateSelective(FileExtension fileExt);
 }

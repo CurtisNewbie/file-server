@@ -13,6 +13,7 @@ import {
   UploadFileParam,
 } from "src/models/request-model";
 import { AccessLog, FetchAccessLogList } from "src/models/access-log";
+import { FileExt } from "src/models/file-ext";
 
 const BASE_API = "/api";
 
@@ -56,11 +57,32 @@ export class HttpClientService {
   }
 
   /**
-   * Fetch the supported file extensions
+   * Fetch the supported file extensions' name
    */
-  public fetchSupportedFileExtensions(): Observable<Resp<string[]>> {
+  public fetchSupportedFileExtensionNames(): Observable<Resp<string[]>> {
     return this.http.get<Resp<string[]>>(
-      this.buildApiPath("/file/extension"),
+      this.buildApiPath("/file/extension/name"),
+      headers
+    );
+  }
+
+  /**
+   * Fetch the supported file extensions' details
+   */
+  public fetchSupportedFileExtensionDetails(): Observable<Resp<FileExt[]>> {
+    return this.http.get<Resp<FileExt[]>>(
+      this.buildApiPath("/file/extension/detail"),
+      headers
+    );
+  }
+
+  /**
+   * Update file extension
+   */
+  public updateFileExtension(param: FileExt): Observable<Resp<FileExt[]>> {
+    return this.http.post<Resp<FileExt[]>>(
+      this.buildApiPath("/file/extension/update"),
+      param,
       headers
     );
   }

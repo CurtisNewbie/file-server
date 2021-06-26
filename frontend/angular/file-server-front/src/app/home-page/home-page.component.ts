@@ -68,7 +68,7 @@ export class HomePageComponent implements OnInit {
 
   /** fetch supported file extension */
   private fetchSupportedExtensions(): void {
-    this.httpClient.fetchSupportedFileExtensions().subscribe({
+    this.httpClient.fetchSupportedFileExtensionNames().subscribe({
       next: (resp) => {
         this.fileExtSet.clear();
         for (let e of resp.data) {

@@ -12,11 +12,28 @@
     <result column="is_enabled" jdbcType="INTEGER" property="isEnabled" />
   </resultMap>
 
+  <update id="updateSelective">
+    UPDATE file_extension
+    <set>
+      <if test="name != null and name != ''">
+        name = #{name},
+      </if>
+      <if test="isEnabled != null">
+       is_enabled = #{isEnabled},
+      </if>
+    </set>
+    WHERE id = #{id}
+  </update>
+
   <select id="findAllEnabled" resultType="com.yongj.dao.FileExtension">
     SELECT * FROM file_extension WHERE is_enabled = 0
   </select>
 
   <select id="findNamesOfAllEnabled" resultType="java.lang.String">
     SELECT DISTINCT name FROM file_extension WHERE is_enabled = 0
+  </select>
+
+  <select id="findAll" resultType="com.yongj.dao.FileExtension">
+    SELECT * FROM file_extension
   </select>
 </mapper>

@@ -1,4 +1,4 @@
-package com.yongj.dao;
+package com.yongj.vo;
 
 import lombok.Data;
 
@@ -6,20 +6,16 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class FileExtension {
+public class UpdateFileExtStatusReqVo {
 
     /**
-     * primary key
+     * Id
      */
-    private Integer id;
-
-    /**
-     * name of file extension, e.g., "txt"
-     */
-    private String name;
+    private Long id;
 
     /**
      * whether this file extension is enabled, 0-enabled, 1-disabled
      */
     private Integer isEnabled;
+
 }
