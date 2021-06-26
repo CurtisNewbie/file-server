@@ -60,7 +60,7 @@
           "options": {
             "browserTarget": "file-server:build",
             "proxyConfig": "src/proxy.conf.json",
-            "ssl": true
+            "ssl": false
           },
           "configurations": {
             "production": {

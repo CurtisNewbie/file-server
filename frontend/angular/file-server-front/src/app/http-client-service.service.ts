@@ -14,7 +14,7 @@ import {
 } from "src/models/request-model";
 import { AccessLog, FetchAccessLogList } from "src/models/access-log";
 
-const BASE_API = "/api/";
+const BASE_API = "/api";
 
 const headers = {
   headers: new HttpHeaders({
