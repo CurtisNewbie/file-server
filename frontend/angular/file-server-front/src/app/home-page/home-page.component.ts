@@ -13,6 +13,7 @@ import {
 } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
 import { UserService } from "../user.service";
+import { buildApiPath } from "../util/api-util";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -106,7 +107,7 @@ export class HomePageComponent implements OnInit {
 
   /** Concatenate url for downloading the file  */
   concatFileHref(uuid: string): string {
-    return "file/download?uuid=" + uuid;
+    return buildApiPath("/file/download?uuid=" + uuid);
   }
 
   /** Convert number of bytes to apporpriate unit */
