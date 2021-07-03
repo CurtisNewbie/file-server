@@ -6,8 +6,7 @@ target/
 *.jar
 
 ### STS ###
-.apt_generated
-.classpath
+.apt_generated .classpath
 .factorypath
 .project
 .settings
@@ -39,3 +38,4 @@ build/
 
 ### local project files ###
 local-build.sh
+test-build.sh
