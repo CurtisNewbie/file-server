@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { UserInfo, UserIsDisabledConst } from "src/models/user-info";
+import { UserInfo, UserIsDisabledEnum } from "src/models/user-info";
 import { UserService } from "../user.service";
 
 @Component({
@@ -8,8 +8,8 @@ import { UserService } from "../user.service";
   styleUrls: ["./manager-user.component.css"],
 })
 export class ManagerUserComponent implements OnInit {
-  readonly USER_IS_NORMAL = UserIsDisabledConst.NORMAL;
-  readonly USER_IS_DISABLED = UserIsDisabledConst.IS_DISABLED;
+  readonly USER_IS_NORMAL = UserIsDisabledEnum.NORMAL;
+  readonly USER_IS_DISABLED = UserIsDisabledEnum.IS_DISABLED;
   usernameToBeAdded: string = null;
   passswordToBeAdded: string = null;
   userRoleOfAddedUser: string = null;

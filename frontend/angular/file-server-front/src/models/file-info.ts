@@ -26,21 +26,21 @@ export interface FileInfo {
   isOwner: boolean;
 }
 
-/** Constants class for FileInfo.userGroup */
-export class FileUserGroupConst {
+/** Enum for FileInfo.userGroup */
+export enum FileUserGroupEnum {
   /** public user group, anyone can access to th file */
-  public static readonly USER_GROUP_PUBLIC = 0;
+  USER_GROUP_PUBLIC = 0,
 
   /** private user group, only the uploader can access the file */
-  public static readonly USER_GROUP_PRIVATE = 1;
+  USER_GROUP_PRIVATE = 1,
 }
 
-/** Constants class for file's ownership */
-export class FileOwnershipConst {
+/** Enum for file's ownership */
+export enum FileOwnershipEnum {
   /** all files  */
-  public static readonly FILE_OWNERSHIP_ALL_FILES = 0;
+  FILE_OWNERSHIP_ALL_FILES = 0,
   /** my files  */
-  public static readonly FILE_OWNERSHIP_MY_FILES = 1;
+  FILE_OWNERSHIP_MY_FILES = 1,
 }
 
 /** Response model for fetching file info list */

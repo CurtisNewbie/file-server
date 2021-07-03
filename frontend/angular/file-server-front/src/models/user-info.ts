@@ -9,14 +9,14 @@ export interface UserInfo {
   isDisabled: number;
 }
 
-export class UserIsDisabledConst {
+export enum UserIsDisabledEnum {
   /**
    * User is in normal state
    */
-  public static readonly NORMAL = 0;
+  NORMAL = 0,
 
   /**
    * User is disabled
    */
-  public static readonly IS_DISABLED = 1;
+  IS_DISABLED = 1,
 }

@@ -1,8 +1,8 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import {
   FileInfo,
-  FileOwnershipConst,
-  FileUserGroupConst,
+  FileOwnershipEnum,
+  FileUserGroupEnum,
 } from "src/models/file-info";
 import { Paging, PagingConst, PagingController } from "src/models/paging";
 import {
@@ -25,10 +25,10 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   styleUrls: ["./home-page.component.css"],
 })
 export class HomePageComponent implements OnInit {
-  readonly OWNERSHIP_ALL_FILES = FileOwnershipConst.FILE_OWNERSHIP_ALL_FILES;
-  readonly OWNERSHIP_MY_FILES = FileOwnershipConst.FILE_OWNERSHIP_MY_FILES;
-  readonly PRIVATE_GROUP = FileUserGroupConst.USER_GROUP_PRIVATE;
-  readonly PUBLIC_GROUP = FileUserGroupConst.USER_GROUP_PUBLIC;
+  readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
+  readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
+  readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
+  readonly PUBLIC_GROUP = FileUserGroupEnum.USER_GROUP_PUBLIC;
 
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
@@ -137,7 +137,7 @@ export class HomePageComponent implements OnInit {
     }
     if (this.uploadParam.userGruop == null) {
       // default private group
-      this.uploadParam.userGruop = FileUserGroupConst.USER_GROUP_PRIVATE;
+      this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
     }
     let fileExt = this.parseFileExt(this.uploadParam.name);
     console.log("Parsed file extension:", fileExt);
@@ -194,9 +194,9 @@ export class HomePageComponent implements OnInit {
    * Convert userGroup in number to the corresponding name
    */
   resolveUserGroupName(userGroup: number): string {
-    if (userGroup === FileUserGroupConst.USER_GROUP_PUBLIC) {
+    if (userGroup === FileUserGroupEnum.USER_GROUP_PUBLIC) {
       return "public";
-    } else if (userGroup === FileUserGroupConst.USER_GROUP_PRIVATE) {
+    } else if (userGroup === FileUserGroupEnum.USER_GROUP_PRIVATE) {
       return "private";
     }
     return "";
