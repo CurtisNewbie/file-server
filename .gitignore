@@ -39,3 +39,4 @@ build/
 ### local project files ###
 local-build.sh
 test-build.sh
+test-nginx.deploy
