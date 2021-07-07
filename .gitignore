@@ -37,6 +37,7 @@ build/
 .vscode/
 
 ### local project files ###
-local-build.sh
-test-build.sh
-test-nginx.deploy
+local-bundled-build.sh
+test-bundled-build.sh
+test-backend-deploy.sh
+test-nginx-deploy.sh
