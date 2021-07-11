@@ -1,4 +1,4 @@
-import { Injectable, Output } from "@angular/core";
+import { Injectable, OnInit, Output } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { Resp } from "src/models/resp";
 import { UserInfo } from "src/models/user-info";
@@ -30,7 +30,7 @@ export class UserService {
   /**
    * Logout current user
    */
-  public logout(): Observable<void> {
+  public logout(): Observable<any> {
     this.setLogout();
     return this.httpClient.logout();
   }

@@ -68,7 +68,7 @@ public class CtrlAdvice {
     @ExceptionHandler({InvalidAuthenticationException.class})
     @ResponseBody
     public Result<?> handleInvalidAuthenticationException(Exception e) {
-        return Result.error("Authentication invalid, please re-login");
+        return Result.error("Please login first");
     }
 
     @ExceptionHandler({MsgEmbeddedException.class})
