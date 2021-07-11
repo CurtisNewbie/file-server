@@ -1,5 +1,5 @@
 HELP.md
-target/
+target/ 
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -41,3 +41,4 @@ local-bundled-build.sh
 test-bundled-build.sh
 test-backend-deploy.sh
 test-nginx-deploy.sh
+dev-nginx-build.sh
