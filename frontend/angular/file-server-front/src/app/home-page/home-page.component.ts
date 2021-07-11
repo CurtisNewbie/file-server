@@ -1,4 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { AttachSession } from "protractor/built/driverProviders";
 import {
   FileInfo,
   FileOwnershipEnum,
@@ -30,6 +31,7 @@ export class HomePageComponent implements OnInit {
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
   readonly PUBLIC_GROUP = FileUserGroupEnum.USER_GROUP_PUBLIC;
 
+  private shouldResetPagingParam = false;
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
   searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
@@ -84,6 +86,10 @@ export class HomePageComponent implements OnInit {
 
   /** fetch file info list */
   fetchFileInfoList(): void {
+    if (this.shouldResetPagingParam) {
+      this.shouldResetPagingParam = false;
+      this.pagingController.resetCurrentPage();
+    }
     this.httpClient
       .fetchFileInfoList({
         pagingVo: this.pagingController.paging,
@@ -241,6 +247,7 @@ export class HomePageComponent implements OnInit {
 
   /** Reset all parameters used for searching */
   resetSearchParam(): void {
+    this.shouldResetPagingParam = false;
     this.searchParam = emptySearchFileInfoParam();
     this.defaultSearchUserGroup.nativeElement.selected = true;
     this.defaultSearchOwner.nativeElement.selected = true;
@@ -249,6 +256,7 @@ export class HomePageComponent implements OnInit {
   /** Set userGroup to the searching param */
   setSearchUserGroup(userGroup: number): void {
     this.searchParam.userGroup = userGroup;
+    this.searchParamChanged();
   }
 
   /**
@@ -268,6 +276,7 @@ export class HomePageComponent implements OnInit {
    */
   setSearchOwnership(ownership: number): void {
     this.searchParam.ownership = ownership;
+    this.searchParamChanged();
   }
 
   searchNameInputKeyPressed(event: any): void {
@@ -275,5 +284,9 @@ export class HomePageComponent implements OnInit {
       console.log("Pressed 'Enter' key, init search file list procedure");
       this.fetchFileInfoList();
     }
+  }
+
+  searchParamChanged(): void {
+    this.shouldResetPagingParam = true;
   }
 }

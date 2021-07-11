@@ -57,16 +57,20 @@ export class PagingController {
     return this.paging.page < this.pages[this.pages.length - 1];
   }
 
-  public nextPage() {
+  public nextPage(): void {
     ++this.paging.page;
   }
 
-  public prevPage() {
+  public prevPage(): void {
     --this.paging.page;
   }
 
   /** Whether it can go to the prevous page */
   public canGoToPrevPage(): boolean {
     return this.paging.page > 1;
+  }
+
+  public resetCurrentPage(): void {
+    this.paging.page = 1;
   }
 }
