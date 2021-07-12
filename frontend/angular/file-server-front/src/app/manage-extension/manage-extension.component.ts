@@ -19,6 +19,7 @@ export class ManageExtensionComponent implements OnInit {
   fileExt: FileExt[] = [];
   updateExt: FileExt;
   searchParam: SearchFileExtParam = emptySearchFileExtParam();
+  private isSearchParamChagned: boolean = false;
 
   constructor(private httpClient: HttpClientService) {}
 
@@ -28,6 +29,10 @@ export class ManageExtensionComponent implements OnInit {
 
   /** fetch supported file extension */
   fetchSupportedExtensionsDetails(): void {
+    if (this.isSearchParamChagned) {
+      this.isSearchParamChagned = false;
+      this.pagingController.resetCurrentPage();
+    }
     this.searchParam.pagingVo = this.pagingController.paging;
     this.httpClient
       .fetchSupportedFileExtensionDetails(this.searchParam)
@@ -101,6 +106,7 @@ export class ManageExtensionComponent implements OnInit {
 
   setIsEnabled(isEnabled: number): void {
     this.searchParam.isEnabled = isEnabled;
+    this.searchParamChanged();
   }
 
   searchNameInputKeyPressed(event: any): void {
@@ -108,5 +114,8 @@ export class ManageExtensionComponent implements OnInit {
       console.log("Pressed 'Enter' key, init search file extension list");
       this.fetchSupportedExtensionsDetails();
     }
+  }
+  searchParamChanged(): void {
+    this.isSearchParamChagned = true;
   }
 }

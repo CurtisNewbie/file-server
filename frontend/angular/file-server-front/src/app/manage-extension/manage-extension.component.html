@@ -5,7 +5,7 @@
             <div class="input-group input-group-sm mb-2 col-12">
                 <span class="input-group-text" id="basic-addon1">Search Name:</span>
                 <input type="text" [(ngModel)]="searchParam.name" class=" form-control" aria-describedby="basic-addon1"
-                    (keyup)="searchNameInputKeyPressed($event)">
+                    (keyup)="searchNameInputKeyPressed($event)" (change)="searchParamChanged()">
             </div>
             <div class="col-12">
                 <select class="form-select form-select-sm" id="searchUserGroupSelect"
