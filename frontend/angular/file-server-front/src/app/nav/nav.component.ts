@@ -36,6 +36,5 @@ export class NavComponent implements OnInit {
         console.log("Logged out user, navigate back to login page");
       },
     });
-    this.router.navigate(["/login-page"]);
   }
 }

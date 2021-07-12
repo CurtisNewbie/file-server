@@ -49,6 +49,5 @@ export class ErrorInterceptor implements HttpInterceptor {
 
   private setLogout(): void {
     this.userService.setLogout();
-    this.router.navigate(["/login-page"]);
   }
 }

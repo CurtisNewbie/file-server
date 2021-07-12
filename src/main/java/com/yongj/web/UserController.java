@@ -100,6 +100,10 @@ public class UserController {
 
     @GetMapping("/info")
     public Result<UserVo> getUserInfo() {
+        // user is not authenticated yet
+        if (!AuthUtil.isPrincipalPresent(UserEntity.class)) {
+            return Result.ok();
+        }
         UserEntity ue = AuthUtil.getUserEntity();
         return Result.of(BeanCopyUtils.toType(ue, UserVo.class));
     }

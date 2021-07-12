@@ -1,4 +1,5 @@
 import { Injectable, OnInit, Output } from "@angular/core";
+import { Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
 import { Resp } from "src/models/resp";
 import { UserInfo } from "src/models/user-info";
@@ -16,7 +17,7 @@ export class UserService {
   isLoggedInObservable: Observable<boolean> =
     this.isLoggedInSubject.asObservable();
 
-  constructor(private httpClient: HttpClientService) {}
+  constructor(private httpClient: HttpClientService, private router: Router) {}
 
   /**
    * Attempt to signin
@@ -41,6 +42,7 @@ export class UserService {
   public setLogout(): void {
     this.userInfo = null;
     this.notifyLoginStatus(false);
+    this.router.navigate(["/login-page"]);
   }
 
   /**
@@ -63,10 +65,15 @@ export class UserService {
   public fetchUserInfo(): void {
     this.httpClient.fetchUserInfo().subscribe({
       next: (resp) => {
-        if (resp.data) {
+        if (resp.data != null) {
           this.userInfo = resp.data;
           this.notifyRole(this.userInfo.role);
           this.notifyLoginStatus(true);
+        } else {
+          console.log(
+            "Didn't fetch any user info data, user should login first"
+          );
+          this.notifyLoginStatus(false);
         }
       },
     });

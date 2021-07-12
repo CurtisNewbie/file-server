@@ -45,7 +45,6 @@ export class ChangePasswordComponent implements OnInit {
       next: (result) => {
         window.alert("Password changed, please login");
         this.userService.setLogout();
-        this.router.navigate(["/login-page"]);
       },
       complete: () => {
         this.changePasswordParam = emptyChangePasswordParam();
