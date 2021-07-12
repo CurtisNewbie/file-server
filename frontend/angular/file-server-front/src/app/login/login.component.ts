@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
   public login(): void {
     if (!this.usernameInput || !this.passwordInput) {
       window.alert("Please enter username and password");
+      return;
     }
     this.userService.login(this.usernameInput, this.passwordInput).subscribe({
       next: (resp) => {
