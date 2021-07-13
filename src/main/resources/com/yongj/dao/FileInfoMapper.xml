@@ -125,6 +125,7 @@
         and name like "%"#{filename}"%"
       </if>
     </where>
+    order by id desc
   </select>
   <select id="selectValidateInfoByUuid" resultType="com.yongj.dao.FileValidateInfo">
     select user_group, uploader_id, is_logic_deleted
