@@ -177,6 +177,9 @@ export class HomePageComponent implements OnInit {
       let firstFile: File = files[0];
       this.uploadParam.file = firstFile;
       this.uploadParam.name = firstFile.name;
+    } else {
+      this.uploadParam.file = null;
+      this.uploadParam.name = null;
     }
   }
 

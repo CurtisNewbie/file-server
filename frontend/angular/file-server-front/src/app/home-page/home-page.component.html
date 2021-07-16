@@ -1,5 +1,5 @@
 <div [hidden]="isGuest">
-    <div class="input-group input-group-sm mb-3">
+    <div class="input-group input-group-sm mb-3" [hidden]="this.uploadParam.file == null">
         <span class="input-group-text" id="basic-addon1">File Name:</span>
         <input type="text" #uploadFileNameInput [(ngModel)]="uploadParam.name" class="form-control"
             aria-describedby="basic-addon1">
@@ -39,9 +39,8 @@
         <div class="row row-cols-lg-auto g-3 align-items-center mt-3">
             <div class="input-group input-group-sm mb-2 col-12">
                 <span class="input-group-text" id="basic-addon1">Search File Name:</span>
-                <input type="text" [(ngModel)]="searchParam.name" [ngModelOptions]="{standalone:true}"
-                    class="form-control" aria-describedby="basic-addon1" (change)="searchParamChanged()"
-                    (keyup)="searchNameInputKeyPressed($event)">
+                <input type="text" [(ngModel)]="searchParam.name" class="form-control" aria-describedby="basic-addon1"
+                    (change)="searchParamChanged()" (keyup)="searchNameInputKeyPressed($event)">
             </div>
             <div class="col-12">
                 <select class="form-select form-select-sm" id="searchUserGroupSelect"
