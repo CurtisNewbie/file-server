@@ -2,9 +2,9 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.module.auth.exception.ExceededMaxAdminCountException;
-import com.curtisnewbie.module.auth.exception.InvalidAuthenticationException;
-import com.curtisnewbie.module.auth.exception.UserRegisteredException;
+import com.curtisnewbie.service.auth.remote.exception.ExceededMaxAdminCountException;
+import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
+import com.curtisnewbie.service.auth.remote.exception.UserRegisteredException;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;

@@ -6,6 +6,7 @@ import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
+import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileUserGroupEnum;
@@ -56,7 +57,7 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String fileName,
                             @RequestParam("file") MultipartFile multipartFile,
-                            @RequestParam("userGroup") Integer userGroup) throws IOException {
+                            @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException {
         pathResolver.validateFileExtension(fileName);
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         if (userGroupEnum == null) {
@@ -67,7 +68,8 @@ public class FileController {
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws MsgEmbeddedException {
+    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws MsgEmbeddedException,
+            InvalidAuthenticationException {
         final int userId = AuthUtil.getUserId();
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);
@@ -87,7 +89,8 @@ public class FileController {
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException {
+    public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
+            InvalidAuthenticationException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
         ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
@@ -99,7 +102,8 @@ public class FileController {
     }
 
     @PostMapping(path = "/delete")
-    public Result<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException {
+    public Result<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
+            InvalidAuthenticationException {
         ValidUtils.requireNonNull(reqVo.getUuid());
         fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getUuid());
         return Result.ok();

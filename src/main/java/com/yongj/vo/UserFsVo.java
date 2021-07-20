@@ -6,7 +6,10 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class RegisterUserVo {
+public class UserFsVo {
+
+    /** id */
+    private Integer id;
 
     /**
      * username
@@ -14,12 +17,7 @@ public class RegisterUserVo {
     private String username;
 
     /**
-     * password (in plain text)
+     * role
      */
-    private String password;
-
-    /**
-     * User role
-     */
-    private String userRole;
+    private String role;
 }

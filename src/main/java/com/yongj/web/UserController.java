@@ -4,19 +4,17 @@ import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.module.auth.consts.UserRole;
-import com.curtisnewbie.module.auth.dao.UserEntity;
-import com.curtisnewbie.module.auth.exception.UserRelatedException;
-import com.curtisnewbie.module.auth.services.api.UserService;
 import com.curtisnewbie.module.auth.util.AuthUtil;
-import com.curtisnewbie.module.auth.vo.RegisterUserVo;
-import com.curtisnewbie.module.auth.vo.UserInfoVo;
-import com.yongj.vo.DisableUserById;
-import com.yongj.vo.UpdatePasswordVo;
-import com.yongj.vo.UserInfoFsVo;
-import com.yongj.vo.UserVo;
+import com.curtisnewbie.service.auth.remote.api.RemoteUserService;
+import com.curtisnewbie.service.auth.remote.consts.UserRole;
+import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
+import com.curtisnewbie.service.auth.remote.exception.UserRelatedException;
+import com.curtisnewbie.service.auth.remote.vo.RegisterUserVo;
+import com.curtisnewbie.service.auth.remote.vo.UserInfoVo;
+import com.curtisnewbie.service.auth.remote.vo.UserVo;
+import com.yongj.vo.*;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,25 +31,25 @@ public class UserController {
 
     private static final int PASSWORD_LENGTH = 6;
 
-    @Autowired
-    private UserService userService;
+    @DubboReference(lazy = true)
+    private RemoteUserService userService;
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
-    public Result<?> addUser(@RequestBody com.yongj.vo.RegisterUserVo registerUserVo) throws UserRelatedException,
+    public Result<?> addUser(@RequestBody RegisterUserFsVo registerUserVo) throws UserRelatedException,
             MsgEmbeddedException {
-        RegisterUserVo dto = new RegisterUserVo();
-        BeanUtils.copyProperties(registerUserVo, dto);
+        RegisterUserVo vo = new RegisterUserVo();
+        BeanUtils.copyProperties(registerUserVo, vo);
 
         // validate whether username and password is entered
-        ValidUtils.requireNotEmpty(dto.getUsername(), "Please enter username");
-        ValidUtils.requireNotEmpty(dto.getPassword(), "Please enter password");
+        ValidUtils.requireNotEmpty(vo.getUsername(), "Please enter username");
+        ValidUtils.requireNotEmpty(vo.getPassword(), "Please enter password");
 
         // validate if the username and password is the same
-        ValidUtils.requireNotEquals(dto.getUsername(), dto.getPassword(), "Username and password must be different");
+        ValidUtils.requireNotEquals(vo.getUsername(), vo.getPassword(), "Username and password must be different");
 
         // validate if the password is too short
-        if (dto.getPassword().length() < PASSWORD_LENGTH)
+        if (vo.getPassword().length() < PASSWORD_LENGTH)
             return Result.error("Password must have at least " + PASSWORD_LENGTH + "characters");
 
         // if not specified, the role will be guest
@@ -64,23 +62,23 @@ public class UserController {
         if (Objects.equals(role, UserRole.ADMIN)) {
             return Result.error("Do not support adding administrator");
         }
-        dto.setRole(role);
-        dto.setCreateBy(AuthUtil.getUsername());
-        userService.register(dto);
+        vo.setRole(role);
+        vo.setCreateBy(AuthUtil.getUsername());
+        userService.register(vo);
         return Result.ok();
     }
 
     @PreAuthorize("hasAuthority('admin')")
     @GetMapping("/list")
-    public Result<List<UserInfoFsVo>> getUserList() {
-        return Result.of(toUserInfoVoList(userService.findAllUserInfoList(), AuthUtil.getUserEntity().getId()));
+    public Result<List<UserInfoFsVo>> getUserList() throws InvalidAuthenticationException {
+        return Result.of(toUserInfoVoList(userService.findAllUserInfoList(), AuthUtil.getUser().getId()));
     }
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/disable")
-    public Result<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
+    public Result<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNonNull(param.getId());
-        if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
+        if (Objects.equals(param.getId(), AuthUtil.getUser().getId())) {
             throw new MsgEmbeddedException("You cannot disable yourself");
         }
         userService.disableUserById(param.getId(), AuthUtil.getUsername());
@@ -89,9 +87,9 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/enable")
-    public Result<Void> enableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException {
+    public Result<Void> enableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNonNull(param.getId());
-        if (Objects.equals(param.getId(), AuthUtil.getUserEntity().getId())) {
+        if (Objects.equals(param.getId(), AuthUtil.getUser().getId())) {
             throw new MsgEmbeddedException("You cannot enable yourself");
         }
         userService.enableUserById(param.getId(), AuthUtil.getUsername());
@@ -99,17 +97,17 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public Result<UserVo> getUserInfo() {
+    public Result<UserFsVo> getUserInfo() throws InvalidAuthenticationException {
         // user is not authenticated yet
-        if (!AuthUtil.isPrincipalPresent(UserEntity.class)) {
+        if (!AuthUtil.isPrincipalPresent(UserVo.class)) {
             return Result.ok();
         }
-        UserEntity ue = AuthUtil.getUserEntity();
-        return Result.of(BeanCopyUtils.toType(ue, UserVo.class));
+        UserVo ue = AuthUtil.getUser();
+        return Result.of(BeanCopyUtils.toType(ue, UserFsVo.class));
     }
 
     @PostMapping("/password/update")
-    public Result<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException {
+    public Result<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNotEmpty(vo.getNewPassword());
         ValidUtils.requireNotEmpty(vo.getPrevPassword());
 
@@ -120,9 +118,9 @@ public class UserController {
         if (vo.getNewPassword().length() < PASSWORD_LENGTH)
             return Result.error("Password must have at least " + PASSWORD_LENGTH + "characters");
 
-        UserEntity ue = AuthUtil.getUserEntity();
+        UserVo uv = AuthUtil.getUser();
         try {
-            userService.updatePassword(vo.getNewPassword(), vo.getPrevPassword(), ue.getId());
+            userService.updatePassword(vo.getNewPassword(), vo.getPrevPassword(), uv.getId());
         } catch (UserRelatedException ignore) {
             return Result.error("Password incorrect");
         }
