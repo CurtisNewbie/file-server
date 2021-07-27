@@ -8,6 +8,7 @@ import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
+import com.google.common.net.HttpHeaders;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.IOHandler;
@@ -29,7 +30,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -42,7 +42,6 @@ import java.util.List;
 public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
-    private static final int BUFFER_SIZE = 8192;
 
     @Autowired
     private IOHandler ioHandler;
@@ -69,23 +68,21 @@ public class FileController {
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws MsgEmbeddedException,
-            InvalidAuthenticationException {
+            InvalidAuthenticationException, IOException {
         final int userId = AuthUtil.getUserId();
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);
         // get fileName
         final String filename = fileInfoService.getFilename(uuid);
         // set header for the downloaded file
-        resp.setHeader("Content-Disposition", "attachment; filename=" + encodeAttachmentName(filename));
-        // write file directly to outputStream without holdingup servlet's thread
-        return outputStream -> {
-            int bytesRead;
-            byte[] buffer = new byte[BUFFER_SIZE];
-            InputStream inputStream = fileInfoService.retrieveFileInputStream(uuid);
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-        };
+        resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(filename));
+        /*
+            explicitly set the header, such that the gzip compression is enabled,
+            the 'produces=xxx' on GetMapping somehow doesn't add this header
+         */
+        resp.setHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
+        // write file directly to outputStream without holding servlet's thread
+        return new PlainStreamingResponseBody(fileInfoService.retrieveFileInputStream(uuid));
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
