@@ -1,5 +1,10 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import {
+  HttpClient,
+  HttpEvent,
+  HttpHeaders,
+  HttpParams,
+} from "@angular/common/http";
 import { Observable } from "rxjs";
 import { FetchFileInfoList, FileInfo } from "../models/file-info";
 import { Resp } from "../models/resp";
@@ -175,12 +180,17 @@ export class HttpClientService {
    * @param uploadName
    * @param uploadFile
    */
-  public postFile(uploadParam: UploadFileParam): Observable<any> {
+  public postFile(uploadParam: UploadFileParam): Observable<HttpEvent<any>> {
     let formData = new FormData();
-    formData.append("fileName", uploadParam.name);
-    formData.append("file", uploadParam.file);
+    for (let name of uploadParam.names) {
+      formData.append("fileName", name);
+    }
+    for (let f of uploadParam.files) {
+      formData.append("file", f);
+    }
     formData.append("userGroup", uploadParam.userGruop.toString());
     return this.http.post<any>(buildApiPath("/file/upload"), formData, {
+      reportProgress: true,
       withCredentials: true,
     });
   }

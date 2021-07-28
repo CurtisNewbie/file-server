@@ -1,14 +1,16 @@
 <div [hidden]="isGuest">
-    <div class="input-group input-group-sm mb-3" [hidden]="this.uploadParam.file == null">
+    <div class="input-group input-group-sm mb-3" [hidden]="this.uploadParam.files == null">
         <span class="input-group-text" id="basic-addon1">File Name:</span>
-        <input type="text" #uploadFileNameInput [(ngModel)]="uploadParam.name" class="form-control"
+        <!-- always display the first file name only (for zip file, the first one is the zip file's name)  -->
+        <input type="text" #uploadFileNameInput [(ngModel)]="this.displayedUploadName" class="form-control"
             aria-describedby="basic-addon1">
     </div>
     <div class="input-group input-group-sm mb-3">
         <span class="input-group-text" id="basic-addon1">Upload File:</span>
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
-            aria-describedby="basic-addon1">
+            aria-describedby="basic-addon1" multiple>
     </div>
+    <span *ngIf="progress!=null">Uploading: {{progress}}</span>
     <div>
         <form class="row row-cols-lg-auto g-3 align-items-center">
             <div class="col-12">

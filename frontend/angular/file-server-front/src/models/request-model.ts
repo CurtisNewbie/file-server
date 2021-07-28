@@ -12,10 +12,10 @@ export interface SearchFileInfoParam {
 
 /** Parameters for uploading a file */
 export interface UploadFileParam {
-  /** name of the file */
-  name: string;
+  /** name of the file, if it's a zip file, the first one will be the zip file's name */
+  names: string[];
   /** file */
-  file: File;
+  files: File[];
   /** user group that the file belongs to */
   userGruop: number;
 }
@@ -48,7 +48,7 @@ export function emptySearchFileInfoParam(): SearchFileInfoParam {
  */
 export function emptyUploadFileParam(): UploadFileParam {
   return {
-    file: null,
+    files: null,
     name: null,
     userGruop: null,
   };

@@ -3,6 +3,7 @@ package com.yongj.io;
 import com.yongj.io.operation.DeleteFileOperation;
 import com.yongj.io.operation.ReadFileOperation;
 import com.yongj.io.operation.WriteFileOperation;
+import com.yongj.io.operation.ZipFileOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * @author yongjie.zhuang
@@ -31,6 +33,8 @@ public class IOHandlerImpl implements IOHandler {
     private ReadFileOperation readFileOperation;
     @Autowired
     private WriteFileOperation writeFileOperation;
+    @Autowired
+    private ZipFileOperation zipFileOperation;
 
     @Override
     public long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException {
@@ -45,6 +49,11 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public boolean exists(@NotEmpty String absPath) {
         return Files.exists(Path.of(absPath));
+    }
+
+    @Override
+    public long writeZipFile(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries) throws IOException {
+        return zipFileOperation.compressFile(absPath, entries);
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.yongj.io.PathResolver;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
+import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
 import com.curtisnewbie.common.vo.PagingVo;
@@ -31,10 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +75,47 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setSizeInBytes(sizeInBytes);
         mapper.insert(f);
         return f;
+    }
+
+    @Override
+    public FileInfo uploadFilesAsZip(int userId, String zipFile, String[] entryNames, FileUserGroupEnum userGroup,
+                                     InputStream[] inputStreams) throws IOException {
+        Objects.requireNonNull(entryNames);
+        Objects.requireNonNull(userGroup);
+        Objects.requireNonNull(zipFile);
+        Objects.requireNonNull(inputStreams);
+        if (inputStreams.length == 0)
+            throw new IllegalArgumentException();
+        if (entryNames.length != inputStreams.length)
+            throw new IllegalArgumentException();
+
+        // assign random uuid
+        final String uuid = UUID.randomUUID().toString();
+        // resolve absolute path
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
+        // create directories if not exists
+        ioHandler.createParentDirIfNotExists(absPath);
+        // write file to channel
+        final long sizeInBytes = ioHandler.writeZipFile(absPath, prepareZipEntries(entryNames, inputStreams));
+        // save file info record
+        FileInfo f = new FileInfo();
+        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
+        f.setUploaderId(userId);
+        f.setUploadTime(new Date());
+        f.setUuid(uuid);
+        f.setUserGroup(userGroup.getValue());
+        f.setSizeInBytes(sizeInBytes);
+        mapper.insert(f);
+        return f;
+    }
+
+    private List<ZipCompressEntry> prepareZipEntries(String[] entryNames, InputStream[] entries) {
+        List<ZipCompressEntry> l = new ArrayList<>(entries.length);
+        for (int i = 0; i < entries.length; i++)
+            l.add(new ZipCompressEntry(entryNames[i], entries[i]));
+        return l;
     }
 
     @Override

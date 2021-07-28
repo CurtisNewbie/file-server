@@ -30,8 +30,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,15 +56,26 @@ public class FileController {
 
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<?> upload(@RequestParam("fileName") String fileName,
-                            @RequestParam("file") MultipartFile multipartFile,
-                            @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException {
-        pathResolver.validateFileExtension(fileName);
+    public Result<?> upload(@RequestParam("fileName") String[] fileNames,
+                            @RequestParam("file") MultipartFile[] multipartFiles,
+                            @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException, MsgEmbeddedException {
+        for (String f : fileNames)
+            pathResolver.validateFileExtension(f);
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
-        if (userGroupEnum == null) {
-            return Result.error("Incorrect user group");
-        }
-        fileInfoService.uploadFile(AuthUtil.getUserId(), fileName, userGroupEnum, multipartFile.getInputStream());
+        ValidUtils.requireNonNull(userGroupEnum, "Incorrect user group");
+        ValidUtils.requireNotEmpty(multipartFiles, "No file uploaded");
+
+        // the first one is the zipFile's name, and the rest are the entries
+        if (fileNames.length != multipartFiles.length + 1)
+            throw new MsgEmbeddedException("Parameters illegal");
+
+        String zipFile = fileNames[0];
+        String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
+
+        if (multipartFiles.length == 1)
+            fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
+        else
+            fileInfoService.uploadFilesAsZip(AuthUtil.getUserId(), zipFile, entryNames, userGroupEnum, collectInputStreams(multipartFiles));
         return Result.ok();
     }
 
@@ -138,7 +151,14 @@ public class FileController {
         return Result.ok();
     }
 
-    private static final String encodeAttachmentName(String filePath) {
+    private static String encodeAttachmentName(String filePath) {
         return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8);
+    }
+
+    private static InputStream[] collectInputStreams(MultipartFile[] files) throws IOException {
+        InputStream[] inputStreams = new InputStream[files.length];
+        for (int i = 0; i < files.length; i++)
+            inputStreams[i] = files[i].getInputStream();
+        return inputStreams;
     }
 }

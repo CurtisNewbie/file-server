@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 /**
  * Handler of IO operation
@@ -22,7 +23,12 @@ public interface IOHandler {
     boolean exists(@NotEmpty String absPath);
 
     /**
-     * Write data (from an InputStream) to file of absolute path asynchronously
+     * Write data to a zip file of the absolute path
+     */
+    long writeZipFile(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries) throws IOException;
+
+    /**
+     * Write data (from an InputStream) to file of absolute path
      */
     long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
 

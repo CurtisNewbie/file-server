@@ -42,3 +42,6 @@ test-bundled-build.sh
 test-backend-deploy.sh
 test-nginx-deploy.sh
 dev-nginx-build.sh
+
+### generated ###
+*.log

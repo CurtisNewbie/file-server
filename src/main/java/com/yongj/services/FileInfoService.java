@@ -15,12 +15,14 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
+ * Service for files
+ *
  * @author yongjie.zhuang
  */
 public interface FileInfoService {
 
     /**
-     * Save file info (including the actual file)
+     * Save a single file
      *
      * @param userId      user.id
      * @param fileName    fileName
@@ -29,6 +31,19 @@ public interface FileInfoService {
      * @return the saved fileInfo
      */
     FileInfo uploadFile(int userId, String fileName, FileUserGroupEnum userGroup, InputStream inputStream) throws IOException;
+
+    /**
+     * Save multiple files as a single zip
+     *
+     * @param userId       user.id
+     * @param zipFileName  zipFileName
+     * @param fileNames    entries' name
+     * @param userGroup    userGroup
+     * @param inputStreams files' inputStreams
+     * @return the saved fileInfo
+     */
+    FileInfo uploadFilesAsZip(int userId, String zipFileName, String[] fileNames, FileUserGroupEnum userGroup, InputStream[] inputStreams)
+            throws IOException;
 
     /**
      * Find file info for user

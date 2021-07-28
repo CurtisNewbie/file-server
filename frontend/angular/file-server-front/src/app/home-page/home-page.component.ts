@@ -1,5 +1,7 @@
+import { HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { AttachSession } from "protractor/built/driverProviders";
+import { zip } from "rxjs";
 import {
   FileInfo,
   FileOwnershipEnum,
@@ -38,6 +40,8 @@ export class HomePageComponent implements OnInit {
   uploadParam: UploadFileParam = emptyUploadFileParam();
   isGuest: boolean = true;
   pagingController: PagingController = new PagingController();
+  progress: string = null;
+  displayedUploadName: string = null;
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
@@ -133,11 +137,16 @@ export class HomePageComponent implements OnInit {
 
   /** Upload file */
   upload(): void {
-    if (!this.uploadParam.file) {
+    if (this.uploadParam.files.length < 1) {
       window.alert("Please select a file to upload");
       return;
     }
-    if (!this.uploadParam.name) {
+    if (!this.displayedUploadName) {
+      window.alert("File name cannot be empty");
+      return;
+    }
+    this.uploadParam.names.unshift(this.displayedUploadName);
+    if (this.uploadParam.names.length < 1) {
       window.alert("File name cannot be empty");
       return;
     }
@@ -145,24 +154,32 @@ export class HomePageComponent implements OnInit {
       // default private group
       this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
     }
-    let fileExt = this.parseFileExt(this.uploadParam.name);
-    console.log("Parsed file extension:", fileExt);
-    if (!fileExt) {
-      window.alert("Please specify file extension");
-      return;
+
+    // validate file extension by names
+    for (let name of this.uploadParam.names) {
+      let fileExt = this.parseFileExt(name);
+      console.log("Parsed file extension:", fileExt);
+      if (!fileExt) {
+        window.alert("Please specify file extension");
+        return;
+      }
+      fileExt = fileExt.toLowerCase();
+      if (!this.fileExtSet.has(fileExt)) {
+        window.alert(`File extension '${fileExt}' isn't supported`);
+        return;
+      }
     }
-    fileExt = fileExt.toLowerCase();
-    if (!this.fileExtSet.has(fileExt)) {
-      window.alert(`File extension '${fileExt}' isn't supported`);
-      return;
-    }
+
     this.httpClient.postFile(this.uploadParam).subscribe({
-      next: (r) => {},
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          this.progress = Math.round(
+            (100 * event.loaded) / event.total
+          ).toFixed(2);
+        }
+      },
       complete: () => {
-        this.uploadParam.file = null;
-        this.uploadParam.name = null;
-        this.uploadFileInput.nativeElement.value = null;
-        this.uploadFileNameInput.nativeElement.value = null;
+        this.resetFileUploadParam();
         this.fetchFileInfoList();
       },
       error: () => {
@@ -173,14 +190,28 @@ export class HomePageComponent implements OnInit {
 
   /** Handle events on file selected/changed */
   onFileSelected(files: File[]): void {
-    if (files.length > 0) {
-      let firstFile: File = files[0];
-      this.uploadParam.file = firstFile;
-      this.uploadParam.name = firstFile.name;
-    } else {
-      this.uploadParam.file = null;
-      this.uploadParam.name = null;
+    if (files.length < 1) {
+      this.resetFileUploadParam();
+      return;
     }
+
+    // always use the name of the first file
+    let firstFile: File = files[0];
+    this.uploadParam.files = files;
+
+    if (files.length > 1) {
+      this.displayedUploadName = firstFile.name + ".zip";
+      // the entries
+      let fileNames: string[] = [];
+      for (let n of files) {
+        fileNames.push(n.name);
+      }
+      this.uploadParam.names = fileNames;
+    } else {
+      this.displayedUploadName = firstFile.name;
+      this.uploadParam.names = [firstFile.name];
+    }
+    console.log(this.uploadParam);
   }
 
   /**
@@ -291,5 +322,13 @@ export class HomePageComponent implements OnInit {
 
   searchParamChanged(): void {
     this.shouldResetPagingParam = true;
+  }
+
+  resetFileUploadParam(): void {
+    this.uploadParam.files = null;
+    this.uploadParam.names = null;
+    this.uploadFileInput.nativeElement.value = null;
+    this.uploadFileNameInput.nativeElement.value = null;
+    this.progress = null;
   }
 }
