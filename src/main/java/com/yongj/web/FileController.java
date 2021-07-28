@@ -64,14 +64,15 @@ public class FileController {
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         ValidUtils.requireNonNull(userGroupEnum, "Incorrect user group");
         ValidUtils.requireNotEmpty(multipartFiles, "No file uploaded");
-
-        // the first one is the zipFile's name, and the rest are the entries
-        if (fileNames.length != multipartFiles.length + 1)
-            throw new MsgEmbeddedException("Parameters illegal");
+        ValidUtils.requireNotEmpty(fileNames, "No file uploaded");
 
         if (multipartFiles.length == 1) {
             fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
         } else { // multiple upload, compress them into a single file zip file
+            // the first one is the zipFile's name, and the rest are the entries
+            if (fileNames.length != multipartFiles.length + 1)
+                throw new MsgEmbeddedException("Parameters illegal");
+
             String zipFile = fileNames[0];
             String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
             fileInfoService.uploadFilesAsZip(AuthUtil.getUserId(), zipFile, entryNames, userGroupEnum, collectInputStreams(multipartFiles));

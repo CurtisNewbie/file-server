@@ -209,7 +209,7 @@ export class HomePageComponent implements OnInit {
       this.uploadParam.names = fileNames;
     } else {
       this.displayedUploadName = firstFile.name;
-      this.uploadParam.names = [firstFile.name];
+      this.uploadParam.names = [];
     }
     console.log(this.uploadParam);
   }
