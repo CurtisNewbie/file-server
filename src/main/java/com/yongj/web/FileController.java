@@ -69,13 +69,13 @@ public class FileController {
         if (fileNames.length != multipartFiles.length + 1)
             throw new MsgEmbeddedException("Parameters illegal");
 
-        String zipFile = fileNames[0];
-        String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
-
-        if (multipartFiles.length == 1)
+        if (multipartFiles.length == 1) {
             fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
-        else
+        } else { // multiple upload, compress them into a single file zip file
+            String zipFile = fileNames[0];
+            String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
             fileInfoService.uploadFilesAsZip(AuthUtil.getUserId(), zipFile, entryNames, userGroupEnum, collectInputStreams(multipartFiles));
+        }
         return Result.ok();
     }
 
