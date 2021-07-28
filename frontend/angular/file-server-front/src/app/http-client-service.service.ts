@@ -189,10 +189,15 @@ export class HttpClientService {
       formData.append("file", f);
     }
     formData.append("userGroup", uploadParam.userGruop.toString());
-    return this.http.post<any>(buildApiPath("/file/upload"), formData, {
-      reportProgress: true,
-      withCredentials: true,
-    });
+    return this.http.post<HttpEvent<any>>(
+      buildApiPath("/file/upload"),
+      formData,
+      {
+        observe: "events",
+        reportProgress: true,
+        withCredentials: true,
+      }
+    );
   }
 
   /**

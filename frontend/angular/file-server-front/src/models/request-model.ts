@@ -49,7 +49,7 @@ export function emptySearchFileInfoParam(): SearchFileInfoParam {
 export function emptyUploadFileParam(): UploadFileParam {
   return {
     files: null,
-    name: null,
+    names: null,
     userGruop: null,
   };
 }

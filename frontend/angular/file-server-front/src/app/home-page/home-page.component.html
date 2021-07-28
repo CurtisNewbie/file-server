@@ -5,13 +5,13 @@
         <input type="text" #uploadFileNameInput [(ngModel)]="this.displayedUploadName" class="form-control"
             aria-describedby="basic-addon1">
     </div>
-    <div class="input-group input-group-sm mb-3">
+    <div class="input-group input-group-sm mb-1">
         <span class="input-group-text" id="basic-addon1">Upload File:</span>
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
             aria-describedby="basic-addon1" multiple>
     </div>
-    <span *ngIf="progress!=null">Uploading: {{progress}}</span>
-    <div>
+    <small style="color: cadetblue;" *ngIf="progress != null">Progress: {{progress}}</small>
+    <div class="mt-3">
         <form class="row row-cols-lg-auto g-3 align-items-center">
             <div class="col-12">
                 <select class="form-select form-select-sm" id="uploadUserGroupSelect"
