@@ -23,6 +23,8 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
+import { MatTooltipModule } from "@angular/material/tooltip";
+
 @NgModule({
   exports: [],
   declarations: [
@@ -44,6 +46,7 @@ import { MatTableModule } from "@angular/material/table";
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTableModule,
+    MatTooltipModule,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

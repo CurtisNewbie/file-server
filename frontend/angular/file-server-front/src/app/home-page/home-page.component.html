@@ -15,19 +15,22 @@
         <form class="row row-cols-lg-auto g-3 align-items-center">
             <div class="col-12">
                 <select class="form-select form-select-sm" id="uploadUserGroupSelect"
-                    (change)="setUploadUserGroup($event.target.value)">
+                    (change)="setUploadUserGroup($event.target.value)" #tooltip="matTooltip"
+                    matTooltip="Public group files are accessible for anyone. Private group is only accessible for you">
                     <option [value]="PRIVATE_GROUP" selected>Private Group</option>
                     <option [value]="PUBLIC_GROUP">Public Group</option>
                 </select>
             </div>
             <div class="col-12">
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="uploadBtn"
-                    (click)="upload()">Upload</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="uploadBtn" (click)="upload()"
+                    #tooltip="matTooltip" matTooltip="Multiple files are uploaded as a single zip"
+                    matTooltipPosition="right">Upload</button>
             </div>
         </form>
     </div>
     <div class="m-2">
-        <small style="color: grey;">Supported File Extensions:
+        <small style="color: grey;" #tooltip="matTooltip"
+            matTooltip="File name must be using these file extensions">Supported File Extensions:
             <span *ngFor="let e of fileExtSet; let i = index">
                 {{ (i < fileExtSet.size - 1 ? e + "," : e )}} </span>
         </small>
@@ -46,7 +49,8 @@
             </div>
             <div class="col-12">
                 <select class="form-select form-select-sm" id="searchUserGroupSelect"
-                    (change)="setSearchUserGroup($event.target.value)">
+                    (change)="setSearchUserGroup($event.target.value)" #tooltip="matTooltip"
+                    matTooltip="Public group files are accessible for anyone. Private group is only accessible for you">
                     <option value="" selected #defSearchUserGroup>All Groups</option>
                     <option [value]="PRIVATE_GROUP">Private Group</option>
                     <option [value]="PUBLIC_GROUP">Public Group</option>
@@ -54,7 +58,8 @@
             </div>
             <div class="col-12">
                 <select class="form-select form-select-sm" id="searchOwnerSelect"
-                    (change)="setSearchOwnership($event.target.value)">
+                    (change)="setSearchOwnership($event.target.value)" #tooltip="matTooltip"
+                    matTooltip="Fetch all the files or only the files that you uploaded">
                     <option [value]="OWNERSHIP_ALL_FILES" selected #defSearchOwner>All Files</option>
                     <option [value]="OWNERSHIP_MY_FILES">My Files</option>
                 </select>
