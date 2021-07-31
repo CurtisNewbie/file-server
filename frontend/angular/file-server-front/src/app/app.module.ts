@@ -24,6 +24,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatPaginatorModule } from "@angular/material/paginator";
 
 @NgModule({
   exports: [],
@@ -47,6 +48,7 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     MatSnackBarModule,
     MatTableModule,
     MatTooltipModule,
+    MatPaginatorModule,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

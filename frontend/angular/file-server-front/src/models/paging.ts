@@ -1,3 +1,5 @@
+import { PageEvent } from "@angular/material/paginator";
+
 /** Pagination info */
 export interface Paging {
   /** page number */
@@ -33,6 +35,7 @@ export class PagingController {
   /** Update the list of pages that it can select */
   public updatePages(total: number): void {
     this.pages = [];
+    this.paging.total = total;
     let maxPage = Math.ceil(total / this.paging.limit);
     for (let i = 1; i <= maxPage; i++) {
       this.pages.push(i);
@@ -72,5 +75,11 @@ export class PagingController {
 
   public resetCurrentPage(): void {
     this.paging.page = 1;
+  }
+
+  public handle(e: PageEvent): void {
+    console.log(e);
+    this.paging.page = e.pageIndex + 1;
+    this.paging.limit = e.pageSize;
   }
 }

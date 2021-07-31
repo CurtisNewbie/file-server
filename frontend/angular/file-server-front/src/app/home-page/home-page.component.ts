@@ -1,5 +1,6 @@
 import { HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { PageEvent } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import {
   FileInfo,
@@ -265,20 +266,6 @@ export class HomePageComponent implements OnInit {
     this.fetchFileInfoList();
   }
 
-  nextPage(): void {
-    if (this.pagingController.canGoToNextPage()) {
-      this.pagingController.nextPage();
-      this.fetchFileInfoList();
-    }
-  }
-
-  prevPage(): void {
-    if (this.pagingController.canGoToPrevPage()) {
-      this.pagingController.prevPage();
-      this.fetchFileInfoList();
-    }
-  }
-
   /** Reset all parameters used for searching */
   resetSearchParam(): void {
     this.shouldResetPagingParam = false;
@@ -330,5 +317,10 @@ export class HomePageComponent implements OnInit {
     this.uploadFileInput.nativeElement.value = null;
     this.uploadFileNameInput.nativeElement.value = null;
     this.progress = null;
+  }
+
+  handle(e: PageEvent): void {
+    this.pagingController.handle(e);
+    this.fetchFileInfoList();
   }
 }
