@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { UserInfo, UserIsDisabledEnum } from "src/models/user-info";
+import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 
 @Component({
@@ -14,7 +15,10 @@ export class ManagerUserComponent implements OnInit {
   passswordToBeAdded: string = null;
   userRoleOfAddedUser: string = null;
   userInfoList: UserInfo[] = [];
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private notifi: NotificationService
+  ) {}
 
   ngOnInit() {
     this.fetchUserInfoList();
@@ -25,7 +29,7 @@ export class ManagerUserComponent implements OnInit {
    */
   public addUser(): void {
     if (!this.usernameToBeAdded || !this.passswordToBeAdded) {
-      window.alert("Please enter username and password");
+      this.notifi.toast("Please enter username and password");
     }
     this.userService
       .addUser(

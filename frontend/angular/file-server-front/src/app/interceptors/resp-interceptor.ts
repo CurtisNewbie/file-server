@@ -12,13 +12,14 @@ import { Observable } from "rxjs";
 import { catchError, filter } from "rxjs/operators";
 import { Resp } from "src/models/resp";
 import { Router } from "@angular/router";
+import { NotificationService } from "../notification.service";
 
 /**
  * Intercept http response with 'Resp' as body
  */
 @Injectable()
 export class RespInterceptor implements HttpInterceptor {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private notifi: NotificationService) {}
 
   intercept(
     httpRequest: HttpRequest<any>,
@@ -35,7 +36,7 @@ export class RespInterceptor implements HttpInterceptor {
           let r: Resp<any> = e.body as Resp<any>;
           if (r.hasError) {
             console.log(`Intercept HttpResponse, found error: ${r.msg}`);
-            window.alert(r.msg);
+            this.notifi.toast(r.msg);
             // filter out this value
             return false;
           }

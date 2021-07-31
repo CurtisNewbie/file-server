@@ -19,8 +19,12 @@ import { RespInterceptor } from "./interceptors/resp-interceptor";
 import { ErrorInterceptor } from "./interceptors/error-interceptor";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 
 @NgModule({
+  exports: [],
   declarations: [
     AppComponent,
     HomePageComponent,
@@ -31,7 +35,15 @@ import { ManageExtensionComponent } from "./manage-extension/manage-extension.co
     ChangePasswordComponent,
     ManageExtensionComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule,
+    BrowserAnimationsModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+  ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: APP_BASE_HREF, useValue: "/" },

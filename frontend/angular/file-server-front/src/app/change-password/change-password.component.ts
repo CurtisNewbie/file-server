@@ -5,6 +5,7 @@ import {
   emptyChangePasswordParam,
 } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
+import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { hasText } from "../util/str-util";
 
@@ -19,7 +20,8 @@ export class ChangePasswordComponent implements OnInit {
   constructor(
     private httpService: HttpClientService,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private notifi: NotificationService
   ) {}
 
   ngOnInit() {}
@@ -29,7 +31,7 @@ export class ChangePasswordComponent implements OnInit {
       !hasText(this.changePasswordParam.prevPassword) ||
       !hasText(this.changePasswordParam.newPassword)
     ) {
-      window.alert("Please enter passwords");
+      this.notifi.toast("Please enter passwords");
       return;
     }
 
@@ -37,13 +39,13 @@ export class ChangePasswordComponent implements OnInit {
       this.changePasswordParam.prevPassword ===
       this.changePasswordParam.newPassword
     ) {
-      window.alert("Passwords must be different");
+      this.notifi.toast("Passwords must be different");
       return;
     }
 
     this.httpService.changePassword(this.changePasswordParam).subscribe({
       next: (result) => {
-        window.alert("Password changed, please login");
+        this.notifi.toast("Password changed, please login");
         this.userService.setLogout();
       },
       complete: () => {

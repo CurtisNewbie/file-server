@@ -1,13 +1,12 @@
 import { HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
-import { AttachSession } from "protractor/built/driverProviders";
-import { zip } from "rxjs";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import {
   FileInfo,
   FileOwnershipEnum,
   FileUserGroupEnum,
 } from "src/models/file-info";
-import { Paging, PagingConst, PagingController } from "src/models/paging";
+import { PagingController } from "src/models/paging";
 import {
   emptySearchFileInfoParam,
   emptyUploadFileParam,
@@ -15,6 +14,7 @@ import {
   UploadFileParam,
 } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
+import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { buildApiPath } from "../util/api-util";
 
@@ -57,7 +57,8 @@ export class HomePageComponent implements OnInit {
 
   constructor(
     private httpClient: HttpClientService,
-    private userService: UserService
+    private userService: UserService,
+    private notifi: NotificationService
   ) {}
 
   ngOnInit() {
@@ -137,17 +138,17 @@ export class HomePageComponent implements OnInit {
 
   /** Upload file */
   upload(): void {
-    if (this.uploadParam.files.length < 1) {
-      window.alert("Please select a file to upload");
+    if (this.uploadParam.files == null || this.uploadParam.files.length < 1) {
+      this.notifi.toast("Please select a file to upload");
       return;
     }
     if (!this.displayedUploadName) {
-      window.alert("File name cannot be empty");
+      this.notifi.toast("File name cannot be empty");
       return;
     }
     this.uploadParam.names.unshift(this.displayedUploadName);
-    if (this.uploadParam.names.length < 1) {
-      window.alert("File name cannot be empty");
+    if (this.uploadParam.names == null || this.uploadParam.names.length < 1) {
+      this.notifi.toast("File name cannot be empty");
       return;
     }
     if (this.uploadParam.userGruop == null) {
@@ -160,12 +161,12 @@ export class HomePageComponent implements OnInit {
       let fileExt = this.parseFileExt(name);
       console.log("Parsed file extension:", fileExt);
       if (!fileExt) {
-        window.alert("Please specify file extension");
+        this.notifi.toast("Please specify file extension");
         return;
       }
       fileExt = fileExt.toLowerCase();
       if (!this.fileExtSet.has(fileExt)) {
-        window.alert(`File extension '${fileExt}' isn't supported`);
+        `File extension '${fileExt}' isn't supported`;
         return;
       }
     }
@@ -173,9 +174,8 @@ export class HomePageComponent implements OnInit {
     this.httpClient.postFile(this.uploadParam).subscribe({
       next: (event) => {
         if (event.type === HttpEventType.UploadProgress) {
-          this.progress = Math.round(
-            (100 * event.loaded) / event.total
-          ).toFixed(2);
+          this.progress =
+            Math.round((100 * event.loaded) / event.total).toFixed(2) + "%";
         }
       },
       complete: () => {
@@ -183,7 +183,7 @@ export class HomePageComponent implements OnInit {
         this.fetchFileInfoList();
       },
       error: () => {
-        window.alert("Failed to upload file");
+        this.notifi.toast("Failed to upload file");
       },
     });
   }

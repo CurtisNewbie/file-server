@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 
 @Component({
@@ -11,7 +12,11 @@ export class LoginComponent implements OnInit {
   usernameInput: string = "";
   passwordInput: string = "";
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private router: Router,
+    private notifi: NotificationService
+  ) {}
 
   ngOnInit() {}
 
@@ -20,7 +25,7 @@ export class LoginComponent implements OnInit {
    */
   public login(): void {
     if (!this.usernameInput || !this.passwordInput) {
-      window.alert("Please enter username and password");
+      this.notifi.toast("Please enter username and password");
       return;
     }
     this.userService.login(this.usernameInput, this.passwordInput).subscribe({
