@@ -23,7 +23,7 @@ export class ErrorInterceptor implements HttpInterceptor {
   constructor(
     private router: Router,
     private userService: UserService,
-    private notify: NotificationService
+    private notifi: NotificationService
   ) {}
 
   intercept(
