@@ -22,7 +22,7 @@ import { ManageExtensionComponent } from "./manage-extension/manage-extension.co
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
-
+import { MatTableModule } from "@angular/material/table";
 @NgModule({
   exports: [],
   declarations: [
@@ -43,6 +43,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
     BrowserAnimationsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTableModule,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
