@@ -14,13 +14,13 @@
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
             aria-describedby="basic-addon1" multiple>
     </div>
-    <small style="color: cadetblue;" *ngIf="progress != null">Progress: {{progress}}</small>
-    <div class="mt-3">
+    <div class="mt-3 mb-2">
         <form class="row row-cols-lg-auto g-3 align-items-center">
             <div class="col-12">
                 <select class="form-select form-select-sm" id="uploadUserGroupSelect"
                     (change)="setUploadUserGroup($event.target.value)" #tooltip="matTooltip"
-                    matTooltip="Public group files are accessible for anyone. Private group is only accessible for you">
+                    matTooltip="Public group files are accessible for anyone. Private group files are only accessible for you"
+                    matTooltipPosition="below">
                     <option [value]="PRIVATE_GROUP" selected>Private Group</option>
                     <option [value]="PUBLIC_GROUP">Public Group</option>
                 </select>
@@ -31,14 +31,15 @@
                     Upload
                 </button>
             </div>
+            <div class="col-12">
+                <small style="color: cadetblue;" *ngIf="progress != null">Progress: {{progress}}</small>
+            </div>
         </form>
     </div>
-    <div class="m-2">
-        <small style="color: grey;" [matTooltip]="fileExtToolTip()">Supported File Extensions:
-            <span>
-                {{ subSetToStr(this.fileExtSet, 5)}} ... </span>
-        </small>
-    </div>
+    <small class="mt-2" style="color: grey;" [matTooltip]="fileExtToolTip()">Supported File Extensions:
+        <span>
+            {{ subSetToStr(this.fileExtSet, 5)}} ... </span>
+    </small>
 </div>
 
 
@@ -56,10 +57,9 @@
         <div class="row row-cols-lg-auto g-3 align-items-center">
             <div class="col-12">
                 <select class="form-select form-select-sm" id="searchUserGroupSelect"
-                    (change)="setSearchUserGroup($event.target.value)" #tooltip="matTooltip"
-                    matTooltip="Public group files are accessible for anyone. Private group is only accessible for you">
+                    (change)="setSearchUserGroup($event.target.value)">
                     <option value="" selected #defSearchUserGroup>All Groups</option>
-                    <option [value]="PRIVATE_GROUP">Private Group</option>
+                    <option [value]="PRIVATE_GROUP"> Private Group</option>
                     <option [value]="PUBLIC_GROUP">Public Group</option>
                 </select>
             </div>

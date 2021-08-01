@@ -10,6 +10,12 @@ import { HttpClientService } from "../http-client-service.service";
   styleUrls: ["./access-log.component.css"],
 })
 export class AccessLogComponent implements OnInit {
+  readonly COLUMNS_TO_BE_DISPLAYED: string[] = [
+    "id",
+    "user",
+    "accessTime",
+    "ipAddress",
+  ];
   accessLogList: AccessLog[] = [];
   pagingController: PagingController = new PagingController();
 
