@@ -15,6 +15,7 @@ export class ManagerUserComponent implements OnInit {
   passswordToBeAdded: string = null;
   userRoleOfAddedUser: string = null;
   userInfoList: UserInfo[] = [];
+  addUserPanelDisplayed: boolean = false;
   constructor(
     private userService: UserService,
     private notifi: NotificationService
@@ -30,6 +31,7 @@ export class ManagerUserComponent implements OnInit {
   public addUser(): void {
     if (!this.usernameToBeAdded || !this.passswordToBeAdded) {
       this.notifi.toast("Please enter username and password");
+      return;
     }
     this.userService
       .addUser(
