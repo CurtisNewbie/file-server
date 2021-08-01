@@ -1,3 +1,10 @@
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from "@angular/animations";
 import { Component, OnInit } from "@angular/core";
 import { UserInfo, UserIsDisabledEnum } from "src/models/user-info";
 import { NotificationService } from "../notification.service";
@@ -7,15 +14,29 @@ import { UserService } from "../user.service";
   selector: "app-manager-user",
   templateUrl: "./manager-user.component.html",
   styleUrls: ["./manager-user.component.css"],
+  animations: [
+    trigger("detailExpand", [
+      state("collapsed", style({ height: "0px", minHeight: "0" })),
+      state("expanded", style({ height: "*" })),
+      transition(
+        "expanded <=> collapsed",
+        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+      ),
+    ]),
+  ],
 })
 export class ManagerUserComponent implements OnInit {
   readonly USER_IS_NORMAL = UserIsDisabledEnum.NORMAL;
   readonly USER_IS_DISABLED = UserIsDisabledEnum.IS_DISABLED;
+  readonly COLUMNS_TO_BE_DISPLAYED = ["id", "name", "role", "status"];
+
   usernameToBeAdded: string = null;
   passswordToBeAdded: string = null;
   userRoleOfAddedUser: string = null;
   userInfoList: UserInfo[] = [];
   addUserPanelDisplayed: boolean = false;
+  expandedElement: UserInfo = null;
+
   constructor(
     private userService: UserService,
     private notifi: NotificationService
