@@ -16,6 +16,7 @@ import { hasText } from "../util/str-util";
 })
 export class ChangePasswordComponent implements OnInit {
   changePasswordParam: ChangePasswordParam = emptyChangePasswordParam();
+  newPasswordConfirm: string = null;
 
   constructor(
     private httpService: HttpClientService,
@@ -29,9 +30,15 @@ export class ChangePasswordComponent implements OnInit {
   changePassword() {
     if (
       !hasText(this.changePasswordParam.prevPassword) ||
-      !hasText(this.changePasswordParam.newPassword)
+      !hasText(this.changePasswordParam.newPassword) ||
+      !hasText(this.newPasswordConfirm)
     ) {
       this.notifi.toast("Please enter passwords");
+      return;
+    }
+
+    if (this.changePasswordParam.newPassword !== this.newPasswordConfirm) {
+      this.notifi.toast("Confirmed password is not matched");
       return;
     }
 
@@ -39,7 +46,7 @@ export class ChangePasswordComponent implements OnInit {
       this.changePasswordParam.prevPassword ===
       this.changePasswordParam.newPassword
     ) {
-      this.notifi.toast("Passwords must be different");
+      this.notifi.toast("new password must be different");
       return;
     }
 
@@ -50,6 +57,7 @@ export class ChangePasswordComponent implements OnInit {
       },
       complete: () => {
         this.changePasswordParam = emptyChangePasswordParam();
+        this.newPasswordConfirm = null;
       },
     });
   }
