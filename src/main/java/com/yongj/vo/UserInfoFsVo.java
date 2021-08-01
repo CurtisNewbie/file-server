@@ -3,6 +3,8 @@ package com.yongj.vo;
 import lombok.Data;
 
 /**
+ * FileServer's view of UserInfo
+ *
  * @author yongjie.zhuang
  */
 @Data

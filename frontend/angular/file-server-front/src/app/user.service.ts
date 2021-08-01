@@ -1,8 +1,13 @@
 import { Injectable, OnInit, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
+import { FindValueSubscriber } from "rxjs/internal/operators/find";
+import { FetchUserInfoParam } from "src/models/request-model";
 import { Resp } from "src/models/resp";
-import { UserInfo } from "src/models/user-info";
+import {
+  FetchUserInfoResp as FetchUserInfoResp,
+  UserInfo,
+} from "src/models/user-info";
 import { HttpClientService } from "./http-client-service.service";
 
 @Injectable({
@@ -106,8 +111,10 @@ export class UserService {
   /**
    * Fetch list of user infos (only admin is allowed)
    */
-  public fetchUserList(): Observable<Resp<UserInfo[]>> {
-    return this.httpClient.fetchUserList();
+  public fetchUserList(
+    param: FetchUserInfoParam
+  ): Observable<Resp<FetchUserInfoResp>> {
+    return this.httpClient.fetchUserList(param);
   }
 
   /**

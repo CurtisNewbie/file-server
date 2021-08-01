@@ -1,4 +1,5 @@
 import { Paging } from "./paging";
+import { UserIsDisabledEnum, UserRoleEnum } from "./user-info";
 
 /** Parameters used for fetching list of file info */
 export interface SearchFileInfoParam {
@@ -120,6 +121,38 @@ export function emptySearchFileExtParam(): SearchFileExtParam {
   return {
     name: null,
     isEnabled: null,
+    pagingVo: null,
+  };
+}
+
+/**
+ * Parameters for fetching user info
+ */
+export interface FetchUserInfoParam {
+  /** username  */
+  username: string;
+
+  /**
+   * role
+   */
+  role: UserRoleEnum | string;
+
+  /**
+   * is user disabled
+   */
+  isDisabled: UserIsDisabledEnum | number;
+
+  /**
+   * paging param
+   */
+  pagingVo: Paging;
+}
+
+export function emptyFetchUserInfoParam(): FetchUserInfoParam {
+  return {
+    username: null,
+    role: null,
+    isDisabled: null,
     pagingVo: null,
   };
 }

@@ -6,15 +6,15 @@ import {
   HttpParams,
 } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { FetchFileInfoList, FileInfo } from "../models/file-info";
+import { FetchFileInfoList } from "../models/file-info";
 import { Resp } from "../models/resp";
-import { UserInfo } from "src/models/user-info";
-import { Paging } from "src/models/paging";
+import { FetchUserInfoResp, UserInfo } from "src/models/user-info";
 import {
   AddUserParam,
   ChangePasswordParam,
   FetchAccessLogListParam,
   FetchFileInfoListParam,
+  FetchUserInfoParam,
   SearchFileExtParam as FetchFileExtParam,
   UploadFileParam,
 } from "src/models/request-model";
@@ -143,8 +143,14 @@ export class HttpClientService {
   /**
    * Fetch list of user infos
    */
-  public fetchUserList(): Observable<Resp<UserInfo[]>> {
-    return this.http.get<Resp<UserInfo[]>>(buildApiPath("/user/list"), headers);
+  public fetchUserList(
+    param: FetchUserInfoParam
+  ): Observable<Resp<FetchUserInfoResp>> {
+    return this.http.post<Resp<FetchUserInfoResp>>(
+      buildApiPath("/user/list"),
+      param,
+      headers
+    );
   }
 
   /**

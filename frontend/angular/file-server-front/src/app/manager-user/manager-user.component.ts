@@ -6,7 +6,18 @@ import {
   trigger,
 } from "@angular/animations";
 import { Component, OnInit } from "@angular/core";
-import { UserInfo, UserIsDisabledEnum } from "src/models/user-info";
+import { PageEvent } from "@angular/material/paginator";
+import { PagingConst, PagingController } from "src/models/paging";
+import {
+  emptyFetchUserInfoParam,
+  FetchUserInfoParam,
+} from "src/models/request-model";
+import {
+  UserInfo,
+  UserIsDisabledEnum,
+  USER_IS_DISABLED_OPTIONS,
+  USER_ROLE_OPTIONS,
+} from "src/models/user-info";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 
@@ -29,6 +40,8 @@ export class ManagerUserComponent implements OnInit {
   readonly USER_IS_NORMAL = UserIsDisabledEnum.NORMAL;
   readonly USER_IS_DISABLED = UserIsDisabledEnum.IS_DISABLED;
   readonly COLUMNS_TO_BE_DISPLAYED = ["id", "name", "role", "status"];
+  readonly USER_IS_DISABLED_OPTS = USER_IS_DISABLED_OPTIONS;
+  readonly USER_ROLE_OPTS = USER_ROLE_OPTIONS;
 
   usernameToBeAdded: string = null;
   passswordToBeAdded: string = null;
@@ -36,6 +49,8 @@ export class ManagerUserComponent implements OnInit {
   userInfoList: UserInfo[] = [];
   addUserPanelDisplayed: boolean = false;
   expandedElement: UserInfo = null;
+  searchParam: FetchUserInfoParam = emptyFetchUserInfoParam();
+  pagingController: PagingController = new PagingController();
 
   constructor(
     private userService: UserService,
@@ -72,15 +87,17 @@ export class ManagerUserComponent implements OnInit {
       });
   }
 
-  public fetchUserInfoList(): void {
-    this.userService.fetchUserList().subscribe({
+  fetchUserInfoList(): void {
+    this.searchParam.pagingVo = this.pagingController.paging;
+    this.userService.fetchUserList(this.searchParam).subscribe({
       next: (resp) => {
-        this.userInfoList = resp.data;
+        this.userInfoList = resp.data.fileInfoList;
+        this.pagingController.updatePages(resp.data.pagingVo.total);
       },
     });
   }
 
-  public disableUserById(id: number): void {
+  disableUserById(id: number): void {
     this.userService.disableUserById(id).subscribe({
       next: (resp) => {
         this.fetchUserInfoList();
@@ -88,7 +105,7 @@ export class ManagerUserComponent implements OnInit {
     });
   }
 
-  public enableUserById(id: number): void {
+  enableUserById(id: number): void {
     this.userService.enableUserById(id).subscribe({
       next: (resp) => {
         this.fetchUserInfoList();
@@ -96,7 +113,31 @@ export class ManagerUserComponent implements OnInit {
     });
   }
 
-  public setUserRole(userRole: string): void {
+  setUserRole(userRole: string): void {
     this.userRoleOfAddedUser = userRole;
+  }
+
+  searchNameInputKeyPressed(event: any): void {
+    if (event.key === "Enter") {
+      this.fetchUserInfoList();
+    }
+  }
+
+  setSearchIsDisabled(isDisabled: number): void {
+    this.searchParam.isDisabled = isDisabled;
+  }
+
+  setSearchRole(role: string): void {
+    this.searchParam.role = role;
+  }
+
+  resetSearchParam(): void {
+    this.searchParam.isDisabled = null;
+    this.searchParam.role = null;
+  }
+
+  handle(e: PageEvent): void {
+    this.pagingController.handle(e);
+    this.fetchUserInfoList();
   }
 }

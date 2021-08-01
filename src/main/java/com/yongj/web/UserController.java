@@ -2,16 +2,21 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.api.RemoteUserService;
+import com.curtisnewbie.service.auth.remote.consts.UserIsDisabled;
 import com.curtisnewbie.service.auth.remote.consts.UserRole;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.exception.UserRelatedException;
+import com.curtisnewbie.service.auth.remote.vo.FindUserInfoVo;
 import com.curtisnewbie.service.auth.remote.vo.RegisterUserVo;
 import com.curtisnewbie.service.auth.remote.vo.UserInfoVo;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
+import com.github.pagehelper.PageInfo;
 import com.yongj.vo.*;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.BeanUtils;
@@ -20,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author yongjie.zhuang
@@ -69,9 +73,25 @@ public class UserController {
     }
 
     @PreAuthorize("hasAuthority('admin')")
-    @GetMapping("/list")
-    public Result<List<UserInfoFsVo>> getUserList() throws InvalidAuthenticationException {
-        return Result.of(toUserInfoVoList(userService.findAllUserInfoList(), AuthUtil.getUser().getId()));
+    @PostMapping("/list")
+    public Result<GetUserListRespVo> getUserList(@RequestBody GetUserListReqVo reqVo) {
+        FindUserInfoVo searchParam = toFindUserInfoVo(reqVo);
+        PageInfo<UserInfoVo> voPageInfo = userService.findUserInfoByPage(searchParam);
+        List<UserInfoFsVo> infoList = BeanCopyUtils.toTypeList(voPageInfo.getList(), UserInfoFsVo.class);
+        PagingVo paging = new PagingVo();
+        paging.setTotal(voPageInfo.getTotal());
+        return Result.of(new GetUserListRespVo(infoList, paging));
+    }
+
+    private static FindUserInfoVo toFindUserInfoVo(GetUserListReqVo reqVo) {
+        FindUserInfoVo infoVo = new FindUserInfoVo();
+        infoVo.setUsername(reqVo.getUsername());
+        infoVo.setPagingVo(reqVo.getPagingVo());
+        if (reqVo.getIsDisabled() != null)
+            infoVo.setIsDisabled(EnumUtils.parse(reqVo.getIsDisabled(), UserIsDisabled.class));
+        if (reqVo.getRole() != null)
+            infoVo.setRole(EnumUtils.parse(reqVo.getRole(), UserRole.class));
+        return infoVo;
     }
 
     @PreAuthorize("hasAuthority('admin')")
@@ -125,13 +145,5 @@ public class UserController {
             return Result.error("Password incorrect");
         }
         return Result.ok();
-    }
-
-    private List<UserInfoFsVo> toUserInfoVoList(List<UserInfoVo> userInfoList, int currUserId) {
-        return userInfoList.stream().filter(ui -> {
-            // exclude current user
-            return !Objects.equals(ui.getId(), currUserId);
-        }).map(ui -> BeanCopyUtils.toType(ui, UserInfoFsVo.class))
-                .collect(Collectors.toList());
     }
 }
