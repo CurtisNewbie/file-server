@@ -25,14 +25,14 @@ import {
   SearchFileInfoParam,
   UploadFileParam,
 } from "src/models/request-model";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "../dialog/confirm/confirm-dialog.component";
 import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { buildApiPath } from "../util/api-util";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "./confirm-dialog.component";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -302,15 +302,15 @@ export class HomePageComponent implements OnInit {
    * Delete file
    */
   deleteFile(uuid: string, name: string): void {
-    const dialogRef: MatDialogRef<ConfirmDialogComponent, ConfirmDialogData> =
+    const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
       this.dialog.open(ConfirmDialogComponent, {
         width: "350px",
-        data: { filename: name },
+        data: { msg: `You sure you want to delete '${name}'` },
       });
 
-    dialogRef.afterClosed().subscribe((resp) => {
-      console.log(resp);
-      if (resp) {
+    dialogRef.afterClosed().subscribe((confirm) => {
+      console.log(confirm);
+      if (confirm) {
         this.httpClient.deleteFile(uuid).subscribe({
           next: (resp) => {
             this.fetchFileInfoList();

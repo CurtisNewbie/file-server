@@ -30,7 +30,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatDialogModule } from "@angular/material/dialog";
-import { ConfirmDialogComponent } from "./home-page/confirm-dialog.component";
+import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.component";
 
 @NgModule({
   exports: [],
