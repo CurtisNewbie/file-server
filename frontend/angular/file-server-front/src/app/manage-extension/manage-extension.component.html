@@ -2,11 +2,16 @@
     <h3>Manage File Extensions</h3>
     <div class="container bootstrap mt-3 mb-3">
         <div class="row row-cols-lg-auto g-3 align-items-center mt-3">
-            <div class="input-group input-group-sm mb-2 col-12">
-                <span class="input-group-text" id="basic-addon1">Search Name:</span>
-                <input type="text" [(ngModel)]="searchParam.name" class=" form-control" aria-describedby="basic-addon1"
-                    (keyup)="searchNameInputKeyPressed($event)" (change)="searchParamChanged()">
-            </div>
+            <mat-form-field appearance="fill" style="width: 100%;" class="mb-2 mt-3">
+                <mat-label>Name:</mat-label>
+                <input matInput type="text" [(ngModel)]="searchParam.name" (change)="searchParamChanged()"
+                    (keyup)="searchNameInputKeyPressed($event)">
+                <button *ngIf="searchParam.name" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="searchParam.name=''">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+
             <div class="col-12">
                 <select class="form-select form-select-sm" id="searchUserGroupSelect"
                     (change)="setIsEnabled($event.target.value)">
@@ -17,7 +22,7 @@
             </div>
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="reloadBtn"
+            <button mat-raised-button class="m-2" id="reloadBtn"
                 (click)="fetchSupportedExtensionsDetails()">Fetch</button>
         </div>
         <div class="list-group" id="listDiv">
@@ -31,11 +36,11 @@
                         <small class="mb-1 mt-1">Status: {{f.isEnabled === FILE_EXT_ENABLED ? "enabled" :
                             "disabled"}}</small>
                         <div>
-                            <button type="button" [hidden]="f.isEnabled === FILE_EXT_ENABLED"
-                                class="btn btn-sm btn-outline-secondary" (click)="enableFileExt(f)">Enable</button>
+                            <button mat-raised-button [hidden]="f.isEnabled === FILE_EXT_ENABLED"
+                                (click)="enableFileExt(f)">Enable</button>
 
-                            <button type="button" [hidden]="f.isEnabled !== FILE_EXT_ENABLED"
-                                class="btn btn-sm btn-outline-secondary" (click)="disableFileExt(f)">Disable</button>
+                            <button mat-raised-button [hidden]="f.isEnabled !== FILE_EXT_ENABLED"
+                                (click)="disableFileExt(f)">Disable</button>
                         </div>
                     </div>
                 </div>

@@ -160,14 +160,12 @@ export class HomePageComponent implements OnInit {
     // validate file extension by names
     for (let name of this.uploadParam.names) {
       let fileExt = this.parseFileExt(name);
-      console.log("Parsed file extension:", fileExt);
       if (!fileExt) {
-        this.notifi.toast("Please specify file extension");
+        this.notifi.toast(`File extension must not be empty`);
         return;
       }
-      fileExt = fileExt.toLowerCase();
-      if (!this.fileExtSet.has(fileExt)) {
-        `File extension '${fileExt}' isn't supported`;
+      if (!this.isFileExtSupported(fileExt)) {
+        this.notifi.toast(`File extension '${fileExt}' isn't supported`);
         return;
       }
     }
@@ -187,6 +185,16 @@ export class HomePageComponent implements OnInit {
         this.notifi.toast("Failed to upload file");
       },
     });
+  }
+
+  isFileExtSupported(fileExt: string): boolean {
+    if (!fileExt) return false;
+
+    fileExt = fileExt.toLowerCase();
+    if (!this.fileExtSet.has(fileExt)) {
+      return false;
+    }
+    return true;
   }
 
   /** Handle events on file selected/changed */
@@ -220,7 +228,7 @@ export class HomePageComponent implements OnInit {
    * @param {*} path
    * @returns fileExtension, or "" if there isn't one
    */
-  private parseFileExt(path: string): string {
+  parseFileExt(path: string): string {
     if (!path || path.endsWith(".")) {
       return "";
     }
