@@ -25,6 +25,8 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
 
 @NgModule({
   exports: [],
@@ -49,6 +51,8 @@ import { MatPaginatorModule } from "@angular/material/paginator";
     MatTableModule,
     MatTooltipModule,
     MatPaginatorModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

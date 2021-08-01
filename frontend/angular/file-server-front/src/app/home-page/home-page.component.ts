@@ -323,4 +323,19 @@ export class HomePageComponent implements OnInit {
     this.pagingController.handle(e);
     this.fetchFileInfoList();
   }
+
+  fileExtToolTip(): string {
+    return this.subSetToStr(this.fileExtSet, this.fileExtSet.size);
+  }
+
+  subSetToStr(set: Set<string>, maxCount: number): string {
+    let s: string = "";
+    let i: number = 0;
+    for (let e of set) {
+      if (i++ >= maxCount) break;
+
+      s += e + ", ";
+    }
+    return s.substr(0, s.length - ", ".length);
+  }
 }

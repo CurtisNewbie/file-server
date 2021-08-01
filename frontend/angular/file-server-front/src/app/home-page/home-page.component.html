@@ -22,17 +22,17 @@
                 </select>
             </div>
             <div class="col-12">
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="uploadBtn" (click)="upload()"
-                    #tooltip="matTooltip" matTooltip="Multiple files are uploaded as a single zip"
-                    matTooltipPosition="right">Upload</button>
+                <button mat-raised-button (click)="upload()" #tooltip="matTooltip"
+                    matTooltip="Multiple files are uploaded as a single zip" matTooltipPosition="right">
+                    Upload
+                </button>
             </div>
         </form>
     </div>
     <div class="m-2">
-        <small style="color: grey;" #tooltip="matTooltip"
-            matTooltip="File name must be using these file extensions">Supported File Extensions:
-            <span *ngFor="let e of fileExtSet; let i = index">
-                {{ (i < fileExtSet.size - 1 ? e + "," : e )}} </span>
+        <small style="color: grey;" [matTooltip]="fileExtToolTip()">Supported File Extensions:
+            <span>
+                {{ subSetToStr(this.fileExtSet, 5)}} ... </span>
         </small>
     </div>
 </div>
@@ -90,11 +90,11 @@
             </ng-container>
 
             <ng-container matColumnDef="delete">
-
                 <th mat-header-cell *matHeaderCellDef> Delete </th>
                 <td mat-cell *matCellDef="let f">
-                    <a [hidden]="!f.isOwner" class="btn btn-sm btn-outline-secondary" id="deleteFileBtn"
-                        (click)="deleteFile(f.uuid)"><small>Delete</small></a>
+                    <button [hidden]="!f.isOwner" mat-icon-button color="primary" (click)="deleteFile(f.uuid)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
                 </td>
             </ng-container>
 
