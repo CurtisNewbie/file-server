@@ -1,16 +1,26 @@
-<div class="container bootstrap mt-3 mb-5 p-3 ml-5 mr-5 shadow">
+<div class="container bootstrap mt-3 mb-5 p-3 shadow">
     <h3 class="mt-2 mb-3">Login</h3>
-    <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">Username:</span>
-        <input type="text" id="usernameInput" [(ngModel)]="usernameInput" class="form-control"
-            aria-describedby="basic-addon1">
+
+    <div>
+        <mat-form-field appearance="fill" style="width: 100%;">
+            <mat-label>Username</mat-label>
+            <input matInput type="text" id="usernameInput" [(ngModel)]="usernameInput">
+            <button *ngIf="usernameInput" matSuffix mat-icon-button aria-label="Clear" (click)="usernameInput=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" style="width: 100%;">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" id="passwordInput" [(ngModel)]="passwordInput"
+                (keyup)="passwordInputKeyPressed($event)">
+            <button *ngIf="passwordInput" matSuffix mat-icon-button aria-label="Clear" (click)="passwordInput=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
     </div>
-    <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">Password:</span>
-        <input type="password" id="passwordInput" [(ngModel)]="passwordInput" class="form-control"
-            (keyup)="passwordInputKeyPressed($event)" aria-describedby="basic-addon1">
-    </div>
+
     <div class="d-flex justify-content-end">
-        <button mat-raised-button id="uploadBtn" (click)="login()">Login</button>
+        <button mat-raised-button (click)="login()">Login</button>
     </div>
 </div>
