@@ -6,6 +6,8 @@ import {
   FileInfo,
   FileOwnershipEnum,
   FileUserGroupEnum,
+  FileUserGroupOption,
+  userGroupOptions,
 } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import {
@@ -33,6 +35,14 @@ export class HomePageComponent implements OnInit {
   readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
   readonly PUBLIC_GROUP = FileUserGroupEnum.USER_GROUP_PUBLIC;
+  readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = userGroupOptions();
+  readonly COLUMN_TO_BE_DISPLAYED: string[] = [
+    "name",
+    "size",
+    "userGroup",
+    "download",
+    "delete",
+  ];
 
   private shouldResetPagingParam = false;
   fileExtSet: Set<string> = new Set();
@@ -46,12 +56,6 @@ export class HomePageComponent implements OnInit {
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
-
-  @ViewChild("uploadFileNameInput", { static: true })
-  uploadFileNameInput: ElementRef<HTMLInputElement>;
-
-  @ViewChild("defSearchUserGroup", { static: true })
-  defaultSearchUserGroup: ElementRef<HTMLOptionElement>;
 
   @ViewChild("defSearchOwner", { static: true })
   defaultSearchOwner: ElementRef<HTMLOptionElement>;
@@ -73,6 +77,8 @@ export class HomePageComponent implements OnInit {
     });
     this.fetchSupportedExtensions();
     this.fetchFileInfoList();
+    // always select private group for uploading
+    this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
   }
 
   /** fetch supported file extension */
@@ -278,7 +284,6 @@ export class HomePageComponent implements OnInit {
   resetSearchParam(): void {
     this.shouldResetPagingParam = false;
     this.searchParam = emptySearchFileInfoParam();
-    this.defaultSearchUserGroup.nativeElement.selected = true;
     this.defaultSearchOwner.nativeElement.selected = true;
   }
 
@@ -323,7 +328,7 @@ export class HomePageComponent implements OnInit {
     this.uploadParam.files = null;
     this.uploadParam.names = null;
     this.uploadFileInput.nativeElement.value = null;
-    this.uploadFileNameInput.nativeElement.value = null;
+    this.displayedUploadName = null;
     this.progress = null;
   }
 

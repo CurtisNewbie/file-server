@@ -28,6 +28,7 @@ import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
 
 @NgModule({
   exports: [],
@@ -55,6 +56,7 @@ import { MatInputModule } from "@angular/material/input";
     MatButtonModule,
     MatIconModule,
     MatInputModule,
+    MatSelectModule,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

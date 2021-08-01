@@ -8,4 +8,17 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 15px;
+}
+
+.status-green {
+  color: green;
+}
+
+.status-blue {
+  color: #2687bf;
+}
+
+.status-red {
+  color: red;
 }

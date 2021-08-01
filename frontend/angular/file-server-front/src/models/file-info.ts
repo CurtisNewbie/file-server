@@ -51,3 +51,20 @@ export interface FetchFileInfoList {
   /** paging vo */
   pagingVo: Paging;
 }
+
+export interface FileUserGroupOption {
+  name: string;
+  value: FileUserGroupEnum | number;
+}
+
+const GROUP_OPTIONS: FileUserGroupOption[] = [
+  { name: "Private Group", value: FileUserGroupEnum.USER_GROUP_PRIVATE },
+  { name: "Public Group", value: FileUserGroupEnum.USER_GROUP_PUBLIC },
+];
+
+/**
+ * Get FileUserGroup options for html select component
+ */
+export function userGroupOptions(): FileUserGroupOption[] {
+  return GROUP_OPTIONS;
+}
