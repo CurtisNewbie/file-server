@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { PageEvent } from "@angular/material/paginator";
 import { FileExt, FileExtIsEnabled } from "src/models/file-ext";
 import { PagingController } from "src/models/paging";
 import {
@@ -90,20 +91,6 @@ export class ManageExtensionComponent implements OnInit {
     this.fetchSupportedExtensionsDetails();
   }
 
-  nextPage(): void {
-    if (this.pagingController.canGoToNextPage()) {
-      this.pagingController.nextPage();
-      this.fetchSupportedExtensionsDetails();
-    }
-  }
-
-  prevPage(): void {
-    if (this.pagingController.canGoToPrevPage()) {
-      this.pagingController.prevPage();
-      this.fetchSupportedExtensionsDetails();
-    }
-  }
-
   setIsEnabled(isEnabled: number): void {
     this.searchParam.isEnabled = isEnabled;
     this.searchParamChanged();
@@ -117,5 +104,10 @@ export class ManageExtensionComponent implements OnInit {
   }
   searchParamChanged(): void {
     this.isSearchParamChagned = true;
+  }
+
+  handle(e: PageEvent): void {
+    this.pagingController.handle(e);
+    this.fetchSupportedExtensionsDetails();
   }
 }

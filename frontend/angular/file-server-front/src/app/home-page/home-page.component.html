@@ -66,10 +66,8 @@
             </div>
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="reloadBtn"
-                (click)="fetchFileInfoList()">Fetch</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="resetBtn"
-                (click)="resetSearchParam()">Reset</button>
+            <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchFileInfoList()">Fetch</button>
+            <button mat-raised-button class="m-2" id="resetBtn" (click)="resetSearchParam()">Reset</button>
         </div>
 
         <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;">

@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { PageEvent } from "@angular/material/paginator";
 import { AccessLog } from "src/models/access-log";
 import { Paging, PagingConst, PagingController } from "src/models/paging";
 import { HttpClientService } from "../http-client-service.service";
@@ -58,17 +59,8 @@ export class AccessLogComponent implements OnInit {
     this.fetchAccessLogList();
   }
 
-  nextPage(): void {
-    if (this.pagingController.canGoToNextPage()) {
-      this.pagingController.nextPage();
-      this.fetchAccessLogList();
-    }
-  }
-
-  prevPage(): void {
-    if (this.pagingController.canGoToPrevPage()) {
-      this.pagingController.prevPage();
-      this.fetchAccessLogList();
-    }
+  handle(e: PageEvent): void {
+    this.pagingController.handle(e);
+    this.fetchAccessLogList();
   }
 }

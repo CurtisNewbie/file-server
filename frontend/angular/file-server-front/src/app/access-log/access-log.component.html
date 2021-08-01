@@ -1,8 +1,7 @@
 <div class="container bootstrap mt-3 mb-5 ">
     <h3 class="m-2">Access History</h3>
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-        <button type="button" class="btn btn-sm btn-outline-secondary " id="reloadBtn"
-            (click)="fetchAccessLogList()">Fetch</button>
+        <button mat-raised-button id="reloadBtn" (click)="fetchAccessLogList()">Fetch</button>
     </div>
     <div class="list-group">
         <div *ngFor="let a of accessLogList" href="#" class="list-group-item list-group-item-action "
@@ -16,28 +15,9 @@
             <small class="m-1">IP Address: {{a.ipAddress}}</small>
         </div>
     </div>
-    <form class="row row-cols-lg-auto g-3 align-items-center mt-1">
-        <div class="col-12">
-            <span class="input-group-text" id="basic-addon1">Current Page: {{pagingController.paging.page}}</span>
-        </div>
-        <div class="col-12">
-            <select class="form-select form-select-sm" (click)="setPageSize($event.target.value)">
-                <option value="{{limit}}" *ngFor="let limit of pagingController.PAGE_LIMIT_OPTIONS">Page
-                    Size:
-                    {{limit}}</option>
-            </select>
-        </div>
-        <div class="col-12">
-            <select class="form-select form-select-sm" (click)="gotoPage($event.target.value)">
-                <option value="{{p}}" *ngFor="let p of pagingController.pages">Page {{p}}</option>
-            </select>
-        </div>
-        <div class="col-12">
-            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="prevPageBtn"
-                (click)="prevPage()">Previous Page</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary m-2" id="nextPageBtn"
-                (click)="nextPage()">Next Page</button>
-        </div>
-    </form>
+
+    <mat-paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
+        [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page">
+    </mat-paginator>
 
 </div>
