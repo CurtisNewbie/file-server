@@ -29,6 +29,8 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
+import { MatDialogModule } from "@angular/material/dialog";
+import { ConfirmDialogComponent } from "./home-page/confirm-dialog.component";
 
 @NgModule({
   exports: [],
@@ -41,6 +43,7 @@ import { MatSelectModule } from "@angular/material/select";
     AccessLogComponent,
     ChangePasswordComponent,
     ManageExtensionComponent,
+    ConfirmDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -57,7 +60,9 @@ import { MatSelectModule } from "@angular/material/select";
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatDialogModule,
   ],
+  entryComponents: [ConfirmDialogComponent],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: APP_BASE_HREF, useValue: "/" },

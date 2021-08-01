@@ -1,7 +1,14 @@
 import { HttpEventType } from "@angular/common/http";
-import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import {
+  Inject,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
+import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
-import { MatSnackBar } from "@angular/material/snack-bar";
+
 import {
   FileInfo,
   FileOwnershipEnum,
@@ -22,6 +29,10 @@ import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { buildApiPath } from "../util/api-util";
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from "./confirm-dialog.component";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -63,7 +74,8 @@ export class HomePageComponent implements OnInit {
   constructor(
     private httpClient: HttpClientService,
     private userService: UserService,
-    private notifi: NotificationService
+    private notifi: NotificationService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -289,11 +301,22 @@ export class HomePageComponent implements OnInit {
   /**
    * Delete file
    */
-  deleteFile(uuid: string): void {
-    this.httpClient.deleteFile(uuid).subscribe({
-      next: (resp) => {
-        this.fetchFileInfoList();
-      },
+  deleteFile(uuid: string, name: string): void {
+    const dialogRef: MatDialogRef<ConfirmDialogComponent, ConfirmDialogData> =
+      this.dialog.open(ConfirmDialogComponent, {
+        width: "350px",
+        data: { filename: name },
+      });
+
+    dialogRef.afterClosed().subscribe((resp) => {
+      console.log(resp);
+      if (resp) {
+        this.httpClient.deleteFile(uuid).subscribe({
+          next: (resp) => {
+            this.fetchFileInfoList();
+          },
+        });
+      }
     });
   }
 
