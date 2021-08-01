@@ -8,6 +8,7 @@ import {
 } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
+import { UseExistingWebDriver } from "protractor/built/driverProviders";
 
 import {
   FileInfo,
