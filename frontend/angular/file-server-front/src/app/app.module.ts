@@ -43,10 +43,10 @@ import { MatInputModule } from "@angular/material/input";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    BrowserAnimationsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTableModule,

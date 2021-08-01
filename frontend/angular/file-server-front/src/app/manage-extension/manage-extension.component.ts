@@ -1,3 +1,10 @@
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from "@angular/animations";
 import { Component, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import { FileExt, FileExtIsEnabled } from "src/models/file-ext";
@@ -12,14 +19,26 @@ import { HttpClientService } from "../http-client-service.service";
   selector: "app-manage-extension",
   templateUrl: "./manage-extension.component.html",
   styleUrls: ["./manage-extension.component.css"],
+  animations: [
+    trigger("detailExpand", [
+      state("collapsed", style({ height: "0px", minHeight: "0" })),
+      state("expanded", style({ height: "*" })),
+      transition(
+        "expanded <=> collapsed",
+        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+      ),
+    ]),
+  ],
 })
 export class ManageExtensionComponent implements OnInit {
   readonly FILE_EXT_ENABLED: number = FileExtIsEnabled.ENABLED;
   readonly FILE_EXT_DISABLED: number = FileExtIsEnabled.DISABLED;
+  readonly COLUMNS_TO_BE_DISPLAYED: string[] = ["id", "name", "status"];
   pagingController: PagingController = new PagingController();
   fileExt: FileExt[] = [];
   updateExt: FileExt;
   searchParam: SearchFileExtParam = emptySearchFileExtParam();
+  expandedElement: FileExt = null;
   private isSearchParamChagned: boolean = false;
 
   constructor(private httpClient: HttpClientService) {}
