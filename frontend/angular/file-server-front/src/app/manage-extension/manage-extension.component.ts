@@ -5,9 +5,14 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Output } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
-import { FileExt, FileExtIsEnabled } from "src/models/file-ext";
+import {
+  FileExt,
+  FileExtIsEnabled,
+  FileExtIsEnabledOption,
+  FILE_EXT_IS_ENABLED_OPTIONS,
+} from "src/models/file-ext";
 import { PagingController } from "src/models/paging";
 import {
   emptySearchFileExtParam,
@@ -34,6 +39,9 @@ export class ManageExtensionComponent implements OnInit {
   readonly FILE_EXT_ENABLED: number = FileExtIsEnabled.ENABLED;
   readonly FILE_EXT_DISABLED: number = FileExtIsEnabled.DISABLED;
   readonly COLUMNS_TO_BE_DISPLAYED: string[] = ["id", "name", "status"];
+  readonly FILE_EXT_IS_ENABLED_OPTIONS: FileExtIsEnabledOption[] =
+    FILE_EXT_IS_ENABLED_OPTIONS;
+
   pagingController: PagingController = new PagingController();
   fileExt: FileExt[] = [];
   updateExt: FileExt;
@@ -92,37 +100,11 @@ export class ManageExtensionComponent implements OnInit {
     this.updateFileExt();
   }
 
-  /**
-   * Set the specified page and fetch the file info list
-   * @param page
-   */
-  gotoPage(page: number): void {
-    this.pagingController.setPage(page);
-    this.fetchSupportedExtensionsDetails();
-  }
-
-  /**
-   * Set current page size and fetch the file info list
-   * @param pageSize
-   */
-  setPageSize(pageSize: number): void {
-    this.pagingController.setPageLimit(pageSize);
-    this.fetchSupportedExtensionsDetails();
-  }
-
-  setIsEnabled(isEnabled: number): void {
-    this.searchParam.isEnabled = isEnabled;
-    this.searchParamChanged();
-  }
-
   searchNameInputKeyPressed(event: any): void {
     if (event.key === "Enter") {
       console.log("Pressed 'Enter' key, init search file extension list");
       this.fetchSupportedExtensionsDetails();
     }
-  }
-  searchParamChanged(): void {
-    this.isSearchParamChagned = true;
   }
 
   handle(e: PageEvent): void {

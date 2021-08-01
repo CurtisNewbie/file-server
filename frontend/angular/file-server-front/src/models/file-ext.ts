@@ -30,3 +30,13 @@ export enum FileExtIsEnabled {
   /** disabled */
   DISABLED = 1,
 }
+
+export interface FileExtIsEnabledOption {
+  name: string;
+  value: FileExtIsEnabled | number;
+}
+
+export const FILE_EXT_IS_ENABLED_OPTIONS: FileExtIsEnabledOption[] = [
+  { name: "enabled", value: FileExtIsEnabled.ENABLED },
+  { name: "disabled", value: FileExtIsEnabled.DISABLED },
+];

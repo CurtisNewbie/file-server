@@ -5,9 +5,11 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import {
   FileInfo,
   FileOwnershipEnum,
+  FileOwnershipOption,
   FileUserGroupEnum,
   FileUserGroupOption,
-  userGroupOptions,
+  FILE_OWNERSHIP_OPTIONS,
+  FILE_USER_GROUP_OPTIONS,
 } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import {
@@ -35,7 +37,9 @@ export class HomePageComponent implements OnInit {
   readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
   readonly PUBLIC_GROUP = FileUserGroupEnum.USER_GROUP_PUBLIC;
-  readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = userGroupOptions();
+  readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS;
+  readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
+    FILE_OWNERSHIP_OPTIONS;
   readonly COLUMN_TO_BE_DISPLAYED: string[] = [
     "name",
     "size",
@@ -44,7 +48,6 @@ export class HomePageComponent implements OnInit {
     "delete",
   ];
 
-  private shouldResetPagingParam = false;
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
   searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
@@ -56,9 +59,6 @@ export class HomePageComponent implements OnInit {
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
-
-  @ViewChild("defSearchOwner", { static: true })
-  defaultSearchOwner: ElementRef<HTMLOptionElement>;
 
   constructor(
     private httpClient: HttpClientService,
@@ -98,10 +98,6 @@ export class HomePageComponent implements OnInit {
 
   /** fetch file info list */
   fetchFileInfoList(): void {
-    if (this.shouldResetPagingParam) {
-      this.shouldResetPagingParam = false;
-      this.pagingController.resetCurrentPage();
-    }
     this.httpClient
       .fetchFileInfoList({
         pagingVo: this.pagingController.paging,
@@ -282,15 +278,12 @@ export class HomePageComponent implements OnInit {
 
   /** Reset all parameters used for searching */
   resetSearchParam(): void {
-    this.shouldResetPagingParam = false;
     this.searchParam = emptySearchFileInfoParam();
-    this.defaultSearchOwner.nativeElement.selected = true;
   }
 
   /** Set userGroup to the searching param */
   setSearchUserGroup(userGroup: number): void {
     this.searchParam.userGroup = userGroup;
-    this.searchParamChanged();
   }
 
   /**
@@ -310,7 +303,6 @@ export class HomePageComponent implements OnInit {
    */
   setSearchOwnership(ownership: number): void {
     this.searchParam.ownership = ownership;
-    this.searchParamChanged();
   }
 
   searchNameInputKeyPressed(event: any): void {
@@ -318,10 +310,6 @@ export class HomePageComponent implements OnInit {
       console.log("Pressed 'Enter' key, init search file list procedure");
       this.fetchFileInfoList();
     }
-  }
-
-  searchParamChanged(): void {
-    this.shouldResetPagingParam = true;
   }
 
   resetFileUploadParam(): void {

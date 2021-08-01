@@ -4,8 +4,7 @@
         <div class="row row-cols-lg-auto g-3 align-items-center mt-3">
             <mat-form-field appearance="fill" style="width: 100%;" class="mb-2 mt-3">
                 <mat-label>Name:</mat-label>
-                <input matInput type="text" [(ngModel)]="searchParam.name" (change)="searchParamChanged()"
-                    (keyup)="searchNameInputKeyPressed($event)">
+                <input matInput type="text" [(ngModel)]="searchParam.name" (keyup)="searchNameInputKeyPressed($event)">
                 <button *ngIf="searchParam.name" matSuffix mat-icon-button aria-label="Clear"
                     (click)="searchParam.name=''">
                     <mat-icon>close</mat-icon>
@@ -13,12 +12,15 @@
             </mat-form-field>
 
             <div class="col-12">
-                <select class="form-select form-select-sm" id="searchUserGroupSelect"
-                    (change)="setIsEnabled($event.target.value)">
-                    <option [value]="null" selected #defSearchUserGroup>All</option>
-                    <option [value]="FILE_EXT_ENABLED">Enabled</option>
-                    <option [value]="FILE_EXT_DISABLED">Disabled</option>
-                </select>
+                <mat-form-field appearance="fill">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(value)]="searchParam.isEnabled">
+                        <mat-option value="">ALL</mat-option>
+                        <mat-option [value]="option.value" *ngFor="let option of FILE_EXT_IS_ENABLED_OPTIONS">
+                            {{option.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
         </div>
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
