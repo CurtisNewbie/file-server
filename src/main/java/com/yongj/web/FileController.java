@@ -8,6 +8,7 @@ import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
+import com.yongj.dao.FileExtension;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.IOHandler;
@@ -138,6 +139,17 @@ public class FileController {
         return Result.of(
                 fileExtensionService.getNamesOfAllEnabled()
         );
+    }
+
+    @PostMapping("/extension/add")
+    public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) throws MsgEmbeddedException {
+        ValidUtils.requireNotEmpty(reqVo.getName());
+        FileExtension ext = new FileExtension();
+        // by default disabled
+        ext.setIsEnabled(FileExtensionIsEnabledEnum.DISABLED.getValue());
+        ext.setName(reqVo.getName());
+        fileExtensionService.addFileExt(ext);
+        return Result.ok();
     }
 
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)

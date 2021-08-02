@@ -1,6 +1,7 @@
 package com.yongj.services;
 
 import com.github.pagehelper.PageInfo;
+import com.yongj.dao.FileExtension;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
 import org.springframework.validation.annotation.Validated;
@@ -36,4 +37,11 @@ public interface FileExtensionService {
      */
     void updateFileExtSelective(@NotNull FileExtVo fileExtVo);
 
+    /**
+     * Add new file extension
+     *
+     * @throws com.yongj.exceptions.IllegalExtException   if the name of the file extension is illegal
+     * @throws com.yongj.exceptions.DuplicateExtException if a file extension with the same name exists already
+     */
+    void addFileExt(@NotNull FileExtension fileExtension);
 }

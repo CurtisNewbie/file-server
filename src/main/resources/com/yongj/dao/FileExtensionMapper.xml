@@ -12,6 +12,10 @@
     <result column="is_enabled" jdbcType="INTEGER" property="isEnabled" />
   </resultMap>
 
+  <insert id="insert">
+    insert into file_extension (name, is_enabled) values (#{name}, #{isEnabled})
+  </insert>
+
   <update id="updateSelective">
     UPDATE file_extension
     <set>
@@ -47,5 +51,11 @@
         AND is_enabled = #{isEnabled}
       </if>
     </where>
+  </select>
+  <select id="findIdByName" resultType="java.lang.Integer">
+    select id
+    from file_extension
+    where name = #{name}
+    limit 1
   </select>
 </mapper>

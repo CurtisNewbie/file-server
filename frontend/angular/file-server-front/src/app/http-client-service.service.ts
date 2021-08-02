@@ -96,6 +96,19 @@ export class HttpClientService {
   }
 
   /**
+   * Add new file extension
+   * @param name
+   * @returns
+   */
+  public addFileExtension(name: string): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/file/extension/add"),
+      { name: name },
+      headers
+    );
+  }
+
+  /**
    * Login
    * @param username
    * @param password

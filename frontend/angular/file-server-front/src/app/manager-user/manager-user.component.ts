@@ -64,7 +64,7 @@ export class ManagerUserComponent implements OnInit {
   /**
    * add user (only admin is allowed)
    */
-  public addUser(): void {
+  addUser(): void {
     if (!this.usernameToBeAdded || !this.passswordToBeAdded) {
       this.notifi.toast("Please enter username and password");
       return;

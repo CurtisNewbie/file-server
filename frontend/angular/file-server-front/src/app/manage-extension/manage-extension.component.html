@@ -1,6 +1,30 @@
 <div class="mt-5">
     <h3>Manage File Extensions</h3>
+
+    <!-- New User Panel  -->
+    <div class="justify-content-md-end d-md-flex">
+        <button mat-raised-button (click)="addExtPanelDisplayed=!addExtPanelDisplayed">
+            Add File Extension<mat-icon>more_horiz</mat-icon></button>
+    </div>
+    <div class="container bootstrap p-3 mt-3 mb-5 shadow" *ngIf="addExtPanelDisplayed">
+        <h4 class="mt-2 mb-2">New File Extension</h4>
+
+        <mat-form-field appearance="fill" style="width: 100%;">
+            <mat-label>Extension</mat-label>
+            <input matInput type="text" id="usernameInput" [(ngModel)]="extToBeAdded"
+                matTooltip="File Extension should only contain alphabets and numbers, e.g., 'png' or 'jpg'">
+            <button *ngIf="extToBeAdded" matSuffix mat-icon-button aria-label="Clear" (click)="extToBeAdded=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+
+        <div class="justify-content-md-end d-md-flex">
+            <button mat-raised-button class="mt-2" (click)="addFileExt()">Add</button>
+        </div>
+    </div>
+
     <div class="container bootstrap mt-3 mb-3">
+        <!-- Search parameters  -->
         <div>
             <mat-form-field appearance="fill" style="width: 100%;" class="mb-2 mt-2">
                 <mat-label>Name:</mat-label>

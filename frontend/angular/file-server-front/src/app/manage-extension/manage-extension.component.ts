@@ -19,6 +19,7 @@ import {
   SearchFileExtParam,
 } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
+import { NotificationService } from "../notification.service";
 
 @Component({
   selector: "app-manage-extension",
@@ -47,9 +48,15 @@ export class ManageExtensionComponent implements OnInit {
   updateExt: FileExt;
   searchParam: SearchFileExtParam = emptySearchFileExtParam();
   expandedElement: FileExt = null;
+  addExtPanelDisplayed: boolean = false;
+  extToBeAdded: string = null;
+
   private isSearchParamChagned: boolean = false;
 
-  constructor(private httpClient: HttpClientService) {}
+  constructor(
+    private httpClient: HttpClientService,
+    private notifi: NotificationService
+  ) {}
 
   ngOnInit() {
     this.fetchSupportedExtensionsDetails();
@@ -110,5 +117,29 @@ export class ManageExtensionComponent implements OnInit {
   handle(e: PageEvent): void {
     this.pagingController.handle(e);
     this.fetchSupportedExtensionsDetails();
+  }
+
+  addFileExt(): void {
+    let ext: string = this.extToBeAdded;
+    if (ext == null || ext.trim() == "") {
+      this.notifi.toast("Please enter file extension");
+      return;
+    }
+    ext = ext.trim();
+    if (!ext.match(/[0-9a-zA-Z]+/)) {
+      this.notifi.toast(
+        "File extension should only contains alphabets and numbers"
+      );
+      return;
+    }
+    this.httpClient.addFileExtension(ext).subscribe({
+      next: (resp) => {
+        this.notifi.toast(`File extension '${ext}' added`);
+      },
+      complete: () => {
+        this.addExtPanelDisplayed = false;
+        this.fetchSupportedExtensionsDetails();
+      },
+    });
   }
 }

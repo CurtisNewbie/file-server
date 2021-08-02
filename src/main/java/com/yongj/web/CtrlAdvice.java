@@ -5,6 +5,7 @@ import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.remote.exception.ExceededMaxAdminCountException;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.exception.UserRegisteredException;
+import com.yongj.exceptions.DuplicateExtException;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
@@ -40,11 +41,25 @@ public class CtrlAdvice {
         return Result.error("Size limit exceeded");
     }
 
-    @ExceptionHandler({IllegalExtException.class, IllegalPathException.class})
+    @ExceptionHandler({IllegalPathException.class})
     @ResponseBody
     public Result<?> handleExpectedException(Exception e) {
         logger.warn("Request invalid - '{}'", e.getMessage());
         return Result.error("Request invalid: " + e.getMessage());
+    }
+
+    @ExceptionHandler({IllegalExtException.class})
+    @ResponseBody
+    public Result<?> handleIllegalExtException(Exception e) {
+        logger.warn("Illegal file extension - '{}'", e.getMessage());
+        return Result.error(e.getMessage());
+    }
+
+    @ExceptionHandler({DuplicateExtException.class})
+    @ResponseBody
+    public Result<?> handleDuplicateExtException(Exception e) {
+        logger.warn("Duplicate file extension - '{}'", e.getMessage());
+        return Result.error(e.getMessage());
     }
 
     @ExceptionHandler({AccessDeniedException.class})
