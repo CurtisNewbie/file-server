@@ -9,6 +9,7 @@ import {
   UserInfo,
 } from "src/models/user-info";
 import { HttpClientService } from "./http-client-service.service";
+import { NotificationService } from "./notification.service";
 
 @Injectable({
   providedIn: "root",
@@ -22,7 +23,11 @@ export class UserService {
   isLoggedInObservable: Observable<boolean> =
     this.isLoggedInSubject.asObservable();
 
-  constructor(private httpClient: HttpClientService, private router: Router) {}
+  constructor(
+    private httpClient: HttpClientService,
+    private router: Router,
+    private notifi: NotificationService
+  ) {}
 
   /**
    * Attempt to signin
@@ -75,9 +80,8 @@ export class UserService {
           this.notifyRole(this.userInfo.role);
           this.notifyLoginStatus(true);
         } else {
-          console.log(
-            "Didn't fetch any user info data, user should login first"
-          );
+          this.notifi.toast("Please login first");
+          this.router.navigate(["/login-page"]);
           this.notifyLoginStatus(false);
         }
       },
