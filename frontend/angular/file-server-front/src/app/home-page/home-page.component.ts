@@ -8,7 +8,7 @@ import {
 } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
-import { UseExistingWebDriver } from "protractor/built/driverProviders";
+import { Subscription } from "rxjs";
 
 import {
   FileInfo,
@@ -26,10 +26,7 @@ import {
   SearchFileInfoParam,
   UploadFileParam,
 } from "src/models/request-model";
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from "../dialog/confirm/confirm-dialog.component";
+import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
 import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
@@ -68,6 +65,7 @@ export class HomePageComponent implements OnInit {
   pagingController: PagingController = new PagingController();
   progress: string = null;
   displayedUploadName: string = null;
+  fileUploadSubscription: Subscription = null;
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
@@ -154,6 +152,10 @@ export class HomePageComponent implements OnInit {
 
   /** Upload file */
   upload(): void {
+    if (this.isFileUploading()) {
+      this.notifi.toast("Uplading file, please wait a moment");
+      return;
+    }
     if (this.uploadParam.files == null || this.uploadParam.files.length < 1) {
       this.notifi.toast("Please select a file to upload");
       return;
@@ -185,21 +187,23 @@ export class HomePageComponent implements OnInit {
       }
     }
 
-    this.httpClient.postFile(this.uploadParam).subscribe({
-      next: (event) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          this.progress =
-            Math.round((100 * event.loaded) / event.total).toFixed(2) + "%";
-        }
-      },
-      complete: () => {
-        this.resetFileUploadParam();
-        this.fetchFileInfoList();
-      },
-      error: () => {
-        this.notifi.toast("Failed to upload file");
-      },
-    });
+    this.fileUploadSubscription = this.httpClient
+      .postFile(this.uploadParam)
+      .subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            this.progress =
+              Math.round((100 * event.loaded) / event.total).toFixed(2) + "%";
+          }
+        },
+        complete: () => {
+          this.resetFileUploadParam();
+          this.fetchFileInfoList();
+        },
+        error: () => {
+          this.notifi.toast("Failed to upload file");
+        },
+      });
   }
 
   isFileExtSupported(fileExt: string): boolean {
@@ -362,5 +366,22 @@ export class HomePageComponent implements OnInit {
       s += e + ", ";
     }
     return s.substr(0, s.length - ", ".length);
+  }
+
+  /** Cancel the file uploading */
+  cancelFileUpload(): void {
+    if (!this.isFileUploading()) {
+      return;
+    }
+    this.fileUploadSubscription.unsubscribe();
+    this.resetFileUploadParam();
+    this.notifi.toast("File uploading cancelled");
+  }
+
+  /** Is a file being loaded currently */
+  isFileUploading(): boolean {
+    return (
+      this.fileUploadSubscription != null && !this.fileUploadSubscription.closed
+    );
   }
 }

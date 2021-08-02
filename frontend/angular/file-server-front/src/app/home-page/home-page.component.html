@@ -29,9 +29,13 @@
                 </mat-form-field>
             </div>
             <div class="col-12">
-                <button mat-raised-button (click)="upload()" #tooltip="matTooltip"
+                <button class="m-2" mat-raised-button (click)="upload()" #tooltip="matTooltip"
                     matTooltip="Multiple files are uploaded as a single zip" matTooltipPosition="right">
                     Upload
+                </button>
+                <button class="m-2" *ngIf="isFileUploading()" mat-raised-button (click)="cancelFileUpload()"
+                    #tooltip="matTooltip" matTooltip="Cancle uploading" matTooltipPosition="right">
+                    Cancel
                 </button>
             </div>
             <div class="col-12">
