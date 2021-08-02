@@ -1,4 +1,4 @@
-package com.yongj.web;
+package com.yongj.web.streaming;
 
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -13,8 +13,8 @@ import java.io.OutputStream;
  */
 public class PlainStreamingResponseBody implements StreamingResponseBody {
 
-    private static final int BUFFER_SIZE = 8192;
-    private final InputStream in;
+    protected static final int BUFFER_SIZE = 8192;
+    protected final InputStream in;
 
     public PlainStreamingResponseBody(InputStream inputStream) {
         in = inputStream;
@@ -23,9 +23,14 @@ public class PlainStreamingResponseBody implements StreamingResponseBody {
     @Override
     public void writeTo(OutputStream outputStream) throws IOException {
         int bytesRead;
-        byte[] buffer = new byte[BUFFER_SIZE];
+        byte[] buffer = allocateBuffer();
         while ((bytesRead = in.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
         }
     }
+
+    protected byte[] allocateBuffer() {
+        return new byte[BUFFER_SIZE];
+    }
+
 }

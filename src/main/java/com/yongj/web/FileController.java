@@ -8,7 +8,6 @@ import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
-import com.google.common.net.HttpHeaders;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.IOHandler;
@@ -17,9 +16,12 @@ import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
+import com.yongj.web.streaming.GzipStreamingResponseBody;
+import com.yongj.web.streaming.PlainStreamingResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
@@ -34,6 +37,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -81,7 +85,7 @@ public class FileController {
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp) throws MsgEmbeddedException,
+    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp, HttpServletRequest req) throws MsgEmbeddedException,
             InvalidAuthenticationException, IOException {
         final int userId = AuthUtil.getUserId();
         // validate user authority
@@ -90,13 +94,22 @@ public class FileController {
         final String filename = fileInfoService.getFilename(uuid);
         // set header for the downloaded file
         resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(filename));
-        /*
-            explicitly set the header, such that the gzip compression is enabled,
-            the 'produces=xxx' on GetMapping somehow doesn't add this header
-         */
-        resp.setHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
+
+        // negotiate whether we should use gzip or plain streaming
+        Enumeration<String> encodings = req.getHeaders(HttpHeaders.ACCEPT_ENCODING);
+        boolean useGzip = false;
+        while (encodings.hasMoreElements()) {
+            if (encodings.nextElement().trim().equalsIgnoreCase("gzip"))
+                useGzip = true;
+        }
+
         // write file directly to outputStream without holding servlet's thread
-        return new PlainStreamingResponseBody(fileInfoService.retrieveFileInputStream(uuid));
+        InputStream in = fileInfoService.retrieveFileInputStream(uuid);
+        if (useGzip) {
+            resp.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+            return new GzipStreamingResponseBody(in);
+        } else
+            return new PlainStreamingResponseBody(in);
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
