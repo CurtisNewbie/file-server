@@ -7,7 +7,6 @@ import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.util.AuthUtil;
-import com.curtisnewbie.module.tracing.aop.TracingEntry;
 import com.curtisnewbie.service.auth.remote.api.RemoteUserService;
 import com.curtisnewbie.service.auth.remote.consts.UserIsDisabled;
 import com.curtisnewbie.service.auth.remote.consts.UserRole;
@@ -39,7 +38,6 @@ public class UserController {
     @DubboReference(lazy = true)
     private RemoteUserService userService;
 
-    @TracingEntry
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
     public Result<?> addUser(@RequestBody RegisterUserFsVo registerUserVo) throws UserRelatedException,
@@ -74,7 +72,6 @@ public class UserController {
         return Result.ok();
     }
 
-    @TracingEntry
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
     public Result<GetUserListRespVo> getUserList(@RequestBody GetUserListReqVo reqVo) {
@@ -97,7 +94,6 @@ public class UserController {
         return infoVo;
     }
 
-    @TracingEntry
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/disable")
     public Result<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException, InvalidAuthenticationException {
@@ -109,7 +105,6 @@ public class UserController {
         return Result.ok();
     }
 
-    @TracingEntry
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/enable")
     public Result<Void> enableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException, InvalidAuthenticationException {
@@ -131,7 +126,6 @@ public class UserController {
         return Result.of(BeanCopyUtils.toType(ue, UserFsVo.class));
     }
 
-    @TracingEntry
     @PostMapping("/password/update")
     public Result<Void> updatePassword(@RequestBody UpdatePasswordVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNotEmpty(vo.getNewPassword());

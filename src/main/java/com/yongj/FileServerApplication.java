@@ -12,8 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @PropertySources({
-        @PropertySource(value = "classpath:dubbo.properties"),
-        @PropertySource(value = "classpath:application.properties"),
+        @PropertySource("classpath:dubbo.properties"),
+        @PropertySource("classpath:application.properties"),
         @PropertySource("classpath:common.properties")
 })
 @EnableDubbo

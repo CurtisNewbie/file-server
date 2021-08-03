@@ -1,8 +1,8 @@
 package com.yongj.config;
 
-import com.curtisnewbie.module.auth.config.AuthenticationSuccessHandlerExtender;
-import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.common.util.JsonUtils;
+import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.auth.config.AuthenticationSuccessHandlerExtender;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
