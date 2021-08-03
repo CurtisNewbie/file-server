@@ -63,7 +63,9 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String[] fileNames,
                             @RequestParam("file") MultipartFile[] multipartFiles,
-                            @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException, MsgEmbeddedException {
+                            @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException,
+            MsgEmbeddedException {
+
         for (String f : fileNames)
             pathResolver.validateFileExtension(f);
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
@@ -86,8 +88,9 @@ public class FileController {
     }
 
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp, HttpServletRequest req) throws MsgEmbeddedException,
-            InvalidAuthenticationException, IOException {
+    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp, HttpServletRequest req)
+            throws MsgEmbeddedException, InvalidAuthenticationException, IOException {
+
         final int userId = AuthUtil.getUserId();
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);

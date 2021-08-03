@@ -101,6 +101,11 @@
       <artifactId>common-module</artifactId>
       <version>1.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>log-tracing-module</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>
