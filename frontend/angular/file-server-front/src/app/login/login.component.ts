@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 
@@ -14,7 +15,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private router: Router,
+    private nav: NavigationService,
     private notifi: NotificationService
   ) {}
 
@@ -41,7 +42,7 @@ export class LoginComponent implements OnInit {
   }
 
   private routeToHomePage(): void {
-    this.router.navigate(["/home-page"]);
+    this.nav.navigateTo(NavType.HOME_PAGE);
   }
 
   passwordInputKeyPressed(event: any): void {

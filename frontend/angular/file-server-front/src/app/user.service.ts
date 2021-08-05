@@ -1,7 +1,5 @@
-import { Injectable, OnInit, Output } from "@angular/core";
-import { Router } from "@angular/router";
+import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
-import { FindValueSubscriber } from "rxjs/internal/operators/find";
 import { FetchUserInfoParam } from "src/models/request-model";
 import { Resp } from "src/models/resp";
 import {
@@ -9,6 +7,7 @@ import {
   UserInfo,
 } from "src/models/user-info";
 import { HttpClientService } from "./http-client-service.service";
+import { NavigationService, NavType } from "./navigation.service";
 import { NotificationService } from "./notification.service";
 
 @Injectable({
@@ -25,7 +24,7 @@ export class UserService {
 
   constructor(
     private httpClient: HttpClientService,
-    private router: Router,
+    private nav: NavigationService,
     private notifi: NotificationService
   ) {}
 
@@ -52,7 +51,7 @@ export class UserService {
   public setLogout(): void {
     this.userInfo = null;
     this.notifyLoginStatus(false);
-    this.router.navigate(["/login-page"]);
+    this.nav.navigateTo(NavType.LOGIN_PAGE);
   }
 
   /**
@@ -81,7 +80,7 @@ export class UserService {
           this.notifyLoginStatus(true);
         } else {
           this.notifi.toast("Please login first");
-          this.router.navigate(["/login-page"]);
+          this.nav.navigateTo(NavType.LOGIN_PAGE);
           this.notifyLoginStatus(false);
         }
       },

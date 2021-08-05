@@ -1,10 +1,10 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
 import {
   ChangePasswordParam,
   emptyChangePasswordParam,
 } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
+import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { hasText } from "../util/str-util";
@@ -20,7 +20,7 @@ export class ChangePasswordComponent implements OnInit {
 
   constructor(
     private httpService: HttpClientService,
-    private router: Router,
+    private nav: NavigationService,
     private userService: UserService,
     private notifi: NotificationService
   ) {}
@@ -53,7 +53,7 @@ export class ChangePasswordComponent implements OnInit {
     this.httpService.changePassword(this.changePasswordParam).subscribe({
       next: (result) => {
         this.notifi.toast("Password changed");
-        this.router.navigate(["/home-page"]);
+        this.nav.navigateTo(NavType.HOME_PAGE);
       },
       complete: () => {
         this.changePasswordParam = emptyChangePasswordParam();
