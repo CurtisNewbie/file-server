@@ -7,11 +7,19 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 export class NotificationService {
   constructor(private snackBar: MatSnackBar) {}
 
-  public toast(msg: string) {
-    this.toastv(msg, "Okay");
-  }
-
-  public toastv(msg: string, action: string) {
-    this.snackBar.open(msg, action);
+  /**
+   * Toast a message with given action
+   * @param action if not specified, the action is by default "Okay"
+   * @param msg msg
+   * @param duration if not specified, the duration is by default 1000 milliseconds
+   */
+  public toast(msg: string, action: string = "Okay", duration: number = 1000) {
+    if (duration <= 0) {
+      this.snackBar.open(msg, action);
+    } else {
+      this.snackBar.open(msg, action, {
+        duration: duration,
+      });
+    }
   }
 }
