@@ -52,8 +52,8 @@ export class ChangePasswordComponent implements OnInit {
 
     this.httpService.changePassword(this.changePasswordParam).subscribe({
       next: (result) => {
-        this.notifi.toast("Password changed, please login");
-        this.userService.setLogout();
+        this.notifi.toast("Password changed");
+        this.router.navigate(["/home-page"]);
       },
       complete: () => {
         this.changePasswordParam = emptyChangePasswordParam();
