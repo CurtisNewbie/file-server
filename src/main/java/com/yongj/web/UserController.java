@@ -54,7 +54,7 @@ public class UserController {
 
         // validate if the password is too short
         if (vo.getPassword().length() < PASSWORD_LENGTH)
-            return Result.error("Password must have at least " + PASSWORD_LENGTH + "characters");
+            return Result.error("Password must have at least " + PASSWORD_LENGTH + " characters");
 
         // if not specified, the role will be guest
         UserRole role = UserRole.GUEST;
@@ -136,7 +136,7 @@ public class UserController {
 
         // validate if the new password is too short
         if (vo.getNewPassword().length() < PASSWORD_LENGTH)
-            return Result.error("Password must have at least " + PASSWORD_LENGTH + "characters");
+            return Result.error("Password must have at least " + PASSWORD_LENGTH + " characters");
 
         UserVo uv = AuthUtil.getUser();
         try {
