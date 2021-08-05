@@ -16,8 +16,16 @@
     </encoder>
   </appender>
 
-  <logger name="com.curtisnewbie.module.auth.config.AuthProvider" additivity="false">
+  <logger name="com.curtisnewbie.module.auth.config" additivity="false">
     <appender-ref ref="TRACED_STDOUT"/>
+  </logger>
+
+  <logger name="com.curtisnewbie.module.auth.config.SecurityConfig" additivity="false">
+    <appender-ref ref="STDOUT"/>
+  </logger>
+
+  <logger name="com.curtisnewbie.module.auth.config.CorsConfigImpl" additivity="false">
+    <appender-ref ref="STDOUT"/>
   </logger>
 
   <logger name="com.yongj.services" additivity="false">
