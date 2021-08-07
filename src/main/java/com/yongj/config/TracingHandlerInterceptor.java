@@ -3,6 +3,7 @@ package com.yongj.config;
 import com.curtisnewbie.module.tracing.common.TracingConstants;
 import com.curtisnewbie.module.tracing.filter.TracingHandlerInterceptorBase;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,5 +24,10 @@ public class TracingHandlerInterceptor extends TracingHandlerInterceptorBase imp
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Principal principal = request.getUserPrincipal();
         return doPreHandle(principal);
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        doPostHandle();
     }
 }
