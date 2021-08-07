@@ -16,6 +16,7 @@ import {
   FetchFileInfoListParam,
   FetchUserInfoParam,
   SearchFileExtParam as FetchFileExtParam,
+  UpdateFileUserGroupParam,
   UploadFileParam,
 } from "src/models/request-model";
 import { AccessLog, FetchAccessLogList } from "src/models/access-log";
@@ -237,6 +238,19 @@ export class HttpClientService {
   public changePassword(param: ChangePasswordParam): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
       buildApiPath("/user/password/update"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Update file's userGroup
+   */
+  public updateFileUserGroup(
+    param: UpdateFileUserGroupParam
+  ): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/file/usergroup/update"),
       param,
       headers
     );

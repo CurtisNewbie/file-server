@@ -1,4 +1,12 @@
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from "@angular/animations";
 import { HttpEventType } from "@angular/common/http";
+import { NullTemplateVisitor } from "@angular/compiler";
 import {
   Inject,
   Component,
@@ -40,6 +48,16 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   selector: "app-home-page",
   templateUrl: "./home-page.component.html",
   styleUrls: ["./home-page.component.css"],
+  animations: [
+    trigger("detailExpand", [
+      state("collapsed", style({ height: "0px", minHeight: "0" })),
+      state("expanded", style({ height: "*" })),
+      transition(
+        "expanded <=> collapsed",
+        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+      ),
+    ]),
+  ],
 })
 export class HomePageComponent implements OnInit {
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
@@ -57,6 +75,7 @@ export class HomePageComponent implements OnInit {
     "delete",
   ];
 
+  expandedElement: FileInfo;
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
   searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
@@ -383,5 +402,33 @@ export class HomePageComponent implements OnInit {
     return (
       this.fileUploadSubscription != null && !this.fileUploadSubscription.closed
     );
+  }
+
+  /** Update file's userGroup */
+  updateUserGroup(u: FileInfo): void {
+    if (!u) return;
+    this.httpClient
+      .updateFileUserGroup({
+        uuid: u.uuid,
+        userGroup: u.userGroup,
+      })
+      .subscribe({
+        complete: () => {
+          this.fetchFileInfoList();
+          this.expandedElement = null;
+        },
+      });
+  }
+
+  copy(f: FileInfo): FileInfo {
+    if (!f) return null;
+    let copy = { ...f };
+    return copy;
+  }
+
+  uuidEquals(fl: FileInfo, fr: FileInfo): boolean {
+    if (fl == null || fr == null) return false;
+
+    return fl.uuid === fr.uuid;
   }
 }

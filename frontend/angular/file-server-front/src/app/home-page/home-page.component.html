@@ -90,8 +90,9 @@
             <button mat-raised-button class="m-2" id="reloadBtn" (click)="fetchFileInfoList()">Fetch</button>
             <button mat-raised-button class="m-2" id="resetBtn" (click)="resetSearchParam()">Reset</button>
         </div>
-        <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;">
 
+        <table mat-table [dataSource]="fileInfoList" class="mat-elevation-z8 mb-4" style="width: 100%;"
+            multiTemplateDataRows>
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
                 <td mat-cell *matCellDef="let f"> {{f.name}} </td>
@@ -123,8 +124,38 @@
                 </td>
             </ng-container>
 
+            <ng-container matColumnDef="expandedElement">
+                <td mat-cell *matCellDef="let u" [attr.colspan]="COLUMN_TO_BE_DISPLAYED.length">
+                    <div class="element-detail"
+                        [@detailExpand]="uuidEquals(u, expandedElement) ? 'expanded' : 'collapsed'">
+                        <div class="row row-cols-lg-auto g-3 align-items-center " *ngIf="expandedElement != null">
+                            <div class="col-12">
+                                <mat-form-field appearance="fill">
+                                    <mat-label>User Group</mat-label>
+                                    <mat-select [(value)]="expandedElement.userGroup">
+                                        <mat-option [value]="option.value" *ngFor="let option of USER_GROUP_OPTIONS">
+                                            {{option.name}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-12">
+                                <button mat-raised-button (click)="updateUserGroup(expandedElement)">
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="COLUMN_TO_BE_DISPLAYED"></tr>
-            <tr mat-row *matRowDef="let row; columns: COLUMN_TO_BE_DISPLAYED;"></tr>
+            <tr mat-row *matRowDef="let row; columns: COLUMN_TO_BE_DISPLAYED;" class="element-row"
+                [class.expanded-row]="expandedElement === row"
+                (click)="expandedElement = uuidEquals(expandedElement, row)? null : copy(row)"></tr>
+
+            <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
+
         </table>
 
         <mat-paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"

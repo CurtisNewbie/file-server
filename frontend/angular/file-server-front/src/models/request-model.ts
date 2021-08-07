@@ -1,3 +1,4 @@
+import { FileUserGroupEnum } from "./file-info";
 import { Paging } from "./paging";
 import { UserIsDisabledEnum, UserRoleEnum } from "./user-info";
 
@@ -155,4 +156,12 @@ export function emptyFetchUserInfoParam(): FetchUserInfoParam {
     isDisabled: null,
     pagingVo: null,
   };
+}
+
+export interface UpdateFileUserGroupParam {
+  /** file's uuid */
+  uuid: string;
+
+  /** file's userGroup */
+  userGroup: number | FileUserGroupEnum;
 }
