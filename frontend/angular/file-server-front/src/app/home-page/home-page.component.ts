@@ -426,9 +426,24 @@ export class HomePageComponent implements OnInit {
     return copy;
   }
 
+  /**
+   * Two non-null FileInfo are considered equals, when the uuid are equals, if any one of them is null, they are not equals
+   */
   uuidEquals(fl: FileInfo, fr: FileInfo): boolean {
     if (fl == null || fr == null) return false;
 
     return fl.uuid === fr.uuid;
+  }
+
+  /**
+   * Look at the row, determine whether we should expand this row (return this row)
+   *
+   * @param row null value if we shouldn't expand this element, else a copy of this row
+   * @returns expandedElement
+   */
+  determineExpandedElement(row: FileInfo): FileInfo {
+    if (!row.isOwner) return null;
+
+    return this.uuidEquals(this.expandedElement, row) ? null : this.copy(row);
   }
 }
