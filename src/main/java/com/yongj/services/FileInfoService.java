@@ -9,6 +9,8 @@ import com.yongj.vo.ListFileInfoReqVo;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -111,4 +113,13 @@ public interface FileInfoService {
      * @param id id of the file
      */
     void markFileDeletedPhysically(int id);
+
+    /**
+     * Update file's userGroup
+     *
+     * @param uuid   uuid
+     * @param fug    fileUserGroup
+     * @param userId who updated this file
+     */
+    void updateFileUserGroup(@NotEmpty String uuid, @NotNull FileUserGroupEnum fug, int userId) throws MsgEmbeddedException;
 }

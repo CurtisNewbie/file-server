@@ -1,5 +1,10 @@
 package com.yongj.services;
 
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.PagingUtil;
+import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.vo.PagingVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -11,22 +16,19 @@ import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileOwnership;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
-import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.PagingUtil;
-import com.curtisnewbie.common.util.ValidUtils;
 import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
-import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -206,5 +208,18 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Override
     public void markFileDeletedPhysically(int id) {
         mapper.markFilePhysicDeleted(id, new Date());
+    }
+
+    @Override
+    public void updateFileUserGroup(@NotEmpty String uuid, @NotNull FileUserGroupEnum fug, int userId)
+            throws MsgEmbeddedException {
+        Integer uploader = mapper.selectUploaderIdByUuid(uuid);
+        if (uploader == null)
+            throw new MsgEmbeddedException("File not found");
+
+        if (!Objects.equals(uploader, userId))
+            throw new MsgEmbeddedException("You are not allowed to update this file");
+
+        mapper.updateFileUserGroup(uuid, fug.getValue());
     }
 }

@@ -76,6 +76,11 @@
     WHERE id = #{id}
     AND is_physic_deleted = 0
   </update>
+  <update id="updateFileUserGroup">
+    UPDATE file_info
+    SET user_group = #{userGroup}
+    WHERE uuid = #{uuid}
+  </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
       WARNING - @mbg.generated

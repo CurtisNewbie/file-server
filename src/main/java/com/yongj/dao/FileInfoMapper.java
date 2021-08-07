@@ -83,4 +83,12 @@ public interface FileInfoMapper {
      * @param deleteDate the date that is marked as physically deleted
      */
     void markFilePhysicDeleted(@Param("id") int id, @Param("deleteDate") Date deleteDate);
+
+    /**
+     * Update user_group
+     *
+     * @param uuid      uuid
+     * @param userGroup userGroup
+     */
+    void updateFileUserGroup(@Param("uuid") String uuid, @Param("userGroup") int userGroup);
 }

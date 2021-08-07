@@ -180,6 +180,20 @@ public class FileController {
         return Result.ok();
     }
 
+    @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
+    @PostMapping("/usergroup/update")
+    public Result<Void> updateFileUserGroup(@RequestBody UpdateFileUserGroupReqVo reqVo) throws MsgEmbeddedException,
+            InvalidAuthenticationException {
+        ValidUtils.requireNotEmpty(reqVo.getUuid(), "UUID can't be null");
+        ValidUtils.requireNonNull(reqVo.getUserGroup(), "UserGroup can't be null");
+
+        FileUserGroupEnum fug = EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class);
+        ValidUtils.requireNonNull(fug, "Illegal UserGroup value");
+
+        fileInfoService.updateFileUserGroup(reqVo.getUuid(), fug, AuthUtil.getUserId());
+        return Result.ok();
+    }
+
     private static String encodeAttachmentName(String filePath) {
         return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8);
     }

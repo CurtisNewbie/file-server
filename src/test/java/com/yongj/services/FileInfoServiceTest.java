@@ -197,6 +197,7 @@ public class FileInfoServiceTest {
         doCleanUp(fi);
     }
 
+    /** Test {@link FileInfoService#validateUserDownload(int, String)} */
     @Test
     void shouldValidateUserDownload() throws IOException {
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
@@ -211,6 +212,7 @@ public class FileInfoServiceTest {
         doCleanUp(fi);
     }
 
+    /** Test {@link FileInfoService#deleteFileLogically(int, String)} */
     @Test
     void shouldDeleteFileLogically() throws IOException {
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
@@ -228,6 +230,7 @@ public class FileInfoServiceTest {
         doCleanUp(fi);
     }
 
+    /** Test {@link FileInfoService#markFileDeletedPhysically(int)} */
     @Test
     void shouldMarkFileDeletedPhysically() throws IOException {
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
@@ -240,6 +243,25 @@ public class FileInfoServiceTest {
             FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsPhysicDeleted(), FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
+        });
+
+        doCleanUp(fi);
+    }
+
+    /** Test {@link FileInfoService#updateFileUserGroup(String, FileUserGroupEnum, int)} */
+    @Test
+    void shouldUpdateFileUserGroup() throws IOException {
+        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
+        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
+        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        Assertions.assertNotNull(fi);
+
+        Assertions.assertDoesNotThrow(() -> {
+            fileInfoService.updateFileUserGroup(fi.getUuid(), FileUserGroupEnum.PUBLIC, TEST_USER_ID);
+
+            FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
+            Assertions.assertNotNull(sfi);
+            Assertions.assertEquals(sfi.getUserGroup(), FileUserGroupEnum.PUBLIC.getValue());
         });
 
         doCleanUp(fi);
