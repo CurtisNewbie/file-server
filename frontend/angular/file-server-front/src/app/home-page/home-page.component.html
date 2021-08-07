@@ -158,7 +158,6 @@
                 [class.expanded-row]="uuidEquals(row, expandedElement)"
                 (click)="expandedElement = determineExpandedElement(row)">
             </tr>
-
             <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
 
         </table>

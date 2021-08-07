@@ -79,9 +79,12 @@ export class FsGroupComponent implements OnInit {
    * @returns expandedElement
    */
   determineExpandedElement(row: FsGroup): FsGroup {
-    return this.idEquals(row, this.expandedElement)
-      ? null
-      : Object.assign({}, row);
+    return this.idEquals(row, this.expandedElement) ? null : this.copy(row);
+  }
+
+  copy(f: FsGroup): FsGroup {
+    if (!f) return null;
+    return { ...f };
   }
 
   /**
