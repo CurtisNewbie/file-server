@@ -118,6 +118,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
+        f.setFsGroupId(fsGroup.getId());
         mapper.insert(f);
         return f;
     }

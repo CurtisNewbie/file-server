@@ -3,16 +3,20 @@ package com.yongj.services;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.dao.FileInfoMapper;
+import com.yongj.dao.FsGroup;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.FsGroupMode;
 import com.yongj.vo.ListFileInfoReqVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 
 import java.io.*;
@@ -47,9 +51,14 @@ public class FileInfoServiceTest {
     @Value("${base.path}")
     String basePath;
 
+    @MockBean
+    FsGroupService fsGroupService;
+
+
     /** Test {@link FileInfoService#uploadFile(int, String, FileUserGroupEnum, InputStream)} */
     @Test
     void shouldUploadFile() {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         Assertions.assertDoesNotThrow(() -> {
@@ -70,7 +79,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#uploadFilesAsZip(int, String, String[], FileUserGroupEnum, InputStream[])} */
     @Test
     public void shouldUploadFilesAsZip() {
-
+        mockFsGroupService();
         String[] entryNames = new String[2];
         InputStream[] iss = new InputStream[2];
 
@@ -137,6 +146,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#downloadFile(String, OutputStream)} */
     @Test
     void shouldDownloadFile() throws IOException {
+        mockFsGroupService();
         Path dp = Paths.get(basePath.concat(File.separator).concat(TEST_DOWNLOADED_FILE));
         try (
                 OutputStream fout = new FileOutputStream(dp.toFile());
@@ -175,6 +185,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#getFilename(String)} */
     @Test
     void shouldGetFilename() throws IOException {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
@@ -189,6 +200,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#retrieveFileInputStream(String)} */
     @Test
     void ShouldRetrieveFileInputStream() throws IOException {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
@@ -200,6 +212,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#validateUserDownload(int, String)} */
     @Test
     void shouldValidateUserDownload() throws IOException {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
@@ -215,6 +228,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#deleteFileLogically(int, String)} */
     @Test
     void shouldDeleteFileLogically() throws IOException {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
@@ -233,6 +247,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#markFileDeletedPhysically(int)} */
     @Test
     void shouldMarkFileDeletedPhysically() throws IOException {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
@@ -251,6 +266,7 @@ public class FileInfoServiceTest {
     /** Test {@link FileInfoService#updateFileUserGroup(String, FileUserGroupEnum, int)} */
     @Test
     void shouldUpdateFileUserGroup() throws IOException {
+        mockFsGroupService();
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
@@ -265,5 +281,25 @@ public class FileInfoServiceTest {
         });
 
         doCleanUp(fi);
+    }
+
+    private void mockFsGroupService() {
+        Mockito.when(fsGroupService.findFirstFsGroupForWrite()).then((ivk) -> {
+            FsGroup fsg = new FsGroup();
+            fsg.setId(1);
+            fsg.setBaseFolder(basePath);
+            fsg.setMode(FsGroupMode.READ_WRITE.getValue());
+            fsg.setName("default");
+            return fsg;
+        });
+
+        Mockito.when(fsGroupService.findFsGroupById(Mockito.eq(1))).then((ivk) -> {
+            FsGroup fsg = new FsGroup();
+            fsg.setId(1);
+            fsg.setBaseFolder(basePath);
+            fsg.setMode(FsGroupMode.READ_WRITE.getValue());
+            fsg.setName("default");
+            return fsg;
+        });
     }
 }
