@@ -15,8 +15,11 @@ import {
   FetchAccessLogListParam,
   FetchFileInfoListParam,
   FetchUserInfoParam,
+  ListAllFsGroupReqVo,
+  ListAllFsGroupRespVo,
   SearchFileExtParam as FetchFileExtParam,
   UpdateFileUserGroupParam,
+  UpdateFsGroupModeReqVo,
   UploadFileParam,
 } from "src/models/request-model";
 import { AccessLog, FetchAccessLogList } from "src/models/access-log";
@@ -251,6 +254,32 @@ export class HttpClientService {
   ): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
       buildApiPath("/file/usergroup/update"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Fetch fs_group
+   */
+  public fetchFsGroups(
+    param: ListAllFsGroupReqVo
+  ): Observable<Resp<ListAllFsGroupRespVo>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/fsgroup/list"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Update fs_group's mode
+   */
+  public updateFsGroupMode(
+    param: UpdateFsGroupModeReqVo
+  ): Observable<Resp<void>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/fsgroup/mode/update"),
       param,
       headers
     );

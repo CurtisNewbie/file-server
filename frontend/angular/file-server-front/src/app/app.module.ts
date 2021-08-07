@@ -31,6 +31,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatDialogModule } from "@angular/material/dialog";
 import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.component";
+import { FsGroupComponent } from './fs-group/fs-group.component';
 
 @NgModule({
   exports: [],
@@ -44,6 +45,7 @@ import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.componen
     ChangePasswordComponent,
     ManageExtensionComponent,
     ConfirmDialogComponent,
+    FsGroupComponent,
   ],
   imports: [
     BrowserModule,

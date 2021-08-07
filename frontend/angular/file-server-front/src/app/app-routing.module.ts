@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { AccessLogComponent } from "./access-log/access-log.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
+import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
@@ -31,6 +32,11 @@ const routes: Routes = [
   {
     path: "manage-extension",
     component: ManageExtensionComponent,
+  },
+
+  {
+    path: "manage-fsgroup",
+    component: FsGroupComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

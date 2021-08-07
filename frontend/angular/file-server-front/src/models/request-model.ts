@@ -1,4 +1,5 @@
 import { FileUserGroupEnum } from "./file-info";
+import { FsGroup, FsGroupMode } from "./fs-group";
 import { Paging } from "./paging";
 import { UserIsDisabledEnum, UserRoleEnum } from "./user-info";
 
@@ -164,4 +165,24 @@ export interface UpdateFileUserGroupParam {
 
   /** file's userGroup */
   userGroup: number | FileUserGroupEnum;
+}
+
+export interface ListAllFsGroupReqVo {
+  fsGroup: FsGroup;
+
+  pagingVo: Paging;
+}
+
+export interface UpdateFsGroupModeReqVo {
+  /** id of fs_group */
+  id: number;
+
+  /** mode */
+  mode: number | FsGroupMode;
+}
+
+export interface ListAllFsGroupRespVo {
+  fsGroups: FsGroup[];
+
+  pagingVo: Paging;
 }

@@ -6,14 +6,7 @@ import {
   trigger,
 } from "@angular/animations";
 import { HttpEventType } from "@angular/common/http";
-import { NullTemplateVisitor } from "@angular/compiler";
-import {
-  Inject,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
 import { Subscription } from "rxjs";
