@@ -7,7 +7,7 @@ import com.curtisnewbie.common.enums.IntEnum;
  *
  * @author yongjie.zhuang
  */
-public enum FileLogicDeletedEnum implements IntEnum<FileLogicDeletedEnum> {
+public enum FileLogicDeletedEnum implements IntEnum {
 
     /** Normal */
     NORMAL(0),

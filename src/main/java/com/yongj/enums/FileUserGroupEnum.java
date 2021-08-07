@@ -8,7 +8,7 @@ import com.curtisnewbie.common.util.EnumUtils;
  *
  * @author yongjie.zhuang
  */
-public enum FileUserGroupEnum implements IntEnum<FileUserGroupEnum> {
+public enum FileUserGroupEnum implements IntEnum {
 
     /** public group */
     PUBLIC(0),

@@ -16,8 +16,16 @@ CREATE TABLE IF NOT EXISTS file_info (
     upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
     logic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is logically deleted",
     physic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is physically deleted",
-    user_group INT NOT NULL COMMENT "the group that the file belongs to, 0-public, 1-private"
+    user_group INT NOT NULL COMMENT "the group that the file belongs to, 0-public, 1-private",
+    fs_group_id INT NOT NULL COMMENT 'id of fs_group'
 );
+
+CREATE TABLE IF NOT EXISTS fs_group (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL COMMENT "group name",
+    base_folder VARCHAR(255) NOT NULL COMMENT "base folder",
+    mode INT NOT NULL DEFAULT 2 COMMENT "1-read, 2-read/write"
+) COMMENT 'FileSystem group, used to differentiate which base folder or mounted folder should be used';
 
 -- script for inserting some default file extension, these are optional
 INSERT INTO file_extension (name,is_enabled) VALUES

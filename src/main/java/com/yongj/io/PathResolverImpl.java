@@ -1,8 +1,8 @@
 package com.yongj.io;
 
 import com.yongj.config.PathConfig;
-import com.yongj.dao.FileExtensionMapper;
 import com.yongj.exceptions.IllegalExtException;
+import com.yongj.services.FileExtensionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,13 @@ public class PathResolverImpl implements PathResolver {
     private static final String FILE_EXT_DELIMITER = ".";
 
     @Autowired
-    private FileExtensionMapper fileExtensionMapper;
+    private FileExtensionService fileExtensionService;
     @Autowired
     private PathConfig pathConfig;
 
     @Override
-    public String resolveAbsolutePath(@NotEmpty String uuid, int userId) {
-        String absPath = pathConfig.getBasePath() + File.separator
+    public String resolveAbsolutePath(@NotEmpty String uuid, int userId, String fsGroupFolder) {
+        String absPath = fsGroupFolder + File.separator
                 + userId + File.separator
                 + uuid;
         logger.debug("Resolving path for UUID: '{}' and userId: '{}' resolved absolute path: '{}'",
@@ -55,8 +55,8 @@ public class PathResolverImpl implements PathResolver {
         }
         if (parsedExt.length() == 0)
             throw new IllegalExtException("File extension not found");
-        Set<String> fileExtSet = fileExtensionMapper
-                .findNamesOfAllEnabled()
+        Set<String> fileExtSet = fileExtensionService
+                .getNamesOfAllEnabled()
                 .stream()
                 .map(e -> e.toLowerCase())
                 .collect(Collectors.toSet());

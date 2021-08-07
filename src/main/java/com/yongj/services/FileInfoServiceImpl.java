@@ -8,10 +8,7 @@ import com.curtisnewbie.common.vo.PagingVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.yongj.dao.FileInfo;
-import com.yongj.dao.FileInfoMapper;
-import com.yongj.dao.FileValidateInfo;
-import com.yongj.dao.SelectBasicFileInfoParam;
+import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileOwnership;
 import com.yongj.enums.FilePhysicDeletedEnum;
@@ -50,6 +47,8 @@ public class FileInfoServiceImpl implements FileInfoService {
     private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
+    @Autowired
+    private FsGroupService fsGroupService;
 
     @Override
     public FileInfo uploadFile(int userId, String fileName, FileUserGroupEnum userGroup, InputStream inputStream) throws IOException {
@@ -59,8 +58,12 @@ public class FileInfoServiceImpl implements FileInfoService {
 
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
+        // find the first writable fs_group to use
+        FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
+        Objects.requireNonNull(fsGroup, "No writable fs_group found, unable to upload file");
+
         // resolve absolute path
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
@@ -75,6 +78,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
+        f.setFsGroupId(fsGroup.getId());
         mapper.insert(f);
         return f;
     }
@@ -93,8 +97,13 @@ public class FileInfoServiceImpl implements FileInfoService {
 
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
+
+        // find the first writable fs_group to use
+        FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
+        Objects.requireNonNull(fsGroup, "No writable fs_group found, unable to upload file");
+
         // resolve absolute path
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId);
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
@@ -155,24 +164,22 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void downloadFile(String uuid, OutputStream outputStream) throws IOException {
-        Objects.requireNonNull(uuid);
-        Objects.requireNonNull(outputStream);
-        final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
-        Objects.requireNonNull(uploaderId);
-        // read file from channel
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId);
+    public void downloadFile(@NotNull String uuid, @NotNull OutputStream outputStream) throws IOException {
+        FileInfo fi = mapper.selectByUuid(uuid);
+        Objects.requireNonNull(fi);
+        FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
+        Objects.requireNonNull(fsg);
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, fi.getUploaderId(), fsg.getBaseFolder());
         ioHandler.readFile(absPath, outputStream);
     }
 
     @Override
-    public InputStream retrieveFileInputStream(String uuid) throws IOException {
-        Objects.requireNonNull(uuid);
-        final Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
-        Objects.requireNonNull(uploaderId);
-        // read file from channel
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId);
-        // open inputStream
+    public InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException {
+        FileInfo fi = mapper.selectByUuid(uuid);
+        Objects.requireNonNull(fi);
+        FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
+        Objects.requireNonNull(fsg);
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, fi.getUploaderId(), fsg.getBaseFolder());
         return Files.newInputStream(Paths.get(absPath));
     }
 

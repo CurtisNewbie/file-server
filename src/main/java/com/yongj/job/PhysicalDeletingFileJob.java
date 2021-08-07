@@ -2,9 +2,11 @@ package com.yongj.job;
 
 import com.curtisnewbie.common.vo.PagingVo;
 import com.github.pagehelper.PageInfo;
+import com.yongj.dao.FsGroup;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileInfoService;
+import com.yongj.services.FsGroupService;
 import com.yongj.vo.PhysicDeleteFileVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Job for physically deleting the files
@@ -40,6 +43,8 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
+    @Autowired
+    private FsGroupService fsGroupService;
 
     @Scheduled(cron = CRON_EXPRESSION)
     @Override
@@ -67,8 +72,12 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     // files that are unable to deleted, won't cause a transaction roll back
     private void deleteFilesPhysically(PageInfo<PhysicDeleteFileVo> pageInfo) {
         for (PhysicDeleteFileVo v : pageInfo.getList()) {
+            // get the fs_group's folder
+            FsGroup fsg = fsGroupService.findFsGroupById(v.getFsGroupId());
+            Objects.requireNonNull(fsg, "fs_group not found, unable to delete files");
+
             // resolve absolute path
-            String absPath = pathResolver.resolveAbsolutePath(v.getUuid(), v.getUploaderId());
+            String absPath = pathResolver.resolveAbsolutePath(v.getUuid(), v.getUploaderId(), fsg.getBaseFolder());
             try {
                 // commit the actual deleting operation
                 ioHandler.deleteFile(absPath);

@@ -38,4 +38,7 @@ public class FileInfo {
 
     /** the group that the file belongs to, 0-public, 1-private */
     private Integer userGroup;
+
+    /** id of fs_group */
+    private Integer fsGroupId;
 }

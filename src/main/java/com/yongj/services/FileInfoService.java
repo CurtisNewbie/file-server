@@ -8,6 +8,7 @@ import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ import java.util.List;
  *
  * @author yongjie.zhuang
  */
+@Validated
 public interface FileInfoService {
 
     /**
@@ -74,14 +76,14 @@ public interface FileInfoService {
      * @param uuid         uuid
      * @param outputStream outputStream
      */
-    void downloadFile(String uuid, OutputStream outputStream) throws IOException;
+    void downloadFile(@NotNull String uuid, @NotNull OutputStream outputStream) throws IOException;
 
     /**
      * Retrieve file's inputStream via uuid
      *
      * @param uuid uuid
      */
-    InputStream retrieveFileInputStream(String uuid) throws IOException;
+    InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException;
 
     /**
      * Validate whether current user can download this file

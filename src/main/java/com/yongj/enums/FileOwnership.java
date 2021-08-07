@@ -8,7 +8,7 @@ import com.curtisnewbie.common.util.EnumUtils;
  *
  * @author yongjie.zhuang
  */
-public enum FileOwnership implements IntEnum<FileOwnership> {
+public enum FileOwnership implements IntEnum {
 
     /** all the files */
     ALL_FILES(0),

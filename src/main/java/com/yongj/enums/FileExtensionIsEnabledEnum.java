@@ -5,7 +5,7 @@ import com.curtisnewbie.common.enums.IntEnum;
 /**
  * @author yongjie.zhuang
  */
-public enum FileExtensionIsEnabledEnum implements IntEnum<FileExtensionIsEnabledEnum> {
+public enum FileExtensionIsEnabledEnum implements IntEnum {
 
     /** current file extension is enabled */
     ENABLED(0),

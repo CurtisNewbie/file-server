@@ -16,4 +16,7 @@ public class PhysicDeleteFileVo {
     /** uploader id, i.e., user.id */
     private Integer uploaderId;
 
+    /** fs_group's Id */
+    private Integer fsGroupId;
+
 }

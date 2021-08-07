@@ -17,9 +17,10 @@ public interface PathResolver {
      *
      * @param uuid
      * @param userId
+     * @param fsGroupFolder
      * @return absolute path
      */
-    String resolveAbsolutePath(@NotEmpty String uuid, int userId);
+    String resolveAbsolutePath(@NotEmpty String uuid, int userId, String fsGroupFolder);
 
     /**
      * Validate the file extension of the given path

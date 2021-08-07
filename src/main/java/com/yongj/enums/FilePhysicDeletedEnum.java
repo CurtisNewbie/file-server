@@ -7,7 +7,7 @@ import com.curtisnewbie.common.enums.IntEnum;
  *
  * @author yongjie.zhuang
  */
-public enum FilePhysicDeletedEnum implements IntEnum<FilePhysicDeletedEnum> {
+public enum FilePhysicDeletedEnum implements IntEnum {
 
     /** Normal */
     NORMAL(0),
