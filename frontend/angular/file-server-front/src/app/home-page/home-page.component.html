@@ -76,7 +76,7 @@
 
             <div class="col-12">
                 <mat-form-field appearance="fill">
-                    <mat-label>User Group</mat-label>
+                    <mat-label>Owner</mat-label>
                     <mat-select (valueChange)="setSearchOwnership($event)" [value]="searchParam.ownership"
                         matTooltip="Fetch all the files or only the files that you uploaded">
                         <mat-option [value]="option.value" *ngFor="let option of FILE_OWNERSHIP_OPTIONS">
