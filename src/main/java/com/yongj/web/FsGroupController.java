@@ -5,6 +5,7 @@ import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.github.pagehelper.PageInfo;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
@@ -14,7 +15,10 @@ import com.yongj.vo.ListAllFsGroupRespVo;
 import com.yongj.vo.UpdateFsGroupModeReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author yongjie.zhuang
@@ -26,6 +30,7 @@ public class FsGroupController {
     @Autowired
     private FsGroupService fsGroupService;
 
+    @LogOperation(name = "/fsgroup/mode/update", description = "update fsgroup mode")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/mode/update")
     public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) throws MsgEmbeddedException {
@@ -38,6 +43,7 @@ public class FsGroupController {
         return Result.ok();
     }
 
+    @LogOperation(name = "/fsgroup/list", description = "list fsgroup")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
     public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) {

@@ -5,6 +5,7 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.service.auth.remote.api.RemoteAccessLogService;
 import com.curtisnewbie.service.auth.remote.vo.AccessLogInfoVo;
 import com.github.pagehelper.PageInfo;
@@ -32,6 +33,7 @@ public class AccessLogController {
     @DubboReference(lazy = true)
     private RemoteAccessLogService accessLogService;
 
+    @LogOperation(name = "/access/history", description = "list access log info")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/history")
     public Result<ListAccessLogInfoRespVo> listAccessLogInfo(@RequestBody ListAccessLogInfoReqVo vo)

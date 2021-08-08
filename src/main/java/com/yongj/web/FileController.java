@@ -5,6 +5,7 @@ import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
@@ -59,6 +60,7 @@ public class FileController {
     @Autowired
     private FileInfoService fileInfoService;
 
+    @LogOperation(name = "/file/upload", description = "upload file")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String[] fileNames,
@@ -87,6 +89,7 @@ public class FileController {
         return Result.ok();
     }
 
+    @LogOperation(name = "/file/download", description = "download file")
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp, HttpServletRequest req)
             throws MsgEmbeddedException, InvalidAuthenticationException, IOException {
@@ -116,6 +119,7 @@ public class FileController {
             return new PlainStreamingResponseBody(in);
     }
 
+    @LogOperation(name = "/file/list", description = "list file")
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
@@ -129,6 +133,7 @@ public class FileController {
         return Result.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging));
     }
 
+    @LogOperation(name = "/file/delete", description = "delete file")
     @PostMapping(path = "/delete")
     public Result<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
@@ -137,6 +142,7 @@ public class FileController {
         return Result.ok();
     }
 
+    @LogOperation(name = "/file/extension/name", description = "list supported file extensions")
     @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<List<String>> listSupportedFileExtensionNames() {
         return Result.of(
@@ -144,6 +150,7 @@ public class FileController {
         );
     }
 
+    @LogOperation(name = "/file/extension/add", description = "add file extension")
     @PostMapping("/extension/add")
     public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNotEmpty(reqVo.getName());
@@ -155,6 +162,7 @@ public class FileController {
         return Result.ok();
     }
 
+    @LogOperation(name = "/file/extension/list", description = "list supported file extension details")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getPagingVo());
@@ -164,6 +172,7 @@ public class FileController {
         return Result.of(new ListFileExtRespVo(pageInfo.getList(), pagingVo));
     }
 
+    @LogOperation(name = "/file/extension/update", description = "update status of supported file extension")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping(path = "/extension/update")
     public Result<Void> updateFileExtensionStatus(@RequestBody FileExtVo vo) throws MsgEmbeddedException {
@@ -180,6 +189,7 @@ public class FileController {
         return Result.ok();
     }
 
+    @LogOperation(name = "file/usergroup/update", description = "update file's user group")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping("/usergroup/update")
     public Result<Void> updateFileUserGroup(@RequestBody UpdateFileUserGroupReqVo reqVo) throws MsgEmbeddedException,
