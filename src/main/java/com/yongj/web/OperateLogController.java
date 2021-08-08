@@ -30,7 +30,7 @@ public class OperateLogController {
     @DubboReference
     private RemoteOperateLogService remoteOperateLogService;
 
-    @LogOperation(name = "/operate/history", description = "find operate log history in pages")
+    @LogOperation(name = "/operate/history", description = "find operate log history in pages", enabled = false)
     @PostMapping("/history")
     public Result<FindOperateLogRespVo> findByPage(@RequestBody PagingVo pagingVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(pagingVo.getLimit());
