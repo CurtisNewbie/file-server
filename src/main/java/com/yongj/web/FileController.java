@@ -10,6 +10,7 @@ import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileExtension;
+import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.IOHandler;
@@ -97,10 +98,13 @@ public class FileController {
         final int userId = AuthUtil.getUserId();
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);
-        // get fileName
-        final String filename = fileInfoService.getFilename(uuid);
+        // get fileInfo
+        final FileInfo fi = fileInfoService.findByUuid(uuid);
+        ValidUtils.requireNonNull(fi, "File not found");
+
         // set header for the downloaded file
-        resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(filename));
+        resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(fi.getName()));
+        resp.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fi.getSizeInBytes()));
 
         // negotiate whether we should use gzip or plain streaming
         Enumeration<String> encodings = req.getHeaders(HttpHeaders.ACCEPT_ENCODING);

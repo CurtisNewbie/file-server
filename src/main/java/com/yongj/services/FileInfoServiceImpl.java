@@ -175,6 +175,11 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
+    public FileInfo findByUuid(@NotEmpty String uuid) {
+        return mapper.selectByUuid(uuid);
+    }
+
+    @Override
     public InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException {
         FileInfo fi = mapper.selectByUuid(uuid);
         Objects.requireNonNull(fi);

@@ -79,6 +79,11 @@ public interface FileInfoService {
     void downloadFile(@NotNull String uuid, @NotNull OutputStream outputStream) throws IOException;
 
     /**
+     * Find by uuid
+     */
+    FileInfo findByUuid(@NotEmpty String uuid);
+
+    /**
      * Retrieve file's inputStream via uuid
      *
      * @param uuid uuid
