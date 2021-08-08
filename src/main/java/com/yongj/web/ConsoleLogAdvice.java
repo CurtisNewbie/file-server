@@ -6,21 +6,43 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
+import javax.annotation.PostConstruct;
+
 /**
+ * Advice that log the controller's method execution
+ * <p>
+ * Can be turned off using {@link #ENABLE_CONTROLLER_CONSOLE_LOG_KEY}
+ * </p>
+ *
  * @author yongjie.zhuang
  */
 @Aspect
 @Component
-public class LogAspect {
+public class ConsoleLogAdvice {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsoleLogAdvice.class);
+    private static final String ENABLE_CONTROLLER_CONSOLE_LOG_KEY = "controller-console-logging";
+
+    @Value("${" + ENABLE_CONTROLLER_CONSOLE_LOG_KEY + ":true}")
+    private boolean controllerConsoleLogEnabled;
+
+    @PostConstruct
+    void onInit() {
+        if (!controllerConsoleLogEnabled)
+            logger.info("Controller logging on console is disabled, enable it by setting '{}=true'",
+                    ENABLE_CONTROLLER_CONSOLE_LOG_KEY);
+    }
 
     @Around("execution(* com.yongj.web.*Controller.*(..))")
-    public Object logBeforeOperation(ProceedingJoinPoint pjp) throws Throwable {
+    public Object printExecution(ProceedingJoinPoint pjp) throws Throwable {
+        if (!controllerConsoleLogEnabled)
+            return pjp.proceed();
+
         StopWatch sw = new StopWatch();
         Object result = null;
         try {
