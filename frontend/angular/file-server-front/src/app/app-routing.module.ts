@@ -7,6 +7,7 @@ import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { ManagerUserComponent } from "./manager-user/manager-user.component";
+import { OperateHistoryComponent } from "./operate-history/operate-history.component";
 
 const routes: Routes = [
   {
@@ -33,10 +34,13 @@ const routes: Routes = [
     path: "manage-extension",
     component: ManageExtensionComponent,
   },
-
   {
     path: "manage-fsgroup",
     component: FsGroupComponent,
+  },
+  {
+    path: "operate-history",
+    component: OperateHistoryComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

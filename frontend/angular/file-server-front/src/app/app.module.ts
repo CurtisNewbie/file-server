@@ -32,6 +32,7 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatDialogModule } from "@angular/material/dialog";
 import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.component";
 import { FsGroupComponent } from './fs-group/fs-group.component';
+import { OperateHistoryComponent } from './operate-history/operate-history.component';
 
 @NgModule({
   exports: [],
@@ -46,6 +47,7 @@ import { FsGroupComponent } from './fs-group/fs-group.component';
     ManageExtensionComponent,
     ConfirmDialogComponent,
     FsGroupComponent,
+    OperateHistoryComponent,
   ],
   imports: [
     BrowserModule,

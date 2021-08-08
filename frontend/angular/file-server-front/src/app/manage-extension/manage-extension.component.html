@@ -85,7 +85,7 @@
             <tr mat-header-row *matHeaderRowDef="COLUMNS_TO_BE_DISPLAYED"></tr>
             <tr mat-row *matRowDef="let row; columns: COLUMNS_TO_BE_DISPLAYED;" class="element-row"
                 [class.expanded-row]="expandedElement === row"
-                (click)="expandedElement = expandedElement === row? null : row"></tr>
+                (click)="expandedElement = expandedElement === row? null : row" matTooltip="Click to expand"></tr>
 
             <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
             </tr>

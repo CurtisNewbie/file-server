@@ -50,9 +50,9 @@ public class AccessLogController {
     }
 
     private static List<AccessLogInfoFsVo> toAccessLogInfoVoList(List<AccessLogInfoVo> list) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         return list.stream().map(d -> {
             AccessLogInfoFsVo v = BeanCopyUtils.toType(d, AccessLogInfoFsVo.class);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             v.setAccessTime(sdf.format(d.getAccessTime()));
             return v;
         }).collect(Collectors.toList());

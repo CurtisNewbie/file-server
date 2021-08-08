@@ -22,9 +22,11 @@ import {
   UpdateFsGroupModeReqVo,
   UploadFileParam,
 } from "src/models/request-model";
-import { AccessLog, FetchAccessLogList } from "src/models/access-log";
+import { FetchAccessLogList } from "src/models/access-log";
 import { FetchFileExtList, FileExt } from "src/models/file-ext";
 import { buildApiPath } from "./util/api-util";
+import { Paging } from "src/models/paging";
+import { FetchOperateLogListResp } from "src/models/operate-log";
 
 const headers = {
   headers: new HttpHeaders({
@@ -280,6 +282,17 @@ export class HttpClientService {
   ): Observable<Resp<void>> {
     return this.http.post<Resp<any>>(
       buildApiPath("/fsgroup/mode/update"),
+      param,
+      headers
+    );
+  }
+
+  /** Fetch operate_log list */
+  public fetchOperateLogList(
+    param: Paging
+  ): Observable<Resp<FetchOperateLogListResp>> {
+    return this.http.post<Resp<FetchOperateLogListResp>>(
+      buildApiPath("/operate/history"),
       param,
       headers
     );

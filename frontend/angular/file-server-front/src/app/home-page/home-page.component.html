@@ -156,7 +156,7 @@
             <tr mat-header-row *matHeaderRowDef="COLUMN_TO_BE_DISPLAYED"></tr>
             <tr mat-row *matRowDef="let row; columns: COLUMN_TO_BE_DISPLAYED;" class="element-row"
                 [class.expanded-row]="uuidEquals(row, expandedElement)"
-                (click)="expandedElement = determineExpandedElement(row)">
+                (click)="expandedElement = determineExpandedElement(row)" matTooltip="Click to expand">
             </tr>
             <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
 
