@@ -10,7 +10,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
+@EnableRedisHttpSession
 @PropertySources({
         @PropertySource("classpath:dubbo.properties"),
         @PropertySource("classpath:application.properties"),
