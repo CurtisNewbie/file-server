@@ -1,9 +1,7 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
-import lombok.AllArgsConstructor;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -13,12 +11,7 @@ import java.util.List;
  * @author yongjie.zhuang
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class FindOperateLogRespVo {
+public class FindOperateLogRespVo extends PageableVo {
 
     private List<OperateLogFsVo> operateLogVoList;
-
-    private PagingVo pagingVo;
-
 }

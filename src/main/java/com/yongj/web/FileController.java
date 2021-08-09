@@ -132,9 +132,9 @@ public class FileController {
         ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
         reqVo.setUserId(AuthUtil.getUserId());
         PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(reqVo);
-        PagingVo paging = new PagingVo();
-        paging.setTotal(fileInfoVoPageInfo.getTotal());
-        return Result.of(new ListFileInfoRespVo(fileInfoVoPageInfo.getList(), paging));
+        ListFileInfoRespVo res = new ListFileInfoRespVo(fileInfoVoPageInfo.getList());
+        res.setPagingVo(new PagingVo().ofTotal(fileInfoVoPageInfo.getTotal()));
+        return Result.of(res);
     }
 
     @LogOperation(name = "/file/delete", description = "delete file")
@@ -171,9 +171,9 @@ public class FileController {
     public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getPagingVo());
         PageInfo<FileExtVo> pageInfo = fileExtensionService.getDetailsOfAllByPageSelective(vo);
-        PagingVo pagingVo = new PagingVo();
-        pagingVo.setTotal(pageInfo.getTotal());
-        return Result.of(new ListFileExtRespVo(pageInfo.getList(), pagingVo));
+        ListFileExtRespVo res = new ListFileExtRespVo(pageInfo.getList());
+        res.setPagingVo(new PagingVo().ofTotal(pageInfo.getTotal()));
+        return Result.of(res);
     }
 
     @LogOperation(name = "/file/extension/update", description = "update status of supported file extension")

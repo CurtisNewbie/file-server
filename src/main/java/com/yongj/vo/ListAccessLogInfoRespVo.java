@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListAccessLogInfoRespVo {
+public class ListAccessLogInfoRespVo extends PageableVo {
 
     private Iterable<AccessLogInfoFsVo> accessLogInfoList;
-
-    private PagingVo pagingVo;
 
 }

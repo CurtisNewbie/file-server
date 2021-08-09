@@ -42,11 +42,9 @@ public class AccessLogController {
         PageInfo<AccessLogInfoVo> pageInfo = accessLogService.findAccessLogInfoByPage(vo.getPagingVo());
         PagingVo paging = new PagingVo();
         paging.setTotal(pageInfo.getTotal());
-        return Result.of(
-                new ListAccessLogInfoRespVo(
-                        toAccessLogInfoVoList(pageInfo.getList()), paging
-                )
-        );
+        ListAccessLogInfoRespVo res = new ListAccessLogInfoRespVo(toAccessLogInfoVoList(pageInfo.getList()));
+        res.setPagingVo(paging);
+        return Result.of(res);
     }
 
     private static List<AccessLogInfoFsVo> toAccessLogInfoVoList(List<AccessLogInfoVo> list) {

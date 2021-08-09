@@ -41,10 +41,8 @@ public class OperateLogController {
     }
 
     private FindOperateLogRespVo toFindOperateLogRespVo(PageInfo<OperateLogVo> pv) {
-        PagingVo p = new PagingVo();
-        p.setTotal(pv.getTotal());
         FindOperateLogRespVo res = new FindOperateLogRespVo();
-        res.setPagingVo(p);
+        res.setPagingVo(new PagingVo().ofTotal(pv.getTotal()));
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         res.setOperateLogVoList(pv.getList().stream().map(v -> {

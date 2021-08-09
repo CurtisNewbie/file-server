@@ -1,13 +1,13 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.Data;
 
 /**
  * @author yongjie.zhuang
  */
 @Data
-public class ListFileExtReqVo {
+public class ListFileExtReqVo extends PageableVo {
 
     /**
      * name of file extension, e.g., "txt"
@@ -18,7 +18,4 @@ public class ListFileExtReqVo {
      * whether this file extension is enabled, 0-enabled, 1-disabled
      */
     private Integer isEnabled;
-
-    /** paging param */
-    private PagingVo pagingVo;
 }

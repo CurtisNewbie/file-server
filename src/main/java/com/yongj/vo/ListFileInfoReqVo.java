@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageableVo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ListFileInfoReqVo {
+public class ListFileInfoReqVo extends PageableVo {
 
     /** the group that the file belongs to, 0-public, 1-private */
     private Integer userGroup;
@@ -26,8 +26,5 @@ public class ListFileInfoReqVo {
     /** id of the user */
     @JsonIgnore
     private Integer userId;
-
-    /** paging param */
-    private PagingVo pagingVo;
 
 }

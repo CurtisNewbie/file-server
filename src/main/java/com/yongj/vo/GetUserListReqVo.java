@@ -1,7 +1,6 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
-import lombok.AllArgsConstructor;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,8 +11,7 @@ import java.io.Serializable;
  * @author yongjie.zhuang
  */
 @Data
-@AllArgsConstructor
-public class GetUserListReqVo implements Serializable {
+public class GetUserListReqVo extends PageableVo implements Serializable {
 
     /**
      * Username
@@ -29,10 +27,5 @@ public class GetUserListReqVo implements Serializable {
      * is user disabled
      */
     private Integer isDisabled;
-
-    /**
-     * paging param
-     */
-    private PagingVo pagingVo;
 
 }

@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,10 +13,7 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
-public class GetUserListRespVo implements Serializable {
+public class GetUserListRespVo extends PageableVo implements Serializable {
 
     private Iterable<UserInfoFsVo> fileInfoList;
-
-    private PagingVo pagingVo;
-
 }

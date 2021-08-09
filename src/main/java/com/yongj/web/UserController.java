@@ -24,7 +24,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -80,10 +79,9 @@ public class UserController {
     public Result<GetUserListRespVo> getUserList(@RequestBody GetUserListReqVo reqVo) {
         FindUserInfoVo searchParam = toFindUserInfoVo(reqVo);
         PageInfo<UserInfoVo> voPageInfo = userService.findUserInfoByPage(searchParam);
-        List<UserInfoFsVo> infoList = BeanCopyUtils.toTypeList(voPageInfo.getList(), UserInfoFsVo.class);
-        PagingVo paging = new PagingVo();
-        paging.setTotal(voPageInfo.getTotal());
-        return Result.of(new GetUserListRespVo(infoList, paging));
+        GetUserListRespVo resp = new GetUserListRespVo(BeanCopyUtils.toTypeList(voPageInfo.getList(), UserInfoFsVo.class));
+        resp.setPagingVo(new PagingVo().ofTotal(voPageInfo.getTotal()));
+        return Result.of(resp);
     }
 
     private static FindUserInfoVo toFindUserInfoVo(GetUserListReqVo reqVo) {

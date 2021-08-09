@@ -48,11 +48,8 @@ public class FsGroupController {
     @PostMapping("/list")
     public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) {
         PageInfo<FsGroupVo> pi = fsGroupService.findByPage(reqVo);
-        ListAllFsGroupRespVo res = new ListAllFsGroupRespVo();
-        PagingVo p = new PagingVo();
-        p.setTotal(pi.getTotal());
-        res.setPagingVo(p);
-        res.setFsGroups(pi.getList());
+        ListAllFsGroupRespVo res = new ListAllFsGroupRespVo(pi.getList());
+        res.setPagingVo(new PagingVo().ofTotal(pi.getTotal()));
         return Result.of(res);
     }
 }

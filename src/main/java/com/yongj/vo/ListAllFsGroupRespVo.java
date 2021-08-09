@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,9 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ListAllFsGroupRespVo {
+public class ListAllFsGroupRespVo extends PageableVo {
 
     private List<FsGroupVo> fsGroups;
 
-    private PagingVo pagingVo;
 }

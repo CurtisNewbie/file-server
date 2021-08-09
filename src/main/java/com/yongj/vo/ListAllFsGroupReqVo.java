@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageableVo;
 import lombok.Data;
 
 /**
@@ -9,9 +9,7 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class ListAllFsGroupReqVo {
+public class ListAllFsGroupReqVo extends PageableVo {
 
     private FsGroupVo fsGroup;
-
-    private PagingVo pagingVo;
 }
