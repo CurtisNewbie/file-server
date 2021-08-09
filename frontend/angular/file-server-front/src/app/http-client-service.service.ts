@@ -297,4 +297,17 @@ export class HttpClientService {
       headers
     );
   }
+
+  /**
+   * Generate file temporary token
+   * @param uuid  uuid
+   * @returns  token
+   */
+  public generateFileTempToken(uuid: string): Observable<Resp<string>> {
+    return this.http.post<Resp<string>>(
+      buildApiPath("/file/token/generate"),
+      { uuid: uuid },
+      headers
+    );
+  }
 }

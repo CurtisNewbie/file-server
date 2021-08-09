@@ -12,11 +12,13 @@ import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
+import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
+import com.yongj.services.TempTokenFileDownloadService;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
 import com.yongj.web.streaming.GzipStreamingResponseBody;
@@ -31,6 +33,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +45,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author yongjie.zhuang
@@ -60,6 +64,8 @@ public class FileController {
     private FileExtensionService fileExtensionService;
     @Autowired
     private FileInfoService fileInfoService;
+    @Autowired
+    private TempTokenFileDownloadService tempTokenFileDownloadService;
 
     @LogOperation(name = "/file/upload", description = "upload file")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
@@ -96,31 +102,15 @@ public class FileController {
             throws MsgEmbeddedException, InvalidAuthenticationException, IOException {
 
         final int userId = AuthUtil.getUserId();
+
         // validate user authority
         fileInfoService.validateUserDownload(userId, uuid);
+
         // get fileInfo
         final FileInfo fi = fileInfoService.findByUuid(uuid);
         ValidUtils.requireNonNull(fi, "File not found");
 
-        // set header for the downloaded file
-        resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(fi.getName()));
-        resp.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fi.getSizeInBytes()));
-
-        // negotiate whether we should use gzip or plain streaming
-        Enumeration<String> encodings = req.getHeaders(HttpHeaders.ACCEPT_ENCODING);
-        boolean useGzip = false;
-        while (encodings.hasMoreElements()) {
-            if (encodings.nextElement().trim().equalsIgnoreCase("gzip"))
-                useGzip = true;
-        }
-
-        // write file directly to outputStream without holding servlet's thread
-        InputStream in = fileInfoService.retrieveFileInputStream(uuid);
-        if (useGzip) {
-            resp.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
-            return new GzipStreamingResponseBody(in);
-        } else
-            return new PlainStreamingResponseBody(in);
+        return download(req, resp, fi);
     }
 
     @LogOperation(name = "/file/list", description = "list file")
@@ -193,7 +183,7 @@ public class FileController {
         return Result.ok();
     }
 
-    @LogOperation(name = "file/usergroup/update", description = "update file's user group")
+    @LogOperation(name = "/file/usergroup/update", description = "update file's user group")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping("/usergroup/update")
     public Result<Void> updateFileUserGroup(@RequestBody UpdateFileUserGroupReqVo reqVo) throws MsgEmbeddedException,
@@ -206,6 +196,75 @@ public class FileController {
 
         fileInfoService.updateFileUserGroup(reqVo.getUuid(), fug, AuthUtil.getUserId());
         return Result.ok();
+    }
+
+    @LogOperation(name = "/file/token/generate", description = "generate temp token for file download")
+    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
+    @PostMapping("/token/generate")
+    public Result<String> generateToken(@RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
+            InvalidAuthenticationException, NoSuchMethodException {
+        ValidUtils.requireNotEmpty(reqVo.getUuid(), "UUID can't be empty");
+        FileInfo fi = fileInfoService.findByUuid(reqVo.getUuid());
+        ValidUtils.requireNonNull(fi, "File not found");
+
+        if (!Objects.equals(fi.getUploaderId(), AuthUtil.getUserId())) {
+            throw new MsgEmbeddedException("Only the owner of the file can generate temporary token");
+        }
+
+        final String token = tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getUuid());
+        String link = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/file/token/download")
+                .query("token={token}")
+                .buildAndExpand(token)
+                .toUri().toString();
+        return Result.of(link);
+    }
+
+    @LogOperation(name = "/file/token/download", description = "Download file using temp token")
+    @GetMapping("/token/download")
+    public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
+                                                 @PathParam("token") String token) throws IOException,
+            MsgEmbeddedException, InvalidAuthenticationException {
+
+        logger.info("User {} attempts to download file using token {}", AuthUtil.getUsername(), token);
+
+        ValidUtils.requireNotEmpty(token, "Token can't be empty");
+        final String uuid = tempTokenFileDownloadService.getUuidByToken(token);
+        ValidUtils.requireNonNull(uuid, "Token is invalid or expired");
+
+        FileInfo fi = fileInfoService.findByUuid(uuid);
+        ValidUtils.requireNonNull(fi, "File not found");
+        if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
+            // remove the token
+            tempTokenFileDownloadService.removeToken(token);
+            throw new MsgEmbeddedException("File is deleted already");
+        }
+
+        return download(req, resp, fi);
+    }
+
+
+    private StreamingResponseBody download(HttpServletRequest req, HttpServletResponse resp, FileInfo fi) throws IOException {
+        // set header for the downloaded file
+        resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(fi.getName()));
+        resp.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fi.getSizeInBytes()));
+
+        // negotiate whether we should use gzip or plain streaming
+        Enumeration<String> encodings = req.getHeaders(HttpHeaders.ACCEPT_ENCODING);
+        boolean useGzip = false;
+        while (encodings.hasMoreElements()) {
+            if (encodings.nextElement().trim().equalsIgnoreCase("gzip"))
+                useGzip = true;
+        }
+
+        // write file directly to outputStream without holding servlet's thread
+        InputStream in = fileInfoService.retrieveFileInputStream(fi.getUuid());
+        if (useGzip) {
+            resp.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
+            return new GzipStreamingResponseBody(in);
+        } else
+            return new PlainStreamingResponseBody(in);
     }
 
     private static String encodeAttachmentName(String filePath) {

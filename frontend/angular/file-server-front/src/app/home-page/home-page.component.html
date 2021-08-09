@@ -148,6 +148,11 @@
                                     Update
                                 </button>
                             </div>
+                            <div class="col-12" *ngIf="u.isOwner ">
+                                <button mat-raised-button (click)="generateTempToken(expandedElement)">
+                                    Share
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </td>

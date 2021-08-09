@@ -322,7 +322,7 @@ export class HomePageComponent implements OnInit {
     const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
       this.dialog.open(ConfirmDialogComponent, {
         width: "350px",
-        data: { msg: `You sure you want to delete '${name}'` },
+        data: { msg: [`You sure you want to delete '${name}'`] },
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {
@@ -411,6 +411,26 @@ export class HomePageComponent implements OnInit {
           this.expandedElement = null;
         },
       });
+  }
+
+  /**
+   * Generate temporary token for downloading
+   */
+  generateTempToken(u: FileInfo): void {
+    if (!u) return;
+    this.httpClient.generateFileTempToken(u.uuid).subscribe({
+      next: (resp) => {
+        const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
+          this.dialog.open(ConfirmDialogComponent, {
+            width: "700px",
+            data: { msg: ["Link to download this file:", resp.data] },
+          });
+
+        dialogRef.afterClosed().subscribe((confirm) => {
+          // do nothing
+        });
+      },
+    });
   }
 
   copy(f: FileInfo): FileInfo {
