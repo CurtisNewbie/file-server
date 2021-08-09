@@ -119,7 +119,7 @@ public class UserController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/user/info", description = "get user info")
+    @LogOperation(name = "/user/info", description = "get user info", enabled = false)
     @GetMapping("/info")
     public Result<UserFsVo> getUserInfo() throws InvalidAuthenticationException {
         // user is not authenticated yet
