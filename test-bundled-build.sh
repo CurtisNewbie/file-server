@@ -28,4 +28,6 @@ mvn clean package
 
 rm -r src/main/resources/static/  
 
-scp "target/file-server-0.0.1.jar" "zhuangyongj@192.168.10.128:~/exec/fileserver.jar"
+ssh -l zhuangyongj 192.168.10.128 "/home/zhuangyongj/exec/fileserver/kill-fs.sh"
+
+scp "target/file-server-0.0.1.jar" "zhuangyongj@192.168.10.128:~/exec/fileserver/fileserver.jar"
