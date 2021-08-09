@@ -75,14 +75,17 @@ public class FileController {
                             @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException,
             MsgEmbeddedException {
 
-        for (String f : fileNames)
-            pathResolver.validateFileExtension(f);
         FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         ValidUtils.requireNonNull(userGroupEnum, "Incorrect user group");
         ValidUtils.requireNotEmpty(multipartFiles, "No file uploaded");
         ValidUtils.requireNotEmpty(fileNames, "No file uploaded");
 
+        // only validate the first fileName, if there is only one file, this will be the name of the file
+        // if there are multiple files, this will be the name of the zip file
+        pathResolver.validateFileExtension(fileNames[0]);
+
         if (multipartFiles.length == 1) {
+
             fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
         } else { // multiple upload, compress them into a single file zip file
             // the first one is the zipFile's name, and the rest are the entries

@@ -176,29 +176,25 @@ export class HomePageComponent implements OnInit {
       this.notifi.toast("File name cannot be empty");
       return;
     }
-    this.uploadParam.names.unshift(this.displayedUploadName);
-    if (this.uploadParam.names == null || this.uploadParam.names.length < 1) {
-      this.notifi.toast("File name cannot be empty");
-      return;
-    }
-    if (this.uploadParam.userGruop == null) {
+    if (!this.uploadParam.userGruop) {
       // default private group
       this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
     }
+    console.log("Upload file", this.uploadParam);
 
-    // validate file extension by names
-    for (let name of this.uploadParam.names) {
-      let fileExt = this.parseFileExt(name);
-      if (!fileExt) {
-        this.notifi.toast(`File extension must not be empty`);
-        return;
-      }
-      if (!this.isFileExtSupported(fileExt)) {
-        this.notifi.toast(`File extension '${fileExt}' isn't supported`);
-        return;
-      }
+    // validate file extension by name
+    let fileExt = this.parseFileExt(this.displayedUploadName);
+    if (!fileExt) {
+      this.notifi.toast(`File extension must not be empty`);
+      return;
+    }
+    if (!this.isFileExtSupported(fileExt)) {
+      this.notifi.toast(`File extension '${fileExt}' isn't supported`);
+      return;
     }
 
+    // the first one is always the one displayed
+    this.uploadParam.names.unshift(this.displayedUploadName);
     this.fileUploadSubscription = this.httpClient
       .postFile(this.uploadParam)
       .subscribe({
@@ -321,7 +317,7 @@ export class HomePageComponent implements OnInit {
   deleteFile(uuid: string, name: string): void {
     const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
       this.dialog.open(ConfirmDialogComponent, {
-        width: "350px",
+        width: "500px",
         data: { msg: [`You sure you want to delete '${name}'`] },
       });
 
