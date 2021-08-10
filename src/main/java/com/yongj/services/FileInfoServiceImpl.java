@@ -194,6 +194,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void validateUserDownload(int userId, String uuid) throws MsgEmbeddedException {
         // validate whether this file can be downloaded by current user
         FileValidateInfo f = mapper.selectValidateInfoByUuid(uuid);
