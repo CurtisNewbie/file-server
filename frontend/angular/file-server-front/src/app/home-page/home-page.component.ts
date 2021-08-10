@@ -176,7 +176,7 @@ export class HomePageComponent implements OnInit {
       this.notifi.toast("File name cannot be empty");
       return;
     }
-    if (!this.uploadParam.userGruop) {
+    if (this.uploadParam.userGruop == null) {
       // default private group
       this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
     }
