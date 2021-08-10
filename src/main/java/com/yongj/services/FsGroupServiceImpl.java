@@ -12,6 +12,7 @@ import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
@@ -40,6 +41,7 @@ public class FsGroupServiceImpl implements FsGroupService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public PageInfo<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param) {
         Objects.requireNonNull(param.getPagingVo());
         Objects.requireNonNull(param.getPagingVo().getPage());
