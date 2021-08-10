@@ -8,10 +8,12 @@ import com.yongj.io.PathResolver;
 import com.yongj.services.FileInfoService;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.PhysicDeleteFileVo;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -27,7 +29,7 @@ import java.util.Objects;
  * @author yongjie.zhuang
  */
 @Component
-public class PhysicalDeletingFileJob implements ScheduledJob {
+public class PhysicalDeletingFileJob implements Job {
 
     private static final Integer LIMIT = 100;
     private static final Logger logger = LoggerFactory.getLogger(PhysicDeleteFileVo.class);
@@ -46,11 +48,9 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
     @Autowired
     private FsGroupService fsGroupService;
 
-    @Scheduled(cron = CRON_EXPRESSION)
     @Override
-    public void _exec() {
-
-        logger.debug("Physical file deleting job started");
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+        logger.info("Physical file deleting job started...");
         PagingVo paging = new PagingVo();
         paging.setLimit(LIMIT);
         paging.setPage(1);
@@ -66,7 +66,7 @@ public class PhysicalDeletingFileJob implements ScheduledJob {
             idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
             paging.setPage(paging.getPage() + 1);
         }
-        logger.debug("Physical file deleting job finished");
+        logger.info("Physical file deleting job finished...");
     }
 
     // files that are unable to deleted, won't cause a transaction roll back

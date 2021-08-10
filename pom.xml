@@ -124,6 +124,11 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>distributed-task-module</artifactId>
+      <version>1.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>
