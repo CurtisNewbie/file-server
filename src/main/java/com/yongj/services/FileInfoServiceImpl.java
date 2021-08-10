@@ -131,12 +131,14 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public List<FileInfoVo> findFilesForUser(int userId) {
         List<FileInfo> fList = mapper.selectBasicInfoByUserId(userId);
         return BeanCopyUtils.toTypeList(fList, FileInfoVo.class);
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo) {
         Objects.requireNonNull(reqVo);
         Objects.requireNonNull(reqVo.getPagingVo());
@@ -175,11 +177,13 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findByUuid(@NotEmpty String uuid) {
         return mapper.selectByUuid(uuid);
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException {
         FileInfo fi = mapper.selectByUuid(uuid);
         Objects.requireNonNull(fi);
@@ -204,6 +208,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public String getFilename(String uuid) {
         return mapper.selectNameByUuid(uuid);
     }

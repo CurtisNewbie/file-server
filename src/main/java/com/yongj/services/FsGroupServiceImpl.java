@@ -31,11 +31,13 @@ public class FsGroupServiceImpl implements FsGroupService {
     private FsGroupMapper fsGroupMapper;
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public FsGroup findFsGroupById(int id) {
         return fsGroupMapper.selectByPrimaryKey(id);
     }
 
     @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public FsGroup findFirstFsGroupForWrite() {
         return fsGroupMapper.findFirstForWrite();
     }
