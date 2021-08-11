@@ -1,7 +1,6 @@
 package com.yongj.io.operation;
 
 import com.yongj.io.ZipCompressEntry;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -16,7 +15,6 @@ import java.util.zip.ZipOutputStream;
  *
  * @author yongjie.zhuang
  */
-@Component
 public class SimpleZipFileOperation implements ZipFileOperation {
 
     private static final int BUFFER_SIZE = 8192;

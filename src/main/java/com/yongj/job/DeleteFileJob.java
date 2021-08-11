@@ -20,16 +20,17 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Job for physically deleting the files
+ * Job for 'deleting' the files
  * <p>
  * Files are marked as either normal, logically deleted, or physically deleted. This job is responsible for deleting the
- * files that are logically deleted but not physically deleted.
+ * files that are logically deleted. Notice that the files may not be removed from the disk, it all depends on the
+ * operation configured in IOHandler (see {@link com.yongj.io.operation.DeleteFileOperation}.
  * </p>
  *
  * @author yongjie.zhuang
  */
 @Component
-public class PhysicalDeletingFileJob implements Job {
+public class DeleteFileJob implements Job {
 
     private static final Integer LIMIT = 100;
     private static final Logger logger = LoggerFactory.getLogger(PhysicDeleteFileVo.class);

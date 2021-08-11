@@ -1,14 +1,17 @@
 package com.yongj.io;
 
+import com.curtisnewbie.common.util.SpiUtils;
 import com.yongj.io.operation.DeleteFileOperation;
 import com.yongj.io.operation.ReadFileOperation;
 import com.yongj.io.operation.WriteFileOperation;
 import com.yongj.io.operation.ZipFileOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -22,10 +25,9 @@ import java.util.List;
 /**
  * @author yongjie.zhuang
  */
+@Slf4j
 @Component
 public class IOHandlerImpl implements IOHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(IOHandlerImpl.class);
 
     @Autowired
     private DeleteFileOperation deleteFileOperation;
@@ -35,6 +37,14 @@ public class IOHandlerImpl implements IOHandler {
     private WriteFileOperation writeFileOperation;
     @Autowired
     private ZipFileOperation zipFileOperation;
+
+    @PostConstruct
+    void onInit() {
+        log.info("{} using: {}", DeleteFileOperation.class.getSimpleName(), deleteFileOperation.getClass().getName());
+        log.info("{} using: {}", ReadFileOperation.class.getSimpleName(), readFileOperation.getClass().getName());
+        log.info("{} using: {}", WriteFileOperation.class.getSimpleName(), writeFileOperation.getClass().getName());
+        log.info("{} using: {}", ZipFileOperation.class.getSimpleName(), zipFileOperation.getClass().getName());
+    }
 
     @Override
     public long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException {
@@ -64,5 +74,32 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public void deleteFile(@NotEmpty String absPath) throws IOException {
         deleteFileOperation.deleteFile(absPath);
+    }
+
+    @Configuration
+    private static class OperationLoader {
+
+        public OperationLoader() {
+        }
+
+        @Bean
+        public DeleteFileOperation deleteFileOperation() {
+            return SpiUtils.loadFirst(DeleteFileOperation.class);
+        }
+
+        @Bean
+        public ReadFileOperation readFileOperation() {
+            return SpiUtils.loadFirst(ReadFileOperation.class);
+        }
+
+        @Bean
+        public WriteFileOperation writeFileOperation() {
+            return SpiUtils.loadFirst(WriteFileOperation.class);
+        }
+
+        @Bean
+        public ZipFileOperation zipFileOperation() {
+            return SpiUtils.loadFirst(ZipFileOperation.class);
+        }
     }
 }
