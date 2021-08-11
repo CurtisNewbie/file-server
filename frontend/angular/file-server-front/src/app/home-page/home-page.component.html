@@ -120,15 +120,6 @@
                         target="_blank"><small>Download</small></a> </td>
             </ng-container>
 
-            <ng-container matColumnDef="delete">
-                <th mat-header-cell *matHeaderCellDef> Delete </th>
-                <td mat-cell *matCellDef="let f">
-                    <button [hidden]="!f.isOwner" mat-icon-button color="primary" (click)="deleteFile(f.uuid, f.name)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </td>
-            </ng-container>
-
             <ng-container matColumnDef="expandedElement">
                 <td mat-cell *matCellDef="let u" [attr.colspan]="COLUMN_TO_BE_DISPLAYED.length">
                     <div class="element-detail"
@@ -152,6 +143,12 @@
                             <div class="col-12" *ngIf="u.isOwner ">
                                 <button mat-raised-button (click)="generateTempToken(expandedElement)">
                                     Share
+                                </button>
+                            </div>
+
+                            <div class="col-12" *ngIf="u.isOwner ">
+                                <button mat-raised-button (click)="deleteFile(u.uuid, u.name)">
+                                    delete
                                 </button>
                             </div>
                         </div>

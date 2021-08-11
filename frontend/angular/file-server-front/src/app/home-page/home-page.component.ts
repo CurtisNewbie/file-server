@@ -65,7 +65,6 @@ export class HomePageComponent implements OnInit {
     "size",
     "userGroup",
     "download",
-    "delete",
   ];
 
   expandedElement: FileInfo;
