@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 import {
   FetchFileInfoList,
   FetchFileInfoListParam,
+  SearchFileInfoParam,
   UpdateFileUserGroupParam,
   UploadFileParam,
 } from "../models/file-info";
@@ -24,7 +25,11 @@ import {
   FetchAccessLogList,
   FetchAccessLogListParam,
 } from "src/models/access-log";
-import { FetchFileExtList, FileExt } from "src/models/file-ext";
+import {
+  FetchFileExtList,
+  FileExt,
+  SearchFileExtParam,
+} from "src/models/file-ext";
 import { buildApiPath } from "./util/api-util";
 import { Paging } from "src/models/paging";
 import { FetchOperateLogListResp } from "src/models/operate-log";
@@ -93,7 +98,7 @@ export class HttpClientService {
    * Fetch the supported file extensions' details
    */
   public fetchSupportedFileExtensionDetails(
-    param: FetchFileExtList
+    param: SearchFileExtParam
   ): Observable<Resp<FetchFileExtList>> {
     return this.http.post<Resp<FetchFileExtList>>(
       buildApiPath("/file/extension/list"),

@@ -1,8 +1,10 @@
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
-import { FetchUserInfoParam } from "src/models/request-model";
+import { SearchFileExtParam } from "src/models/file-ext";
+import { SearchFileInfoParam } from "src/models/file-info";
 import { Resp } from "src/models/resp";
 import {
+  FetchUserInfoParam,
   FetchUserInfoResp as FetchUserInfoResp,
   UserInfo,
 } from "src/models/user-info";
