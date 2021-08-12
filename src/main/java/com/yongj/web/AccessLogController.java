@@ -2,6 +2,7 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
@@ -48,7 +49,7 @@ public class AccessLogController {
     }
 
     private static List<AccessLogInfoFsVo> toAccessLogInfoVoList(List<AccessLogInfoVo> list) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
         return list.stream().map(d -> {
             AccessLogInfoFsVo v = BeanCopyUtils.toType(d, AccessLogInfoFsVo.class);
             v.setAccessTime(sdf.format(d.getAccessTime()));

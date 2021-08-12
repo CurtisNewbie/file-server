@@ -2,6 +2,7 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
@@ -44,7 +45,7 @@ public class OperateLogController {
         FindOperateLogRespVo res = new FindOperateLogRespVo();
         res.setPagingVo(new PagingVo().ofTotal(pv.getTotal()));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
         res.setOperateLogVoList(pv.getList().stream().map(v -> {
             OperateLogFsVo fv = BeanCopyUtils.toType(v, OperateLogFsVo.class);
             fv.setOperateTime(sdf.format(v.getOperateTime()));

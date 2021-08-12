@@ -2,6 +2,7 @@ package com.yongj.services;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
@@ -31,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -148,10 +150,12 @@ public class FileInfoServiceImpl implements FileInfoService {
             param.setUploaderId(reqVo.getUserId());
         }
         Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
+        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
         List<FileInfoVo> voList = mapper.selectBasicInfoByUserIdSelective(param)
                 .stream()
                 .map(e -> {
                     FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
+                    v.setUploadTime(sdf.format(e.getUploadTime()));
                     v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
                     return v;
                 }).collect(Collectors.toList());

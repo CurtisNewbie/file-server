@@ -10,6 +10,9 @@ export interface FileInfo {
    */
   name: string;
 
+  /** upload time */
+  uploadTime: string;
+
   /**
    * size in bytes
    */

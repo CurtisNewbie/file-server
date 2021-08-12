@@ -18,6 +18,9 @@ public class FileInfoVo {
      */
     private String name;
 
+    /** upload time */
+    private String uploadTime;
+
     /**
      * size in bytes
      */

@@ -54,6 +54,7 @@ export class HomePageComponent implements OnInit {
     FILE_OWNERSHIP_OPTIONS;
   readonly COLUMN_TO_BE_DISPLAYED: string[] = [
     "name",
+    "uploadTime",
     "size",
     "userGroup",
     "download",

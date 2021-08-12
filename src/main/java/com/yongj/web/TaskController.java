@@ -2,6 +2,7 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
@@ -86,7 +87,7 @@ public class TaskController {
     }
 
     private List<TaskFsVo> toTaskFsVoList(List<TaskVo> taskVo) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
         return taskVo.stream().map(tv -> {
             TaskFsVo tfv = BeanCopyUtils.toType(tv, TaskFsVo.class);
             tfv.setLastRunStartTime(sdf.format(tv.getLastRunStartTime()));
