@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import {
   ChangePasswordParam,
   emptyChangePasswordParam,
-} from "src/models/request-model";
+} from "src/models/user-info";
 import { HttpClientService } from "../http-client-service.service";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";

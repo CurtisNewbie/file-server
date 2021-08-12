@@ -1,10 +1,3 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from "@angular/animations";
 import { HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
@@ -12,6 +5,8 @@ import { PageEvent } from "@angular/material/paginator";
 import { Subscription } from "rxjs";
 
 import {
+  emptySearchFileInfoParam,
+  emptyUploadFileParam,
   FileInfo,
   FileOwnershipEnum,
   FileOwnershipOption,
@@ -19,14 +14,10 @@ import {
   FileUserGroupOption,
   FILE_OWNERSHIP_OPTIONS,
   FILE_USER_GROUP_OPTIONS,
-} from "src/models/file-info";
-import { PagingController } from "src/models/paging";
-import {
-  emptySearchFileInfoParam,
-  emptyUploadFileParam,
   SearchFileInfoParam,
   UploadFileParam,
-} from "src/models/request-model";
+} from "src/models/file-info";
+import { PagingController } from "src/models/paging";
 import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
 import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";

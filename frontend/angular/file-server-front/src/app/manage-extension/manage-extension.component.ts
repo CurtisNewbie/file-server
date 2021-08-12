@@ -1,23 +1,15 @@
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from "@angular/animations";
-import { Component, OnInit, Output } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { PageEvent } from "@angular/material/paginator";
 import {
+  emptySearchFileExtParam,
   FileExt,
   FileExtIsEnabled,
   FileExtIsEnabledOption,
   FILE_EXT_IS_ENABLED_OPTIONS,
+  SearchFileExtParam,
 } from "src/models/file-ext";
 import { PagingController } from "src/models/paging";
-import {
-  emptySearchFileExtParam,
-  SearchFileExtParam,
-} from "src/models/request-model";
+import {} from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { animateElementExpanding } from "../../animate/animate-util";

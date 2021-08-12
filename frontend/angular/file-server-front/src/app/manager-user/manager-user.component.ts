@@ -11,8 +11,6 @@ import { PagingConst, PagingController } from "src/models/paging";
 import {
   emptyFetchUserInfoParam,
   FetchUserInfoParam,
-} from "src/models/request-model";
-import {
   UserInfo,
   UserIsDisabledEnum,
   USER_IS_DISABLED_OPTIONS,

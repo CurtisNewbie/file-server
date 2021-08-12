@@ -22,3 +22,10 @@ export interface FetchAccessLogList {
   /** paging */
   pagingVo: Paging;
 }
+
+/**
+ * Parameters for fetching list of access log
+ */
+export interface FetchAccessLogListParam {
+  pagingVo: Paging;
+}

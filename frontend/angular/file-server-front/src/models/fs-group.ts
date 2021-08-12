@@ -1,3 +1,5 @@
+import { Paging } from "./paging";
+
 export interface FsGroup {
   /** id */
   id: number;
@@ -29,4 +31,24 @@ export interface FsGroupModeOption {
 
 export function emptyFsGroup(): FsGroup {
   return { id: null, name: "", baseFolder: "", mode: null };
+}
+
+export interface ListAllFsGroupReqVo {
+  fsGroup: FsGroup;
+
+  pagingVo: Paging;
+}
+
+export interface UpdateFsGroupModeReqVo {
+  /** id of fs_group */
+  id: number;
+
+  /** mode */
+  mode: number | FsGroupMode;
+}
+
+export interface ListAllFsGroupRespVo {
+  fsGroups: FsGroup[];
+
+  pagingVo: Paging;
 }

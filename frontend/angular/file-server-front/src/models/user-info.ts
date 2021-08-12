@@ -59,3 +59,72 @@ export const USER_ROLE_OPTIONS: UserRoleOption[] = [
   { name: "user", value: UserRoleEnum.USER },
   { name: "guest", value: UserRoleEnum.GUEST },
 ];
+
+/**
+ * Parameters for adding a new user
+ */
+export interface AddUserParam {
+  /** username */
+  username: string;
+  /** password */
+  password: string;
+  /** user role */
+  userRole: string;
+}
+
+/**
+ * Parameters for changing password
+ */
+export interface ChangePasswordParam {
+  /**
+   * Previous password
+   */
+  prevPassword: string;
+
+  /**
+   * New password
+   */
+  newPassword: string;
+}
+
+/**
+ * Empty object with all properties being null values
+ */
+export function emptyChangePasswordParam(): ChangePasswordParam {
+  return {
+    prevPassword: null,
+    newPassword: null,
+  };
+}
+
+/**
+ * Parameters for fetching user info
+ */
+export interface FetchUserInfoParam {
+  /** username  */
+  username: string;
+
+  /**
+   * role
+   */
+  role: UserRoleEnum | string;
+
+  /**
+   * is user disabled
+   */
+  isDisabled: UserIsDisabledEnum | number;
+
+  /**
+   * paging param
+   */
+  pagingVo: Paging;
+}
+
+export function emptyFetchUserInfoParam(): FetchUserInfoParam {
+  return {
+    username: null,
+    role: null,
+    isDisabled: null,
+    pagingVo: null,
+  };
+}

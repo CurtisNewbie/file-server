@@ -40,3 +40,29 @@ export const FILE_EXT_IS_ENABLED_OPTIONS: FileExtIsEnabledOption[] = [
   { name: "enabled", value: FileExtIsEnabled.ENABLED },
   { name: "disabled", value: FileExtIsEnabled.DISABLED },
 ];
+
+/**
+ * Parameters for search file extensions
+ */
+export interface SearchFileExtParam {
+  /**
+   * name of file extension, e.g., "txt"
+   */
+  name: string;
+
+  /**
+   * whether this file extension is enabled
+   */
+  isEnabled: number;
+
+  /** paging  */
+  pagingVo: Paging;
+}
+
+export function emptySearchFileExtParam(): SearchFileExtParam {
+  return {
+    name: null,
+    isEnabled: null,
+    pagingVo: null,
+  };
+}

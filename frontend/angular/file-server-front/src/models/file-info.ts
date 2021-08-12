@@ -74,3 +74,97 @@ export const FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] = [
   { name: "All", value: FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES },
   { name: "My Files", value: FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES },
 ];
+
+/** Parameters used for fetching list of file info */
+export interface SearchFileInfoParam {
+  /** filename */
+  name: string;
+  /** user group */
+  userGroup: number;
+  /** ownership */
+  ownership: number;
+}
+
+/** Parameters for uploading a file */
+export interface UploadFileParam {
+  /** name of the file, if it's a zip file, the first one will be the zip file's name */
+  names: string[];
+  /** file */
+  files: File[];
+  /** user group that the file belongs to */
+  userGruop: number;
+}
+
+/** Parameters for fetching list of file info */
+export interface FetchFileInfoListParam {
+  /** filename */
+  filename: string;
+  /** user group */
+  userGroup: number;
+  /** paging  */
+  pagingVo: Paging;
+  /** ownership */
+  ownership: number;
+}
+
+/** Parameters used for fetching list of file info */
+export interface SearchFileInfoParam {
+  /** filename */
+  name: string;
+  /** user group */
+  userGroup: number;
+  /** ownership */
+  ownership: number;
+}
+
+/** Parameters for uploading a file */
+export interface UploadFileParam {
+  /** name of the file, if it's a zip file, the first one will be the zip file's name */
+  names: string[];
+  /** file */
+  files: File[];
+  /** user group that the file belongs to */
+  userGruop: number;
+}
+
+/** Parameters for fetching list of file info */
+export interface FetchFileInfoListParam {
+  /** filename */
+  filename: string;
+  /** user group */
+  userGroup: number;
+  /** paging  */
+  pagingVo: Paging;
+  /** ownership */
+  ownership: number;
+}
+
+/**
+ * Empty object with all properties being null values
+ */
+export function emptySearchFileInfoParam(): SearchFileInfoParam {
+  return {
+    name: null,
+    userGroup: null,
+    ownership: null,
+  };
+}
+
+/**
+ * Empty object with all properties being null values
+ */
+export function emptyUploadFileParam(): UploadFileParam {
+  return {
+    files: null,
+    names: null,
+    userGruop: null,
+  };
+}
+
+export interface UpdateFileUserGroupParam {
+  /** file's uuid */
+  uuid: string;
+
+  /** file's userGroup */
+  userGroup: number | FileUserGroupEnum;
+}

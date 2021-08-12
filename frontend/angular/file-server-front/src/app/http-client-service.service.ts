@@ -6,23 +6,24 @@ import {
   HttpParams,
 } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { FetchFileInfoList } from "../models/file-info";
+import {
+  FetchFileInfoList,
+  FetchFileInfoListParam,
+  UpdateFileUserGroupParam,
+  UploadFileParam,
+} from "../models/file-info";
 import { Resp } from "../models/resp";
-import { FetchUserInfoResp, UserInfo } from "src/models/user-info";
 import {
   AddUserParam,
   ChangePasswordParam,
-  FetchAccessLogListParam,
-  FetchFileInfoListParam,
   FetchUserInfoParam,
-  ListAllFsGroupReqVo,
-  ListAllFsGroupRespVo,
-  SearchFileExtParam as FetchFileExtParam,
-  UpdateFileUserGroupParam,
-  UpdateFsGroupModeReqVo,
-  UploadFileParam,
-} from "src/models/request-model";
-import { FetchAccessLogList } from "src/models/access-log";
+  FetchUserInfoResp,
+  UserInfo,
+} from "src/models/user-info";
+import {
+  FetchAccessLogList,
+  FetchAccessLogListParam,
+} from "src/models/access-log";
 import { FetchFileExtList, FileExt } from "src/models/file-ext";
 import { buildApiPath } from "./util/api-util";
 import { Paging } from "src/models/paging";
@@ -33,6 +34,11 @@ import {
   TriggerTaskReqVo,
   UpdateTaskReqVo,
 } from "src/models/task";
+import {
+  ListAllFsGroupReqVo,
+  ListAllFsGroupRespVo,
+  UpdateFsGroupModeReqVo,
+} from "src/models/fs-group";
 
 const headers = {
   headers: new HttpHeaders({
@@ -87,7 +93,7 @@ export class HttpClientService {
    * Fetch the supported file extensions' details
    */
   public fetchSupportedFileExtensionDetails(
-    param: FetchFileExtParam
+    param: FetchFileExtList
   ): Observable<Resp<FetchFileExtList>> {
     return this.http.post<Resp<FetchFileExtList>>(
       buildApiPath("/file/extension/list"),
