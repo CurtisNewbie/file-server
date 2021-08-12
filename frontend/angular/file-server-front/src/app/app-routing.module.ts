@@ -6,6 +6,7 @@ import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
+import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
 import { ManagerUserComponent } from "./manager-user/manager-user.component";
 import { OperateHistoryComponent } from "./operate-history/operate-history.component";
 
@@ -41,6 +42,10 @@ const routes: Routes = [
   {
     path: "operate-history",
     component: OperateHistoryComponent,
+  },
+  {
+    path: "manage-tasks",
+    component: ManageTasksComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

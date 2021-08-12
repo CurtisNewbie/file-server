@@ -20,21 +20,13 @@ import {
 } from "src/models/request-model";
 import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
+import { animateElementExpanding } from "../../animate/animate-util";
 
 @Component({
   selector: "app-manage-extension",
   templateUrl: "./manage-extension.component.html",
   styleUrls: ["./manage-extension.component.css"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+  animations: [animateElementExpanding()],
 })
 export class ManageExtensionComponent implements OnInit {
   readonly FILE_EXT_ENABLED: number = FileExtIsEnabled.ENABLED;

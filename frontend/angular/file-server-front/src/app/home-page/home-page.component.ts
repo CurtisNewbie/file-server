@@ -31,6 +31,7 @@ import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.compone
 import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
+import { animateElementExpanding } from "../../animate/animate-util";
 import { buildApiPath } from "../util/api-util";
 
 const KB_UNIT: number = 1024;
@@ -41,16 +42,7 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   selector: "app-home-page",
   templateUrl: "./home-page.component.html",
   styleUrls: ["./home-page.component.css"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+  animations: [animateElementExpanding()],
 })
 export class HomePageComponent implements OnInit {
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;

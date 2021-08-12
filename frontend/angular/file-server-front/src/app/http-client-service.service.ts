@@ -27,6 +27,11 @@ import { FetchFileExtList, FileExt } from "src/models/file-ext";
 import { buildApiPath } from "./util/api-util";
 import { Paging } from "src/models/paging";
 import { FetchOperateLogListResp } from "src/models/operate-log";
+import {
+  ListTaskByPageReqVo,
+  ListTaskByPageRespVo,
+  UpdateTaskReqVo,
+} from "src/models/task";
 
 const headers = {
   headers: new HttpHeaders({
@@ -307,6 +312,33 @@ export class HttpClientService {
     return this.http.post<Resp<string>>(
       buildApiPath("/file/token/generate"),
       { uuid: uuid },
+      headers
+    );
+  }
+
+  /**
+   * Fetch task list
+   * @param param
+   */
+  public fetchTaskList(
+    param: ListTaskByPageReqVo
+  ): Observable<Resp<ListTaskByPageRespVo>> {
+    return this.http.post<Resp<ListTaskByPageRespVo>>(
+      buildApiPath("/task/list"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Update task
+   * @param param
+   * @returns
+   */
+  public updateTask(param: UpdateTaskReqVo): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/task/update"),
+      param,
       headers
     );
   }

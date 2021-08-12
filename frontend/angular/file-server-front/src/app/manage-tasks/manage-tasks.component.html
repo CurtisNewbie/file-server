@@ -1,0 +1,143 @@
+<div>
+    <h3 class="mt-2 mb-3">Manage Tasks</h3>
+</div>
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+    <button mat-raised-button class="m-2" (click)="fetchTaskList()">Fetch</button>
+</div>
+
+<div class="mt-3 mb-5">
+    <!-- searching parameters -->
+    <div>
+        <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
+            <mat-label>Job Name:</mat-label>
+            <input matInput type="text" [(ngModel)]="searchParam.jobName">
+            <button *ngIf="searchParam.jobName" matSuffix mat-icon-button aria-label="Clear"
+                (click)="searchParam.jobName=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+        <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
+            <mat-label>App Group:</mat-label>
+            <input matInput type="text" [(ngModel)]="searchParam.appGroup">
+            <button *ngIf="searchParam.appGroup" matSuffix mat-icon-button aria-label="Clear"
+                (click)="searchParam.appGroup=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+        <div class="row row-cols-lg-auto g-3 align-items-center">
+            <div class="col-12">
+                <mat-form-field appearance="fill">
+                    <mat-label>Enabled</mat-label>
+                    <mat-select [(value)]="searchParam.enabled">
+                        <mat-option value="">ALL</mat-option>
+                        <mat-option [value]="option.value" *ngFor="let option of TASKS_ENABLED_OPTS">
+                            {{option.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+
+    <!-- table -->
+    <table mat-table [dataSource]="tasks" class="mat-elevation-z8 mb-4" style="width: 100%;" multiTemplateDataRows>
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let u"> {{u.id}} </td>
+        </ng-container>
+        <ng-container matColumnDef="jobName">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let u"> {{u.jobName}} </td>
+        </ng-container>
+        <ng-container matColumnDef="targetBean">
+            <th mat-header-cell *matHeaderCellDef> Target Bean </th>
+            <td mat-cell *matCellDef="let u"> {{u.targetBean}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cronExpr">
+            <th mat-header-cell *matHeaderCellDef> Cron </th>
+            <td mat-cell *matCellDef="let u"> {{u.cronExpr}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="appGroup">
+            <th mat-header-cell *matHeaderCellDef> App Group </th>
+            <td mat-cell *matCellDef="let u"> {{u.appGroup}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastRunStartTime">
+            <th mat-header-cell *matHeaderCellDef> Last Run Start Time </th>
+            <td mat-cell *matCellDef="let u"> {{u.lastRunStartTime}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastRunEndTime">
+            <th mat-header-cell *matHeaderCellDef> Last Run End Time </th>
+            <td mat-cell *matCellDef="let u"> {{u.lastRunEndTime}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastRunBy">
+            <th mat-header-cell *matHeaderCellDef> Last Run By </th>
+            <td mat-cell *matCellDef="let u"> {{u.lastRunBy}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastRunResult">
+            <th mat-header-cell *matHeaderCellDef> Last Run Result </th>
+            <td mat-cell *matCellDef="let u"> {{u.lastRunResult}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="enabled">
+            <th mat-header-cell *matHeaderCellDef> Enabled </th>
+            <td mat-cell *matCellDef="let u">
+                <span *ngIf="u.enabled == TASK_ENABLED" class="status-green">enabled</span>
+                <span *ngIf="u.enabled == TASK_DISABLED" class="status-red">disabled</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="concurrentEnabled">
+            <th mat-header-cell *matHeaderCellDef> Concurrent Allowed </th>
+            <td mat-cell *matCellDef="let u">
+                <span *ngIf="u.concurrentEnabled == CONCURRENT_ENABLED" class="status-green">enabled</span>
+                <span *ngIf="u.concurrentEnabled == CONCURRENT_DISABLED" class="status-red">disabled</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expandedElement">
+            <td mat-cell *matCellDef="let u" [attr.colspan]="COLUMNS_TO_BE_DISPLAYED.length">
+                <div class="element-detail" [@detailExpand]="idEquals(u, expandedElement) ? 'expanded' : 'collapsed'">
+                    <div class="row row-cols-lg-auto g-3 align-items-center " *ngIf="expandedElement != null">
+                        <div class="col-12">
+                            <mat-form-field appearance="fill">
+                                <mat-label>Mode</mat-label>
+                                <!-- <mat-select [(value)]="expandedElement.mode">
+                                    <mat-option [value]="option.value"
+                                        *ngFor="let option of FS_GROUP_MODE_SELECT_OPTIONS ">
+                                        {{option.name}}
+                                    </mat-option>
+                                </mat-select> -->
+                            </mat-form-field>
+                        </div>
+                        <div class="col-12">
+                            <!-- <button mat-raised-button (click)="updateMode(expandedElement)">
+                            Update
+                            </button> -->
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="COLUMNS_TO_BE_DISPLAYED"></tr>
+        <tr mat-row *matRowDef="let row; columns: COLUMNS_TO_BE_DISPLAYED;" class="element-row"
+            [class.expanded-row]="idEquals(row, expandedElement)"
+            (click)="expandedElement = determineExpandedElement(row)" matTooltip="Click to expand"></tr>
+
+        <tr mat-row *matRowDef="let element; columns: ['expandedElement'];" class="detail-row">
+        </tr>
+    </table>
+
+</div>
+
+<!-- paginator -->
+<mat-paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
+    [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page">
+</mat-paginator>

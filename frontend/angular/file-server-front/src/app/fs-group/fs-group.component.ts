@@ -15,21 +15,13 @@ import {
 } from "src/models/fs-group";
 import { PagingController } from "src/models/paging";
 import { HttpClientService } from "../http-client-service.service";
+import { animateElementExpanding } from "../../animate/animate-util";
 
 @Component({
   selector: "app-fs-group",
   templateUrl: "./fs-group.component.html",
   styleUrls: ["./fs-group.component.css"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+  animations: [animateElementExpanding()],
 })
 export class FsGroupComponent implements OnInit {
   readonly MODE_READ_ONLY: FsGroupMode = FsGroupMode.READ;

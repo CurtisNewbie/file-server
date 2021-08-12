@@ -8,7 +8,7 @@ import { UserService } from "../user.service";
   styleUrls: ["./nav.component.css"],
 })
 export class NavComponent implements OnInit {
-  shouldDisplayManagerUser: boolean = false;
+  isAdmin: boolean = false;
   isLoggedIn: boolean = false;
 
   constructor(private userService: UserService, private router: Router) {}
@@ -19,7 +19,7 @@ export class NavComponent implements OnInit {
     }
     this.userService.roleObservable.subscribe({
       next: (role) => {
-        this.shouldDisplayManagerUser = role === "admin";
+        this.isAdmin = role === "admin";
       },
     });
     this.userService.isLoggedInObservable.subscribe({

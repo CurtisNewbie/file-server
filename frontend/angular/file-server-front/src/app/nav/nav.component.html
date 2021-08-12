@@ -5,22 +5,24 @@
                 <a class="nav-link" routerLink="/home-page" routerLinkActive="active">Home
                     Page</a>
             </li>
-            <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
+            <li class="nav-item" [hidden]="!isAdmin">
                 <a class="nav-link" routerLink="/manage-user" routerLinkActive="active">Manage Users</a>
             </li>
-            <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
+            <li class="nav-item" [hidden]="!isAdmin">
                 <a class="nav-link" routerLink="/access-log" routerLinkActive="active">Access History</a>
             </li>
-            <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
+            <li class="nav-item" [hidden]="!isAdmin">
                 <a class="nav-link" routerLink="/operate-history" routerLinkActive="active">Operate History</a>
             </li>
-            <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
+            <li class="nav-item" [hidden]="!isAdmin">
                 <a class="nav-link" routerLink="/manage-extension" routerLinkActive="active">File Extensions</a>
             </li>
-            <li class="nav-item" [hidden]="!shouldDisplayManagerUser">
+            <li class="nav-item" [hidden]="!isAdmin">
                 <a class="nav-link" routerLink="/manage-fsgroup" routerLinkActive="active">Manage FsGroups</a>
             </li>
-
+            <li class="nav-item" [hidden]="!isAdmin">
+                <a class="nav-link" routerLink="/manage-tasks" routerLinkActive="active">Manage Tasks</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" routerLink="/change-password" routerLinkActive="active">Change Password</a>
             </li>
