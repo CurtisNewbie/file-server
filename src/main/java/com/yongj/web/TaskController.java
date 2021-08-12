@@ -2,9 +2,13 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.task.constants.TaskConcurrentEnabled;
+import com.curtisnewbie.module.task.constants.TaskEnabled;
+import com.curtisnewbie.module.task.scheduling.JobUtils;
 import com.curtisnewbie.module.task.service.NodeCoordinationService;
 import com.curtisnewbie.module.task.service.TaskService;
 import com.curtisnewbie.module.task.vo.ListTaskByPageReqVo;
@@ -55,6 +59,19 @@ public class TaskController {
     @PostMapping("/update")
     public Result<Void> update(@RequestBody UpdateTaskReqVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getId());
+
+        if (vo.getCronExpr() != null && !JobUtils.isCronExprValid(vo.getCronExpr())) {
+            return Result.error("Cron expression illegal");
+        }
+        if (vo.getEnabled() != null) {
+            TaskEnabled tce = EnumUtils.parse(vo.getEnabled(), TaskEnabled.class);
+            ValidUtils.requireNonNull(tce);
+        }
+        if (vo.getConcurrentEnabled() != null) {
+            TaskConcurrentEnabled tce = EnumUtils.parse(vo.getConcurrentEnabled(), TaskConcurrentEnabled.class);
+            ValidUtils.requireNonNull(tce);
+        }
+
         taskService.updateById(vo);
         return Result.ok();
     }
