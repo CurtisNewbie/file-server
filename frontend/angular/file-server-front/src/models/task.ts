@@ -109,6 +109,11 @@ export enum TaskConcurrentEnabledEnum {
 }
 
 export const TASK_ENABLED_OPTIONS: Option[] = [
-  { name: "disabled", value: TaskEnabledEnum.DISABLED },
-  { name: "enabled", value: TaskEnabledEnum.ENABLED },
+  { name: "Disabled", value: TaskEnabledEnum.DISABLED },
+  { name: "Enabled", value: TaskEnabledEnum.ENABLED },
+];
+
+export const TASK_CONCURRENT_ENABLED_OPTIONS: Option[] = [
+  { name: "Disabled", value: TaskConcurrentEnabledEnum.DISABLED },
+  { name: "Enabled", value: TaskConcurrentEnabledEnum.ENABLED },
 ];

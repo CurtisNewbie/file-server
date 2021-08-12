@@ -6,6 +6,7 @@ import {
   Task,
   TaskConcurrentEnabledEnum,
   TaskEnabledEnum,
+  TASK_CONCURRENT_ENABLED_OPTIONS,
   TASK_ENABLED_OPTIONS,
   UpdateTaskReqVo,
 } from "src/models/task";
@@ -22,6 +23,8 @@ import { PageEvent } from "@angular/material/paginator";
 })
 export class ManageTasksComponent implements OnInit {
   readonly TASKS_ENABLED_OPTS: Option[] = TASK_ENABLED_OPTIONS;
+  readonly TASKS_CONCURRENT_ENABLED_OPTS: Option[] =
+    TASK_CONCURRENT_ENABLED_OPTIONS;
   readonly TASK_ENABLED = TaskEnabledEnum.ENABLED;
   readonly TASK_DISABLED = TaskEnabledEnum.DISABLED;
   readonly CONCURRENT_ENABLED = TaskConcurrentEnabledEnum.ENABLED;
@@ -77,8 +80,17 @@ export class ManageTasksComponent implements OnInit {
     return tl.id === tr.id;
   }
 
-  determineExpandedElement(row: Task): Task {
-    if (this.idEquals(row, this.expandedElement)) return null;
-    return this.copy(row);
+  setExpandedElement(row: Task) {
+    if (this.idEquals(row, this.expandedElement)) this.expandedElement = null;
+    this.expandedElement = this.copy(row);
+  }
+
+  update(task: Task): void {
+    let param: UpdateTaskReqVo = JSON.parse(JSON.stringify(task));
+    this.http.updateTask(param).subscribe({
+      next: (resp) => {
+        this.fetchTaskList();
+      },
+    });
   }
 }
