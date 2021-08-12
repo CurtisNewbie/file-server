@@ -117,3 +117,7 @@ export const TASK_CONCURRENT_ENABLED_OPTIONS: Option[] = [
   { name: "Disabled", value: TaskConcurrentEnabledEnum.DISABLED },
   { name: "Enabled", value: TaskConcurrentEnabledEnum.ENABLED },
 ];
+
+export interface TriggerTaskReqVo {
+  id: number;
+}

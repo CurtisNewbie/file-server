@@ -30,6 +30,7 @@ import { FetchOperateLogListResp } from "src/models/operate-log";
 import {
   ListTaskByPageReqVo,
   ListTaskByPageRespVo,
+  TriggerTaskReqVo,
   UpdateTaskReqVo,
 } from "src/models/task";
 
@@ -338,6 +339,17 @@ export class HttpClientService {
   public updateTask(param: UpdateTaskReqVo): Observable<Resp<void>> {
     return this.http.post<Resp<void>>(
       buildApiPath("/task/update"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Trigger a task
+   */
+  public triggerTask(param: TriggerTaskReqVo): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/task/trigger"),
       param,
       headers
     );

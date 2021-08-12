@@ -14,6 +14,7 @@ import { HttpClientService } from "../http-client-service.service";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { Option } from "src/models/select-util";
 import { PageEvent } from "@angular/material/paginator";
+import { NotificationService } from "../notification.service";
 
 @Component({
   selector: "app-manage-tasks",
@@ -49,7 +50,10 @@ export class ManageTasksComponent implements OnInit {
   pagingController: PagingController = new PagingController();
   expandedElement: Task;
 
-  constructor(private http: HttpClientService) {}
+  constructor(
+    private http: HttpClientService,
+    private notifi: NotificationService
+  ) {}
 
   ngOnInit() {
     this.fetchTaskList();
@@ -81,7 +85,10 @@ export class ManageTasksComponent implements OnInit {
   }
 
   setExpandedElement(row: Task) {
-    if (this.idEquals(row, this.expandedElement)) this.expandedElement = null;
+    if (this.idEquals(row, this.expandedElement)) {
+      this.expandedElement = null;
+      return;
+    }
     this.expandedElement = this.copy(row);
   }
 
@@ -89,8 +96,22 @@ export class ManageTasksComponent implements OnInit {
     let param: UpdateTaskReqVo = JSON.parse(JSON.stringify(task));
     this.http.updateTask(param).subscribe({
       next: (resp) => {
+        this.notifi.toast("Task updated");
+        this.expandedElement = null;
         this.fetchTaskList();
       },
     });
+  }
+
+  triggerTask(task: Task): void {
+    this.http
+      .triggerTask({
+        id: task.id,
+      })
+      .subscribe({
+        complete: () => {
+          this.notifi.toast("Task triggered");
+        },
+      });
   }
 }

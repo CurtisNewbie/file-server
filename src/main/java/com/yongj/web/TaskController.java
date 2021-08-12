@@ -14,6 +14,7 @@ import com.github.pagehelper.PageInfo;
 import com.yongj.vo.ListTaskByPageReqFsVo;
 import com.yongj.vo.ListTaskByPageRespFsVo;
 import com.yongj.vo.TaskFsVo;
+import com.yongj.vo.TriggerTaskReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +56,15 @@ public class TaskController {
     public Result<Void> update(@RequestBody UpdateTaskReqVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getId());
         taskService.updateById(vo);
+        return Result.ok();
+    }
+
+    @PreAuthorize("hasAuthority('admin')")
+    @PostMapping("/trigger")
+    public Result<Void> trigger(@RequestBody TriggerTaskReqVo vo) throws MsgEmbeddedException {
+        ValidUtils.requireNonNull(vo.getId());
+        TaskVo tv = taskService.selectById(vo.getId());
+        nodeCoordinationService.coordinateJobTriggering(tv);
         return Result.ok();
     }
 
