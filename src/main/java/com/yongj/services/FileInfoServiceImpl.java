@@ -14,6 +14,7 @@ import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileOwnership;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
@@ -62,7 +63,8 @@ public class FileInfoServiceImpl implements FileInfoService {
         final String uuid = UUID.randomUUID().toString();
         // find the first writable fs_group to use
         FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
-        Objects.requireNonNull(fsGroup, "No writable fs_group found, unable to upload file");
+        if (fsGroup == null)
+            throw new NoWritableFsGroupException();
 
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
@@ -102,7 +104,8 @@ public class FileInfoServiceImpl implements FileInfoService {
 
         // find the first writable fs_group to use
         FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
-        Objects.requireNonNull(fsGroup, "No writable fs_group found, unable to upload file");
+        if (fsGroup == null)
+            throw new NoWritableFsGroupException();
 
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
@@ -173,9 +176,9 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Override
     public void downloadFile(@NotNull String uuid, @NotNull OutputStream outputStream) throws IOException {
         FileInfo fi = mapper.selectByUuid(uuid);
-        Objects.requireNonNull(fi);
+        Objects.requireNonNull(fi, "Record not found");
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
-        Objects.requireNonNull(fsg);
+        Objects.requireNonNull(fsg, "Unable to download file, because fs_group is not found");
         final String absPath = pathResolver.resolveAbsolutePath(uuid, fi.getUploaderId(), fsg.getBaseFolder());
         ioHandler.readFile(absPath, outputStream);
     }
@@ -190,7 +193,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException {
         FileInfo fi = mapper.selectByUuid(uuid);
-        Objects.requireNonNull(fi);
+        Objects.requireNonNull(fi, "Record not found");
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
         Objects.requireNonNull(fsg);
         final String absPath = pathResolver.resolveAbsolutePath(uuid, fi.getUploaderId(), fsg.getBaseFolder());

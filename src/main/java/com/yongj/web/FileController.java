@@ -14,6 +14,7 @@ import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
@@ -84,17 +85,20 @@ public class FileController {
         // if there are multiple files, this will be the name of the zip file
         pathResolver.validateFileExtension(fileNames[0]);
 
-        if (multipartFiles.length == 1) {
+        try {
+            if (multipartFiles.length == 1) {
+                fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
+            } else { // multiple upload, compress them into a single file zip file
+                // the first one is the zipFile's name, and the rest are the entries
+                if (fileNames.length != multipartFiles.length + 1)
+                    throw new MsgEmbeddedException("Parameters illegal");
 
-            fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
-        } else { // multiple upload, compress them into a single file zip file
-            // the first one is the zipFile's name, and the rest are the entries
-            if (fileNames.length != multipartFiles.length + 1)
-                throw new MsgEmbeddedException("Parameters illegal");
-
-            String zipFile = fileNames[0];
-            String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
-            fileInfoService.uploadFilesAsZip(AuthUtil.getUserId(), zipFile, entryNames, userGroupEnum, collectInputStreams(multipartFiles));
+                String zipFile = fileNames[0];
+                String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
+                fileInfoService.uploadFilesAsZip(AuthUtil.getUserId(), zipFile, entryNames, userGroupEnum, collectInputStreams(multipartFiles));
+            }
+        } catch (NoWritableFsGroupException e) {
+            return Result.error("No writable fs_group found, unable to upload file, please contact administrator");
         }
         return Result.ok();
     }
