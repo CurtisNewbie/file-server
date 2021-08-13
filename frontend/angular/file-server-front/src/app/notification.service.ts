@@ -13,7 +13,7 @@ export class NotificationService {
    * @param msg msg
    * @param duration if not specified, the duration is by default 1000 milliseconds
    */
-  public toast(msg: string, action: string = "Okay", duration: number = 1000) {
+  public toast(msg: string, duration: number = 1000, action: string = "Okay") {
     if (duration <= 0) {
       this.snackBar.open(msg, action);
     } else {

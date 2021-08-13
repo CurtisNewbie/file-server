@@ -35,8 +35,7 @@ export class RespInterceptor implements HttpInterceptor {
           // normal http response with body, check if it has any error by field 'hasError'
           let r: Resp<any> = e.body as Resp<any>;
           if (r.hasError) {
-            console.log(`Intercept HttpResponse, found error: ${r.msg}`);
-            this.notifi.toast(r.msg);
+            this.notifi.toast(r.msg, -1);
             // filter out this value
             return false;
           }
