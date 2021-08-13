@@ -33,7 +33,6 @@ export class ManageTasksComponent implements OnInit {
   readonly COLUMNS_TO_BE_DISPLAYED = [
     "id",
     "jobName",
-    "targetBean",
     "cronExpr",
     "appGroup",
     "lastRunStartTime",
@@ -42,6 +41,8 @@ export class ManageTasksComponent implements OnInit {
     "lastRunResult",
     "enabled",
     "concurrentEnabled",
+    "updateDate",
+    "updateBy",
   ];
 
   tasks: Task[] = [];

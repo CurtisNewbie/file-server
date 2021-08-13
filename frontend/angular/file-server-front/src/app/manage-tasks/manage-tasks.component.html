@@ -50,10 +50,6 @@
             <th mat-header-cell *matHeaderCellDef> Name </th>
             <td mat-cell *matCellDef="let u"> {{u.jobName}} </td>
         </ng-container>
-        <ng-container matColumnDef="targetBean">
-            <th mat-header-cell *matHeaderCellDef> Target Bean </th>
-            <td mat-cell *matCellDef="let u"> {{u.targetBean}} </td>
-        </ng-container>
 
         <ng-container matColumnDef="cronExpr">
             <th mat-header-cell *matHeaderCellDef> Cron </th>
@@ -98,6 +94,20 @@
             <td mat-cell *matCellDef="let u">
                 <span *ngIf="u.concurrentEnabled == CONCURRENT_ENABLED" class="status-green">enabled</span>
                 <span *ngIf="u.concurrentEnabled == CONCURRENT_DISABLED" class="status-red">disabled</span>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="updateDate">
+            <th mat-header-cell *matHeaderCellDef> Update Date </th>
+            <td mat-cell *matCellDef="let u">
+                {{ u.updateDate}}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="updateBy">
+            <th mat-header-cell *matHeaderCellDef> Update By </th>
+            <td mat-cell *matCellDef="let u">
+                {{ u.updateBy }}
             </td>
         </ng-container>
 

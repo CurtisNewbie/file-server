@@ -34,6 +34,12 @@ export interface Task {
 
   /** whether the task can be executed concurrently: 0-disabled, 1-enabled */
   concurrentEnabled: string;
+
+  /** update by */
+  updateBy: string;
+
+  /** update date */
+  updateDate: string;
 }
 
 export interface ListTaskByPageReqVo {

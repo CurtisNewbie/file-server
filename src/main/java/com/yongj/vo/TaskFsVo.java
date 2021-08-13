@@ -20,9 +20,6 @@ public class TaskFsVo {
     /** job's name */
     private String jobName;
 
-    /** name of bean that will be executed */
-    private String targetBean;
-
     /** cron expression */
     private String cronExpr;
 

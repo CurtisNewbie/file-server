@@ -13,6 +13,7 @@ import com.curtisnewbie.module.task.scheduling.JobUtils;
 import com.curtisnewbie.module.task.service.NodeCoordinationService;
 import com.curtisnewbie.module.task.service.TaskService;
 import com.curtisnewbie.module.task.vo.ListTaskByPageReqVo;
+import com.curtisnewbie.module.task.vo.ListTaskByPageRespVo;
 import com.curtisnewbie.module.task.vo.TaskVo;
 import com.curtisnewbie.module.task.vo.UpdateTaskReqVo;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
@@ -45,7 +46,7 @@ public class TaskController {
     @PostMapping("/list")
     public Result<ListTaskByPageRespFsVo> listTaskByPage(@RequestBody ListTaskByPageReqFsVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
-        PageInfo<TaskVo> pi = taskService.listByPage(BeanCopyUtils.toType(reqVo, ListTaskByPageReqVo.class),
+        PageInfo<ListTaskByPageRespVo> pi = taskService.listByPage(BeanCopyUtils.toType(reqVo, ListTaskByPageReqVo.class),
                 reqVo.getPagingVo());
         ListTaskByPageRespFsVo resp = new ListTaskByPageRespFsVo();
         resp.setPagingVo(new PagingVo().ofTotal(pi.getTotal()));
