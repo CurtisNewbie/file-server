@@ -2,7 +2,6 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
@@ -17,9 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
 
 /**
  * @author yongjie.zhuang
@@ -38,19 +34,10 @@ public class OperateLogController {
         ValidUtils.requireNonNull(pagingVo.getTotal());
 
         PageInfo<OperateLogVo> pv = remoteOperateLogService.findOperateLogInfoInPages(pagingVo);
-        return Result.of(toFindOperateLogRespVo(pv));
-    }
-
-    private FindOperateLogRespVo toFindOperateLogRespVo(PageInfo<OperateLogVo> pv) {
         FindOperateLogRespVo res = new FindOperateLogRespVo();
         res.setPagingVo(new PagingVo().ofTotal(pv.getTotal()));
-
-        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
-        res.setOperateLogVoList(pv.getList().stream().map(v -> {
-            OperateLogFsVo fv = BeanCopyUtils.toType(v, OperateLogFsVo.class);
-            fv.setOperateTime(sdf.format(v.getOperateTime()));
-            return fv;
-        }).collect(Collectors.toList()));
-        return res;
+        res.setOperateLogVoList(BeanCopyUtils.toTypeList(pv.getList(), OperateLogFsVo.class));
+        return Result.of(res);
     }
+
 }

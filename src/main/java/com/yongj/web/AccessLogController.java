@@ -2,7 +2,6 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
@@ -19,10 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author yongjie.zhuang
@@ -43,17 +38,8 @@ public class AccessLogController {
         PageInfo<AccessLogInfoVo> pageInfo = accessLogService.findAccessLogInfoByPage(vo.getPagingVo());
         PagingVo paging = new PagingVo();
         paging.setTotal(pageInfo.getTotal());
-        ListAccessLogInfoRespVo res = new ListAccessLogInfoRespVo(toAccessLogInfoVoList(pageInfo.getList()));
+        ListAccessLogInfoRespVo res = new ListAccessLogInfoRespVo(BeanCopyUtils.toTypeList(pageInfo.getList(), AccessLogInfoFsVo.class));
         res.setPagingVo(paging);
         return Result.of(res);
-    }
-
-    private static List<AccessLogInfoFsVo> toAccessLogInfoVoList(List<AccessLogInfoVo> list) {
-        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
-        return list.stream().map(d -> {
-            AccessLogInfoFsVo v = BeanCopyUtils.toType(d, AccessLogInfoFsVo.class);
-            v.setAccessTime(sdf.format(d.getAccessTime()));
-            return v;
-        }).collect(Collectors.toList());
     }
 }
