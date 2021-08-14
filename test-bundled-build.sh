@@ -10,7 +10,7 @@ echo "Build angular? [y/Y]"
 
 read ans
 
-if [ ! -z $and ]
+if [ -z $and ]
 then
     if [ $ans == "y" ] || [ $ans == "Y" ]
     then
