@@ -22,7 +22,7 @@ This project depends on the following modules that you must manually install (us
 
 - auth-module
     - description: for user authentication, security and integration with auth-service
-    - url: https://github.com/CurtisNewbie/authmodule
+    - url: https://github.com/CurtisNewbie/auth-module
     - branch: microservice
 
 - common-module
