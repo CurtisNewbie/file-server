@@ -10,19 +10,22 @@ echo "Build angular? [y/Y]"
 
 read ans
 
-if [ $ans == "y" ] || [ $ans == "Y" ]
+if [ ! -z $and ]
 then
-    (
+    if [ $ans == "y" ] || [ $ans == "Y" ]
+    then
+        (
         cd frontend/angular/file-server-front/; 
         ng build;
-    )
-fi
+        )
+    fi
 
 
-(
+    (
     cd frontend/angular/file-server-front/; 
     cp -r dist/file-server/* ../../../src/main/resources/static/;
-)
+    )
+fi
 
 mvn clean package 
 
