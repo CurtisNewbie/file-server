@@ -6,6 +6,7 @@ import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.task.constants.TaskConcurrentEnabled;
 import com.curtisnewbie.module.task.constants.TaskEnabled;
@@ -42,6 +43,7 @@ public class TaskController {
     @Autowired
     private NodeCoordinationService nodeCoordinationService;
 
+    @LogOperation(name = "/task/list", description = "list tasks")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
     public Result<ListTaskByPageRespFsVo> listTaskByPage(@RequestBody ListTaskByPageReqFsVo reqVo) throws MsgEmbeddedException {
@@ -54,6 +56,7 @@ public class TaskController {
         return Result.of(resp);
     }
 
+    @LogOperation(name = "/task/update", description = "update task")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/update")
     public Result<Void> update(@RequestBody UpdateTaskReqVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
@@ -75,6 +78,7 @@ public class TaskController {
         return Result.ok();
     }
 
+    @LogOperation(name = "/task/trigger", description = "trigger task")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/trigger")
     public Result<Void> trigger(@RequestBody TriggerTaskReqVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
