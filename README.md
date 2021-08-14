@@ -2,35 +2,50 @@
 
 Upload file, list files, and download file.
 
-In this branch, this app is not a standalone server, it internally uses Dubbo for RPC and connects to the `auth-service` (https://github.com/CurtisNewbie/auth-service) for authentication. You must have `auth-service` setup as well as other middlewares, such as MySQL, Nacos (or others, e.g., Zookeeper) and so on.
+In this branch, this app is ***not a standalone server***, it internally uses Dubbo for RPC to talk to other services (e..g, auth-service mentioned below). You must have `auth-service` setup as well as other middlewares. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
 
-## Dependencies
+## Related-Services
+
+- auth-service 
+    - description: service for managing users, access log and operation log.
+    - url: https://github.com/CurtisNewbie/auth-service
+
+## Middlewares
+
+- MySQL
+- Nacos (or others, e.g., zookeeper)
+- Redis
+
+## Modules and Dependencies
 
 This project depends on the following modules that you must manually install (using `mvn clean install`).
 
-### 1. auth-module
+- auth-module
+    - description: for user authentication, security and integration with auth-service
+    - url: https://github.com/CurtisNewbie/authmodule
+    - branch: microservice
 
-For authentication related functionalities
+- common-module
+    - description: for common utility classes 
+    - url: https://github.com/CurtisNewbie/common-module
+    - branch: main
 
-```
-URL: https://github.com/CurtisNewbie/authmodule
-Branch: microservice
-```
+- service-module
+    - description: import dependencies for a Dubbo service
+    - url: https://github.com/CurtisNewbie/service-module
+    - branch: main
 
-### 2. common-module
+- redis-util-module
+    - description: Utility classes for Redis
+    - url: https://github.com/CurtisNewbie/redis-util-module
+    - branch: main
 
-For common functionalities, such as utility classes
+- log-tracing-module
+    - desription: for log tracing between web endpoints and service layers
+    - url: https://github.com/CurtisNewbie/log-tracing-module
+    - branch: main
 
-```
-URL: https://github.com/CurtisNewbie/common-module
-Branch: dev
-```
-
-### 3. service-module
-
-Make the app a standalone Dubbo service
-
-```
-URL: https://github.com/CurtisNewbie/service-module
-Branch: main
-```
+- distributed-task-module
+    - description: for distributed task scheduling
+    - url: https://github.com/CurtisNewbie/distributed-task-module
+    - branch: main
