@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class IOHandlerImpl implements IOHandler {
 
     @Override
     public boolean exists(@NotEmpty String absPath) {
-        return Files.exists(Path.of(absPath));
+        return Files.exists(Paths.get(absPath));
     }
 
     @Override

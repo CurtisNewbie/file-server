@@ -15,7 +15,6 @@ import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.NoWritableFsGroupException;
-import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileInfoService;
@@ -41,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -57,8 +57,6 @@ public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-    @Autowired
-    private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
     @Autowired
@@ -274,8 +272,8 @@ public class FileController {
             return new PlainStreamingResponseBody(in);
     }
 
-    private static String encodeAttachmentName(String filePath) {
-        return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8);
+    private static String encodeAttachmentName(String filePath) throws UnsupportedEncodingException {
+        return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8.name());
     }
 
     private static InputStream[] collectInputStreams(MultipartFile[] files) throws IOException {
