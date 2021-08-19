@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.4.2</version>
+    <version>2.5.3</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.yongj</groupId>
@@ -119,6 +119,11 @@
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>distributed-task-module</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>messaging-module</artifactId>
     </dependency>
   </dependencies>
 
