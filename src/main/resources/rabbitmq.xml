@@ -9,7 +9,7 @@
   <rabbit:connection-factory id="connectionFactory" virtual-host="/" host="${spring.rabbitmq.host}"
                              password="${spring.rabbitmq.password}"
                              port="${spring.rabbitmq.port}"
-                             confirm-type="SIMPLE"
+                             confirm-type="CORRELATED"
   />
 
   <rabbit:admin connection-factory="connectionFactory"/>
