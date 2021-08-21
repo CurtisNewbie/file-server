@@ -55,3 +55,8 @@ This project depends on the following modules that you must manually install (us
     - description: for distributed task scheduling
     - url: https://github.com/CurtisNewbie/distributed-task-module
     - branch: main
+
+- messaging-module
+    - description: for RabbitMQ-based messaging 
+    - url: https://github.com/CurtisNewbie/messaging-module
+    - branch: main
