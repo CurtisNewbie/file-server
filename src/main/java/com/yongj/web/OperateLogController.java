@@ -12,6 +12,7 @@ import com.github.pagehelper.PageInfo;
 import com.yongj.vo.FindOperateLogRespVo;
 import com.yongj.vo.OperateLogFsVo;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ public class OperateLogController {
     @DubboReference
     private RemoteOperateLogService remoteOperateLogService;
 
+    @PreAuthorize("hasRole('admin')")
     @LogOperation(name = "/operate/history", description = "find operate log history in pages", enabled = false)
     @PostMapping("/history")
     public Result<FindOperateLogRespVo> findByPage(@RequestBody PagingVo pagingVo) throws MsgEmbeddedException {
