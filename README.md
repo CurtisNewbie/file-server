@@ -14,6 +14,7 @@ In this branch, this app is ***not a standalone server***, it internally uses Du
 
 - MySQL
 - Nacos (or others, e.g., zookeeper)
+- RabbitMQ
 - Redis
 
 ## Modules and Dependencies
