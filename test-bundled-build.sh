@@ -29,7 +29,14 @@ fi
 
 mvn clean package 
 
+mvnpkg=$?
+
 rm -r src/main/resources/static/  
+
+if [ ! $mvnpkg -eq 0 ] 
+then
+    exit -1
+fi
 
 ssh -l zhuangyongj 192.168.10.128 "/home/zhuangyongj/exec/fileserver/kill-fs.sh"
 
