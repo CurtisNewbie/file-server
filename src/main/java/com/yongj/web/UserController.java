@@ -73,9 +73,9 @@ public class UserController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/user/list", description = "get user list")
-    @PreAuthorize("hasAuthority('admin')")
-    @PostMapping("/list")
+//    @LogOperation(name = "/user/list", description = "get user list")
+//    @PreAuthorize("hasAuthority('admin')")
+//    @PostMapping("/list")
     public Result<GetUserListRespVo> getUserList(@RequestBody GetUserListReqVo reqVo) {
         FindUserInfoVo searchParam = toFindUserInfoVo(reqVo);
         PageInfo<UserInfoVo> voPageInfo = userService.findUserInfoByPage(searchParam);
@@ -95,9 +95,9 @@ public class UserController {
         return infoVo;
     }
 
-    @LogOperation(name = "/user/disable", description = "disable user")
-    @PreAuthorize("hasAuthority('admin')")
-    @PostMapping("/disable")
+//    @LogOperation(name = "/user/disable", description = "disable user")
+//    @PreAuthorize("hasAuthority('admin')")
+//    @PostMapping("/disable")
     public Result<Void> disableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNonNull(param.getId());
         if (Objects.equals(param.getId(), AuthUtil.getUser().getId())) {
@@ -107,9 +107,9 @@ public class UserController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/user/enable", description = "enable user")
-    @PreAuthorize("hasAuthority('admin')")
-    @PostMapping("/enable")
+//    @LogOperation(name = "/user/enable", description = "enable user")
+//    @PreAuthorize("hasAuthority('admin')")
+//    @PostMapping("/enable")
     public Result<Void> enableUserById(@RequestBody DisableUserById param) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNonNull(param.getId());
         if (Objects.equals(param.getId(), AuthUtil.getUser().getId())) {

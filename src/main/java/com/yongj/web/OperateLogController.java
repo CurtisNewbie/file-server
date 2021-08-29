@@ -15,14 +15,12 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author yongjie.zhuang
  */
-@RestController
-@RequestMapping("${web.base-path}/operate")
+//@RestController
+//@RequestMapping("${web.base-path}/operate")
 public class OperateLogController {
 
     @DubboReference
