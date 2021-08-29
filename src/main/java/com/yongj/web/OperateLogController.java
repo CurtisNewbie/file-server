@@ -28,7 +28,7 @@ public class OperateLogController {
     @DubboReference
     private RemoteOperateLogService remoteOperateLogService;
 
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAuthority('admin')")
     @LogOperation(name = "/operate/history", description = "find operate log history in pages", enabled = false)
     @PostMapping("/history")
     public Result<FindOperateLogRespVo> findByPage(@RequestBody PagingVo pagingVo) throws MsgEmbeddedException {
