@@ -2,14 +2,10 @@
     <h3 class="mt-2 mb-3">Manage Tasks</h3>
 </div>
 
-<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-    <button mat-raised-button class="m-2" (click)="fetchTaskList()">Fetch</button>
-</div>
-
 <div class="mt-3 mb-5">
     <!-- searching parameters -->
     <div>
-        <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-1">
+        <mat-form-field appearance="fill" style="width: 100%;">
             <mat-label>Job Name:</mat-label>
             <input matInput type="text" [(ngModel)]="searchParam.jobName">
             <button *ngIf="searchParam.jobName" matSuffix mat-icon-button aria-label="Clear"
@@ -17,7 +13,7 @@
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
-        <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-1">
+        <mat-form-field appearance="fill" style="width: 100%;">
             <mat-label>App Group:</mat-label>
             <input matInput type="text" [(ngModel)]="searchParam.appGroup">
             <button *ngIf="searchParam.appGroup" matSuffix mat-icon-button aria-label="Clear"
@@ -25,8 +21,8 @@
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
-        <div class="row row-cols-lg-auto g-3 align-items-center">
-            <div class="col-12">
+        <div class="align-items-center d-flex justify-content-between">
+            <div>
                 <mat-form-field appearance="fill">
                     <mat-label>Enabled</mat-label>
                     <mat-select [(value)]="searchParam.enabled">
@@ -37,6 +33,7 @@
                     </mat-select>
                 </mat-form-field>
             </div>
+            <button mat-raised-button class="m-2" (click)="fetchTaskList()">Fetch</button>
         </div>
     </div>
 
@@ -173,6 +170,12 @@
                             <div class="col-12">
                                 <button mat-raised-button (click)="triggerTask(expandedElement)">
                                     Trigger
+                                </button>
+                            </div>
+
+                            <div class="col-12">
+                                <button mat-raised-button (click)="viewHistory(expandedElement)">
+                                    History
                                 </button>
                             </div>
                         </div>

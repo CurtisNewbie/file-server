@@ -10,16 +10,16 @@ import {
   LocationStrategy,
 } from "@angular/common";
 import { LoginComponent } from "./login/login.component";
-import { ManagerUserComponent } from "./manager-user/manager-user.component";
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { NavComponent } from "./nav/nav.component";
-import { AccessLogComponent } from "./access-log/access-log.component";
 import { RespInterceptor } from "./interceptors/resp-interceptor";
 import { ErrorInterceptor } from "./interceptors/error-interceptor";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatNativeDateModule } from "@angular/material/core";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
@@ -31,9 +31,9 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatDialogModule } from "@angular/material/dialog";
 import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.component";
-import { FsGroupComponent } from './fs-group/fs-group.component';
-import { OperateHistoryComponent } from './operate-history/operate-history.component';
-import { ManageTasksComponent } from './manage-tasks/manage-tasks.component';
+import { FsGroupComponent } from "./fs-group/fs-group.component";
+import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
+import { TaskHistoryComponent } from "./task-history/task-history.component";
 
 @NgModule({
   exports: [],
@@ -41,21 +41,21 @@ import { ManageTasksComponent } from './manage-tasks/manage-tasks.component';
     AppComponent,
     HomePageComponent,
     LoginComponent,
-    ManagerUserComponent,
     NavComponent,
-    AccessLogComponent,
     ChangePasswordComponent,
     ManageExtensionComponent,
     ConfirmDialogComponent,
     FsGroupComponent,
-    OperateHistoryComponent,
     ManageTasksComponent,
+    TaskHistoryComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     FormsModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,

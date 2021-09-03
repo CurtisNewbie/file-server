@@ -10,11 +10,12 @@ import {
   TASK_ENABLED_OPTIONS,
   UpdateTaskReqVo,
 } from "src/models/task";
-import { HttpClientService } from "../http-client-service.service";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { Option } from "src/models/select-util";
 import { PageEvent } from "@angular/material/paginator";
 import { NotificationService } from "../notification.service";
+import { TaskService } from "../task.service";
+import { NavigationService, NavType } from "../navigation.service";
 
 @Component({
   selector: "app-manage-tasks",
@@ -23,8 +24,8 @@ import { NotificationService } from "../notification.service";
   animations: [animateElementExpanding()],
 })
 export class ManageTasksComponent implements OnInit {
-  readonly TASKS_ENABLED_OPTS: Option[] = TASK_ENABLED_OPTIONS;
-  readonly TASKS_CONCURRENT_ENABLED_OPTS: Option[] =
+  readonly TASKS_ENABLED_OPTS: Option<TaskEnabledEnum>[] = TASK_ENABLED_OPTIONS;
+  readonly TASKS_CONCURRENT_ENABLED_OPTS: Option<TaskConcurrentEnabledEnum>[] =
     TASK_CONCURRENT_ENABLED_OPTIONS;
   readonly TASK_ENABLED = TaskEnabledEnum.ENABLED;
   readonly TASK_DISABLED = TaskEnabledEnum.DISABLED;
@@ -52,8 +53,9 @@ export class ManageTasksComponent implements OnInit {
   expandedElement: Task;
 
   constructor(
-    private http: HttpClientService,
-    private notifi: NotificationService
+    private taskService: TaskService,
+    private notifi: NotificationService,
+    private navi: NavigationService
   ) {}
 
   ngOnInit() {
@@ -62,7 +64,7 @@ export class ManageTasksComponent implements OnInit {
 
   fetchTaskList(): void {
     this.searchParam.pagingVo = this.pagingController.paging;
-    this.http.fetchTaskList(this.searchParam).subscribe({
+    this.taskService.fetchTaskList(this.searchParam).subscribe({
       next: (resp) => {
         this.tasks = resp.data.list;
         this.pagingController.updatePages(resp.data.pagingVo.total);
@@ -95,7 +97,7 @@ export class ManageTasksComponent implements OnInit {
 
   update(task: Task): void {
     let param: UpdateTaskReqVo = JSON.parse(JSON.stringify(task));
-    this.http.updateTask(param).subscribe({
+    this.taskService.updateTask(param).subscribe({
       next: (resp) => {
         this.notifi.toast("Task updated");
         this.expandedElement = null;
@@ -105,7 +107,7 @@ export class ManageTasksComponent implements OnInit {
   }
 
   triggerTask(task: Task): void {
-    this.http
+    this.taskService
       .triggerTask({
         id: task.id,
       })
@@ -114,5 +116,9 @@ export class ManageTasksComponent implements OnInit {
           this.notifi.toast("Task triggered");
         },
       });
+  }
+
+  viewHistory(task: Task): void {
+    this.navi.navigateTo(NavType.TASK_HISTORY, [{ taskId: task.id }]);
   }
 }

@@ -1,4 +1,4 @@
-export interface Option {
+export interface Option<T> {
   name: string;
-  value: any;
+  value: T;
 }

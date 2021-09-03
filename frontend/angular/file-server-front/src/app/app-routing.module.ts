@@ -1,14 +1,12 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
-import { AccessLogComponent } from "./access-log/access-log.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
-import { ManagerUserComponent } from "./manager-user/manager-user.component";
-import { OperateHistoryComponent } from "./operate-history/operate-history.component";
+import { TaskHistoryComponent } from "./task-history/task-history.component";
 
 const routes: Routes = [
   {
@@ -18,14 +16,6 @@ const routes: Routes = [
   {
     path: "login-page",
     component: LoginComponent,
-  },
-  {
-    path: "manage-user",
-    component: ManagerUserComponent,
-  },
-  {
-    path: "access-log",
-    component: AccessLogComponent,
   },
   {
     path: "change-password",
@@ -40,12 +30,12 @@ const routes: Routes = [
     component: FsGroupComponent,
   },
   {
-    path: "operate-history",
-    component: OperateHistoryComponent,
-  },
-  {
     path: "manage-tasks",
     component: ManageTasksComponent,
+  },
+  {
+    path: "task-history",
+    component: TaskHistoryComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

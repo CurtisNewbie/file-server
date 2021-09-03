@@ -34,12 +34,6 @@ import { buildApiPath } from "./util/api-util";
 import { Paging } from "src/models/paging";
 import { FetchOperateLogListResp } from "src/models/operate-log";
 import {
-  ListTaskByPageReqVo,
-  ListTaskByPageRespVo,
-  TriggerTaskReqVo,
-  UpdateTaskReqVo,
-} from "src/models/task";
-import {
   ListAllFsGroupReqVo,
   ListAllFsGroupRespVo,
   UpdateFsGroupModeReqVo,
@@ -324,44 +318,6 @@ export class HttpClientService {
     return this.http.post<Resp<string>>(
       buildApiPath("/file/token/generate"),
       { uuid: uuid },
-      headers
-    );
-  }
-
-  /**
-   * Fetch task list
-   * @param param
-   */
-  public fetchTaskList(
-    param: ListTaskByPageReqVo
-  ): Observable<Resp<ListTaskByPageRespVo>> {
-    return this.http.post<Resp<ListTaskByPageRespVo>>(
-      buildApiPath("/task/list"),
-      param,
-      headers
-    );
-  }
-
-  /**
-   * Update task
-   * @param param
-   * @returns
-   */
-  public updateTask(param: UpdateTaskReqVo): Observable<Resp<void>> {
-    return this.http.post<Resp<void>>(
-      buildApiPath("/task/update"),
-      param,
-      headers
-    );
-  }
-
-  /**
-   * Trigger a task
-   */
-  public triggerTask(param: TriggerTaskReqVo): Observable<Resp<void>> {
-    return this.http.post<Resp<void>>(
-      buildApiPath("/task/trigger"),
-      param,
       headers
     );
   }
