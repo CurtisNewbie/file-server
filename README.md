@@ -80,7 +80,7 @@ com.yongj.io.operation.PhysicallyDeleteFileOperation
 
 ## Task Scheduling  
 
-Task scheduling in this app is backed by `Quartz` and `distributed-task-module`. A task implementation bean is already written for this application, you may create a record in table `task` as follows to use it: 
+Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A task implementation bean is already written for this application, you may create a record in table `task` as follows to use it: 
 
 The task implementation bean: 
 
@@ -100,7 +100,7 @@ This project depends on the following modules that you must manually install (us
     - description: BOM file for dependency management
     - url: https://github.com/CurtisNewbie/curtisnewbie-bom
     - branch: main
-    - version: micro-0.0.1 (under `/microservce` folder)
+    - version: micro-0.0.1 (under `/microservice` folder)
 
 - auth-module
     - description: for user authentication, security and integration with auth-service
