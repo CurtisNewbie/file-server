@@ -76,8 +76,21 @@ The content of this file after modification:
 
 ```
 com.yongj.io.operation.PhysicallyDeleteFileOperation
-
 ```
+
+## Task Scheduling  
+
+Task scheduling in this app is backed by `Quartz` and `distributed-task-module`. A task implementation bean is already written for this application, you may create a record in table `task` as follows to use it: 
+
+The task implementation bean: 
+
+- com.yongj.job.DeleteFileJob
+
+In table `task`:
+
+|id |job_name      |target_bean |cron_expr    |app_group   |enabled|concurrent_enabled|
+|---|--------------|------------|-------------|------------|-------|------------------|
+|1  |delete file job |deleteFileJob|0 0 0/1 ? * *|file-server|1      |0               |
 
 ## Modules and Dependencies
 
@@ -110,7 +123,7 @@ This project depends on the following modules that you must manually install (us
     - branch: main
 
 - log-tracing-module
-    - desription: for log tracing between web endpoints and service layers
+    - description: for log tracing between web endpoints and service layers
     - url: https://github.com/CurtisNewbie/log-tracing-module
     - branch: main
 
