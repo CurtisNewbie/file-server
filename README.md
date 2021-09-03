@@ -2,7 +2,7 @@
 
 Upload file, list files, and download file.
 
-In this branch, this app is ***not a standalone server***, it internally uses Dubbo for RPC to talk to other services (e..g, auth-service mentioned below). You must have `auth-service` setup as well as other middlewares. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
+In this branch, this app is ***not a standalone server***, it internally uses Dubbo for RPC to talk to other services (e..g, auth-service mentioned below). You must have `auth-service` setup as well as other middleware. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
 
 ## Related-Services
 
@@ -10,7 +10,7 @@ In this branch, this app is ***not a standalone server***, it internally uses Du
     - description: service for managing users, access log and operation log.
     - url: https://github.com/CurtisNewbie/auth-service
 
-## Middlewares
+## Middleware
 
 - MySQL
 - Nacos (or others, e.g., zookeeper)
