@@ -40,4 +40,4 @@ fi
 
 ssh -l zhuangyongj 192.168.10.128 "/home/zhuangyongj/exec/fileserver/kill-fs.sh"
 
-scp "target/file-server-0.0.1.jar" "zhuangyongj@192.168.10.128:~/exec/fileserver/fileserver.jar"
+scp "target/file-server-1.0.0.jar" "zhuangyongj@192.168.10.128:~/exec/fileserver/fileserver.jar"
