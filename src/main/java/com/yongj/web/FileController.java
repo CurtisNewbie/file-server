@@ -231,7 +231,7 @@ public class FileController {
                                                  @PathParam("token") String token) throws IOException,
             MsgEmbeddedException {
 
-        Optional<UserVo> optionalUserEntity = AuthUtil.getOptionalUserEntity();
+        Optional<UserVo> optionalUserEntity = AuthUtil.getOptionalUser();
         String username = optionalUserEntity.isPresent() ? optionalUserEntity.get().getUsername() : "Anonymous";
         logger.info("User {} attempts to download file using token {}", username, token);
 
