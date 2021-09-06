@@ -10,6 +10,6 @@ import lombok.Data;
 @Data
 public class GenerateTokenReqVo {
 
-    private String uuid;
+    private Integer id;
 
 }

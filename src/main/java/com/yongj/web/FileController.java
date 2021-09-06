@@ -37,6 +37,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.io.InputStream;
@@ -103,16 +104,16 @@ public class FileController {
 
     @LogOperation(name = "/file/download", description = "download file")
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public StreamingResponseBody download(@PathParam("uuid") String uuid, HttpServletResponse resp, HttpServletRequest req)
+    public StreamingResponseBody download(@PathParam("id") int id, HttpServletResponse resp, HttpServletRequest req)
             throws MsgEmbeddedException, InvalidAuthenticationException, IOException {
 
         final int userId = AuthUtil.getUserId();
 
         // validate user authority
-        fileInfoService.validateUserDownload(userId, uuid);
+        fileInfoService.validateUserDownload(userId, id);
 
         // get fileInfo
-        final FileInfo fi = fileInfoService.findByUuid(uuid);
+        final FileInfo fi = fileInfoService.findById(id);
         ValidUtils.requireNonNull(fi, "File not found");
 
         return download(req, resp, fi);
@@ -134,10 +135,10 @@ public class FileController {
 
     @LogOperation(name = "/file/delete", description = "delete file")
     @PostMapping(path = "/delete")
-    public Result<Void> deleteFile(@RequestBody LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
+    public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
-        ValidUtils.requireNonNull(reqVo.getUuid());
-        fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getUuid());
+        ValidUtils.requireNonNull(reqVo.getId());
+        fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getId());
         return Result.ok();
     }
 
@@ -193,13 +194,13 @@ public class FileController {
     @PostMapping("/usergroup/update")
     public Result<Void> updateFileUserGroup(@RequestBody UpdateFileUserGroupReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
-        ValidUtils.requireNotEmpty(reqVo.getUuid(), "UUID can't be null");
+        ValidUtils.requireNonNull(reqVo.getId(), "id can't be null");
         ValidUtils.requireNonNull(reqVo.getUserGroup(), "UserGroup can't be null");
 
         FileUserGroupEnum fug = EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class);
         ValidUtils.requireNonNull(fug, "Illegal UserGroup value");
 
-        fileInfoService.updateFileUserGroup(reqVo.getUuid(), fug, AuthUtil.getUserId());
+        fileInfoService.updateFileUserGroup(reqVo.getId(), fug, AuthUtil.getUserId());
         return Result.ok();
     }
 
@@ -208,15 +209,15 @@ public class FileController {
     @PostMapping("/token/generate")
     public Result<String> generateToken(@RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException, NoSuchMethodException {
-        ValidUtils.requireNotEmpty(reqVo.getUuid(), "UUID can't be empty");
-        FileInfo fi = fileInfoService.findByUuid(reqVo.getUuid());
+        ValidUtils.requireNonNull(reqVo.getId(), "id can't be empty");
+        FileInfo fi = fileInfoService.findById(reqVo.getId());
         ValidUtils.requireNonNull(fi, "File not found");
 
         if (!Objects.equals(fi.getUploaderId(), AuthUtil.getUserId())) {
             throw new MsgEmbeddedException("Only the owner of the file can generate temporary token");
         }
 
-        final String token = tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getUuid());
+        final String token = tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getId());
         String link = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path("/api/file/token/download")
@@ -235,10 +236,10 @@ public class FileController {
         logger.info("User {} attempts to download file using token {}", AuthUtil.getUsername(), token);
 
         ValidUtils.requireNotEmpty(token, "Token can't be empty");
-        final String uuid = tempTokenFileDownloadService.getUuidByToken(token);
-        ValidUtils.requireNonNull(uuid, "Token is invalid or expired");
+        final Integer id = tempTokenFileDownloadService.getIdByToken(token);
+        ValidUtils.requireNonNull(id, "Token is invalid or expired");
 
-        FileInfo fi = fileInfoService.findByUuid(uuid);
+        FileInfo fi = fileInfoService.findById(id);
         ValidUtils.requireNonNull(fi, "File not found");
         if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
             // remove the token
@@ -264,7 +265,7 @@ public class FileController {
         }
 
         // write file directly to outputStream without holding servlet's thread
-        InputStream in = fileInfoService.retrieveFileInputStream(fi.getUuid());
+        InputStream in = fileInfoService.retrieveFileInputStream(fi.getId());
         if (useGzip) {
             resp.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
             return new GzipStreamingResponseBody(in);

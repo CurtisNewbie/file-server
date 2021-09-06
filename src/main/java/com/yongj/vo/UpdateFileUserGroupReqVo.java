@@ -11,7 +11,7 @@ import lombok.Data;
 public class UpdateFileUserGroupReqVo {
 
     /** UUID */
-    private String uuid;
+    private Integer id;
 
     /** user_group */
     private Integer userGroup;

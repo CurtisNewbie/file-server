@@ -145,7 +145,6 @@ public class FileInfoServiceTest {
         Assertions.assertNotNull(fileInfoService.findPagedFileIdsForPhysicalDeleting(pv));
     }
 
-    /** Test {@link FileInfoService#downloadFile(String, OutputStream)} */
     @Test
     void shouldDownloadFile() throws IOException {
         mockFsGroupService();
@@ -158,7 +157,7 @@ public class FileInfoServiceTest {
             FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
             Assertions.assertNotNull(fi);
 
-            fileInfoService.downloadFile(fi.getUuid(), fout);
+            fileInfoService.downloadFile(fi.getId(), fout);
             Assertions.assertTrue(Files.exists(dp));
 
             doCleanUp(fi);
@@ -184,7 +183,6 @@ public class FileInfoServiceTest {
         doCleanUp(fp);
     }
 
-    /** Test {@link FileInfoService#getFilename(String)} */
     @Test
     void shouldGetFilename() throws IOException {
         mockFsGroupService();
@@ -193,13 +191,11 @@ public class FileInfoServiceTest {
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
         Assertions.assertNotNull(fi);
 
-        String fname = fileInfoService.getFilename(fi.getUuid());
+        String fname = fileInfoService.getFilename(fi.getId());
         Assertions.assertEquals(fname, UPLOADED_TEST_FILE);
         doCleanUp(fi);
     }
 
-
-    /** Test {@link FileInfoService#retrieveFileInputStream(String)} */
     @Test
     void ShouldRetrieveFileInputStream() throws IOException {
         mockFsGroupService();
@@ -207,11 +203,10 @@ public class FileInfoServiceTest {
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
         Assertions.assertNotNull(fi);
-        Assertions.assertNotNull(fileInfoService.retrieveFileInputStream(fi.getUuid()));
+        Assertions.assertNotNull(fileInfoService.retrieveFileInputStream(fi.getId()));
         doCleanUp(fi);
     }
 
-    /** Test {@link FileInfoService#validateUserDownload(int, String)} */
     @Test
     void shouldValidateUserDownload() throws IOException {
         mockFsGroupService();
@@ -221,13 +216,12 @@ public class FileInfoServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertThrows(Exception.class, () -> {
-            fileInfoService.validateUserDownload(TEST_USER_ID_2, fi.getUuid());
+            fileInfoService.validateUserDownload(TEST_USER_ID_2, fi.getId());
         });
 
         doCleanUp(fi);
     }
 
-    /** Test {@link FileInfoService#deleteFileLogically(int, String)} */
     @Test
     void shouldDeleteFileLogically() throws IOException {
         mockFsGroupService();
@@ -237,7 +231,7 @@ public class FileInfoServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
-            fileInfoService.deleteFileLogically(TEST_USER_ID, fi.getUuid());
+            fileInfoService.deleteFileLogically(TEST_USER_ID, fi.getId());
             FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsLogicDeleted(), FileLogicDeletedEnum.LOGICALLY_DELETED.getValue());
@@ -265,7 +259,6 @@ public class FileInfoServiceTest {
         doCleanUp(fi);
     }
 
-    /** Test {@link FileInfoService#updateFileUserGroup(String, FileUserGroupEnum, int)} */
     @Test
     void shouldUpdateFileUserGroup() throws IOException {
         mockFsGroupService();
@@ -275,7 +268,7 @@ public class FileInfoServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
-            fileInfoService.updateFileUserGroup(fi.getUuid(), FileUserGroupEnum.PUBLIC, TEST_USER_ID);
+            fileInfoService.updateFileUserGroup(fi.getId(), FileUserGroupEnum.PUBLIC, TEST_USER_ID);
 
             FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
             Assertions.assertNotNull(sfi);

@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,37 +173,37 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void downloadFile(@NotNull String uuid, @NotNull OutputStream outputStream) throws IOException {
-        FileInfo fi = mapper.selectByUuid(uuid);
+    public void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException {
+        FileInfo fi = mapper.selectByPrimaryKey(id);
         Objects.requireNonNull(fi, "Record not found");
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
         Objects.requireNonNull(fsg, "Unable to download file, because fs_group is not found");
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, fi.getUploaderId(), fsg.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
         ioHandler.readFile(absPath, outputStream);
     }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public FileInfo findByUuid(@NotEmpty String uuid) {
-        return mapper.selectByUuid(uuid);
+    public FileInfo findById(int id) {
+        return mapper.selectByPrimaryKey(id);
     }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException {
-        FileInfo fi = mapper.selectByUuid(uuid);
+    public InputStream retrieveFileInputStream(int id) throws IOException {
+        FileInfo fi = mapper.selectDownloadInfoById(id);
         Objects.requireNonNull(fi, "Record not found");
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
         Objects.requireNonNull(fsg);
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, fi.getUploaderId(), fsg.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
         return Files.newInputStream(Paths.get(absPath));
     }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public void validateUserDownload(int userId, String uuid) throws MsgEmbeddedException {
+    public void validateUserDownload(int userId, int id) throws MsgEmbeddedException {
         // validate whether this file can be downloaded by current user
-        FileValidateInfo f = mapper.selectValidateInfoByUuid(uuid);
+        FileValidateInfo f = mapper.selectValidateInfoById(id);
         ValidUtils.requireNonNull(f, "File not found");
         // file deleted
         ValidUtils.requireEquals(f.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue(), "File deleted already");
@@ -217,18 +216,18 @@ public class FileInfoServiceImpl implements FileInfoService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public String getFilename(String uuid) {
-        return mapper.selectNameByUuid(uuid);
+    public String getFilename(int id) {
+        return mapper.selectNameById(id);
     }
 
     @Override
-    public void deleteFileLogically(int userId, String uuid) throws MsgEmbeddedException {
+    public void deleteFileLogically(int userId, int id) throws MsgEmbeddedException {
         // check if the file is owned by this user
-        Integer uploaderId = mapper.selectUploaderIdByUuid(uuid);
+        Integer uploaderId = mapper.selectUploaderIdById(id);
         if (!Objects.equals(userId, uploaderId)) {
             throw new MsgEmbeddedException("You can only delete file that you uploaded");
         }
-        mapper.logicDelete(uuid);
+        mapper.logicDelete(id);
     }
 
     @Override
@@ -237,15 +236,15 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public void updateFileUserGroup(@NotEmpty String uuid, @NotNull FileUserGroupEnum fug, int userId)
+    public void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId)
             throws MsgEmbeddedException {
-        Integer uploader = mapper.selectUploaderIdByUuid(uuid);
+        Integer uploader = mapper.selectUploaderIdById(id);
         if (uploader == null)
             throw new MsgEmbeddedException("File not found");
 
         if (!Objects.equals(uploader, userId))
             throw new MsgEmbeddedException("You are not allowed to update this file");
 
-        mapper.updateFileUserGroup(uuid, fug.getValue());
+        mapper.updateFileUserGroup(id, fug.getValue());
     }
 }

@@ -29,7 +29,7 @@
     UPDATE file_info
     SET is_logic_deleted = 1,
     logic_delete_time = NOW()
-    WHERE uuid = #{uuid}
+    WHERE id = #{id}
     AND is_logic_deleted = 0
   </update>
   <update id="markFilePhysicDeleted">
@@ -42,7 +42,7 @@
   <update id="updateFileUserGroup">
     UPDATE file_info
     SET user_group = #{userGroup}
-    WHERE uuid = #{uuid}
+    WHERE id = #{id}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultType="com.yongj.dao.FileInfo">
     select id, name, uuid, is_logic_deleted, is_physic_deleted, size_in_bytes, uploader_id,
@@ -85,23 +85,20 @@
     </where>
     order by id desc
   </select>
-  <select id="selectValidateInfoByUuid" resultType="com.yongj.dao.FileValidateInfo">
+  <select id="selectValidateInfoById" resultType="com.yongj.dao.FileValidateInfo">
     select user_group, uploader_id, is_logic_deleted
     from file_info
-    where uuid = #{uuid}
-    limit 1
+    where id = #{id}
   </select>
-  <select id="selectNameByUuid" resultType="java.lang.String">
+  <select id="selectNameById" resultType="java.lang.String">
     select name
     from file_info
-    where uuid = #{uuid}
-    limit 1
+    where id = #{id}
   </select>
-  <select id="selectUploaderIdByUuid" resultType="java.lang.Integer">
+  <select id="selectUploaderIdById" resultType="java.lang.Integer">
     select uploader_id
     from file_info
-    where uuid = #{uuid}
-    limit 1
+    where id = #{id}
   </select>
 
   <select id="findInfoForPhysicalDeleting" resultType="com.yongj.dao.FileInfo">
@@ -110,11 +107,10 @@
     where is_logic_deleted = 1
     and is_physic_deleted = 0
   </select>
-  <select id="selectByUuid" resultType="com.yongj.dao.FileInfo">
-    select *
+  <select id="selectDownloadInfoById" resultType="com.yongj.dao.FileInfo">
+    select fs_group_id, uuid, uploader_id
     from file_info
-    where uuid = #{uuid}
-    limit 1
+    where id = #{id}
   </select>
 
 </mapper>

@@ -28,22 +28,22 @@ public interface FileInfoMapper {
     /**
      * Select user_group, user_id, is_logic_deleted
      */
-    FileValidateInfo selectValidateInfoByUuid(@Param("uuid") String uuid);
+    FileValidateInfo selectValidateInfoById(@Param("id") int id);
 
     /**
      * Select name
      */
-    String selectNameByUuid(@Param("uuid") String uuid);
+    String selectNameById(@Param("id") int id);
 
     /**
      * Select uploader_id
      */
-    Integer selectUploaderIdByUuid(@Param("uuid") String uuid);
+    Integer selectUploaderIdById(@Param("id") int id);
 
     /**
      * Logically delete the file by uuid
      */
-    void logicDelete(@Param("uuid") String uuid);
+    void logicDelete(@Param("id") int id);
 
     /**
      * Select id of files that are logically deleted but not physically deleted
@@ -61,15 +61,13 @@ public interface FileInfoMapper {
     /**
      * Update user_group
      *
-     * @param uuid      uuid
+     * @param id        id
      * @param userGroup userGroup
      */
-    void updateFileUserGroup(@Param("uuid") String uuid, @Param("userGroup") int userGroup);
+    void updateFileUserGroup(@Param("id") int id, @Param("userGroup") int userGroup);
 
     /**
-     * Select *
-     *
-     * @param uuid uuid
+     * Select fs_group_id, uuid, uploader_id
      */
-    FileInfo selectByUuid(String uuid);
+    FileInfo selectDownloadInfoById(int id);
 }

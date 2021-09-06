@@ -16,17 +16,17 @@ public interface TempTokenFileDownloadService {
     /**
      * Generate a one-time used token for file sharing
      *
-     * @param uuid uuid
+     * @param id file's id
      * @return token
      */
-    String generateTempTokenForFile(@NotEmpty String uuid) throws MsgEmbeddedException;
+    String generateTempTokenForFile(int id) throws MsgEmbeddedException;
 
     /**
      * Get uuid for the given token
      *
      * @param token token return uuid
      */
-    String getUuidByToken(@NotEmpty String token);
+    Integer getIdByToken(@NotEmpty String token);
 
     /**
      * Remove token

@@ -1,16 +1,15 @@
 package com.yongj.services;
 
+import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.vo.PagingVo;
 import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
-import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.vo.PhysicDeleteFileVo;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,48 +70,47 @@ public interface FileInfoService {
     PageInfo<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(PagingVo pagingVo);
 
     /**
-     * Download file via uuid to the given outputStream
+     * Download file via id to the given outputStream
      *
-     * @param uuid         uuid
+     * @param id file's id
      * @param outputStream outputStream
      */
-    void downloadFile(@NotNull String uuid, @NotNull OutputStream outputStream) throws IOException;
+    void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException;
 
     /**
-     * Find by uuid
+     * Find by id
      */
-    FileInfo findByUuid(@NotEmpty String uuid);
+    FileInfo findById(int id);
 
     /**
-     * Retrieve file's inputStream via uuid
+     * Retrieve file's inputStream via id
      *
-     * @param uuid uuid
+     * @param id file's id
      */
-    InputStream retrieveFileInputStream(@NotEmpty String uuid) throws IOException;
+    InputStream retrieveFileInputStream(int id) throws IOException;
 
     /**
      * Validate whether current user can download this file
      *
      * @param userId user.id
-     * @param uuid   uuid
      * @throws MsgEmbeddedException
      */
-    void validateUserDownload(int userId, String uuid) throws MsgEmbeddedException;
+    void validateUserDownload(int userId, int fileId) throws MsgEmbeddedException;
 
     /**
      * Get filename of file
      *
-     * @param uuid uuid
+     * @param id file's id
      */
-    String getFilename(String uuid);
+    String getFilename(int id);
 
     /**
      * Logically delete the file
      *
      * @param userId id of the user
-     * @param uuid   uuid
+     * @param fileId file's id
      */
-    void deleteFileLogically(int userId, String uuid) throws MsgEmbeddedException;
+    void deleteFileLogically(int userId, int fileId) throws MsgEmbeddedException;
 
     /**
      * Physically delete the file (this method should be invoked by the scheduler
@@ -124,9 +122,9 @@ public interface FileInfoService {
     /**
      * Update file's userGroup
      *
-     * @param uuid   uuid
+     * @param id     file's id
      * @param fug    fileUserGroup
      * @param userId who updated this file
      */
-    void updateFileUserGroup(@NotEmpty String uuid, @NotNull FileUserGroupEnum fug, int userId) throws MsgEmbeddedException;
+    void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId) throws MsgEmbeddedException;
 }

@@ -27,18 +27,18 @@ public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadSe
     private RedisController redisController;
 
     @Override
-    public String generateTempTokenForFile(@NotEmpty String uuid) throws MsgEmbeddedException {
+    public String generateTempTokenForFile(int id) throws MsgEmbeddedException {
         final String token = tokenGenerator.generate(Optional.of(15));
-        log.info("Generated token: {} for uuid: {}", token, uuid);
+        log.info("Generated token: {} for file's id: {}", token, id);
 
-        if (!redisController.expire(token, uuid, DEFAULT_TIME, DEFAULT_TIME_UNIT)) {
+        if (!redisController.expire(token, id, DEFAULT_TIME, DEFAULT_TIME_UNIT)) {
             throw new MsgEmbeddedException("Unable to generate token, please try again later");
         }
         return token;
     }
 
     @Override
-    public String getUuidByToken(@NotEmpty String token) {
+    public Integer getIdByToken(@NotEmpty String token) {
         return redisController.get(token);
     }
 
