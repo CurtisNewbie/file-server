@@ -9,6 +9,11 @@ import lombok.Data;
 public class FileInfoVo {
 
     /**
+     * id
+     */
+    private Integer id;
+
+    /**
      * UUID
      */
     private String uuid;

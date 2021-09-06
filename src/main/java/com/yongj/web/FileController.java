@@ -8,6 +8,7 @@ import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
+import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
@@ -44,10 +45,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author yongjie.zhuang
@@ -231,9 +229,11 @@ public class FileController {
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
                                                  @PathParam("token") String token) throws IOException,
-            MsgEmbeddedException, InvalidAuthenticationException {
+            MsgEmbeddedException {
 
-        logger.info("User {} attempts to download file using token {}", AuthUtil.getUsername(), token);
+        Optional<UserVo> optionalUserEntity = AuthUtil.getOptionalUserEntity();
+        String username = optionalUserEntity.isPresent() ? optionalUserEntity.get().getUsername() : "Anonymous";
+        logger.info("User {} attempts to download file using token {}", username, token);
 
         ValidUtils.requireNotEmpty(token, "Token can't be empty");
         final Integer id = tempTokenFileDownloadService.getIdByToken(token);

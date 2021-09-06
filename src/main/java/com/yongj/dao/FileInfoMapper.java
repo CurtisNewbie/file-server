@@ -21,7 +21,7 @@ public interface FileInfoMapper {
     List<FileInfo> selectBasicInfoByUserId(@Param("userId") int userId);
 
     /**
-     * Select name, uuid, size_in_bytes
+     * Select id, name, uuid, size_in_bytes
      */
     List<FileInfo> selectBasicInfoByUserIdSelective(SelectBasicFileInfoParam param);
 
