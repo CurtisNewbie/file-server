@@ -14,8 +14,9 @@ import {
   FS_GROUP_MODE_OPTIONS,
 } from "src/models/fs-group";
 import { PagingController } from "src/models/paging";
-import { HttpClientService } from "../http-client-service.service";
 import { animateElementExpanding } from "../../animate/animate-util";
+import { FileInfoService } from "../file-info.service";
+import { UserService } from "../user.service";
 
 @Component({
   selector: "app-fs-group",
@@ -39,14 +40,14 @@ export class FsGroupComponent implements OnInit {
   searchParam: FsGroup = emptyFsGroup();
   pagingController: PagingController = new PagingController();
 
-  constructor(private http: HttpClientService) {}
+  constructor(private fileService: FileInfoService) {}
 
   ngOnInit() {
     this.fetchFsGroups();
   }
 
   fetchFsGroups() {
-    this.http
+    this.fileService
       .fetchFsGroups({
         fsGroup: this.searchParam,
         pagingVo: this.pagingController.paging,
@@ -89,7 +90,7 @@ export class FsGroupComponent implements OnInit {
 
   /** Update fs_group's mode */
   updateMode(fs: FsGroup): void {
-    this.http
+    this.fileService
       .updateFsGroupMode({
         id: fs.id,
         mode: fs.mode,

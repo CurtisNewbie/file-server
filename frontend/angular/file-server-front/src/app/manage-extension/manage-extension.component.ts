@@ -9,9 +9,9 @@ import {
   SearchFileExtParam,
 } from "src/models/file-ext";
 import { PagingController } from "src/models/paging";
-import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { animateElementExpanding } from "../../animate/animate-util";
+import { FileInfoService } from "../file-info.service";
 
 @Component({
   selector: "app-manage-extension",
@@ -37,8 +37,8 @@ export class ManageExtensionComponent implements OnInit {
   private isSearchParamChagned: boolean = false;
 
   constructor(
-    private httpClient: HttpClientService,
-    private notifi: NotificationService
+    private notifi: NotificationService,
+    private fileService: FileInfoService
   ) {}
 
   ngOnInit() {
@@ -52,7 +52,7 @@ export class ManageExtensionComponent implements OnInit {
       this.pagingController.resetCurrentPage();
     }
     this.searchParam.pagingVo = this.pagingController.paging;
-    this.httpClient
+    this.fileService
       .fetchSupportedFileExtensionDetails(this.searchParam)
       .subscribe({
         next: (resp) => {
@@ -64,7 +64,7 @@ export class ManageExtensionComponent implements OnInit {
 
   /** Update file extension */
   updateFileExt(): void {
-    this.httpClient.updateFileExtension(this.updateExt).subscribe({
+    this.fileService.updateFileExtension(this.updateExt).subscribe({
       next: (resp) => {
         this.updateExt = null;
         this.fetchSupportedExtensionsDetails();
@@ -92,7 +92,6 @@ export class ManageExtensionComponent implements OnInit {
 
   searchNameInputKeyPressed(event: any): void {
     if (event.key === "Enter") {
-      console.log("Pressed 'Enter' key, init search file extension list");
       this.fetchSupportedExtensionsDetails();
     }
   }
@@ -115,7 +114,7 @@ export class ManageExtensionComponent implements OnInit {
       );
       return;
     }
-    this.httpClient.addFileExtension(ext).subscribe({
+    this.fileService.addFileExtension(ext).subscribe({
       next: (resp) => {
         this.notifi.toast(`File extension '${ext}' added`);
       },

@@ -3,7 +3,6 @@ import { PageEvent } from "@angular/material";
 import { ActivatedRoute } from "@angular/router";
 import { PagingController } from "src/models/paging";
 import { TaskHistory } from "src/models/task";
-import { HttpClientService } from "../http-client-service.service";
 import { TaskService } from "../task.service";
 
 export interface TaskHistoryData {

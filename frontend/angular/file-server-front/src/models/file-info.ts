@@ -2,6 +2,10 @@ import { Paging } from "./paging";
 
 export interface FileInfo {
   /**
+   * file's id
+   */
+  id: number;
+  /**
    * uuid
    */
   uuid: string;
@@ -162,8 +166,8 @@ export function emptyUploadFileParam(): UploadFileParam {
 }
 
 export interface UpdateFileUserGroupParam {
-  /** file's uuid */
-  uuid: string;
+  /** file's id*/
+  id: number;
 
   /** file's userGroup */
   userGroup: number | FileUserGroupEnum;

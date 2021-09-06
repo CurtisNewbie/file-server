@@ -1,16 +1,18 @@
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
-import { SearchFileExtParam } from "src/models/file-ext";
-import { SearchFileInfoParam } from "src/models/file-info";
 import { Resp } from "src/models/resp";
-import {
-  FetchUserInfoParam,
-  FetchUserInfoResp as FetchUserInfoResp,
-  UserInfo,
-} from "src/models/user-info";
-import { HttpClientService } from "./http-client-service.service";
+import { ChangePasswordParam, UserInfo } from "src/models/user-info";
 import { NavigationService, NavType } from "./navigation.service";
 import { NotificationService } from "./notification.service";
+import { buildApiPath } from "./util/api-util";
+
+const headers = {
+  headers: new HttpHeaders({
+    "Content-Type": "application/json",
+  }),
+  withCredentials: true,
+};
 
 @Injectable({
   providedIn: "root",
@@ -25,9 +27,9 @@ export class UserService {
     this.isLoggedInSubject.asObservable();
 
   constructor(
-    private httpClient: HttpClientService,
     private nav: NavigationService,
-    private notifi: NotificationService
+    private notifi: NotificationService,
+    private http: HttpClient
   ) {}
 
   /**
@@ -36,7 +38,12 @@ export class UserService {
    * @param password
    */
   public login(username: string, password: string): Observable<Resp<any>> {
-    return this.httpClient.login(username, password);
+    let formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
+    return this.http.post<Resp<any>>(buildApiPath("/login"), formData, {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -44,7 +51,9 @@ export class UserService {
    */
   public logout(): Observable<any> {
     this.setLogout();
-    return this.httpClient.logout();
+    return this.http.get<void>(buildApiPath("/logout"), {
+      withCredentials: true,
+    });
   }
 
   /**
@@ -57,36 +66,26 @@ export class UserService {
   }
 
   /**
-   * Add user, only admin is allowed to add user
-   * @param username
-   * @param password
-   * @returns
-   */
-  public addUser(
-    username: string,
-    password: string,
-    userRole: string
-  ): Observable<Resp<any>> {
-    return this.httpClient.addUser({ username, password, userRole });
-  }
-
-  /**
    * Fetch user info
    */
   public fetchUserInfo(): void {
-    this.httpClient.fetchUserInfo().subscribe({
-      next: (resp) => {
-        if (resp.data != null) {
-          this.userInfo = resp.data;
-          this.notifyRole(this.userInfo.role);
-          this.notifyLoginStatus(true);
-        } else {
-          this.notifi.toast("Please login first");
-          this.nav.navigateTo(NavType.LOGIN_PAGE);
-          this.notifyLoginStatus(false);
-        }
-      },
-    });
+    this.http
+      .get<Resp<UserInfo>>(buildApiPath("/user/info"), {
+        withCredentials: true,
+      })
+      .subscribe({
+        next: (resp) => {
+          if (resp.data != null) {
+            this.userInfo = resp.data;
+            this.notifyRole(this.userInfo.role);
+            this.notifyLoginStatus(true);
+          } else {
+            this.notifi.toast("Please login first");
+            this.nav.navigateTo(NavType.LOGIN_PAGE);
+            this.notifyLoginStatus(false);
+          }
+        },
+      });
   }
 
   /** Notify the role of the user via observable */
@@ -114,27 +113,13 @@ export class UserService {
   }
 
   /**
-   * Fetch list of user infos (only admin is allowed)
+   * Change password
    */
-  public fetchUserList(
-    param: FetchUserInfoParam
-  ): Observable<Resp<FetchUserInfoResp>> {
-    return this.httpClient.fetchUserList(param);
-  }
-
-  /**
-   * Disable user by id (only admin is allowed)
-   * @param id
-   */
-  public disableUserById(id: number): Observable<Resp<any>> {
-    return this.httpClient.disableUserByid(id);
-  }
-
-  /**
-   * Enable user by id (only admin is allowed)
-   * @param id
-   */
-  public enableUserById(id: number): Observable<Resp<any>> {
-    return this.httpClient.enableUserById(id);
+  public changePassword(param: ChangePasswordParam): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/user/password/update"),
+      param,
+      headers
+    );
   }
 }

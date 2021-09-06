@@ -19,11 +19,11 @@ import {
 } from "src/models/file-info";
 import { PagingController } from "src/models/paging";
 import { ConfirmDialogComponent } from "../dialog/confirm/confirm-dialog.component";
-import { HttpClientService } from "../http-client-service.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { buildApiPath } from "../util/api-util";
+import { FileInfoService } from "../file-info.service";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -66,10 +66,10 @@ export class HomePageComponent implements OnInit {
   uploadFileInput: ElementRef<HTMLInputElement>;
 
   constructor(
-    private httpClient: HttpClientService,
     private userService: UserService,
     private notifi: NotificationService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private fileService: FileInfoService
   ) {}
 
   ngOnInit() {
@@ -89,7 +89,7 @@ export class HomePageComponent implements OnInit {
 
   /** fetch supported file extension */
   private fetchSupportedExtensions(): void {
-    this.httpClient.fetchSupportedFileExtensionNames().subscribe({
+    this.fileService.fetchSupportedFileExtensionNames().subscribe({
       next: (resp) => {
         this.fileExtSet.clear();
         for (let e of resp.data) {
@@ -104,7 +104,7 @@ export class HomePageComponent implements OnInit {
 
   /** fetch file info list */
   fetchFileInfoList(): void {
-    this.httpClient
+    this.fileService
       .fetchFileInfoList({
         pagingVo: this.pagingController.paging,
         filename: this.searchParam.name,
@@ -126,8 +126,8 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Concatenate url for downloading the file  */
-  concatFileHref(uuid: string): string {
-    return buildApiPath("/file/download?uuid=" + uuid);
+  concatFileHref(id: number): string {
+    return buildApiPath("/file/download?id=" + id);
   }
 
   /** Convert number of bytes to apporpriate unit */
@@ -178,7 +178,7 @@ export class HomePageComponent implements OnInit {
 
     // the first one is always the one displayed
     this.uploadParam.names.unshift(this.displayedUploadName);
-    this.fileUploadSubscription = this.httpClient
+    this.fileUploadSubscription = this.fileService
       .postFile(this.uploadParam)
       .subscribe({
         next: (event) => {
@@ -297,7 +297,7 @@ export class HomePageComponent implements OnInit {
   /**
    * Delete file
    */
-  deleteFile(uuid: string, name: string): void {
+  deleteFile(id: number, name: string): void {
     const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
       this.dialog.open(ConfirmDialogComponent, {
         width: "500px",
@@ -307,7 +307,7 @@ export class HomePageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirm) => {
       console.log(confirm);
       if (confirm) {
-        this.httpClient.deleteFile(uuid).subscribe({
+        this.fileService.deleteFile(id).subscribe({
           next: (resp) => {
             this.fetchFileInfoList();
           },
@@ -379,9 +379,9 @@ export class HomePageComponent implements OnInit {
   /** Update file's userGroup */
   updateUserGroup(u: FileInfo): void {
     if (!u) return;
-    this.httpClient
+    this.fileService
       .updateFileUserGroup({
-        uuid: u.uuid,
+        id: u.id,
         userGroup: u.userGroup,
       })
       .subscribe({
@@ -397,7 +397,7 @@ export class HomePageComponent implements OnInit {
    */
   generateTempToken(u: FileInfo): void {
     if (!u) return;
-    this.httpClient.generateFileTempToken(u.uuid).subscribe({
+    this.fileService.generateFileTempToken(u.id).subscribe({
       next: (resp) => {
         const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
           this.dialog.open(ConfirmDialogComponent, {
@@ -419,12 +419,12 @@ export class HomePageComponent implements OnInit {
   }
 
   /**
-   * Two non-null FileInfo are considered equals, when the uuid are equals, if any one of them is null, they are not equals
+   * Two non-null FileInfo are considered equals, when the id are equals, if any one of them is null, they are not equals
    */
-  uuidEquals(fl: FileInfo, fr: FileInfo): boolean {
+  idEquals(fl: FileInfo, fr: FileInfo): boolean {
     if (fl == null || fr == null) return false;
 
-    return fl.uuid === fr.uuid;
+    return fl.id === fr.id;
   }
 
   /**
@@ -436,6 +436,6 @@ export class HomePageComponent implements OnInit {
   determineExpandedElement(row: FileInfo): FileInfo {
     if (!row.isOwner) return null;
 
-    return this.uuidEquals(this.expandedElement, row) ? null : this.copy(row);
+    return this.idEquals(this.expandedElement, row) ? null : this.copy(row);
   }
 }
