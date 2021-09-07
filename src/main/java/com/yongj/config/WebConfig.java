@@ -36,11 +36,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(
-                new TracingHandlerInterceptor(
-                        new FieldNameBasedExtractor("username", UserVo.class)
-                )
-        );
+        try {
+            registry.addInterceptor(
+                    new TracingHandlerInterceptor(
+                            new FieldNameBasedExtractor("username", UserVo.class)
+                    )
+            );
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
