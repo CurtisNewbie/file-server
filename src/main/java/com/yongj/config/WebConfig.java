@@ -4,6 +4,9 @@ import com.curtisnewbie.common.converters.EpochDateLongConverter;
 import com.curtisnewbie.common.converters.EpochDateStringConverter;
 import com.curtisnewbie.common.converters.EpochLongDateConverter;
 import com.curtisnewbie.common.converters.EpochStringDateConverter;
+import com.curtisnewbie.module.tracing.filter.FieldNameBasedExtractor;
+import com.curtisnewbie.module.tracing.filter.TracingHandlerInterceptor;
+import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
@@ -33,7 +36,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TracingHandlerInterceptor());
+        registry.addInterceptor(
+                new TracingHandlerInterceptor(
+                        new FieldNameBasedExtractor("username", UserVo.class)
+                )
+        );
     }
 
     @Override

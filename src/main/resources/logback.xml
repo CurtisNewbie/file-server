@@ -40,6 +40,10 @@
     <appender-ref ref="TRACED_STDOUT"/>
   </logger>
 
+  <logger name="com.curtisnewbie.module.auth.aop.ControllerConsoleLogAdvice" additivity="false">
+    <appender-ref ref="TRACED_STDOUT"/>
+  </logger>
+
   <logger name="com.curtisnewbie.module.auth.config.AuthenticationSuccessHandlerDelegate" additivity="false">
     <appender-ref ref="STDOUT"/>
   </logger>
