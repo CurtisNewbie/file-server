@@ -122,4 +122,18 @@ export class UserService {
       headers
     );
   }
+
+  /**
+   * Register user
+   * @param username
+   * @param password
+   * @returns
+   */
+  public register(username: string, password: string): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/user/register/request"),
+      { username, password },
+      headers
+    );
+  }
 }

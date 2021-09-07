@@ -47,8 +47,11 @@ export class LoginComponent implements OnInit {
 
   passwordInputKeyPressed(event: any): void {
     if (event.key === "Enter") {
-      console.log("Pressed enter, init sign-in procedure");
       this.login();
     }
+  }
+
+  goToRegisterPage(): void {
+    this.nav.navigateTo(NavType.REGISTER_PAGE);
   }
 }

@@ -6,6 +6,7 @@ import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
+import { RegisterComponent } from "./register/register.component";
 import { TaskHistoryComponent } from "./task-history/task-history.component";
 
 const routes: Routes = [
@@ -32,6 +33,10 @@ const routes: Routes = [
   {
     path: "manage-tasks",
     component: ManageTasksComponent,
+  },
+  {
+    path: "register",
+    component: RegisterComponent,
   },
   {
     path: "task-history",

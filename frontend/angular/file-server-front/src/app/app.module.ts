@@ -34,6 +34,7 @@ import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.componen
 import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
 import { TaskHistoryComponent } from "./task-history/task-history.component";
+import { RegisterComponent } from "./register/register.component";
 
 @NgModule({
   exports: [],
@@ -48,6 +49,7 @@ import { TaskHistoryComponent } from "./task-history/task-history.component";
     FsGroupComponent,
     ManageTasksComponent,
     TaskHistoryComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,

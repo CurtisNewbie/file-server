@@ -24,4 +24,5 @@ export enum NavType {
   ACCESS_LOG = "access-log",
   CHANGE_PASSWORD = "change-password",
   TASK_HISTORY = "task-history",
+  REGISTER_PAGE = "register",
 }
