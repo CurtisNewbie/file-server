@@ -24,14 +24,14 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private static final int RESOURCES_CACHE_MAX_AGE_MINUTES = 10;
+    private static final int RESOURCES_CACHE_MAX_AGE_HOURS = 24;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // cache 10 minutes for the static resources
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
-                .setCacheControl(CacheControl.maxAge(RESOURCES_CACHE_MAX_AGE_MINUTES, TimeUnit.MINUTES));
+                .setCacheControl(CacheControl.maxAge(RESOURCES_CACHE_MAX_AGE_HOURS, TimeUnit.HOURS));
     }
 
     @Override

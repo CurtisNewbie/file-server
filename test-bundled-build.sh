@@ -16,7 +16,7 @@ then
     then
         (
         cd frontend/angular/file-server-front/; 
-        ng build;
+        ng build --prod;
         )
     fi
 
