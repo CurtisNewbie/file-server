@@ -4,6 +4,8 @@ Upload file, list files, and download file.
 
 In this branch, this app is ***not a standalone server***, it internally uses Dubbo for RPC to talk to other services (e..g, auth-service mentioned below). You must have `auth-service` setup as well as other middleware. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
 
+***Do not run the 'build' scripts, these are written for my development environment only***
+
 ## Related-Services
 
 - auth-service 
