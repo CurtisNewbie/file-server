@@ -9,16 +9,16 @@
             <mat-label>Job Name:</mat-label>
             <input matInput type="text" [(ngModel)]="searchParam.jobName">
             <button *ngIf="searchParam.jobName" matSuffix mat-icon-button aria-label="Clear"
-                (click)="searchParam.jobName=''">
-                <mat-icon>close</mat-icon>
+                (click)="searchParam.jobName=''" class="btn-close">
+
             </button>
         </mat-form-field>
         <mat-form-field appearance="fill" style="width: 100%;">
             <mat-label>App Group:</mat-label>
             <input matInput type="text" [(ngModel)]="searchParam.appGroup">
             <button *ngIf="searchParam.appGroup" matSuffix mat-icon-button aria-label="Clear"
-                (click)="searchParam.appGroup=''">
-                <mat-icon>close</mat-icon>
+                (click)="searchParam.appGroup=''" class="btn-close">
+
             </button>
         </mat-form-field>
         <div class="align-items-center d-flex justify-content-between">
@@ -119,8 +119,8 @@
                                     <mat-label>Name:</mat-label>
                                     <input matInput type="text" [(ngModel)]="expandedElement.jobName">
                                     <button *ngIf="expandedElement.jobName" matSuffix mat-icon-button aria-label="Clear"
-                                        (click)="expandedElement.jobName=''">
-                                        <mat-icon>close</mat-icon>
+                                        (click)="expandedElement.jobName=''" class="btn-close">
+
                                     </button>
                                 </mat-form-field>
                             </div>
@@ -130,8 +130,8 @@
                                     <mat-label>Cron:</mat-label>
                                     <input matInput type="text" [(ngModel)]="expandedElement.cronExpr">
                                     <button *ngIf="expandedElement.cronExpr" matSuffix mat-icon-button
-                                        aria-label="Clear" (click)="expandedElement.cronExpr=''">
-                                        <mat-icon>close</mat-icon>
+                                        aria-label="Clear" (click)="expandedElement.cronExpr=''" class="btn-close">
+
                                     </button>
                                 </mat-form-field>
                             </div>

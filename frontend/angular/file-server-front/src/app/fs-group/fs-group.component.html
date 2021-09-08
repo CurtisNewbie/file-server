@@ -13,8 +13,9 @@
         <mat-form-field appearance="fill" style="width: 100%;" class="mb-1 mt-3">
             <mat-label>Name:</mat-label>
             <input matInput type="text" [(ngModel)]="searchParam.name" (keyup)="searchNameInputKeyPressed($event)">
-            <button *ngIf="searchParam.name" matSuffix mat-icon-button aria-label="Clear" (click)="searchParam.name=''">
-                <mat-icon>close</mat-icon>
+            <button *ngIf="searchParam.name" class="btn-close" matSuffix mat-icon-button aria-label="Clear"
+                (click)="searchParam.name=''">
+
             </button>
         </mat-form-field>
         <div class="row row-cols-lg-auto g-3 align-items-center">

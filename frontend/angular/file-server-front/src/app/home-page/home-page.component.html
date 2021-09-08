@@ -1,11 +1,10 @@
 <div [hidden]="isGuest">
     <mat-form-field appearance="fill" style="width: 100%;" [hidden]="this.uploadParam.files == null" class="mb-2">
-        <mat-label>Filename:</mat-label>
+        <mat-label>Filename</mat-label>
         <!-- always display the first file name only (for zip file, the first one is the zip file's name)  -->
         <input matInput type="text" id="filenameInput" [(ngModel)]="displayedUploadName">
-        <button *ngIf="displayedUploadName" matSuffix mat-icon-button aria-label="Clear"
-            (click)="displayedUploadName=''">
-            <mat-icon>close</mat-icon>
+        <button *ngIf="displayedUploadName" matSuffix aria-label="Clear" (click)="displayedUploadName=''"
+            class="btn-close">
         </button>
     </mat-form-field>
 
@@ -60,8 +59,8 @@
                 <input matInput type="text" id="searchFilenameInput" [(ngModel)]="searchParam.name"
                     (keyup)="searchNameInputKeyPressed($event)">
                 <button *ngIf="searchParam.name" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="searchParam.name=''">
-                    <mat-icon>close</mat-icon>
+                    (click)="searchParam.name=''" class="btn-close">
+
                 </button>
             </mat-form-field>
             <div class="row row-cols-lg-auto g-3 align-items-center">

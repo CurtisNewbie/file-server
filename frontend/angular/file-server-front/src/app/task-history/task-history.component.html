@@ -5,24 +5,24 @@
 <mat-form-field appearance="fill" style="width: 100%;">
     <mat-label>Task Name</mat-label>
     <input matInput type="text" [(ngModel)]="jobName" (keyup)="onEnterKeyPressed($event)">
-    <button *ngIf="jobName" matSuffix mat-icon-button aria-label="Clear" (click)="jobName=''">
-        <mat-icon>close</mat-icon>
+    <button *ngIf="jobName" matSuffix mat-icon-button aria-label="Clear" (click)="jobName=''" class="btn-close">
+
     </button>
 </mat-form-field>
 
 <mat-form-field appearance="fill" style="width: 100%;">
     <mat-label>Task Id</mat-label>
     <input matInput type="text" [(ngModel)]="taskId" (keyup)="onEnterKeyPressed($event)">
-    <button *ngIf="taskId" matSuffix mat-icon-button aria-label="Clear" (click)="taskId=''">
-        <mat-icon>close</mat-icon>
+    <button *ngIf="taskId" matSuffix mat-icon-button aria-label="Clear" (click)="taskId=''" class="btn-close">
+
     </button>
 </mat-form-field>
 
 <mat-form-field appearance="fill" style="width: 100%;">
     <mat-label>Triggered By</mat-label>
     <input matInput type="text" [(ngModel)]="runBy" (keyup)="onEnterKeyPressed($event)">
-    <button *ngIf="runBy" matSuffix mat-icon-button aria-label="Clear" (click)="runBy=''">
-        <mat-icon>close</mat-icon>
+    <button *ngIf="runBy" matSuffix mat-icon-button aria-label="Clear" (click)="runBy=''" class="btn-close">
+
     </button>
 </mat-form-field>
 
