@@ -19,7 +19,9 @@ export class LoginComponent implements OnInit {
     private notifi: NotificationService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.userService.navigateToPageIfIsLoggedIn(NavType.HOME_PAGE);
+  }
 
   /**
    * login request

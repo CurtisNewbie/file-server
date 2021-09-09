@@ -136,4 +136,24 @@ export class UserService {
       headers
     );
   }
+
+  /**
+   * Navigate to the specified page if the user is logged in
+   */
+  public navigateToPageIfIsLoggedIn(page: NavType): void {
+    if (this.hasUserInfo()) {
+      console.log("User has logged in, navigate to page:", page);
+      this.nav.navigateTo(page);
+    } else {
+      this.isLoggedInObservable.subscribe({
+        next: (isLoggedIn) => {
+          if (isLoggedIn) {
+            console.log("User has logged in, navigate to page:", page);
+            this.nav.navigateTo(page);
+          }
+        },
+      });
+      this.fetchUserInfo();
+    }
+  }
 }
