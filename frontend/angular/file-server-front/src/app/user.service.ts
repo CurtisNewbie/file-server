@@ -21,7 +21,10 @@ export class UserService {
   private userInfo: UserInfo = null;
   private roleSubject = new Subject<string>();
   private isLoggedInSubject = new Subject<boolean>();
+  private userInfoSubject = new Subject<UserInfo>();
 
+  userInfoObservable: Observable<UserInfo> =
+    this.userInfoSubject.asObservable();
   roleObservable: Observable<string> = this.roleSubject.asObservable();
   isLoggedInObservable: Observable<boolean> =
     this.isLoggedInSubject.asObservable();
@@ -79,6 +82,7 @@ export class UserService {
             this.userInfo = resp.data;
             this.notifyRole(this.userInfo.role);
             this.notifyLoginStatus(true);
+            this.notifyUserInfo(resp.data);
           } else {
             this.notifi.toast("Please login first");
             this.nav.navigateTo(NavType.LOGIN_PAGE);
@@ -96,6 +100,10 @@ export class UserService {
   /** Notify the login status of the user via observable */
   private notifyLoginStatus(isLoggedIn: boolean): void {
     this.isLoggedInSubject.next(isLoggedIn);
+  }
+
+  private notifyUserInfo(userInfo: UserInfo): void {
+    this.userInfoSubject.next(userInfo);
   }
 
   /**

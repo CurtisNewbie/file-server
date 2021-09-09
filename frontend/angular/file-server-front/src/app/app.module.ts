@@ -35,6 +35,7 @@ import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
 import { TaskHistoryComponent } from "./task-history/task-history.component";
 import { RegisterComponent } from "./register/register.component";
+import { MatMenuModule } from "@angular/material/menu";
 
 @NgModule({
   exports: [],
@@ -52,6 +53,7 @@ import { RegisterComponent } from "./register/register.component";
     RegisterComponent,
   ],
   imports: [
+    MatMenuModule,
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,

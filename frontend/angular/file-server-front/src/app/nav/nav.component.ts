@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { UserInfo } from "src/models/user-info";
 import { UserService } from "../user.service";
 
 @Component({
@@ -9,24 +10,20 @@ import { UserService } from "../user.service";
 })
 export class NavComponent implements OnInit {
   isAdmin: boolean = false;
-  isLoggedIn: boolean = false;
+  userInfo: UserInfo = null;
 
   constructor(private userService: UserService, private router: Router) {}
 
   ngOnInit(): void {
+    this.userService.userInfoObservable.subscribe({
+      next: (user) => {
+        this.isAdmin = user.role === "admin";
+        this.userInfo = user;
+      },
+    });
     if (!this.userService.hasUserInfo()) {
       this.userService.fetchUserInfo();
     }
-    this.userService.roleObservable.subscribe({
-      next: (role) => {
-        this.isAdmin = role === "admin";
-      },
-    });
-    this.userService.isLoggedInObservable.subscribe({
-      next: (isLoggedIn) => {
-        this.isLoggedIn = isLoggedIn;
-      },
-    });
   }
 
   /** log out current user and navigate back to login page */
