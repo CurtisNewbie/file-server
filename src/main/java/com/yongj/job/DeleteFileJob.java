@@ -34,11 +34,6 @@ public class DeleteFileJob implements Job {
 
     private static final Integer LIMIT = 100;
 
-    /**
-     * Physically delete files in every 2 hours
-     */
-    private static final String CRON_EXPRESSION = "0 0 0/2 ? * *";
-
     @Autowired
     private FileInfoService fileInfoService;
     @Autowired
@@ -57,7 +52,7 @@ public class DeleteFileJob implements Job {
 
         // first page
         PageInfo<PhysicDeleteFileVo> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
-        // while there is items in page
+        // while there are items in page
         while (!idsInPage.getList().isEmpty()) {
             log.info("Found {} files, preparing to delete them", idsInPage.getList().size());
             // delete the file physically
@@ -69,7 +64,7 @@ public class DeleteFileJob implements Job {
         log.info("Physical file deleting job finished...");
     }
 
-    // files that are unable to deleted, won't cause a transaction roll back
+    // files that are unable to delete, won't cause a transaction roll back, we just print an error log
     private void deleteFilesPhysically(PageInfo<PhysicDeleteFileVo> pageInfo) {
         for (PhysicDeleteFileVo v : pageInfo.getList()) {
             // get the fs_group's folder
@@ -84,7 +79,7 @@ public class DeleteFileJob implements Job {
                 // mark as deleted
                 fileInfoService.markFileDeletedPhysically(v.getId());
             } catch (IOException e) {
-                log.warn("Unable to delete file, uuid: " + String.valueOf(v.getUuid()) + ", please try again later", e);
+                log.error("Unable to delete file, uuid: " + String.valueOf(v.getUuid()) + ", please try again later", e);
             }
         }
     }
