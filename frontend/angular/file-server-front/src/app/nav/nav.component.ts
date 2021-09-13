@@ -21,6 +21,14 @@ export class NavComponent implements OnInit {
         this.userInfo = user;
       },
     });
+    this.userService.isLoggedInObservable.subscribe({
+      next: (isLoggedIn) => {
+        if (!isLoggedIn) {
+          this.isAdmin = false;
+          this.userInfo = null;
+        }
+      },
+    });
     if (!this.userService.hasUserInfo()) {
       this.userService.fetchUserInfo();
     }

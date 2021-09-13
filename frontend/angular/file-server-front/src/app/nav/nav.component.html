@@ -1,4 +1,4 @@
-<div class="mt-3 mb-4" [hidden]="!userInfo">
+<div class="mt-3 mb-4" *ngIf="userInfo">
 
     <button mat-button [matMenuTriggerFor]="menu">menu</button>
     <mat-menu #menu="matMenu">
