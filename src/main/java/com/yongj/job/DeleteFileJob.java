@@ -8,11 +8,10 @@ import com.yongj.io.PathResolver;
 import com.yongj.services.FileInfoService;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.PhysicDeleteFileVo;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,11 +28,11 @@ import java.util.Objects;
  *
  * @author yongjie.zhuang
  */
+@Slf4j
 @Component
 public class DeleteFileJob implements Job {
 
     private static final Integer LIMIT = 100;
-    private static final Logger logger = LoggerFactory.getLogger(PhysicDeleteFileVo.class);
 
     /**
      * Physically delete files in every 2 hours
@@ -51,7 +50,7 @@ public class DeleteFileJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        logger.info("Physical file deleting job started...");
+        log.info("Physical file deleting job started...");
         PagingVo paging = new PagingVo();
         paging.setLimit(LIMIT);
         paging.setPage(1);
@@ -60,14 +59,14 @@ public class DeleteFileJob implements Job {
         PageInfo<PhysicDeleteFileVo> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
         // while there is items in page
         while (!idsInPage.getList().isEmpty()) {
-            logger.info("Found {} files, preparing to delete them", idsInPage.getList().size());
+            log.info("Found {} files, preparing to delete them", idsInPage.getList().size());
             // delete the file physically
             deleteFilesPhysically(idsInPage);
             // next page
             idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
             paging.setPage(paging.getPage() + 1);
         }
-        logger.info("Physical file deleting job finished...");
+        log.info("Physical file deleting job finished...");
     }
 
     // files that are unable to deleted, won't cause a transaction roll back
@@ -85,7 +84,7 @@ public class DeleteFileJob implements Job {
                 // mark as deleted
                 fileInfoService.markFileDeletedPhysically(v.getId());
             } catch (IOException e) {
-                logger.warn("Unable to delete file, uuid: " + String.valueOf(v.getUuid()) + ", please try again later", e);
+                log.warn("Unable to delete file, uuid: " + String.valueOf(v.getUuid()) + ", please try again later", e);
             }
         }
     }
