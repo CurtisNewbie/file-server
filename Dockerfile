@@ -1,10 +1,7 @@
-FROM openjdk:11
-
-LABEL "author"="yongjie.zhuang"
-LABEL "description"="Simple file server with a static website for uploading and downloading files"
-
+FROM openjdk:8-jdk-alpine
+LABEL author="yongjie.zhuang"
+LABEL descrption="File Service"
+COPY . /usr/src/file-service
+WORKDIR /usr/src/file-service
 EXPOSE 8080/tcp
-
-COPY ./target/file-server-0.0.1.jar .
-
-ENTRYPOINT ["java", "-jar", "file-server-0.0.1.jar", "--base.path=/home/file/server"]
+CMD ["java", "-jar", "file-server-1.0.0.jar", "--spring.profiles.active=test"]

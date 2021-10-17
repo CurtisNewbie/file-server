@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+
+  file-service:
+    build: ./file-service
+    env_file:
+      - backend.env
+    ports:   
+      - "0.0.0.0:8082:8082"
+    networks:
+      - backend
+    depends_on:
+      - auth-service
+    command:
+      "java -jar -Xmx500m file-server-1.0.0.jar --spring.profiles.active=test --dubbo.protocol.port=-1 --server.port=8082" 
+
+  auth-service-web:
+    build: ./auth-service-web
+    env_file:
+      - backend.env
+    ports:   
+      - "0.0.0.0:8084:8084"
+    networks:
+      - backend
+    depends_on:
+      - auth-service
+    command:
+      "java -jar -Xmx500m auth-service-web-1.0.0.jar --spring.profiles.active=test --dubbo.protocol.port=-1 --server.port=8084" 
+
+  auth-service:
+    build: ./auth-service
+    env_file:
+      - backend.env
+    networks:
+      - backend 
+    command:
+      "java -jar -Xmx500m auth-service-1.0.0.jar --spring.profiles.active=test --dubbo.protocol.port=-1 --server.port=8080" 
+
+
+networks:
+  backend:

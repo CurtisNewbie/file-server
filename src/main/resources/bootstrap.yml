@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: auth-service
+  profiles:
+    active: dev
+
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/fileServer?serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtualHost: /
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: localhost:8070
+
+
+---
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:mysql://localhost:3306/fileServer?serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtualHost: /
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: localhost:8070
+
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://192.168.10.128:3306/fileserver?serverTimezone=Asia/Shanghai
+    username: ${mysqlusername}
+    password: ${mysqlpassword}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: 192.168.10.128
+    port: 5672
+    username: ${rabbitmqusername}
+    password: ${rabbitmqpassword}
+    virtualHost: /
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.10.128:8848

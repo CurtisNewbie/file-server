@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @EnableRedisHttpSession(redisNamespace = "file-service:session")
 @PropertySources({
-        @PropertySource("classpath:dubbo.properties"),
+        @PropertySource("classpath:dubbo-${spring.profiles.active}.properties"),
         @PropertySource("classpath:application.properties"),
         @PropertySource("classpath:common.properties"),
 })
