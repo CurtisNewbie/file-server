@@ -1,6 +1,6 @@
 spring:
   application:
-    name: auth-service
+    name: file-service
   profiles:
     active: dev
 
@@ -73,3 +73,9 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.10.128:8848
+      config:
+        server-addr: 192.168.10.128:8848
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: sentinel-dashboard:6060

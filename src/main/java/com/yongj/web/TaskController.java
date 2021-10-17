@@ -1,5 +1,6 @@
 package com.yongj.web;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
@@ -17,6 +18,7 @@ import com.curtisnewbie.module.task.service.TaskService;
 import com.curtisnewbie.module.task.vo.*;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.github.pagehelper.PageInfo;
+import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +43,8 @@ public class TaskController {
     @Autowired
     private NodeCoordinationService nodeCoordinationService;
 
+    @SentinelResource(value = "listTaskByPage", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/task/list", description = "list tasks")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
@@ -54,6 +58,8 @@ public class TaskController {
         return Result.of(resp);
     }
 
+    @SentinelResource(value = "listTaskHistoryByPage", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/task/history", description = "list task history")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/history")
@@ -66,6 +72,8 @@ public class TaskController {
         return Result.of(resp);
     }
 
+    @SentinelResource(value = "taskUpdate", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/task/update", description = "update task")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/update")
@@ -88,6 +96,8 @@ public class TaskController {
         return Result.ok();
     }
 
+    @SentinelResource(value = "taskTrigger", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/task/trigger", description = "trigger task")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/trigger")

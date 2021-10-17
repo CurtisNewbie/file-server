@@ -1,6 +1,16 @@
 version: "3.9"
 services:
 
+  sentinel-dashboard:
+    build: ./sentinel-dashboard
+    ports:
+      - "0.0.0.0:6060:6060"
+    networks:
+      - backend
+    depends_on: 
+      - auth-service-web
+      - file-service
+
   file-service:
     build: ./file-service
     env_file:
@@ -8,6 +18,8 @@ services:
     ports:   
       - "0.0.0.0:8082:8082"
       - "0.0.0.0:7010:7010"
+    volumes:
+      - /home/zhuangyongj/file:/home/zhuangyongj/file
     networks:
       - backend
     depends_on:
@@ -59,6 +71,7 @@ services:
       - "0.0.0.0:7012:7012"
     networks:
       - backend 
+    restart: on-failure
     command:
       "java \
        -Dcom.sun.management.jmxremote \ 
@@ -72,6 +85,30 @@ services:
        --spring.profiles.active=test \
        --dubbo.protocol.port=-1 \
        --server.port=8080"
+
+     # prometheus:
+     # container_name: prometheus
+     # image: prom/prometheus:latest
+     # volumes:
+     # - ./prometheus/prometheus-standalone.yaml:/etc/prometheus/prometheus.yml
+     # ports:
+     # - "0.0.0.0:9090:9090"
+     # depends_on:
+     # - auth-service
+     # - auth-service-web
+     # - file-service
+     # restart: on-failure
+
+    #  grafana:
+    # container_name: grafana
+    # image: grafana/grafana:latest
+    # ports:
+    #   - "0.0.0.0:3000:3000"
+    # depends_on:
+    #   - auth-service
+    #   - auth-service-web
+    #   - file-service
+    # restart: on-failure
 
 networks:
   backend:
