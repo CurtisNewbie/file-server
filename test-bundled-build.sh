@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# remotepath="192.168.10.128"
+remotepath="192.168.31.103"
+
 if [ -d src/main/resources/static/ ]; then
     rm -r src/main/resources/static/
 fi
@@ -40,4 +43,4 @@ fi
 
 # ssh -l zhuangyongj 192.168.10.128 "/home/zhuangyongj/exec/fileserver/kill-fs.sh"
 
-scp "target/file-server-1.0.0.jar" "zhuangyongj@192.168.10.128:~/services/file-service/file-server-1.0.0.jar"
+scp "target/file-server-1.0.0.jar" "zhuangyongj@${remotepath}:~/services/file-service/file-server-1.0.0.jar"

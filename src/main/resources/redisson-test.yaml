@@ -5,7 +5,7 @@ singleServerConfig:
   retryAttempts: 3
   retryInterval: 1500
   subscriptionsPerConnection: 5
-  address: "redis://192.168.10.128:6379"
+  address: "redis://${redisaddr}:6379"
   password: ${redispassword}
   subscriptionConnectionMinimumIdleSize: 1
   subscriptionConnectionPoolSize: 10
