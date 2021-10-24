@@ -12,7 +12,7 @@ export class NavComponent implements OnInit {
   isAdmin: boolean = false;
   userInfo: UserInfo = null;
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(private userService: UserService) {}
 
   ngOnInit(): void {
     this.userService.userInfoObservable.subscribe({
