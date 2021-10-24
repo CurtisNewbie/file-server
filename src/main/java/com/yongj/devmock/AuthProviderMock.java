@@ -1,6 +1,6 @@
 package com.yongj.devmock;
 
-import com.curtisnewbie.module.auth.processing.RemoteAuthenticationProvider;
+import com.curtisnewbie.module.auth.processing.GenericAuthenticationProvider;
 import com.curtisnewbie.service.auth.remote.consts.UserRole;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 /**
- * Mock bean that replaces {@link RemoteAuthenticationProvider} for dev profile
+ * Mock bean that replaces {@link GenericAuthenticationProvider} for dev profile
  *
  * @author yongjie.zhuang
  */
@@ -23,7 +23,7 @@ import java.util.Arrays;
 @Profile("dev")
 @Component
 @Primary
-public class AuthProviderMock extends RemoteAuthenticationProvider {
+public class AuthProviderMock extends GenericAuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
