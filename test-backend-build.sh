@@ -2,6 +2,7 @@
 
 # remotepath="192.168.10.128"
 remotepath="192.168.31.103"
+jarname="file-server-1.0.1.jar"
 
 mvn clean package 
 
@@ -12,4 +13,4 @@ then
     exit -1
 fi
 
-scp "target/file-server-1.0.0.jar" "zhuangyongj@${remotepath}:~/services/file-service/file-server-1.0.0.jar"
+scp "target/${jarname}" "zhuangyongj@${remotepath}:~/services/file-service/file-server.jar"
