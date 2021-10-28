@@ -9,7 +9,7 @@
   </parent>
   <groupId>com.yongj</groupId>
   <artifactId>file-server</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <name>file-server</name>
   <properties>
     <java.version>8</java.version>
@@ -177,7 +177,7 @@
       <dependency>
         <groupId>com.curtisnewbie</groupId>
         <artifactId>curtisnewbie-bom</artifactId>
-        <version>micro-2.0.0</version>
+        <version>micro-2.0.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
