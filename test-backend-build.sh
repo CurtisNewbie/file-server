@@ -4,7 +4,7 @@
 remotepath="192.168.31.103"
 jarname="file-server-1.0.1.jar"
 
-mvn clean package 
+mvn clean package -Dmaven.test.skip=true  
 
 mvnpkg=$?
 
