@@ -3,7 +3,7 @@ package com.yongj.dao;
 import lombok.Data;
 
 @Data
-public class FileValidateInfo {
+public class FileValidateQryInfo {
 
     /** whether the file is logically deleted, 0-normal, 1-deleted */
     private Integer isLogicDeleted;

@@ -1,11 +1,10 @@
 package com.yongj.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.curtisnewbie.common.util.JsonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.TimeZone;
 
 /**
  * Config for {@link com.fasterxml.jackson.databind.ObjectMapper}
@@ -17,9 +16,8 @@ public class ObjectMapperConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setTimeZone(TimeZone.getDefault());
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        ObjectMapper objectMapper = JsonUtils.constructsJsonMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
 }

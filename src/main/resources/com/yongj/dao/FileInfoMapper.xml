@@ -85,7 +85,7 @@
     </where>
     order by id desc
   </select>
-  <select id="selectValidateInfoById" resultType="com.yongj.dao.FileValidateInfo">
+  <select id="selectValidateInfoById" resultType="com.yongj.dao.FileValidateQryInfo">
     select user_group, uploader_id, is_logic_deleted
     from file_info
     where id = #{id}

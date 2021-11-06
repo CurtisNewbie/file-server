@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.yongj.converters.FileExtConverter.converter;
+
 /**
  * @author yongjie.zhuang
  */
@@ -49,7 +51,7 @@ public class FileExtensionServiceImpl implements FileExtensionService {
         Objects.requireNonNull(param.getPagingVo());
         PageHelper.startPage(param.getPagingVo().getPage(), param.getPagingVo().getLimit());
         return BeanCopyUtils.toPageList(
-                PageInfo.of(fileExtensionMapper.findAllSelective(BeanCopyUtils.toType(param, FileExtension.class))
+                PageInfo.of(fileExtensionMapper.findAllSelective(converter.toDo(param))
                 ), FileExtVo.class
         );
     }
@@ -57,7 +59,7 @@ public class FileExtensionServiceImpl implements FileExtensionService {
     @Override
     public void updateFileExtSelective(@NotNull FileExtVo fileExtVo) {
         Objects.requireNonNull(fileExtVo.getId());
-        FileExtension fe = BeanCopyUtils.toType(fileExtVo, FileExtension.class);
+        FileExtension fe = converter.toDo(fileExtVo);
         fileExtensionMapper.updateSelective(fe);
     }
 

@@ -28,7 +28,7 @@ public interface FileInfoMapper {
     /**
      * Select user_group, user_id, is_logic_deleted
      */
-    FileValidateInfo selectValidateInfoById(@Param("id") int id);
+    FileValidateQryInfo selectValidateInfoById(@Param("id") int id);
 
     /**
      * Select name

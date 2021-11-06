@@ -2,13 +2,13 @@ package com.yongj.services;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.DateUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.yongj.converters.FileInfoConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileOwnership;
@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,7 +77,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
         f.setName(fileName);
         f.setUploaderId(userId);
-        f.setUploadTime(new Date());
+        f.setUploadTime(LocalDateTime.now());
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
@@ -118,7 +118,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
         f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
         f.setUploaderId(userId);
-        f.setUploadTime(new Date());
+        f.setUploadTime(LocalDateTime.now());
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
@@ -152,12 +152,10 @@ public class FileInfoServiceImpl implements FileInfoService {
             param.setUploaderId(reqVo.getUserId());
         }
         Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
-        SimpleDateFormat sdf = DateUtils.getDefSimpleDateFormat();
         List<FileInfoVo> voList = mapper.selectBasicInfoByUserIdSelective(param)
                 .stream()
                 .map(e -> {
-                    FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
-                    v.setUploadTime(sdf.format(e.getUploadTime()));
+                    FileInfoVo v = FileInfoConverter.converter.toVo(e);
                     v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
                     return v;
                 }).collect(Collectors.toList());
@@ -203,7 +201,7 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public void validateUserDownload(int userId, int id) throws MsgEmbeddedException {
         // validate whether this file can be downloaded by current user
-        FileValidateInfo f = mapper.selectValidateInfoById(id);
+        FileValidateQryInfo f = mapper.selectValidateInfoById(id);
         ValidUtils.requireNonNull(f, "File not found");
         // file deleted
         ValidUtils.requireEquals(f.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue(), "File deleted already");

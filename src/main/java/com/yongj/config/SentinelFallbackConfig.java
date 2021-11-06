@@ -1,6 +1,7 @@
 package com.yongj.config;
 
 import com.curtisnewbie.common.vo.Result;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -9,6 +10,7 @@ import com.curtisnewbie.common.vo.Result;
  *
  * @author yongjie.zhuang
  */
+@Slf4j
 public class SentinelFallbackConfig {
 
     public static Result<Void> serviceNotAvailable() {
