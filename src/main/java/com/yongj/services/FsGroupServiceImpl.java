@@ -5,6 +5,7 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.yongj.converters.FsGroupConverter;
 import com.yongj.dao.FsGroup;
 import com.yongj.dao.FsGroupMapper;
 import com.yongj.enums.FsGroupMode;
@@ -18,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
-import static com.yongj.converters.FsGroupConverter.converter;
-
 /**
  * @author yongjie.zhuang
  */
@@ -29,6 +28,9 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Autowired
     private FsGroupMapper fsGroupMapper;
+
+    @Autowired
+    private FsGroupConverter fsGroupConverter;
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -50,7 +52,7 @@ public class FsGroupServiceImpl implements FsGroupService {
         Objects.requireNonNull(param.getPagingVo().getLimit());
 
         PageHelper.startPage(param.getPagingVo().getPage(), param.getPagingVo().getLimit());
-        PageInfo<FsGroup> p = PageInfo.of(fsGroupMapper.findByPage(converter.toDo(param)));
+        PageInfo<FsGroup> p = PageInfo.of(fsGroupMapper.findByPage(fsGroupConverter.toDo(param)));
         return BeanCopyUtils.toPageList(p, FsGroupVo.class);
     }
 

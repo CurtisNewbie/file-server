@@ -3,6 +3,7 @@ package com.yongj.services;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.yongj.converters.FileExtConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileExtensionMapper;
 import com.yongj.exceptions.DuplicateExtException;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static com.yongj.converters.FileExtConverter.converter;
 
 /**
  * @author yongjie.zhuang
@@ -32,6 +32,8 @@ public class FileExtensionServiceImpl implements FileExtensionService {
 
     @Autowired
     private FileExtensionMapper fileExtensionMapper;
+    @Autowired
+    private FileExtConverter fileExtConverter;
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -51,7 +53,7 @@ public class FileExtensionServiceImpl implements FileExtensionService {
         Objects.requireNonNull(param.getPagingVo());
         PageHelper.startPage(param.getPagingVo().getPage(), param.getPagingVo().getLimit());
         return BeanCopyUtils.toPageList(
-                PageInfo.of(fileExtensionMapper.findAllSelective(converter.toDo(param))
+                PageInfo.of(fileExtensionMapper.findAllSelective(fileExtConverter.toDo(param))
                 ), FileExtVo.class
         );
     }
@@ -59,7 +61,7 @@ public class FileExtensionServiceImpl implements FileExtensionService {
     @Override
     public void updateFileExtSelective(@NotNull FileExtVo fileExtVo) {
         Objects.requireNonNull(fileExtVo.getId());
-        FileExtension fe = converter.toDo(fileExtVo);
+        FileExtension fe = fileExtConverter.toDo(fileExtVo);
         fileExtensionMapper.updateSelective(fe);
     }
 

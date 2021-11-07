@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 public class FileInfoServiceImpl implements FileInfoService {
 
     @Autowired
+    private FileInfoConverter fileInfoConverter;
+    @Autowired
     private FileInfoMapper mapper;
     @Autowired
     private IOHandler ioHandler;
@@ -155,7 +157,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         List<FileInfoVo> voList = mapper.selectBasicInfoByUserIdSelective(param)
                 .stream()
                 .map(e -> {
-                    FileInfoVo v = FileInfoConverter.converter.toVo(e);
+                    FileInfoVo v = fileInfoConverter.toVo(e);
                     v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
                     return v;
                 }).collect(Collectors.toList());
