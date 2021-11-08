@@ -5,7 +5,7 @@ import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
@@ -17,8 +17,9 @@ import com.curtisnewbie.module.task.service.TaskHistoryService;
 import com.curtisnewbie.module.task.service.TaskService;
 import com.curtisnewbie.module.task.vo.*;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
-import com.github.pagehelper.PageInfo;
 import com.yongj.config.SentinelFallbackConfig;
+import com.yongj.converters.TaskFsConverter;
+import com.yongj.converters.TaskHistoryFsConverter;
 import com.yongj.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yongjie.zhuang
@@ -43,6 +47,12 @@ public class TaskController {
     @Autowired
     private NodeCoordinationService nodeCoordinationService;
 
+    @Autowired
+    private TaskFsConverter taskFsConverter;
+
+    @Autowired
+    private TaskHistoryFsConverter taskHistoryFsConverter;
+
     @SentinelResource(value = "listTaskByPage", defaultFallback = "serviceNotAvailable",
             fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/task/list", description = "list tasks")
@@ -50,11 +60,17 @@ public class TaskController {
     @PostMapping("/list")
     public Result<ListTaskByPageRespFsVo> listTaskByPage(@RequestBody ListTaskByPageReqFsVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
-        PageInfo<ListTaskByPageRespVo> pi = taskService.listByPage(BeanCopyUtils.toType(reqVo, ListTaskByPageReqVo.class),
+
+        PageablePayloadSingleton<List<ListTaskByPageRespVo>> pi = taskService.listByPage(taskFsConverter.toListTaskByPageReqFsVo(reqVo),
                 reqVo.getPagingVo());
         ListTaskByPageRespFsVo resp = new ListTaskByPageRespFsVo();
-        resp.setPagingVo(new PagingVo().ofTotal(pi.getTotal()));
-        resp.setList(BeanCopyUtils.toTypeList(pi.getList(), TaskFsVo.class));
+        resp.setPagingVo(pi.getPagingVo());
+        resp.setList(
+                pi.getPayload()
+                        .stream()
+                        .map(taskFsConverter::toFsVo)
+                        .collect(Collectors.toList())
+        );
         return Result.of(resp);
     }
 
@@ -65,10 +81,18 @@ public class TaskController {
     @PostMapping("/history")
     public Result<ListTaskHistoryByPageRespWebVo> listTaskHistoryByPage(@RequestBody ListTaskHistoryByPageReqWebVo reqVo)
             throws MsgEmbeddedException {
-        PageInfo<ListTaskHistoryByPageRespVo> pi = taskHistoryService.findByPage(BeanCopyUtils.toType(reqVo, ListTaskHistoryByPageReqVo.class));
+        ValidUtils.requireNonNull(reqVo.getPagingVo());
+
+        PageablePayloadSingleton<List<ListTaskHistoryByPageRespVo>> pi = taskHistoryService.findByPage(BeanCopyUtils.toType(reqVo, ListTaskHistoryByPageReqVo.class));
+
         ListTaskHistoryByPageRespWebVo resp = new ListTaskHistoryByPageRespWebVo();
-        resp.setList(BeanCopyUtils.toTypeList(pi.getList(), TaskHistoryWebVo.class));
-        resp.setPagingVo(new PagingVo().ofTotal(pi.getTotal()));
+        resp.setList(
+                pi.getPayload()
+                        .stream()
+                        .map(taskHistoryFsConverter::toWebVo)
+                        .collect(Collectors.toList())
+        );
+        resp.setPagingVo(pi.getPagingVo());
         return Result.of(resp);
     }
 

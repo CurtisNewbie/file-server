@@ -12,6 +12,7 @@ dubbo:
   cloud:
     subscribed-services: auth-service-application
 
+
 # base path for the exposed api
 web.base-path: "/api/"
 
@@ -76,6 +77,10 @@ spring:
       transport:
         port: 8719
         dashboard: localhost:8070
+
+distributed-task-module:
+  scheduling:
+    disabled: true
 
 server:
   port: 8080
