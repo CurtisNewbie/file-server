@@ -69,18 +69,18 @@
     <where>
       is_logic_deleted = 0
       <choose>
-        <when test="uploaderId != null">
-          and uploader_id = #{uploaderId}
+        <when test="p.uploaderId != null">
+          and uploader_id = #{p.uploaderId}
         </when>
         <otherwise>
-          and (user_group = 0 or (user_group = 1 and uploader_id = #{userId}))
-          <if test="userGroup != null">
-            and user_group = #{userGroup}
+          and (user_group = 0 or (user_group = 1 and uploader_id = #{p.userId}))
+          <if test="p.userGroup != null">
+            and user_group = #{p.userGroup}
           </if>
         </otherwise>
       </choose>
-      <if test="filename != null and filename != ''">
-        and name like "%"#{filename}"%"
+      <if test="p.filename != null and p.filename != ''">
+        and name like "%"#{p.filename}"%"
       </if>
     </where>
     order by id desc

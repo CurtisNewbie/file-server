@@ -4,10 +4,9 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
-import com.github.pagehelper.PageInfo;
 import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
@@ -21,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author yongjie.zhuang
@@ -38,8 +39,8 @@ public class FsGroupController {
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/mode/update")
     public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(reqVo.getId());
-        ValidUtils.requireNonNull(reqVo.getMode());
+        reqVo.validate();
+
         FsGroupMode fgm = EnumUtils.parse(reqVo.getMode(), FsGroupMode.class);
         ValidUtils.requireNonNull(fgm, "fs_group mode value illegal");
 
@@ -52,10 +53,12 @@ public class FsGroupController {
     @LogOperation(name = "/fsgroup/list", description = "list fsgroup")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
-    public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) {
-        PageInfo<FsGroupVo> pi = fsGroupService.findByPage(reqVo);
-        ListAllFsGroupRespVo res = new ListAllFsGroupRespVo(pi.getList());
-        res.setPagingVo(new PagingVo().ofTotal(pi.getTotal()));
+    public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) throws MsgEmbeddedException {
+        reqVo.validate();
+
+        PageablePayloadSingleton<List<FsGroupVo>> pi = fsGroupService.findByPage(reqVo);
+        ListAllFsGroupRespVo res = new ListAllFsGroupRespVo(pi.getPayload());
+        res.setPagingVo(pi.getPagingVo());
         return Result.of(res);
     }
 }

@@ -1,8 +1,8 @@
 package com.yongj.services;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PagingVo;
-import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.vo.FileInfoVo;
@@ -60,19 +60,19 @@ public interface FileInfoService {
      *
      * @param reqVo filter and paging parameter
      */
-    PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo);
+    PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
 
     /**
      * Find logically deleted, but not physically deleted files' id (with pagination)
      *
      * @param pagingVo paging parameter
      */
-    PageInfo<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(PagingVo pagingVo);
+    PageablePayloadSingleton<List<PhysicDeleteFileVo>> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo);
 
     /**
      * Download file via id to the given outputStream
      *
-     * @param id file's id
+     * @param id           file's id
      * @param outputStream outputStream
      */
     void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException;

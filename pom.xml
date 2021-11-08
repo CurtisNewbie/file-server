@@ -109,6 +109,12 @@
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>common-module</artifactId>
+<!--      <exclusions>-->
+<!--        <exclusion>-->
+<!--          <groupId>com.github.pagehelper</groupId>-->
+<!--          <artifactId>pagehelper</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
     </dependency>
 
     <dependency>

@@ -44,11 +44,11 @@
   <select id="findAllSelective" resultType="com.yongj.dao.FileExtension">
     SELECT * FROM file_extension
     <where>
-      <if test="name != null and name != ''">
-        AND name LIKE "%"#{name}"%"
+      <if test="p.name != null and p.name != ''">
+        AND name LIKE "%"#{p.name}"%"
       </if>
-      <if test="isEnabled != null">
-        AND is_enabled = #{isEnabled}
+      <if test="p.isEnabled != null">
+        AND is_enabled = #{p.isEnabled}
       </if>
     </where>
   </select>

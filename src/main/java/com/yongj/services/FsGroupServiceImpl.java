@@ -1,10 +1,9 @@
 package com.yongj.services;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.converters.FsGroupConverter;
 import com.yongj.dao.FsGroup;
 import com.yongj.dao.FsGroupMapper;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.Objects;
+import java.util.List;
 
 /**
  * @author yongjie.zhuang
@@ -46,14 +45,11 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageInfo<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param) {
-        Objects.requireNonNull(param.getPagingVo());
-        Objects.requireNonNull(param.getPagingVo().getPage());
-        Objects.requireNonNull(param.getPagingVo().getLimit());
-
-        PageHelper.startPage(param.getPagingVo().getPage(), param.getPagingVo().getLimit());
-        PageInfo<FsGroup> p = PageInfo.of(fsGroupMapper.findByPage(fsGroupConverter.toDo(param)));
-        return BeanCopyUtils.toPageList(p, FsGroupVo.class);
+    public PageablePayloadSingleton<List<FsGroupVo>> findByPage(@NotNull ListAllFsGroupReqVo param) {
+        return PagingUtil.toPageList(
+                fsGroupMapper.findByPage(PagingUtil.forPage(param.getPagingVo()), fsGroupConverter.toDo(param)),
+                fsGroupConverter::toVo
+        );
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.yongj.job;
 
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PagingVo;
-import com.github.pagehelper.PageInfo;
 import com.yongj.dao.FsGroup;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,12 +52,12 @@ public class DeleteFileJob implements Job {
         paging.setPage(1);
 
         // first page
-        PageInfo<PhysicDeleteFileVo> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
+        PageablePayloadSingleton<List<PhysicDeleteFileVo>> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
         // while there are items in page
-        while (!idsInPage.getList().isEmpty()) {
-            log.info("Found {} files, preparing to delete them", idsInPage.getList().size());
+        while (!idsInPage.getPayload().isEmpty()) {
+            log.info("Found {} files, preparing to delete them", idsInPage.getPayload().size());
             // delete the file physically
-            deleteFilesPhysically(idsInPage);
+            deleteFilesPhysically(idsInPage.getPayload());
             // next page
             idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
             paging.setPage(paging.getPage() + 1);
@@ -65,8 +66,8 @@ public class DeleteFileJob implements Job {
     }
 
     // files that are unable to delete, won't cause a transaction roll back, we just print an error log
-    private void deleteFilesPhysically(PageInfo<PhysicDeleteFileVo> pageInfo) {
-        for (PhysicDeleteFileVo v : pageInfo.getList()) {
+    private void deleteFilesPhysically(List<PhysicDeleteFileVo> list) {
+        for (PhysicDeleteFileVo v : list) {
             // get the fs_group's folder
             FsGroup fsg = fsGroupService.findFsGroupById(v.getFsGroupId());
             Objects.requireNonNull(fsg, "fs_group not found, unable to delete files");

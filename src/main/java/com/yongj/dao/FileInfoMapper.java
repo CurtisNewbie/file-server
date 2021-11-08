@@ -1,5 +1,7 @@
 package com.yongj.dao;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -23,7 +25,7 @@ public interface FileInfoMapper {
     /**
      * Select id, name, uuid, size_in_bytes
      */
-    List<FileInfo> selectBasicInfoByUserIdSelective(SelectBasicFileInfoParam param);
+    IPage<FileInfo> selectBasicInfoByUserIdSelective(Page<?> page, @Param("p") SelectBasicFileInfoParam param);
 
     /**
      * Select user_group, user_id, is_logic_deleted
@@ -48,7 +50,7 @@ public interface FileInfoMapper {
     /**
      * Select id of files that are logically deleted but not physically deleted
      */
-    List<FileInfo> findInfoForPhysicalDeleting();
+    IPage<FileInfo> findInfoForPhysicalDeleting(Page p);
 
     /**
      * Mark file being physically deleted

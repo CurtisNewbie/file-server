@@ -1,5 +1,7 @@
 package com.yongj.dao;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public interface FsGroupMapper {
 
     FsGroup findFirstForWrite();
 
-    List<FsGroup> findByPage(FsGroup param);
+    IPage<FsGroup> findByPage(Page p, @Param("p") FsGroup param);
 
     void updateFsGroupModeById(@Param("id") int fsGroupId, @Param("mode") int mode);
 }

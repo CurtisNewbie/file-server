@@ -4,13 +4,12 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
-import com.github.pagehelper.PageInfo;
 import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
@@ -129,13 +128,14 @@ public class FileController {
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
-        ValidUtils.requireNonNull(reqVo.getPagingVo());
-        ValidUtils.requireNonNull(reqVo.getPagingVo().getLimit());
-        ValidUtils.requireNonNull(reqVo.getPagingVo().getPage());
+        // validate param
+        reqVo.validate();
         reqVo.setUserId(AuthUtil.getUserId());
-        PageInfo<FileInfoVo> fileInfoVoPageInfo = fileInfoService.findPagedFilesForUser(reqVo);
-        ListFileInfoRespVo res = new ListFileInfoRespVo(fileInfoVoPageInfo.getList());
-        res.setPagingVo(new PagingVo().ofTotal(fileInfoVoPageInfo.getTotal()));
+
+        PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
+        ListFileInfoRespVo res = new ListFileInfoRespVo();
+        res.setFileInfoList(pageable.getPayload());
+        res.setPagingVo(pageable.getPagingVo());
         return Result.of(res);
     }
 
@@ -179,10 +179,11 @@ public class FileController {
     @LogOperation(name = "/file/extension/list", description = "list supported file extension details")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(vo.getPagingVo());
-        PageInfo<FileExtVo> pageInfo = fileExtensionService.getDetailsOfAllByPageSelective(vo);
-        ListFileExtRespVo res = new ListFileExtRespVo(pageInfo.getList());
-        res.setPagingVo(new PagingVo().ofTotal(pageInfo.getTotal()));
+        vo.validate();
+
+        PageablePayloadSingleton<List<FileExtVo>> dataList = fileExtensionService.getDetailsOfAllByPageSelective(vo);
+        ListFileExtRespVo res = new ListFileExtRespVo(dataList.getPayload());
+        res.setPagingVo(dataList.getPagingVo());
         return Result.of(res);
     }
 

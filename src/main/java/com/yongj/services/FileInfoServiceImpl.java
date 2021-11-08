@@ -1,17 +1,15 @@
 package com.yongj.services;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PagingVo;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.yongj.converters.FileInfoConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
-import com.yongj.enums.FileOwnership;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.NoWritableFsGroupException;
@@ -34,7 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
 
 /**
  * @author yongjie.zhuang
@@ -145,31 +144,24 @@ public class FileInfoServiceImpl implements FileInfoService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageInfo<FileInfoVo> findPagedFilesForUser(ListFileInfoReqVo reqVo) {
-        Objects.requireNonNull(reqVo);
-        Objects.requireNonNull(reqVo.getPagingVo());
+    public PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
         SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
-        if (reqVo.getOwnership() != null &&
-                Objects.equals(FileOwnership.parse(reqVo.getOwnership()), FileOwnership.FILES_OF_THE_REQUESTER)) {
+        if (reqVo.filterForOwnedFilesOnly()) {
             param.setUploaderId(reqVo.getUserId());
         }
-        Page page = PageHelper.startPage(reqVo.getPagingVo().getPage(), reqVo.getPagingVo().getLimit());
-        List<FileInfoVo> voList = mapper.selectBasicInfoByUserIdSelective(param)
-                .stream()
-                .map(e -> {
-                    FileInfoVo v = fileInfoConverter.toVo(e);
-                    v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
-                    return v;
-                }).collect(Collectors.toList());
-        return PagingUtil.pageInfoOf(voList, page.getTotal());
+        IPage<FileInfo> dataList = mapper.selectBasicInfoByUserIdSelective(forPage(reqVo.getPagingVo()), param);
+        return PagingUtil.toPageList(dataList, (e) -> {
+            FileInfoVo v = fileInfoConverter.toVo(e);
+            v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
+            return v;
+        });
     }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageInfo<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(PagingVo pagingVo) {
-        Objects.requireNonNull(pagingVo);
-        PageHelper.startPage(pagingVo.getPage(), pagingVo.getLimit());
-        return BeanCopyUtils.toPageList(PageInfo.of(mapper.findInfoForPhysicalDeleting()), PhysicDeleteFileVo.class);
+    public PageablePayloadSingleton<List<PhysicDeleteFileVo>> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo) {
+        IPage<FileInfo> dataList = mapper.findInfoForPhysicalDeleting(forPage(pagingVo));
+        return PagingUtil.toPageList(dataList, fileInfoConverter::toPhysicDeleteFileVo);
     }
 
     @Override

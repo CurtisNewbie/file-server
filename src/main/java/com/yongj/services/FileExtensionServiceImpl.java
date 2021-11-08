@@ -1,8 +1,7 @@
 package com.yongj.services;
 
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.converters.FileExtConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileExtensionMapper;
@@ -14,11 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.common.util.PagingUtil.toPageList;
 
 
 /**
@@ -49,12 +52,12 @@ public class FileExtensionServiceImpl implements FileExtensionService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageInfo<FileExtVo> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param) {
-        Objects.requireNonNull(param.getPagingVo());
-        PageHelper.startPage(param.getPagingVo().getPage(), param.getPagingVo().getLimit());
-        return BeanCopyUtils.toPageList(
-                PageInfo.of(fileExtensionMapper.findAllSelective(fileExtConverter.toDo(param))
-                ), FileExtVo.class
+    public PageablePayloadSingleton<List<FileExtVo>> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param) {
+        Assert.notNull(param.getPagingVo(), "PagingVo can't be null");
+
+        return toPageList(
+                fileExtensionMapper.findAllSelective(forPage(param.getPagingVo()), fileExtConverter.toDo(param)),
+                fileExtConverter::toVo
         );
     }
 

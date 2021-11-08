@@ -1,6 +1,6 @@
 package com.yongj.services;
 
-import com.github.pagehelper.PageInfo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.dao.FileExtension;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
@@ -30,7 +30,7 @@ public interface FileExtensionService {
     /**
      * Selectively find details of all file extensions (with pagination)
      */
-    PageInfo<FileExtVo> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param);
+    PageablePayloadSingleton<List<FileExtVo>> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param);
 
     /**
      * Selectively Update file extension by id

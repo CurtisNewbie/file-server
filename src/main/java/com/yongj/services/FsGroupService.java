@@ -2,7 +2,7 @@ package com.yongj.services;
 
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.github.pagehelper.PageInfo;
+import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.vo.FsGroupVo;
@@ -10,6 +10,7 @@ import com.yongj.vo.ListAllFsGroupReqVo;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Service for fs_group
@@ -34,7 +35,7 @@ public interface FsGroupService {
     /**
      * Find list of fs_group in pages
      */
-    PageInfo<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param);
+    PageablePayloadSingleton<List<FsGroupVo>> findByPage(@NotNull ListAllFsGroupReqVo param);
 
     /**
      * Update fs_group's mode

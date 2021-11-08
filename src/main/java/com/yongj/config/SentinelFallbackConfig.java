@@ -13,7 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SentinelFallbackConfig {
 
-    public static Result<Void> serviceNotAvailable() {
+    public static Result<Void> serviceNotAvailable(Throwable t) {
+        log.error("Throttling", t);
         return Result.error("Server is busy, please try again later");
     }
 }

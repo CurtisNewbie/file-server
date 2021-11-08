@@ -2,6 +2,7 @@ package com.yongj.converters;
 
 import com.yongj.dao.FileInfo;
 import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.PhysicDeleteFileVo;
 import org.mapstruct.Mapper;
 
 /**
@@ -13,4 +14,6 @@ import org.mapstruct.Mapper;
 public interface FileInfoConverter {
 
     FileInfoVo toVo(FileInfo fi);
+
+    PhysicDeleteFileVo toPhysicDeleteFileVo(FileInfo fi);
 }

@@ -37,14 +37,14 @@
     select id, name, base_folder, mode
     from fs_group
     <where>
-      <if test="id != null">
-        id = #{id}
+      <if test="p.id != null">
+        id = #{p.id}
       </if>
-      <if test="name != null">
-        and name like "%"#{name}"%"
+      <if test="p.name != null">
+        and name like "%"#{p.name}"%"
       </if>
-      <if test="mode != null">
-        and mode = #{mode}
+      <if test="p.mode != null">
+        and mode = #{p.mode}
       </if>
     </where>
   </select>
