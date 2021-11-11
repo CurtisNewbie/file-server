@@ -1,5 +1,7 @@
 package com.yongj.vo;
 
+import com.curtisnewbie.common.util.DateUtils;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,7 +10,7 @@ import java.time.LocalDateTime;
  * @author yongjie.zhuang
  */
 @Data
-public class FileInfoVo {
+public class FileInfoWebVo {
 
     /** id */
     private Integer id;
@@ -19,11 +21,12 @@ public class FileInfoVo {
     /** name of the file */
     private String name;
 
-    /** upload time */
-    private LocalDateTime uploadTime;
+    /** name of the uploader */
+    private String uploaderName;
 
-    /** uploader id, i.e., user.id */
-    private Integer uploaderId;
+    /** upload time */
+    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
+    private LocalDateTime uploadTime;
 
     /** size in bytes */
     private Long sizeInBytes;

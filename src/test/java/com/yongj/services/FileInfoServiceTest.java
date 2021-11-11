@@ -119,12 +119,6 @@ public class FileInfoServiceTest {
     }
 
 
-    /** Test {@link FileInfoService#findFilesForUser(int)} */
-    @Test
-    void shouldFindFilesForUser() {
-        Assertions.assertNotNull(fileInfoService.findFilesForUser(TEST_USER_ID));
-    }
-
     /** Test {@link FileInfoService#findPagedFilesForUser(ListFileInfoReqVo)} */
     @Test
     void shouldFindPagedFilesForUser() {

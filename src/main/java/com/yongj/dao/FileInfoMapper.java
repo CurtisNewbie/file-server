@@ -22,9 +22,6 @@ public interface FileInfoMapper {
      */
     List<FileInfo> selectBasicInfoByUserId(@Param("userId") int userId);
 
-    /**
-     * Select id, name, uuid, size_in_bytes
-     */
     IPage<FileInfo> selectBasicInfoByUserIdSelective(Page<?> page, @Param("p") SelectBasicFileInfoParam param);
 
     /**

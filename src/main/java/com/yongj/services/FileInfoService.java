@@ -49,13 +49,6 @@ public interface FileInfoService {
             throws IOException;
 
     /**
-     * Find file info for user
-     *
-     * @param userId user.id
-     */
-    List<FileInfoVo> findFilesForUser(int userId);
-
-    /**
      * Find file info for user (with pagination)
      *
      * @param reqVo filter and paging parameter

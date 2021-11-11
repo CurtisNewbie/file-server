@@ -8,9 +8,11 @@ import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
+import com.curtisnewbie.service.auth.remote.api.RemoteUserService;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.yongj.config.SentinelFallbackConfig;
+import com.yongj.converters.FileInfoConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
@@ -25,6 +27,7 @@ import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
 import com.yongj.web.streaming.GzipStreamingResponseBody;
 import com.yongj.web.streaming.PlainStreamingResponseBody;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +50,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 
 /**
  * @author yongjie.zhuang
@@ -65,6 +71,10 @@ public class FileController {
     private FileInfoService fileInfoService;
     @Autowired
     private TempTokenFileDownloadService tempTokenFileDownloadService;
+    @DubboReference
+    private RemoteUserService remoteUserService;
+    @Autowired
+    private FileInfoConverter fileInfoConverter;
 
     @SentinelResource(value = "fileUpload", defaultFallback = "serviceNotAvailable",
             fallbackClass = SentinelFallbackConfig.class)
@@ -133,8 +143,17 @@ public class FileController {
         reqVo.setUserId(AuthUtil.getUserId());
 
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
+
+        // collect list of ids to request their usernames
+        List<Integer> uploaderIds = pageable.getPayload().stream().map(FileInfoVo::getUploaderId).collect(Collectors.toList());
+        Map<Integer, String> idToName = remoteUserService.fetchUsernameById(uploaderIds);
+
         ListFileInfoRespVo res = new ListFileInfoRespVo();
-        res.setFileInfoList(pageable.getPayload());
+        res.setFileInfoList(mapTo(pageable.getPayload(), f -> {
+            FileInfoWebVo wv = fileInfoConverter.toWebVo(f);
+            wv.setUploaderName(idToName.get(f.getUploaderId()));
+            return wv;
+        }));
         res.setPagingVo(pageable.getPagingVo());
         return Result.of(res);
     }

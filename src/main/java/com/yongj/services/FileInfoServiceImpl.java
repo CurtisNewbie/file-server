@@ -137,13 +137,6 @@ public class FileInfoServiceImpl implements FileInfoService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public List<FileInfoVo> findFilesForUser(int userId) {
-        List<FileInfo> fList = mapper.selectBasicInfoByUserId(userId);
-        return BeanCopyUtils.toTypeList(fList, FileInfoVo.class);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
         SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
         if (reqVo.filterForOwnedFilesOnly()) {

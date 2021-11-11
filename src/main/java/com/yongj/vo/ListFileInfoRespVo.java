@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ListFileInfoRespVo extends PageableVo {
 
-    private Iterable<FileInfoVo> fileInfoList;
+    private Iterable<FileInfoWebVo> fileInfoList;
 
 }
