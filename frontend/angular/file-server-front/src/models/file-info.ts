@@ -14,6 +14,9 @@ export interface FileInfo {
    */
   name: string;
 
+  /** name of uploader */
+  uploaderName: string;
+
   /** upload time */
   uploadTime: string;
 
