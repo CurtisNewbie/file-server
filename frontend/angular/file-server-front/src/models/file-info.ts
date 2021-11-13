@@ -174,4 +174,7 @@ export interface UpdateFileUserGroupParam {
 
   /** file's userGroup */
   userGroup: number | FileUserGroupEnum;
+
+  /** file's name */
+  name: string;
 }

@@ -225,20 +225,23 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "updateFileUserGroup", defaultFallback = "serviceNotAvailable",
+    @SentinelResource(value = "updateFileInfo", defaultFallback = "serviceNotAvailable",
             fallbackClass = SentinelFallbackConfig.class)
-    @LogOperation(name = "/file/usergroup/update", description = "update file's user group")
+    @LogOperation(name = "/file/info/update", description = "update file info")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
-    @PostMapping("/usergroup/update")
-    public Result<Void> updateFileUserGroup(@RequestBody UpdateFileUserGroupReqVo reqVo) throws MsgEmbeddedException,
+    @PostMapping("/info/update")
+    public Result<Void> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
-        ValidUtils.requireNonNull(reqVo.getId(), "id can't be null");
-        ValidUtils.requireNonNull(reqVo.getUserGroup(), "UserGroup can't be null");
 
-        FileUserGroupEnum fug = EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class);
-        ValidUtils.requireNonNull(fug, "Illegal UserGroup value");
+        // validate param
+        reqVo.validate();
 
-        fileInfoService.updateFileUserGroup(reqVo.getId(), fug, AuthUtil.getUserId());
+        fileInfoService.updateFile(UpdateFileCmd.builder()
+                .id(reqVo.getId())
+                .fileName(reqVo.getName())
+                .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
+                .updatedBy(AuthUtil.getUserId())
+                .build());
         return Result.ok();
     }
 

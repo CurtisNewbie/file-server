@@ -19,6 +19,7 @@ import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
 import com.yongj.vo.PhysicDeleteFileVo;
+import com.yongj.vo.UpdateFileCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -231,5 +232,14 @@ public class FileInfoServiceImpl implements FileInfoService {
             throw new MsgEmbeddedException("You are not allowed to update this file");
 
         mapper.updateFileUserGroup(id, fug.getValue());
+    }
+
+    @Override
+    public void updateFile(@NotNull UpdateFileCmd cmd) {
+        FileInfo fi = new FileInfo();
+        fi.setId(cmd.getId());
+        fi.setUserGroup(cmd.getUserGroup().getValue());
+        fi.setName(cmd.getFileName());
+        mapper.updateInfo(fi);
     }
 }

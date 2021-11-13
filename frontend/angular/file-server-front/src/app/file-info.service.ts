@@ -141,13 +141,11 @@ export class FileInfoService {
   }
 
   /**
-   * Update file's userGroup
+   * Update file's info
    */
-  public updateFileUserGroup(
-    param: UpdateFileUserGroupParam
-  ): Observable<Resp<any>> {
+  public updateFile(param: UpdateFileUserGroupParam): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/file/usergroup/update"),
+      buildApiPath("/file/info/update"),
       param,
       headers
     );

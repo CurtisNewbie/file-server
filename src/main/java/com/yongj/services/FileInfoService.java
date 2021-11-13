@@ -8,6 +8,7 @@ import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.vo.FileInfoVo;
 import com.yongj.vo.ListFileInfoReqVo;
 import com.yongj.vo.PhysicDeleteFileVo;
+import com.yongj.vo.UpdateFileCmd;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -120,4 +121,9 @@ public interface FileInfoService {
      * @param userId who updated this file
      */
     void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId) throws MsgEmbeddedException;
+
+    /**
+     * Update file's info
+     */
+    void updateFile(@NotNull UpdateFileCmd cmd);
 }

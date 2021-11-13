@@ -378,12 +378,13 @@ export class HomePageComponent implements OnInit {
   }
 
   /** Update file's userGroup */
-  updateUserGroup(u: FileInfo): void {
+  update(u: FileInfo): void {
     if (!u) return;
     this.fileService
-      .updateFileUserGroup({
+      .updateFile({
         id: u.id,
         userGroup: u.userGroup,
+        name: u.name,
       })
       .subscribe({
         complete: () => {

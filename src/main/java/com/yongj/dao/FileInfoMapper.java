@@ -1,5 +1,6 @@
 package com.yongj.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
@@ -7,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Date;
 import java.util.List;
 
-public interface FileInfoMapper {
+public interface FileInfoMapper extends BaseMapper<FileInfo> {
 
     int insert(FileInfo record);
 
@@ -69,4 +70,9 @@ public interface FileInfoMapper {
      * Select fs_group_id, uuid, uploader_id
      */
     FileInfo selectDownloadInfoById(int id);
+
+    /**
+     * Update user_group, name selectively
+     */
+    void updateInfo(FileInfo fi);
 }

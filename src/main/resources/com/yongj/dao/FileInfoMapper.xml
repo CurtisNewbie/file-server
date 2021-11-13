@@ -44,6 +44,18 @@
     SET user_group = #{userGroup}
     WHERE id = #{id}
   </update>
+  <update id="updateInfo">
+    update file_info
+    <set>
+      <if test="userGroup != null">
+        user_group = #{userGroup},
+      </if>
+      <if test="name != null and name != ''">
+        name = #{name}
+      </if>
+    </set>
+    where id = #{id}
+  </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultType="com.yongj.dao.FileInfo">
     select id, name, uuid, is_logic_deleted, is_physic_deleted, size_in_bytes, uploader_id,
     upload_time, logic_delete_time, physic_delete_time, user_group, fs_group_id
