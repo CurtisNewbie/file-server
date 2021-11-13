@@ -46,3 +46,9 @@ namingPollingThreadCount: 1
 
 # quartz thread pool size
 org.quartz.threadPool.threadCount: 1
+
+# console log sql execution
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
