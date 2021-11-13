@@ -1,0 +1,46 @@
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:mysql://${mysqladdr}:3306/fileserver?serverTimezone=Asia/Shanghai
+    username: ${mysqlusername}
+    password: ${mysqlpassword}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: ${rabbitmqaddr}
+    port: 5672
+    username: ${rabbitmqusername}
+    password: ${rabbitmqpassword}
+    virtualHost: /
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacosaddr}:8848
+      config:
+        server-addr: ${nacosaddr}:8848
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: sentinel-dashboard:6060
+
+distributed-task-module:
+  scheduling.disabled: false
+
+authmodule:
+  enableAccessLog: true
+  enableOperateLog: true
+
+server:
+  port: 8443
+
+base:
+  path: "/home/zhuangyongj/file/fileserver"
+
+redisson-config: redisson-test.yaml
+
+# nacos heartbeat thread count
+namingClientBeatThreadCount: 2
+# nacos naming polling thread count
+namingPollingThreadCount: 2
+
+# quartz thread pool size
+org.quartz.threadPool.threadCount: 2

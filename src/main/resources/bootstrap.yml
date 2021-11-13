@@ -33,6 +33,10 @@ authmodule:
   customLoginPage: /
   # logout url
   logoutUrl: /api/logout
+  enableAccessLog: true
+  enableOperateLog: true
+  enableControllerConsoleLog: false
+  isAppAuthorizationChecked: true
   # enable customized cors filter
   cors:
     isFilterEnabled: false
@@ -40,10 +44,6 @@ authmodule:
     allowMethods: "GET,PUT,POST,DELETE,OPTION"
     allowCredential: true
     allowHeaders: "content-type, x-gwt-module-base, x-gwt-permutation, clientid, longpush, set-cookie"
-  # enable operate log
-  enableOperateLog: true
-  # enable controller console log
-  enableControllerConsoleLog: false
 
 mybatis:
   config-location: classpath:mybatis-config.xml
@@ -51,93 +51,3 @@ mybatis:
 # name of the application group (same cluster should share the same name)
 distributed-task-module:
   application-group: file-server
-
-
----
-spring:
-  profiles: dev
-  datasource:
-    url: jdbc:mysql://localhost:3306/fileServer?serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    virtualHost: /
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-    sentinel:
-      transport:
-        port: 8719
-        dashboard: localhost:8070
-
-distributed-task-module:
-  scheduling:
-    disabled: true
-
-server:
-  port: 8080
-
-
----
-spring:
-  profiles: local
-  datasource:
-    url: jdbc:mysql://localhost:3306/fileServer?serverTimezone=Asia/Shanghai
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    virtualHost: /
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-    sentinel:
-      transport:
-        port: 8719
-        dashboard: localhost:8070
-
-server:
-  port: 8443
-
----
-spring:
-  profiles: test
-  datasource:
-    url: jdbc:mysql://${mysqladdr}:3306/fileserver?serverTimezone=Asia/Shanghai
-    username: ${mysqlusername}
-    password: ${mysqlpassword}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  rabbitmq:
-    host: ${rabbitmqaddr}
-    port: 5672
-    username: ${rabbitmqusername}
-    password: ${rabbitmqpassword}
-    virtualHost: /
-  cloud:
-    nacos:
-      discovery:
-        server-addr: ${nacosaddr}:8848
-      config:
-        server-addr: ${nacosaddr}:8848
-    sentinel:
-      transport:
-        port: 8719
-        dashboard: sentinel-dashboard:6060
-
-server:
-  port: 8443

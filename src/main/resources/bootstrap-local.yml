@@ -1,0 +1,57 @@
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:mysql://localhost:3306/fileServer?serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtualHost: /
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: localhost:8070
+
+distributed-task-module:
+  scheduling.disabled: false
+
+authmodule:
+  enableAccessLog: true
+  enableOperateLog: true
+
+server:
+  port: 8443
+  ssl:
+    # The format used for the keystore. It could be set to JKS in case it is a JKS file
+    key-store-type: PKCS12
+    # The path to the keystore containing the certificate
+    key-store: "classpath:cert/fileServer.p12"
+    # The password used to generate the certificate
+    key-store-password: zhuangyongj
+    # The alias mapped to the certificate
+    key-alias: fileServer
+    enabled: true
+
+base:
+  path: "/home/zhuangyongj/file/indb"
+
+redisson-config: redisson-local.yaml
+
+# nacos heartbeat thread count
+namingClientBeatThreadCount: 2
+
+# nacos naming polling thread count
+namingPollingThreadCount: 2
+
+# quartz thread pool size
+org.quartz.threadPool.threadCount: 2
