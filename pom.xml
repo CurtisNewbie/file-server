@@ -5,13 +5,13 @@
   <parent>
     <groupId>com.curtisnewbie</groupId>
     <artifactId>curtisnewbie-bom</artifactId>
-    <version>micro-2.0.1</version>
+    <version>micro-2.0.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>com.yongj</groupId>
   <artifactId>file-server</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <name>file-server</name>
   <properties>
     <java.version>8</java.version>
