@@ -28,7 +28,7 @@ public interface FileInfoMapper extends BaseMapper<FileInfo> {
     /**
      * Select user_group, user_id, is_logic_deleted
      */
-    FileValidateQryInfo selectValidateInfoById(@Param("id") int id);
+    FileInfo selectValidateInfoById(@Param("id") int id, @Param("userId") int userId);
 
     /**
      * Select name

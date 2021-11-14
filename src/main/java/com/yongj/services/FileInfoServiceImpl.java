@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
@@ -16,10 +17,7 @@ import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
-import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.ListFileInfoReqVo;
-import com.yongj.vo.PhysicDeleteFileVo;
-import com.yongj.vo.UpdateFileCmd;
+import com.yongj.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,13 +44,40 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Autowired
     private FileInfoConverter fileInfoConverter;
     @Autowired
-    private FileInfoMapper mapper;
+    private FileInfoMapper fileInfoMapper;
     @Autowired
     private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
     @Autowired
     private FsGroupService fsGroupService;
+    @Autowired
+    private FileSharingMapper fileSharingMapper;
+
+    @Override
+    public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException {
+        // make sure the file exists
+        checkFileExists(cmd.getFileId());
+
+        // check if the user already had access to the file
+        QueryWrapper<FileSharing> fsQry = new QueryWrapper<>();
+        fsQry.select("id")
+                .eq("file_id", cmd.getFileId())
+                .eq("user_id", cmd.getGrantedTo());
+        FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
+        ValidUtils.assertTrue(fileSharing == null, "User already had access to this file");
+
+        // insert file_sharing record
+        final LocalDateTime now = LocalDateTime.now();
+        fileSharingMapper.insert(FileSharing.builder()
+                .userId(cmd.getGrantedTo())
+                .fileId(cmd.getFileId())
+                .createdBy(cmd.getGrantedBy())
+                .createDate(now)
+                .updatedBy(cmd.getGrantedBy())
+                .updateDate(now)
+                .build());
+    }
 
     @Override
     public FileInfo uploadFile(int userId, String fileName, FileUserGroupEnum userGroup, InputStream inputStream) throws IOException {
@@ -84,7 +109,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
-        mapper.insert(f);
+        fileInfoMapper.insert(f);
         return f;
     }
 
@@ -125,7 +150,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
-        mapper.insert(f);
+        fileInfoMapper.insert(f);
         return f;
     }
 
@@ -143,7 +168,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         if (reqVo.filterForOwnedFilesOnly()) {
             param.setUploaderId(reqVo.getUserId());
         }
-        IPage<FileInfo> dataList = mapper.selectBasicInfoByUserIdSelective(forPage(reqVo.getPagingVo()), param);
+        IPage<FileInfo> dataList = fileInfoMapper.selectBasicInfoByUserIdSelective(forPage(reqVo.getPagingVo()), param);
         return PagingUtil.toPageList(dataList, (e) -> {
             FileInfoVo v = fileInfoConverter.toVo(e);
             v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
@@ -154,13 +179,13 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<PhysicDeleteFileVo>> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo) {
-        IPage<FileInfo> dataList = mapper.findInfoForPhysicalDeleting(forPage(pagingVo));
+        IPage<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting(forPage(pagingVo));
         return PagingUtil.toPageList(dataList, fileInfoConverter::toPhysicDeleteFileVo);
     }
 
     @Override
     public void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException {
-        FileInfo fi = mapper.selectByPrimaryKey(id);
+        FileInfo fi = fileInfoMapper.selectByPrimaryKey(id);
         Objects.requireNonNull(fi, "Record not found");
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
         Objects.requireNonNull(fsg, "Unable to download file, because fs_group is not found");
@@ -171,13 +196,13 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findById(int id) {
-        return mapper.selectByPrimaryKey(id);
+        return fileInfoMapper.selectByPrimaryKey(id);
     }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(int id) throws IOException {
-        FileInfo fi = mapper.selectDownloadInfoById(id);
+        FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
         Objects.requireNonNull(fi, "Record not found");
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
         Objects.requireNonNull(fsg);
@@ -189,49 +214,42 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public void validateUserDownload(int userId, int id) throws MsgEmbeddedException {
         // validate whether this file can be downloaded by current user
-        FileValidateQryInfo f = mapper.selectValidateInfoById(id);
-        ValidUtils.requireNonNull(f, "File not found");
-        // file deleted
-        ValidUtils.requireEquals(f.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue(), "File deleted already");
-        // file belongs to private group && uploaderId unmatched
-        if (!Objects.equals(f.getUserGroup(), FileUserGroupEnum.PUBLIC.getValue())
-                && !Objects.equals(f.getUploaderId(), userId)) {
-            throw new MsgEmbeddedException("You are not allowed to download this file");
-        }
+        FileInfo f = fileInfoMapper.selectValidateInfoById(id, userId);
+        ValidUtils.requireNonNull(f, "File is not found or you are not allowed to download this file");
     }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public String getFilename(int id) {
-        return mapper.selectNameById(id);
+        return fileInfoMapper.selectNameById(id);
     }
 
     @Override
     public void deleteFileLogically(int userId, int id) throws MsgEmbeddedException {
         // check if the file is owned by this user
-        Integer uploaderId = mapper.selectUploaderIdById(id);
+        Integer uploaderId = fileInfoMapper.selectUploaderIdById(id);
         if (!Objects.equals(userId, uploaderId)) {
             throw new MsgEmbeddedException("You can only delete file that you uploaded");
         }
-        mapper.logicDelete(id);
+        fileInfoMapper.logicDelete(id);
     }
 
     @Override
     public void markFileDeletedPhysically(int id) {
-        mapper.markFilePhysicDeleted(id, new Date());
+        fileInfoMapper.markFilePhysicDeleted(id, new Date());
     }
 
     @Override
     public void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId)
             throws MsgEmbeddedException {
-        Integer uploader = mapper.selectUploaderIdById(id);
+        Integer uploader = fileInfoMapper.selectUploaderIdById(id);
         if (uploader == null)
             throw new MsgEmbeddedException("File not found");
 
         if (!Objects.equals(uploader, userId))
             throw new MsgEmbeddedException("You are not allowed to update this file");
 
-        mapper.updateFileUserGroup(id, fug.getValue());
+        fileInfoMapper.updateFileUserGroup(id, fug.getValue());
     }
 
     @Override
@@ -240,6 +258,17 @@ public class FileInfoServiceImpl implements FileInfoService {
         fi.setId(cmd.getId());
         fi.setUserGroup(cmd.getUserGroup().getValue());
         fi.setName(cmd.getFileName());
-        mapper.updateInfo(fi);
+        fileInfoMapper.updateInfo(fi);
     }
+
+    private void checkFileExists(int fileId) throws MsgEmbeddedException {
+        // check if the file exists
+        QueryWrapper<FileInfo> fQry = new QueryWrapper<>();
+        fQry.select("id")
+                .eq("id", fileId)
+                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue());
+        FileInfo file = fileInfoMapper.selectOne(fQry);
+        ValidUtils.requireNonNull(file, "File not found");
+    }
+
 }

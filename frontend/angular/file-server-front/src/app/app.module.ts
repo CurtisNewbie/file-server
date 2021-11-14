@@ -36,6 +36,7 @@ import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
 import { TaskHistoryComponent } from "./task-history/task-history.component";
 import { RegisterComponent } from "./register/register.component";
 import { MatMenuModule } from "@angular/material/menu";
+import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
 
 @NgModule({
   exports: [],
@@ -51,6 +52,7 @@ import { MatMenuModule } from "@angular/material/menu";
     ManageTasksComponent,
     TaskHistoryComponent,
     RegisterComponent,
+    GrantAccessDialogComponent,
   ],
   imports: [
     MatMenuModule,
@@ -72,7 +74,7 @@ import { MatMenuModule } from "@angular/material/menu";
     MatSelectModule,
     MatDialogModule,
   ],
-  entryComponents: [ConfirmDialogComponent],
+  entryComponents: [ConfirmDialogComponent, GrantAccessDialogComponent],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: APP_BASE_HREF, useValue: "/" },

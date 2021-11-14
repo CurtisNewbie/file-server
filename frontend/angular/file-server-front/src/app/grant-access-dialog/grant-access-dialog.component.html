@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Grant File Access
+</h1>
+<div mat-dialog-content>
+    <p>Granting access to '{{data.fileName}}'</p>
+</div>
+<mat-form-field appearance="fill" style="width: 100%;" class="mb-2">
+    <mat-label>User Id</mat-label>
+    <!-- always display the first file name only (for zip file, the first one is the zip file's name)  -->
+    <input matInput type="text" [(ngModel)]="grantedTo">
+</mat-form-field>
+<div mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="true" (click)="grantAccess()">Grant</button>
+    <button mat-button [mat-dialog-close]="false" cdkFocusInitial>Cancel</button>
+</div>

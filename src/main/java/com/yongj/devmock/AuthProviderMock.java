@@ -4,6 +4,7 @@ import com.curtisnewbie.module.auth.processing.GenericAuthenticationProvider;
 import com.curtisnewbie.service.auth.remote.consts.UserRole;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 @Profile("dev")
 @Component
 @Primary
+@ConditionalOnProperty(value = "auth-service.mock.is-active", havingValue = "true")
 public class AuthProviderMock extends GenericAuthenticationProvider {
 
     @Override

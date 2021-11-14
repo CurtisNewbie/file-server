@@ -176,4 +176,18 @@ export class FileInfoService {
       headers
     );
   }
+
+  /**
+   * Grant file's access to a user
+   */
+  public grantFileAccess(param: {
+    fileId: number;
+    grantedTo: number;
+  }): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/file/grant-access"),
+      param,
+      headers
+    );
+  }
 }

@@ -52,3 +52,5 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+auth-service.mock.is-active: true
+

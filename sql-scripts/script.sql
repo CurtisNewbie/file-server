@@ -20,6 +20,18 @@ CREATE TABLE IF NOT EXISTS file_info (
     fs_group_id INT NOT NULL COMMENT 'id of fs_group'
 );
 
+CREATE TABLE IF NOT EXISTS file_sharing (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    file_id INT NOT NULL COMMENT "id of file_info",
+    user_id INT NOT NULL COMMENT "user who now have access to the file",
+    create_date DATETIME NOT NULL DEFAULT NOW() COMMENT "time created",
+    created_by VARCHAR(50) NOT NULL DEFAULT "" COMMENT "created by",
+    update_date DATETIME NOT NULL DEFAULT NOW() COMMENT "time updated",
+    updated_by VARCHAR(50) NOT NULL DEFAULT "" COMMENT "updated by",
+    is_del TINYINT NOT NULL DEFAULT 0 COMMENT "is deleted, 0: normal, 1: deleted",
+    UNIQUE(file_id, user_id)
+) COMMENT "file's sharing information";
+
 CREATE TABLE IF NOT EXISTS fs_group (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL COMMENT "group name",

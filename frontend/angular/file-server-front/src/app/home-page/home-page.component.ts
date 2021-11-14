@@ -24,6 +24,7 @@ import { UserService } from "../user.service";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { buildApiPath } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
+import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -411,6 +412,20 @@ export class HomePageComponent implements OnInit {
           // do nothing
         });
       },
+    });
+  }
+
+  popToGrantAccess(u: FileInfo): void {
+    if (!u) return;
+
+    const dialogRef: MatDialogRef<GrantAccessDialogComponent, boolean> =
+      this.dialog.open(GrantAccessDialogComponent, {
+        width: "700px",
+        data: { fileId: u.id, fileName: u.name },
+      });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      // do nothing
     });
   }
 

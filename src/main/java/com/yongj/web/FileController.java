@@ -113,6 +113,22 @@ public class FileController {
         return Result.ok();
     }
 
+    @SentinelResource(value = "grantFileAccess", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class)
+    @LogOperation(name = "/file/grant-access", description = "grant file's access to other user")
+    @PostMapping(path = "/grant-access")
+    public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) throws MsgEmbeddedException,
+            InvalidAuthenticationException {
+        v.validate();
+
+        fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
+                .fileId(v.getFileId())
+                .grantedBy(AuthUtil.getUsername())
+                .grantedTo(v.getGrantedTo())
+                .build());
+        return Result.ok();
+    }
+
     @SentinelResource(value = "fileDownload", defaultFallback = "serviceNotAvailable",
             fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/download", description = "download file")
@@ -140,8 +156,8 @@ public class FileController {
             InvalidAuthenticationException {
         // validate param
         reqVo.validate();
-        reqVo.setUserId(AuthUtil.getUserId());
 
+        reqVo.setUserId(AuthUtil.getUserId());
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
         // collect list of ids to request their usernames

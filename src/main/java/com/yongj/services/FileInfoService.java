@@ -5,10 +5,7 @@ import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.ListFileInfoReqVo;
-import com.yongj.vo.PhysicDeleteFileVo;
-import com.yongj.vo.UpdateFileCmd;
+import com.yongj.vo.*;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -24,6 +21,13 @@ import java.util.List;
  */
 @Validated
 public interface FileInfoService {
+
+    /**
+     * Grant file's access to other user
+     *
+     * @param cmd cmd
+     */
+    void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException;
 
     /**
      * Save a single file

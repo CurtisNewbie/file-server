@@ -76,16 +76,19 @@
 
   <!-- when uploaderId is present, ignore user_group, but keep name as a parameter -->
   <select id="selectBasicInfoByUserIdSelective" resultType="com.yongj.dao.FileInfo">
-    select id, name, uuid, size_in_bytes, user_group, uploader_id, upload_time
-    from file_info
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.upload_time
+    from file_info fi
     <where>
-      is_logic_deleted = 0
+      fi.is_logic_deleted = 0
       <choose>
         <when test="p.uploaderId != null">
-          and uploader_id = #{p.uploaderId}
+          and fi.uploader_id = #{p.uploaderId}
         </when>
         <otherwise>
-          and (user_group = 0 or (user_group = 1 and uploader_id = #{p.userId}))
+          and (fi.user_group = 0
+            or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
+            or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{p.userId})
+          )
           <if test="p.userGroup != null">
             and user_group = #{p.userGroup}
           </if>
@@ -97,10 +100,13 @@
     </where>
     order by id desc
   </select>
-  <select id="selectValidateInfoById" resultType="com.yongj.dao.FileValidateQryInfo">
-    select user_group, uploader_id, is_logic_deleted
-    from file_info
-    where id = #{id}
+  <select id="selectValidateInfoById" resultType="com.yongj.dao.FileInfo">
+    select fi.id
+    from file_info fi
+    where fi.id = #{id}
+    and (fi.user_group = 0
+      or (fi.user_group = 1 and fi.uploader_id = #{userId})
+      or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{userId}))
   </select>
   <select id="selectNameById" resultType="java.lang.String">
     select name
