@@ -14,7 +14,7 @@ export interface GrantAccessDialogData {
   styleUrls: ["./grant-access-dialog.component.css"],
 })
 export class GrantAccessDialogComponent implements OnInit {
-  grantedTo: number;
+  grantedTo: string;
 
   constructor(
     private fileService: FileInfoService,
@@ -30,11 +30,7 @@ export class GrantAccessDialogComponent implements OnInit {
 
   grantAccess() {
     if (!this.grantedTo) {
-      this.notifi.toast("Enter user id first");
-      return;
-    }
-    if (this.grantedTo < 1) {
-      this.notifi.toast("User id illegal");
+      this.notifi.toast("Enter username first");
       return;
     }
 

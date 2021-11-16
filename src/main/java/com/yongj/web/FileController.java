@@ -119,12 +119,18 @@ public class FileController {
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) throws MsgEmbeddedException,
             InvalidAuthenticationException {
+
         v.validate();
+
+        final String grantedToUsername = v.getGrantedTo();
+        Integer grantedToId = remoteUserService.findIdByUsername(grantedToUsername);
+        if (grantedToId == null)
+            throw new MsgEmbeddedException("User '" + grantedToUsername + "' doesn't exist");
 
         fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
                 .fileId(v.getFileId())
                 .grantedBy(AuthUtil.getUsername())
-                .grantedTo(v.getGrantedTo())
+                .grantedTo(grantedToId)
                 .build());
         return Result.ok();
     }

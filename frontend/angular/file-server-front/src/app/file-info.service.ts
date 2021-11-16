@@ -182,7 +182,7 @@ export class FileInfoService {
    */
   public grantFileAccess(param: {
     fileId: number;
-    grantedTo: number;
+    grantedTo: string;
   }): Observable<Resp<void>> {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/grant-access"),

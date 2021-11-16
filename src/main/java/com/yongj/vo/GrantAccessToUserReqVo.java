@@ -13,8 +13,8 @@ public class GrantAccessToUserReqVo {
     /** file's id */
     private Integer fileId;
 
-    /** id of user who is granted access to the file */
-    private Integer grantedTo;
+    /** name of user who is granted access to the file */
+    private String grantedTo;
 
     public void validate() throws MsgEmbeddedException {
         ValidUtils.requireNonNull(fileId);

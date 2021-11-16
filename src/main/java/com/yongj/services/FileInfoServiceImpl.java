@@ -57,7 +57,16 @@ public class FileInfoServiceImpl implements FileInfoService {
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException {
         // make sure the file exists
-        checkFileExists(cmd.getFileId());
+        // check if the file exists
+        QueryWrapper<FileInfo> fQry = new QueryWrapper<>();
+        fQry.select("id", "uploader_id")
+                .eq("id", cmd.getFileId())
+                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue());
+        FileInfo file = fileInfoMapper.selectOne(fQry);
+        ValidUtils.requireNonNull(file, "File not found");
+
+        // check if the grantedTo is the uploader
+        ValidUtils.requireNotEquals(file.getUploaderId(), cmd.getGrantedTo(), "You can't grant access to the file's uploader");
 
         // check if the user already had access to the file
         QueryWrapper<FileSharing> fsQry = new QueryWrapper<>();
@@ -259,16 +268,6 @@ public class FileInfoServiceImpl implements FileInfoService {
         fi.setUserGroup(cmd.getUserGroup().getValue());
         fi.setName(cmd.getFileName());
         fileInfoMapper.updateInfo(fi);
-    }
-
-    private void checkFileExists(int fileId) throws MsgEmbeddedException {
-        // check if the file exists
-        QueryWrapper<FileInfo> fQry = new QueryWrapper<>();
-        fQry.select("id")
-                .eq("id", fileId)
-                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue());
-        FileInfo file = fileInfoMapper.selectOne(fQry);
-        ValidUtils.requireNonNull(file, "File not found");
     }
 
 }
