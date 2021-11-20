@@ -166,6 +166,16 @@ public class FileController {
         return Result.of(resp);
     }
 
+    @SentinelResource(value = "removeGrantedFileAccess", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {InvalidAuthenticationException.class})
+    @LogOperation(name = "/file/remove-granted-access", description = "remove granted file's access")
+    @PostMapping(path = "/remove-granted-access")
+    public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) throws InvalidAuthenticationException {
+
+        fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), AuthUtil.getUserId());
+        return Result.ok();
+    }
+
     @SentinelResource(value = "fileDownload", defaultFallback = "serviceNotAvailable",
             fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/download", description = "download file")

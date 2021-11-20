@@ -204,4 +204,16 @@ export class FileInfoService {
       headers
     );
   }
+
+  /** Remove accesses granted to the file */
+  public removeGrantedAccess(param: {
+    fileId: number;
+    userId: number;
+  }): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/file/remove-granted-access"),
+      param,
+      headers
+    );
+  }
 }

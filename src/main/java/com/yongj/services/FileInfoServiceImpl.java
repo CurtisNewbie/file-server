@@ -14,6 +14,7 @@ import com.yongj.converters.FileSharingConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
+import com.yongj.enums.FileSharingIsDel;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.IOHandler;
@@ -74,22 +75,33 @@ public class FileInfoServiceImpl implements FileInfoService {
 
         // check if the user already had access to the file
         QueryWrapper<FileSharing> fsQry = new QueryWrapper<>();
-        fsQry.select("id")
+        fsQry.select("id", "is_del")
                 .eq("file_id", cmd.getFileId())
                 .eq("user_id", cmd.getGrantedTo());
         FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
-        ValidUtils.assertTrue(fileSharing == null, "User already had access to this file");
+        ValidUtils.assertTrue(fileSharing == null || Objects.equals(fileSharing.getIsDel(), FileSharingIsDel.TRUE.getValue()),
+                "User already had access to this file");
 
-        // insert file_sharing record
-        final LocalDateTime now = LocalDateTime.now();
-        fileSharingMapper.insert(FileSharing.builder()
-                .userId(cmd.getGrantedTo())
-                .fileId(cmd.getFileId())
-                .createdBy(cmd.getGrantedBy())
-                .createDate(now)
-                .updatedBy(cmd.getGrantedBy())
-                .updateDate(now)
-                .build());
+        if (fileSharing == null) {
+            // insert file_sharing record
+            final LocalDateTime now = LocalDateTime.now();
+            fileSharingMapper.insert(FileSharing.builder()
+                    .userId(cmd.getGrantedTo())
+                    .fileId(cmd.getFileId())
+                    .createdBy(cmd.getGrantedBy())
+                    .createDate(now)
+                    .updatedBy(cmd.getGrantedBy())
+                    .updateDate(now)
+                    .build());
+        } else {
+            // update is_del to false
+            FileSharing updateParam = new FileSharing();
+            updateParam.setId(fileSharing.getId());
+            updateParam.setIsDel(FileSharingIsDel.FALSE.getValue());
+            updateParam.setUpdateDate(LocalDateTime.now());
+            updateParam.setUpdatedBy(cmd.getGrantedBy());
+            fileSharingMapper.updateById(updateParam);
+        }
     }
 
     @Override
@@ -280,9 +292,25 @@ public class FileInfoServiceImpl implements FileInfoService {
         QueryWrapper<FileSharing> condition = new QueryWrapper<>();
         condition.select("id", "user_id", "create_date", "created_by")
                 .eq("file_id", fileId)
+                .eq("is_del", FileSharingIsDel.FALSE.getValue())
                 .orderBy(true, false, "id");
         Page page = PagingUtil.forPage(paging);
         return PagingUtil.toPageList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
+    }
+
+    @Override
+    public void removeGrantedAccess(int fileId, int userId, int removedBy) {
+        FileSharing updateParam = new FileSharing();
+        updateParam.setIsDel(FileSharingIsDel.TRUE.getValue());
+        updateParam.setUpdatedBy(String.valueOf(removedBy));
+        updateParam.setUpdateDate(LocalDateTime.now());
+
+        QueryWrapper<FileSharing> whereCondition = new QueryWrapper<>();
+        whereCondition
+                .eq("file_id", fileId)
+                .eq("user_id", userId)
+                .eq("is_del", FileSharingIsDel.FALSE.getValue());
+        fileSharingMapper.update(updateParam, whereCondition);
     }
 
 }

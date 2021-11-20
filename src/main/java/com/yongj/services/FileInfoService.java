@@ -133,8 +133,18 @@ public interface FileInfoService {
 
     /**
      * List granted file's accesses
+     *
      * @param fileId file_info.id
      * @param paging info
      */
     PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, @NotNull PagingVo paging);
+
+    /**
+     * Remove granted file access
+     *
+     * @param fileId    file's id
+     * @param userId    user's id
+     * @param removedBy id of user to removed the access
+     */
+    void removeGrantedAccess(int fileId, int userId, int removedBy);
 }

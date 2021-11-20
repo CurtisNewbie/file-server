@@ -22,8 +22,9 @@ export class GrantAccessDialogComponent implements OnInit {
     "username",
     "createDate",
     "createdBy",
+    "removeButton",
   ];
-  grantedTo: string;
+  grantedTo: string = "";
   grantedAccesses: FileAccessGranted[] = [];
   pagingController: PagingController = new PagingController();
 
@@ -55,6 +56,7 @@ export class GrantAccessDialogComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notifi.toast("Access granted");
+          this.fetchAccessGranted();
         },
       });
   }
@@ -76,5 +78,18 @@ export class GrantAccessDialogComponent implements OnInit {
   handle(e: PageEvent): void {
     this.pagingController.handle(e);
     this.fetchAccessGranted();
+  }
+
+  removeAccess(userId: number): void {
+    this.fileService
+      .removeGrantedAccess({
+        userId: userId,
+        fileId: this.data.fileId,
+      })
+      .subscribe({
+        next: () => {
+          this.fetchAccessGranted();
+        },
+      });
   }
 }
