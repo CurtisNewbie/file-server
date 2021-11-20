@@ -9,6 +9,7 @@ import {
 import {
   FetchFileInfoList,
   FetchFileInfoListParam,
+  ListGrantedAccessResp,
   UpdateFileUserGroupParam,
   UploadFileParam,
 } from "src/models/file-info";
@@ -17,6 +18,7 @@ import {
   ListAllFsGroupRespVo,
   UpdateFsGroupModeReqVo,
 } from "src/models/fs-group";
+import { Paging } from "src/models/paging";
 import { Resp } from "src/models/resp";
 import { buildApiPath } from "./util/api-util";
 
@@ -186,6 +188,18 @@ export class FileInfoService {
   }): Observable<Resp<void>> {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/grant-access"),
+      param,
+      headers
+    );
+  }
+
+  /** List accesses granted to the file */
+  public listGrantedAccess(param: {
+    fileId: number;
+    pagingVo: Paging;
+  }): Observable<Resp<ListGrantedAccessResp>> {
+    return this.http.post<Resp<ListGrantedAccessResp>>(
+      buildApiPath("/file/list-granted-access"),
       param,
       headers
     );

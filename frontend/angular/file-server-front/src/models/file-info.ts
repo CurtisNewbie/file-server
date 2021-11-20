@@ -178,3 +178,22 @@ export interface UpdateFileUserGroupParam {
   /** file's name */
   name: string;
 }
+
+export interface ListGrantedAccessResp {
+  list: FileAccessGranted[];
+
+  pagingVo: Paging;
+}
+
+export interface FileAccessGranted {
+  /** id of this file_sharing record */
+  id: number;
+  /** id of user */
+  userId: number;
+  /** user who is granted access to this file*/
+  username: string;
+  /** the date that this access is granted */
+  createDate: string;
+  /** the access is granted by */
+  createdBy: string;
+}

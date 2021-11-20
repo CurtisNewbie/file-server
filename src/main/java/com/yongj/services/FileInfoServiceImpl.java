@@ -2,6 +2,7 @@ package com.yongj.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
@@ -9,6 +10,7 @@ import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.converters.FileInfoConverter;
+import com.yongj.converters.FileSharingConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
@@ -53,6 +55,8 @@ public class FileInfoServiceImpl implements FileInfoService {
     private FsGroupService fsGroupService;
     @Autowired
     private FileSharingMapper fileSharingMapper;
+    @Autowired
+    private FileSharingConverter fileSharingConverter;
 
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException {
@@ -268,6 +272,17 @@ public class FileInfoServiceImpl implements FileInfoService {
         fi.setUserGroup(cmd.getUserGroup().getValue());
         fi.setName(cmd.getFileName());
         fileInfoMapper.updateInfo(fi);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, @NotNull PagingVo paging) {
+        QueryWrapper<FileSharing> condition = new QueryWrapper<>();
+        condition.select("id", "user_id", "create_date", "created_by")
+                .eq("file_id", fileId)
+                .orderBy(true, false, "id");
+        Page page = PagingUtil.forPage(paging);
+        return PagingUtil.toPageList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
     }
 
 }

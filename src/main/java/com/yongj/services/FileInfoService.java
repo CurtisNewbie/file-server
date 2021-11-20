@@ -130,4 +130,11 @@ public interface FileInfoService {
      * Update file's info
      */
     void updateFile(@NotNull UpdateFileCmd cmd);
+
+    /**
+     * List granted file's accesses
+     * @param fileId file_info.id
+     * @param paging info
+     */
+    PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, @NotNull PagingVo paging);
 }

@@ -7,7 +7,44 @@
     <mat-label>Username</mat-label>
     <input matInput type="text" [(ngModel)]="grantedTo">
 </mat-form-field>
-<div mat-dialog-actions>
-    <button mat-button [mat-dialog-close]="true" (click)="grantAccess()">Grant</button>
-    <button mat-button [mat-dialog-close]="false" cdkFocusInitial>Cancel</button>
-</div>
+<ng-container>
+
+    <p *ngIf="!grantedAccesses">You haven't granted access to any yet</p>
+
+    <ng-container *ngIf="grantedAccesses">
+        <h6 class="mb-2">Users Granted Access To This File:</h6>
+
+        <table mat-table [dataSource]="grantedAccesses" class="mat-elevation-z8 mb-4" style="width: 100%;"
+            multiTemplateDataRows>
+            <ng-container matColumnDef="userId">
+                <th mat-header-cell *matHeaderCellDef> Id </th>
+                <td mat-cell *matCellDef="let ag"> {{ag.userId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="username">
+                <th mat-header-cell *matHeaderCellDef> Username </th>
+                <td mat-cell *matCellDef="let ag"> {{ag.username}} </td>
+            </ng-container>
+            <ng-container matColumnDef="createDate">
+                <th mat-header-cell *matHeaderCellDef> Date Granted </th>
+                <td mat-cell *matCellDef="let ag"> {{ag.createDate}} </td>
+            </ng-container>
+            <ng-container matColumnDef="createdBy">
+                <th mat-header-cell *matHeaderCellDef> Granted By </th>
+                <td mat-cell *matCellDef="let ag"> {{ag.createdBy}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="COLUMN_TO_BE_DISPLAYED"></tr>
+            <tr mat-row *matRowDef="let row; columns: COLUMN_TO_BE_DISPLAYED;" class="element-row">
+            </tr>
+        </table>
+
+        <mat-paginator [length]=" pagingController.paging.total" [pageSize]="pagingController.paging.limit"
+            [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page">
+        </mat-paginator>
+
+        <div mat-dialog-actions>
+            <button mat-button [mat-dialog-close]="true" (click)="grantAccess()">Grant</button>
+            <button mat-button [mat-dialog-close]="false" cdkFocusInitial>Cancel</button>
+        </div>
+    </ng-container>
+</ng-container>

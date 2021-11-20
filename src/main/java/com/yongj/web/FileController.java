@@ -2,6 +2,7 @@ package com.yongj.web;
 
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
@@ -13,6 +14,7 @@ import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationExcep
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.converters.FileInfoConverter;
+import com.yongj.converters.FileSharingConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
@@ -35,6 +37,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -63,6 +66,9 @@ public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
+    @DubboReference
+    private RemoteUserService remoteUserService;
+
     @Autowired
     private PathResolver pathResolver;
     @Autowired
@@ -71,10 +77,10 @@ public class FileController {
     private FileInfoService fileInfoService;
     @Autowired
     private TempTokenFileDownloadService tempTokenFileDownloadService;
-    @DubboReference
-    private RemoteUserService remoteUserService;
     @Autowired
     private FileInfoConverter fileInfoConverter;
+    @Autowired
+    private FileSharingConverter fileSharingConverter;
 
     @SentinelResource(value = "fileUpload", defaultFallback = "serviceNotAvailable",
             fallbackClass = SentinelFallbackConfig.class)
@@ -114,7 +120,7 @@ public class FileController {
     }
 
     @SentinelResource(value = "grantFileAccess", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
+            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = MsgEmbeddedException.class)
     @LogOperation(name = "/file/grant-access", description = "grant file's access to other user")
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) throws MsgEmbeddedException,
@@ -133,6 +139,31 @@ public class FileController {
                 .grantedTo(grantedToId)
                 .build());
         return Result.ok();
+    }
+
+    @SentinelResource(value = "listGrantedFileAccess", defaultFallback = "serviceNotAvailable",
+            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = MsgEmbeddedException.class)
+    @LogOperation(name = "/file/list-granted-access", description = "list file's accesses that are granted to other user")
+    @PostMapping(path = "/list-granted-access")
+    public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) throws MsgEmbeddedException {
+        ValidUtils.requireNonNull(v.getPagingVo());
+
+        final PageablePayloadSingleton<List<FileSharingVo>> pps = fileInfoService.listGrantedAccess(v.getFileId(), v.getPagingVo());
+        final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
+        // collect list of userIds
+        List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
+        if (!idList.isEmpty()) {
+            // get usernames of these userIds
+            Map<Integer, String> idToName = remoteUserService.fetchUsernameById(idList);
+            resp.setList(BeanCopyUtils.mapTo(pps.getPayload(), vo -> {
+                // convert to FileSharingWebVo
+                FileSharingWebVo wv = fileSharingConverter.toWebVo(vo);
+                wv.setUsername(idToName.get(wv.getUserId()));
+                return wv;
+            }));
+        }
+        resp.setPagingVo(pps.getPagingVo());
+        return Result.of(resp);
     }
 
     @SentinelResource(value = "fileDownload", defaultFallback = "serviceNotAvailable",
