@@ -179,13 +179,6 @@ public class FileInfoServiceImpl implements FileInfoService {
         return f;
     }
 
-    private List<ZipCompressEntry> prepareZipEntries(String[] entryNames, InputStream[] entries) {
-        List<ZipCompressEntry> l = new ArrayList<>(entries.length);
-        for (int i = 0; i < entries.length; i++)
-            l.add(new ZipCompressEntry(entryNames[i], entries[i]));
-        return l;
-    }
-
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
@@ -313,4 +306,12 @@ public class FileInfoServiceImpl implements FileInfoService {
         fileSharingMapper.update(updateParam, whereCondition);
     }
 
+    // ------------------------------------- private helper methods
+
+    private List<ZipCompressEntry> prepareZipEntries(String[] entryNames, InputStream[] entries) {
+        List<ZipCompressEntry> l = new ArrayList<>(entries.length);
+        for (int i = 0; i < entries.length; i++)
+            l.add(new ZipCompressEntry(entryNames[i], entries[i]));
+        return l;
+    }
 }

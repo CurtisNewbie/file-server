@@ -11,9 +11,9 @@
         </div>
     </div>
 
-    <p class="m-2" *ngIf="!grantedAccesses">You haven't granted access to any one yet</p>
+    <p *ngIf="!grantedAccesses" class="mt-2 mb-3">You haven't granted access to any one yet</p>
 
-    <ng-container *ngIf="grantedAccesses">
+    <ng-container>
         <h6 class="mb-3">Users Granted Access To This File:</h6>
 
         <table mat-table [dataSource]="grantedAccesses" class="mat-elevation-z8 mb-4" style="width: 100%;"
@@ -52,7 +52,6 @@
             [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page">
         </mat-paginator>
     </ng-container>
-
 </div>
 
 <div mat-dialog-actions>
