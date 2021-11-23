@@ -83,7 +83,7 @@ public class FileController {
     private FileSharingConverter fileSharingConverter;
 
     @SentinelResource(value = "fileUpload", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
+            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {MsgEmbeddedException.class, InvalidAuthenticationException.class})
     @LogOperation(name = "/file/upload", description = "upload file")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -120,7 +120,7 @@ public class FileController {
     }
 
     @SentinelResource(value = "grantFileAccess", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = MsgEmbeddedException.class)
+            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {MsgEmbeddedException.class, InvalidAuthenticationException.class})
     @LogOperation(name = "/file/grant-access", description = "grant file's access to other user")
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) throws MsgEmbeddedException,
@@ -196,7 +196,7 @@ public class FileController {
     }
 
     @SentinelResource(value = "fileList", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
+            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {MsgEmbeddedException.class})
     @LogOperation(name = "/file/list", description = "list file")
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,

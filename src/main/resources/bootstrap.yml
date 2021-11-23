@@ -25,6 +25,7 @@ authmodule:
     - "/api/logout"
     - "/api/user/info"
     - "/api/user/register/request"
+    - "/api/request-approval"
     - "/**/*.js"
     - "/**/*.css"
     - "/favicon.ico"
