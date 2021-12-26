@@ -14,10 +14,25 @@
   <version>1.0.3-SNAPSHOT</version>
   <name>file-server</name>
   <properties>
+    <auth-module.version>micro-2.0.3-SNAPSHOT</auth-module.version>
+    <auth-module-web.version>1.0.3-SNAPSHOT</auth-module-web.version>
+    <log-tracing-module.version>2.0.2-SNAPSHOT</log-tracing-module.version>
+    <common-module.version>2.0.3-SNAPSHOT</common-module.version>
+    <redis-util-module.version>2.0.2-SNAPSHOT</redis-util-module.version>
+    <jwt-module.version>1.0.0-SNAPSHOT</jwt-module.version>
+    <distributed-task-module.version>2.0.3-SNAPSHOT</distributed-task-module.version>
+    <messaging-module.version>2.0.3-SNAPSHOT</messaging-module.version>
     <java.version>8</java.version>
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>jwt-module</artifactId>
+      <version>${jwt-module.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
@@ -46,12 +61,15 @@
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>auth-module</artifactId>
+      <version>${auth-module.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>auth-module-web</artifactId>
+      <version>${auth-module-web.version}</version>
     </dependency>
+
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -100,31 +118,21 @@
     </dependency>
 
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>common-module</artifactId>
-<!--      <exclusions>-->
-<!--        <exclusion>-->
-<!--          <groupId>com.github.pagehelper</groupId>-->
-<!--          <artifactId>pagehelper</artifactId>-->
-<!--        </exclusion>-->
-<!--      </exclusions>-->
+      <version>${common-module.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>log-tracing-module</artifactId>
+      <version>${log-tracing-module.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>redis-util-module</artifactId>
+      <version>${redis-util-module.version}</version>
     </dependency>
 
     <dependency>
@@ -145,17 +153,13 @@
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>distributed-task-module</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.mybatis.spring.boot</groupId>
-          <artifactId>mybatis-spring-boot-starter</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>${distributed-task-module.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>messaging-module</artifactId>
+      <version>${messaging-module.version}</version>
     </dependency>
   </dependencies>
 
