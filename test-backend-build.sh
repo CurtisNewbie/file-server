@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# remotepath="192.168.10.128"
-remotepath="192.168.31.103"
+remotepath="curtisnewbie.com"
 jarname="file-server-1.0.3-SNAPSHOT.jar"
 
 mvn clean package -Dmaven.test.skip=true  
