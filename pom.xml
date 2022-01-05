@@ -11,13 +11,13 @@
 
   <groupId>com.yongj</groupId>
   <artifactId>file-server</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.5-SNAPSHOT</version>
   <name>file-server</name>
   <properties>
-    <auth-module.version>micro-2.0.4-SNAPSHOT</auth-module.version>
+    <auth-module.version>micro-2.0.5-SNAPSHOT</auth-module.version>
     <auth-module-web.version>1.0.3-SNAPSHOT</auth-module-web.version>
     <log-tracing-module.version>2.0.2-SNAPSHOT</log-tracing-module.version>
-    <common-module.version>2.0.3-SNAPSHOT</common-module.version>
+    <common-module.version>2.0.4-SNAPSHOT</common-module.version>
     <redis-util-module.version>2.0.2-SNAPSHOT</redis-util-module.version>
     <distributed-task-module.version>2.0.3-SNAPSHOT</distributed-task-module.version>
     <messaging-module.version>2.0.3-SNAPSHOT</messaging-module.version>
