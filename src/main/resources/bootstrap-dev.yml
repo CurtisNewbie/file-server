@@ -52,7 +52,7 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-auth-service.mock.is-active: true
+auth-service.mock.is-active: false
 
 jwt-module:
   publicKey: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCUZIXyb43pYp6xr7nrnBWF23U/LyXu/Mgy6D34EW5N+fPV4hnYMCUVULjG8WZwN/kddIBDaab15y4L1WLBWiGarTP3O0LhvA2uJ4PcABi6AeqbTI5FeimByUMhypEHpELhpZIef9q5WpIj4C04tOE1FSaaWHlzdXQa9lR7JmjJDQIDAQAB"

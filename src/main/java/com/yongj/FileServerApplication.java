@@ -7,6 +7,7 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -14,6 +15,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 import java.io.IOException;
 
+@EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.curtisnewbie.service.auth.remote.feign")
 @EnableRedisHttpSession(redisNamespace = "file-service:session")
 @PropertySources({
