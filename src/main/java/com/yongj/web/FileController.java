@@ -9,8 +9,8 @@ import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
-import com.curtisnewbie.service.auth.remote.api.RemoteUserService;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
+import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.converters.FileInfoConverter;
@@ -29,7 +29,6 @@ import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
 import com.yongj.web.streaming.GzipStreamingResponseBody;
 import com.yongj.web.streaming.PlainStreamingResponseBody;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +65,8 @@ public class FileController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-    @DubboReference
-    private RemoteUserService remoteUserService;
+    @Autowired
+    private UserServiceFeign remoteUserService;
 
     @Autowired
     private PathResolver pathResolver;
@@ -129,7 +128,10 @@ public class FileController {
         v.validate();
 
         final String grantedToUsername = v.getGrantedTo();
-        Integer grantedToId = remoteUserService.findIdByUsername(grantedToUsername);
+        final Result<Integer> result = remoteUserService.findIdByUsername(grantedToUsername);
+        result.assertIsOk();
+
+        Integer grantedToId = result.getData();
         if (grantedToId == null)
             throw new MsgEmbeddedException("User '" + grantedToUsername + "' doesn't exist");
 
@@ -154,7 +156,9 @@ public class FileController {
         List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
         if (!idList.isEmpty()) {
             // get usernames of these userIds
-            Map<Integer, String> idToName = remoteUserService.fetchUsernameById(idList);
+            final Result<Map<Integer, String>> result = remoteUserService.fetchUsernameById(idList);
+            result.assertIsOk();
+            Map<Integer, String> idToName = result.getData();
             resp.setList(BeanCopyUtils.mapTo(pps.getPayload(), vo -> {
                 // convert to FileSharingWebVo
                 FileSharingWebVo wv = fileSharingConverter.toWebVo(vo);
@@ -209,7 +213,9 @@ public class FileController {
 
         // collect list of ids to request their usernames
         List<Integer> uploaderIds = pageable.getPayload().stream().map(FileInfoVo::getUploaderId).collect(Collectors.toList());
-        Map<Integer, String> idToName = remoteUserService.fetchUsernameById(uploaderIds);
+        final Result<Map<Integer, String>> result = remoteUserService.fetchUsernameById(uploaderIds);
+        result.assertIsOk();
+        Map<Integer, String> idToName = result.getData();
 
         ListFileInfoRespVo res = new ListFileInfoRespVo();
         res.setFileInfoList(mapTo(pageable.getPayload(), f -> {

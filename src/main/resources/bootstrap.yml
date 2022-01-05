@@ -8,10 +8,8 @@ spring:
     max-request-size: -1
   mvc.async:
     request-timeout: 1200000
-dubbo:
-  cloud:
-    subscribed-services: auth-service-application
-
+  main:
+    allow-bean-definition-overriding: true
 
 # base path for the exposed api
 web.base-path: "/api/"
