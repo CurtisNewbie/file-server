@@ -11,6 +11,8 @@ import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
+import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdReq;
+import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdResp;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.converters.FileInfoConverter;
@@ -156,9 +158,12 @@ public class FileController {
         List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
         if (!idList.isEmpty()) {
             // get usernames of these userIds
-            final Result<Map<Integer, String>> result = remoteUserService.fetchUsernameById(idList);
+            final Result<FetchUsernameByIdResp> result = remoteUserService.fetchUsernameById(
+                    FetchUsernameByIdReq.builder()
+                            .userIds(idList)
+                            .build());
             result.assertIsOk();
-            Map<Integer, String> idToName = result.getData();
+            Map<Integer, String> idToName = result.getData().getIdToUsername();
             resp.setList(BeanCopyUtils.mapTo(pps.getPayload(), vo -> {
                 // convert to FileSharingWebVo
                 FileSharingWebVo wv = fileSharingConverter.toWebVo(vo);
@@ -213,9 +218,11 @@ public class FileController {
 
         // collect list of ids to request their usernames
         List<Integer> uploaderIds = pageable.getPayload().stream().map(FileInfoVo::getUploaderId).collect(Collectors.toList());
-        final Result<Map<Integer, String>> result = remoteUserService.fetchUsernameById(uploaderIds);
+        final Result<FetchUsernameByIdResp> result = remoteUserService.fetchUsernameById(FetchUsernameByIdReq.builder()
+                .userIds(uploaderIds)
+                .build());
         result.assertIsOk();
-        Map<Integer, String> idToName = result.getData();
+        Map<Integer, String> idToName = result.getData().getIdToUsername();
 
         ListFileInfoRespVo res = new ListFileInfoRespVo();
         res.setFileInfoList(mapTo(pageable.getPayload(), f -> {

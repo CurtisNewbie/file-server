@@ -49,3 +49,6 @@ mybatis:
 # name of the application group (same cluster should share the same name)
 distributed-task-module:
   application-group: file-server
+
+jwt-module:
+  issuer: yongj.zhuang-auth-service
