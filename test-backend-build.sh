@@ -1,7 +1,7 @@
 #!/bin/bash
 
 remotepath="curtisnewbie.com"
-jarname="file-server-1.0.3-SNAPSHOT.jar"
+jarname="file-server-build.jar"
 
 mvn clean package -Dmaven.test.skip=true  
 

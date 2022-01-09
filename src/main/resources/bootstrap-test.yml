@@ -48,3 +48,5 @@ org.quartz.threadPool.threadCount: 2
 jwt-module:
   publicKey: ${jwt-module.publicKey}
   privateKey: ${jwt-module.privateKey}
+
+jwt-token: ${jwt-token}

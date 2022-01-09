@@ -156,6 +156,7 @@
   </dependencies>
 
   <build>
+    <finalName>file-service-build</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
