@@ -1,5 +1,6 @@
 package com.yongj;
 
+import com.curtisnewbie.module.auth.config.EnableFeignJwtAuthorization;
 import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -15,6 +16,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 import java.io.IOException;
 
+@EnableFeignJwtAuthorization
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.curtisnewbie.service.auth.remote.feign")
 @EnableRedisHttpSession(redisNamespace = "file-service:session")

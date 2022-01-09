@@ -11,10 +11,10 @@
 
   <groupId>com.yongj</groupId>
   <artifactId>file-server</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>1.0.6-SNAPSHOT</version>
   <name>file-server</name>
   <properties>
-    <auth-module.version>micro-2.0.5-SNAPSHOT</auth-module.version>
+    <auth-module.version>micro-2.0.6-SNAPSHOT</auth-module.version>
     <auth-module-web.version>1.0.4-SNAPSHOT</auth-module-web.version>
     <log-tracing-module.version>2.0.2-SNAPSHOT</log-tracing-module.version>
     <common-module.version>2.0.4-SNAPSHOT</common-module.version>
