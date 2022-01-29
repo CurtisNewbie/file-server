@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yongj.dao.FileInfoMapper">
-  <insert id="insert" parameterType="com.yongj.dao.FileInfo" useGeneratedKeys="true" keyProperty="id">
-    insert into file_info (id, name, uuid,
-    is_logic_deleted, is_physic_deleted, size_in_bytes,
-    uploader_id, upload_time, logic_delete_time,
-    physic_delete_time, user_group, fs_group_id)
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
-    #{isLogicDeleted,jdbcType=INTEGER}, #{isPhysicDeleted,jdbcType=INTEGER}, #{sizeInBytes,jdbcType=BIGINT},
-    #{uploaderId,jdbcType=INTEGER}, #{uploadTime,jdbcType=TIMESTAMP}, #{logicDeleteTime,jdbcType=TIMESTAMP},
-    #{physicDeleteTime,jdbcType=TIMESTAMP}, #{userGroup,jdbcType=INTEGER}, #{fsGroupId})
-  </insert>
   <update id="updateByPrimaryKey" parameterType="com.yongj.dao.FileInfo">
     update file_info
     set name = #{name,jdbcType=VARCHAR},

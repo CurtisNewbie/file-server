@@ -9,6 +9,9 @@ import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.vo.ListFileInfoReqVo;
+import com.yongj.vo.UpdateFileCmd;
+import com.yongj.vo.UploadFileVo;
+import com.yongj.vo.UploadZipFileVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -57,14 +60,12 @@ public class FileInfoServiceTest {
     FsGroupService fsGroupService;
 
 
-    /** Test {@link FileInfoService#uploadFile(int, String, FileUserGroupEnum, InputStream)} */
+    /** Test {@link FileInfoService#updateFile(UpdateFileCmd)} */
     @Test
     void shouldUploadFile() {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
         Assertions.assertDoesNotThrow(() -> {
-            FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+            FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
             Assertions.assertNotNull(fi, "No FileInfo returned");
             Path fp = Paths.get(
                     basePath.concat(File.separator)
@@ -78,7 +79,7 @@ public class FileInfoServiceTest {
         });
     }
 
-    /** Test {@link FileInfoService#uploadFilesAsZip(int, String, String[], FileUserGroupEnum, InputStream[])} */
+    /** Test {@link FileInfoService#uploadFilesAsZip(UploadZipFileVo)} */
     @Test
     public void shouldUploadFilesAsZip() {
         mockFsGroupService();
@@ -96,8 +97,14 @@ public class FileInfoServiceTest {
         iss[1] = tf2;
 
         Assertions.assertDoesNotThrow(() -> {
-            FileInfo fi = fileInfoService.uploadFilesAsZip(TEST_USER_ID, UPLOADED_TEST_FILE_ZIP, entryNames,
-                    FileUserGroupEnum.PRIVATE, iss);
+            FileInfo fi = fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
+                    .userId(TEST_USER_ID)
+                    .username("zhuangyongj")
+                    .zipFile(UPLOADED_TEST_FILE_ZIP)
+                    .inputStreams(iss)
+                    .entryNames(entryNames)
+                    .userGroup(FileUserGroupEnum.PRIVATE)
+                    .build());
             Assertions.assertNotNull(fi, "No FileInfo returned");
             Path fp = Paths.get(
                     basePath.concat(File.separator)
@@ -146,9 +153,7 @@ public class FileInfoServiceTest {
         try (
                 OutputStream fout = new FileOutputStream(dp.toFile());
         ) {
-            final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-            Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-            FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+            FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
             Assertions.assertNotNull(fi);
 
             fileInfoService.downloadFile(fi.getId(), fout);
@@ -180,9 +185,7 @@ public class FileInfoServiceTest {
     @Test
     void shouldGetFilename() throws IOException {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
 
         String fname = fileInfoService.getFilename(fi.getId());
@@ -193,9 +196,7 @@ public class FileInfoServiceTest {
     @Test
     void ShouldRetrieveFileInputStream() throws IOException {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
         Assertions.assertNotNull(fileInfoService.retrieveFileInputStream(fi.getId()));
         doCleanUp(fi);
@@ -204,9 +205,7 @@ public class FileInfoServiceTest {
     @Test
     void shouldValidateUserDownload() throws IOException {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
 
         Assertions.assertThrows(Exception.class, () -> {
@@ -219,9 +218,7 @@ public class FileInfoServiceTest {
     @Test
     void shouldDeleteFileLogically() throws IOException {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
@@ -238,9 +235,7 @@ public class FileInfoServiceTest {
     @Test
     void shouldMarkFileDeletedPhysically() throws IOException {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
@@ -256,9 +251,7 @@ public class FileInfoServiceTest {
     @Test
     void shouldUpdateFileUserGroup() throws IOException {
         mockFsGroupService();
-        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
-        FileInfo fi = fileInfoService.uploadFile(TEST_USER_ID, UPLOADED_TEST_FILE, FileUserGroupEnum.PRIVATE, inputStream);
+        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
@@ -290,5 +283,18 @@ public class FileInfoServiceTest {
             fsg.setName("default");
             return fsg;
         });
+    }
+
+    private FileInfo uploadTestFile(int userId, String fileName) throws IOException {
+        final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
+        Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
+
+        return fileInfoService.uploadFile(UploadFileVo.builder()
+                .userId(userId)
+                .fileName(fileName)
+                .username("zhuangyongj")
+                .userGroup(FileUserGroupEnum.PRIVATE)
+                .inputStream(inputStream)
+                .build());
     }
 }

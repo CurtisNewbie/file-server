@@ -16,7 +16,7 @@ public class UploadFileVo {
     /** uploader id */
     private int userId;
     /** uploader name */
-    private String userName;
+    private String username;
     private String fileName;
     private FileUserGroupEnum userGroup;
     private InputStream inputStream;

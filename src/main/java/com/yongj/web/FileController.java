@@ -101,7 +101,7 @@ public class FileController {
             if (multipartFiles.length == 1) {
                 fileInfoService.uploadFile(UploadFileVo.builder()
                         .userId(AuthUtil.getUserId())
-                        .userName(AuthUtil.getUsername())
+                        .username(AuthUtil.getUsername())
                         .fileName(fileNames[0])
                         .userGroup(userGroupEnum)
                         .inputStream(multipartFiles[0].getInputStream())

@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface FileInfoMapper extends BaseMapper<FileInfo> {
 
-    int insert(FileInfo record);
-
     FileInfo selectByPrimaryKey(Integer id);
 
     List<FileInfo> selectAll();

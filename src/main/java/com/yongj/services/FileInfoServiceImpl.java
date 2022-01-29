@@ -135,7 +135,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
         f.setName(fileName);
         f.setUploaderId(uploaderId);
-        f.setUploaderName(param.getUserName());
+        f.setUploaderName(param.getUsername());
         f.setUploadTime(LocalDateTime.now());
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());

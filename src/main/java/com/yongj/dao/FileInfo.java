@@ -44,7 +44,7 @@ public class FileInfo {
     private String uploaderName;
 
     /** upload time */
-    @TableField("uploader_time")
+    @TableField("upload_time")
     private LocalDateTime uploadTime;
 
     /** when the file is logically deleted */
