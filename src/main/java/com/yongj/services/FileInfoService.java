@@ -31,26 +31,13 @@ public interface FileInfoService {
 
     /**
      * Save a single file
-     *
-     * @param userId      user.id
-     * @param fileName    fileName
-     * @param userGroup   userGroup
-     * @param inputStream file's inputStream
-     * @return the saved fileInfo
      */
-    FileInfo uploadFile(int userId, String fileName, FileUserGroupEnum userGroup, InputStream inputStream) throws IOException;
+    FileInfo uploadFile(@NotNull UploadFileVo param) throws IOException;
 
     /**
      * Save multiple files as a single zip
-     *
-     * @param userId       user.id
-     * @param zipFileName  zipFileName
-     * @param fileNames    entries' name
-     * @param userGroup    userGroup
-     * @param inputStreams files' inputStreams
-     * @return the saved fileInfo
      */
-    FileInfo uploadFilesAsZip(int userId, String zipFileName, String[] fileNames, FileUserGroupEnum userGroup, InputStream[] inputStreams)
+    FileInfo uploadFilesAsZip(@NotNull UploadZipFileVo param)
             throws IOException;
 
     /**

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -105,10 +106,15 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public FileInfo uploadFile(int userId, String fileName, FileUserGroupEnum userGroup, InputStream inputStream) throws IOException {
-        Objects.requireNonNull(fileName);
-        Objects.requireNonNull(userGroup);
-        Objects.requireNonNull(inputStream);
+    public FileInfo uploadFile(@NotNull UploadFileVo param) throws IOException {
+        final String fileName = param.getFileName();
+        final FileUserGroupEnum userGroup = param.getUserGroup();
+        final InputStream inputStream = param.getInputStream();
+        final int uploaderId = param.getUserId();
+
+        Assert.notNull(fileName, "fileName == null");
+        Assert.notNull(userGroup, "userGroup == null");
+        Assert.notNull(inputStream, "inputStream == null");
 
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
@@ -118,7 +124,7 @@ public class FileInfoServiceImpl implements FileInfoService {
             throw new NoWritableFsGroupException();
 
         // resolve absolute path
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId, fsGroup.getBaseFolder());
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
@@ -128,7 +134,8 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
         f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
         f.setName(fileName);
-        f.setUploaderId(userId);
+        f.setUploaderId(uploaderId);
+        f.setUploaderName(param.getUserName());
         f.setUploadTime(LocalDateTime.now());
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());
@@ -139,12 +146,18 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
-    public FileInfo uploadFilesAsZip(int userId, String zipFile, String[] entryNames, FileUserGroupEnum userGroup,
-                                     InputStream[] inputStreams) throws IOException {
+    public FileInfo uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
+        final int userId = param.getUserId();
+        final String zipFile = param.getZipFile();
+        final String[] entryNames = param.getEntryNames();
+        final FileUserGroupEnum userGroup = param.getUserGroup();
+        final InputStream[] inputStreams = param.getInputStreams();
+
         Objects.requireNonNull(entryNames);
         Objects.requireNonNull(userGroup);
         Objects.requireNonNull(zipFile);
         Objects.requireNonNull(inputStreams);
+
         if (inputStreams.length == 0)
             throw new IllegalArgumentException();
         if (entryNames.length != inputStreams.length)
@@ -171,6 +184,7 @@ public class FileInfoServiceImpl implements FileInfoService {
         f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
         f.setUploaderId(userId);
         f.setUploadTime(LocalDateTime.now());
+        f.setUploaderName(param.getUsername());
         f.setUuid(uuid);
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);

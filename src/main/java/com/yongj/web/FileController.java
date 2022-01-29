@@ -99,15 +99,31 @@ public class FileController {
 
         try {
             if (multipartFiles.length == 1) {
-                fileInfoService.uploadFile(AuthUtil.getUserId(), fileNames[0], userGroupEnum, multipartFiles[0].getInputStream());
-            } else { // multiple upload, compress them into a single file zip file
-                // the first one is the zipFile's name, and the rest are the entries
+                fileInfoService.uploadFile(UploadFileVo.builder()
+                        .userId(AuthUtil.getUserId())
+                        .userName(AuthUtil.getUsername())
+                        .fileName(fileNames[0])
+                        .userGroup(userGroupEnum)
+                        .inputStream(multipartFiles[0].getInputStream())
+                        .build());
+            } else {
+                /*
+                multiple upload, compress them into a single file zip file
+                the first one is the zipFile's name, and the rest are the entries
+                 */
                 if (fileNames.length != multipartFiles.length + 1)
                     throw new MsgEmbeddedException("Parameters illegal");
 
                 String zipFile = fileNames[0];
                 String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
-                fileInfoService.uploadFilesAsZip(AuthUtil.getUserId(), zipFile, entryNames, userGroupEnum, collectInputStreams(multipartFiles));
+                fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
+                        .userId(AuthUtil.getUserId())
+                        .username(AuthUtil.getUsername())
+                        .zipFile(zipFile)
+                        .entryNames(entryNames)
+                        .userGroup(userGroupEnum)
+                        .inputStreams(collectInputStreams(multipartFiles))
+                        .build());
             }
         } catch (NoWritableFsGroupException e) {
             return Result.error("No writable fs_group found, unable to upload file, please contact administrator");
