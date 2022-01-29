@@ -11,7 +11,7 @@
 
   <groupId>com.yongj</groupId>
   <artifactId>file-server</artifactId>
-  <version>1.0.6-SNAPSHOT</version>
+  <version>1.0.7-SNAPSHOT</version>
   <name>file-server</name>
   <properties>
     <auth-module.version>micro-2.0.6-SNAPSHOT</auth-module.version>
@@ -19,7 +19,7 @@
     <log-tracing-module.version>2.0.2-SNAPSHOT</log-tracing-module.version>
     <common-module.version>2.0.4-SNAPSHOT</common-module.version>
     <redis-util-module.version>2.0.2-SNAPSHOT</redis-util-module.version>
-    <distributed-task-module.version>2.0.3-SNAPSHOT</distributed-task-module.version>
+    <distributed-task-module.version>2.0.4-SNAPSHOT</distributed-task-module.version>
     <messaging-module.version>2.0.3-SNAPSHOT</messaging-module.version>
     <java.version>8</java.version>
   </properties>
