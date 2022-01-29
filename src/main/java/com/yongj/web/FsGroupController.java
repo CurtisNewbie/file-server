@@ -44,7 +44,6 @@ public class FsGroupController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/fsgroup/list", description = "list fsgroup")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
     public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) throws MsgEmbeddedException {

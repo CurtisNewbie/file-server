@@ -139,7 +139,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/list-granted-access", description = "list file's accesses that are granted to other user")
     @PostMapping(path = "/list-granted-access")
     public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(v.getPagingVo());
@@ -192,7 +191,6 @@ public class FileController {
         return download(req, resp, fi);
     }
 
-    @LogOperation(name = "/file/list", description = "list file")
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
@@ -229,7 +227,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/extension/name", description = "list supported file extensions")
     @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<List<String>> listSupportedFileExtensionNames() {
         return Result.of(
@@ -249,7 +246,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/extension/list", description = "list supported file extension details")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
         vo.validate();
