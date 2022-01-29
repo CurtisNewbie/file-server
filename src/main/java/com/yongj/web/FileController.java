@@ -200,8 +200,11 @@ public class FileController {
         reqVo.setUserId(AuthUtil.getUserId());
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
-        // collect list of ids to request their usernames
-        List<Integer> uploaderIds = pageable.getPayload().stream().map(FileInfoVo::getUploaderId).collect(Collectors.toList());
+        // collect list of ids to request their usernames, if uploader name is absent
+        List<Integer> uploaderIds = pageable.getPayload().stream()
+                .filter(f -> f.getUploaderName() == null)
+                .map(FileInfoVo::getUploaderId)
+                .collect(Collectors.toList());
         final Result<FetchUsernameByIdResp> result = remoteUserService.fetchUsernameById(FetchUsernameByIdReq.builder()
                 .userIds(uploaderIds)
                 .build());

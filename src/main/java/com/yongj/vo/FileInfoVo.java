@@ -25,6 +25,9 @@ public class FileInfoVo {
     /** uploader id, i.e., user.id */
     private Integer uploaderId;
 
+    /** uploader's name */
+    private String uploaderName;
+
     /** size in bytes */
     private Long sizeInBytes;
 

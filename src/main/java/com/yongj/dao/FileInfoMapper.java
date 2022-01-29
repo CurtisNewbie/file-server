@@ -23,6 +23,10 @@ public interface FileInfoMapper extends BaseMapper<FileInfo> {
      */
     List<FileInfo> selectBasicInfoByUserId(@Param("userId") int userId);
 
+    /**
+     * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
+     * fi.upload_time
+     */
     IPage<FileInfo> selectBasicInfoByUserIdSelective(Page<?> page, @Param("p") SelectBasicFileInfoParam param);
 
     /**

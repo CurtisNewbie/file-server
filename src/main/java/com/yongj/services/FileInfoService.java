@@ -68,6 +68,11 @@ public interface FileInfoService {
     PageablePayloadSingleton<List<PhysicDeleteFileVo>> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo);
 
     /**
+     * File uploader id of files that doesn't contain uploader name
+     */
+    PageablePayloadSingleton<List<FileUploaderInfoVo>> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo);
+
+    /**
      * Download file via id to the given outputStream
      *
      * @param id           file's id
@@ -147,4 +152,9 @@ public interface FileInfoService {
      * @param removedBy id of user to removed the access
      */
     void removeGrantedAccess(int fileId, int userId, int removedBy);
+
+    /**
+     * Update uploaderName
+     */
+    void updateUploaderName(int fileId, @NotNull String uploaderName);
 }

@@ -55,12 +55,15 @@ public class DeleteFileJob implements Job {
         PageablePayloadSingleton<List<PhysicDeleteFileVo>> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
         // while there are items in page
         while (!idsInPage.getPayload().isEmpty()) {
+
             log.info("Found {} files, preparing to delete them", idsInPage.getPayload().size());
+
             // delete the file physically
             deleteFilesPhysically(idsInPage.getPayload());
+
             // next page
-            idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
             paging.setPage(paging.getPage() + 1);
+            idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
         }
         log.info("Physical file deleting job finished...");
     }

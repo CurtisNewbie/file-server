@@ -39,6 +39,10 @@ public class FileInfo {
     @TableField("uploader_id")
     private Integer uploaderId;
 
+    /** uploader name */
+    @TableField("uploader_name")
+    private String uploaderName;
+
     /** upload time */
     @TableField("uploader_time")
     private LocalDateTime uploadTime;

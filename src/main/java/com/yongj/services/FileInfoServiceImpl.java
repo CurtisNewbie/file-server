@@ -202,6 +202,20 @@ public class FileInfoServiceImpl implements FileInfoService {
     }
 
     @Override
+    public PageablePayloadSingleton<List<FileUploaderInfoVo>> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo) {
+        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
+                .select("id", "uploader_id")
+                .eq("uploader_name", "");
+
+        final IPage<FileInfo> dataList = fileInfoMapper.selectPage(forPage(pagingVo), cond);
+        return PagingUtil.toPageList(dataList, (f) ->
+                FileUploaderInfoVo.builder()
+                        .id(f.getId())
+                        .uploaderId(f.getUploaderId())
+                        .build());
+    }
+
+    @Override
     public void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException {
         FileInfo fi = fileInfoMapper.selectByPrimaryKey(id);
         Objects.requireNonNull(fi, "Record not found");
@@ -304,6 +318,18 @@ public class FileInfoServiceImpl implements FileInfoService {
                 .eq("user_id", userId)
                 .eq("is_del", FileSharingIsDel.FALSE.getValue());
         fileSharingMapper.update(updateParam, whereCondition);
+    }
+
+    @Override
+    public void updateUploaderName(int fileId, @NotNull String uploaderName) {
+        final FileInfo updateParam = new FileInfo();
+        updateParam.setUploaderName(uploaderName);
+
+        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
+                .eq("id", fileId)
+                .eq("uploader_name", ""); // make sure we don't accidentally overwrite previous name
+
+        fileInfoMapper.update(updateParam, cond);
     }
 
     // ------------------------------------- private helper methods

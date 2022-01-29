@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS file_info (
     is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
     size_in_bytes BIGINT NOT NULL COMMENT "size of file in bytes",
     uploader_id INT NOT NULL COMMENT "uploader id, i.e., user.id",
+    uploader_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'uploader name',
     upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
     logic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is logically deleted",
     physic_delete_time DATETIME DEFAULT NOW() COMMENT "when the file is physically deleted",

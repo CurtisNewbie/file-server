@@ -76,7 +76,7 @@
 
   <!-- when uploaderId is present, ignore user_group, but keep name as a parameter -->
   <select id="selectBasicInfoByUserIdSelective" resultType="com.yongj.dao.FileInfo">
-    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.upload_time
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
     <where>
       fi.is_logic_deleted = 0
