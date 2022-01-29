@@ -8,7 +8,6 @@ import com.curtisnewbie.service.auth.remote.exception.UserRegisteredException;
 import com.yongj.exceptions.DuplicateExtException;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
-import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,7 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
  * @author yongjie.zhuang
@@ -31,14 +29,6 @@ public class CtrlAdvice {
     public Result<?> handleGeneralException(Exception e) {
         logger.error("Exception occurred", e);
         return Result.error("Internal Error");
-    }
-
-    // TODO This doesn't really wrap the exception with a custom response
-    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class})
-    @ResponseBody
-    public Result<?> handleSizeLimitExceededException(Exception e) {
-        logger.warn("Size limit exceeded - '{}'", e.getMessage());
-        return Result.error("Size limit exceeded");
     }
 
     @ExceptionHandler({IllegalPathException.class})

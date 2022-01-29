@@ -1,6 +1,5 @@
 package com.yongj.web;
 
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
@@ -14,7 +13,6 @@ import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdReq;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdResp;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
-import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.dao.FileExtension;
@@ -83,8 +81,6 @@ public class FileController {
     @Autowired
     private FileSharingConverter fileSharingConverter;
 
-    @SentinelResource(value = "fileUpload", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {MsgEmbeddedException.class, InvalidAuthenticationException.class})
     @LogOperation(name = "/file/upload", description = "upload file")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -120,8 +116,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "grantFileAccess", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {MsgEmbeddedException.class, InvalidAuthenticationException.class})
     @LogOperation(name = "/file/grant-access", description = "grant file's access to other user")
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) throws MsgEmbeddedException,
@@ -145,8 +139,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "listGrantedFileAccess", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = MsgEmbeddedException.class)
     @LogOperation(name = "/file/list-granted-access", description = "list file's accesses that are granted to other user")
     @PostMapping(path = "/list-granted-access")
     public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) throws MsgEmbeddedException {
@@ -175,8 +167,6 @@ public class FileController {
         return Result.of(resp);
     }
 
-    @SentinelResource(value = "removeGrantedFileAccess", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {InvalidAuthenticationException.class})
     @LogOperation(name = "/file/remove-granted-access", description = "remove granted file's access")
     @PostMapping(path = "/remove-granted-access")
     public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) throws InvalidAuthenticationException {
@@ -185,8 +175,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "fileDownload", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/download", description = "download file")
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public StreamingResponseBody download(@PathParam("id") int id, HttpServletResponse resp, HttpServletRequest req)
@@ -204,8 +192,6 @@ public class FileController {
         return download(req, resp, fi);
     }
 
-    @SentinelResource(value = "fileList", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class, exceptionsToIgnore = {MsgEmbeddedException.class})
     @LogOperation(name = "/file/list", description = "list file")
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
@@ -234,8 +220,6 @@ public class FileController {
         return Result.of(res);
     }
 
-    @SentinelResource(value = "fileDelete", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/delete", description = "delete file")
     @PostMapping(path = "/delete")
     public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
@@ -245,8 +229,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "fileExtensionNameList", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/extension/name", description = "list supported file extensions")
     @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<List<String>> listSupportedFileExtensionNames() {
@@ -255,8 +237,6 @@ public class FileController {
         );
     }
 
-    @SentinelResource(value = "addFileExtension", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/extension/add", description = "add file extension")
     @PostMapping("/extension/add")
     public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) throws MsgEmbeddedException {
@@ -269,8 +249,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "fileExtensionDetailsList", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/extension/list", description = "list supported file extension details")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
@@ -282,8 +260,6 @@ public class FileController {
         return Result.of(res);
     }
 
-    @SentinelResource(value = "updateFileExtension", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/extension/update", description = "update status of supported file extension")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping(path = "/extension/update")
@@ -301,8 +277,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "updateFileInfo", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/info/update", description = "update file info")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping("/info/update")
@@ -321,8 +295,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "generateFileToken", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/token/generate", description = "generate temp token for file download")
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @PostMapping("/token/generate")
@@ -346,8 +318,6 @@ public class FileController {
         return Result.of(link);
     }
 
-    @SentinelResource(value = "downloadByToken", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/file/token/download", description = "Download file using temp token")
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,

@@ -1,13 +1,11 @@
 package com.yongj.web;
 
-import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
-import com.yongj.config.SentinelFallbackConfig;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.FsGroupVo;
@@ -33,8 +31,6 @@ public class FsGroupController {
     @Autowired
     private FsGroupService fsGroupService;
 
-    @SentinelResource(value = "fsGroupModeUpdate", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/fsgroup/mode/update", description = "update fsgroup mode")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/mode/update")
@@ -48,8 +44,6 @@ public class FsGroupController {
         return Result.ok();
     }
 
-    @SentinelResource(value = "fsGroupList", defaultFallback = "serviceNotAvailable",
-            fallbackClass = SentinelFallbackConfig.class)
     @LogOperation(name = "/fsgroup/list", description = "list fsgroup")
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/list")
