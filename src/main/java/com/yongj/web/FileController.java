@@ -66,8 +66,7 @@ public class FileController {
     private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Autowired
-    private UserServiceFeign remoteUserService;
-
+    private UserServiceFeign userServiceFeign;
     @Autowired
     private PathResolver pathResolver;
     @Autowired
@@ -124,7 +123,7 @@ public class FileController {
         v.validate();
 
         final String grantedToUsername = v.getGrantedTo();
-        final Result<Integer> result = remoteUserService.findIdByUsername(grantedToUsername);
+        final Result<Integer> result = userServiceFeign.findIdByUsername(grantedToUsername);
         result.assertIsOk();
 
         Integer grantedToId = result.getData();
@@ -149,7 +148,7 @@ public class FileController {
         List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
         if (!idList.isEmpty()) {
             // get usernames of these userIds
-            final Result<FetchUsernameByIdResp> result = remoteUserService.fetchUsernameById(
+            final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(
                     FetchUsernameByIdReq.builder()
                             .userIds(idList)
                             .build());
@@ -205,18 +204,26 @@ public class FileController {
                 .filter(f -> f.getUploaderName() == null)
                 .map(FileInfoVo::getUploaderId)
                 .collect(Collectors.toList());
-        final Result<FetchUsernameByIdResp> result = remoteUserService.fetchUsernameById(FetchUsernameByIdReq.builder()
+        final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(FetchUsernameByIdReq.builder()
                 .userIds(uploaderIds)
                 .build());
         result.assertIsOk();
         Map<Integer, String> idToName = result.getData().getIdToUsername();
 
-        ListFileInfoRespVo res = new ListFileInfoRespVo();
-        res.setFileInfoList(mapTo(pageable.getPayload(), f -> {
-            FileInfoWebVo wv = fileInfoConverter.toWebVo(f);
-            wv.setUploaderName(idToName.get(f.getUploaderId()));
-            return wv;
-        }));
+        final ListFileInfoRespVo res = new ListFileInfoRespVo();
+
+        res.setFileInfoList(
+                mapTo(pageable.getPayload(), f -> {
+
+                    FileInfoWebVo wv = fileInfoConverter.toWebVo(f);
+
+                    // if idToName contains the key, it means the uploaderName is fetched from AuthService
+                    if (idToName.containsKey(f.getUploaderId()))
+                        wv.setUploaderName(idToName.get(f.getUploaderId()));
+
+                    return wv;
+                })
+        );
         res.setPagingVo(pageable.getPagingVo());
         return Result.of(res);
     }
