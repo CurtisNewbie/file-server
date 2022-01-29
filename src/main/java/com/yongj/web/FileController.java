@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +54,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @author yongjie.zhuang
@@ -216,30 +216,26 @@ public class FileController {
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
         // collect list of ids to request their usernames, if uploader name is absent
-        List<Integer> uploaderIds = pageable.getPayload().stream()
+        final List<Integer> uploaderIds = pageable.getPayload().stream()
                 .filter(f -> f.getUploaderName() == null)
                 .map(FileInfoVo::getUploaderId)
                 .collect(Collectors.toList());
-        final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(FetchUsernameByIdReq.builder()
-                .userIds(uploaderIds)
-                .build());
-        result.assertIsOk();
-        Map<Integer, String> idToName = result.getData().getIdToUsername();
+
+        if (!uploaderIds.isEmpty()) {
+            final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(FetchUsernameByIdReq.builder()
+                    .userIds(uploaderIds)
+                    .build());
+            result.assertIsOk();
+            Map<Integer, String> idToName = result.getData().getIdToUsername();
+            pageable.getPayload().forEach(f -> {
+                int id = f.getUploaderId();
+                if (idToName.containsKey(id))
+                    f.setUploaderName(idToName.get(id));
+            });
+        }
 
         final ListFileInfoRespVo res = new ListFileInfoRespVo();
-
-        res.setFileInfoList(
-                mapTo(pageable.getPayload(), f -> {
-
-                    FileInfoWebVo wv = fileInfoConverter.toWebVo(f);
-
-                    // if idToName contains the key, it means the uploaderName is fetched from AuthService
-                    if (idToName.containsKey(f.getUploaderId()))
-                        wv.setUploaderName(idToName.get(f.getUploaderId()));
-
-                    return wv;
-                })
-        );
+        res.setFileInfoList(mapTo(pageable.getPayload(), fileInfoConverter::toWebVo));
         res.setPagingVo(pageable.getPagingVo());
         return Result.of(res);
     }
@@ -288,7 +284,7 @@ public class FileController {
     public Result<Void> updateFileExtensionStatus(@RequestBody FileExtVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getId());
         // either the name or isEnabled should be entered
-        if (vo.getIsEnabled() == null && !StringUtils.hasText(vo.getName())) {
+        if (vo.getIsEnabled() == null && !hasText(vo.getName())) {
             throw new MsgEmbeddedException("Required parameters should not be null");
         }
         // check if the isEnabled value is valid
