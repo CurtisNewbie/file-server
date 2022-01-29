@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
 @Component
 public class FetchFileUploaderNameJob extends AbstractJob {
 
-    private static final Integer LIMIT = 50;
+    private static final Integer LIMIT = 30;
 
     @Autowired
     private FileInfoService fileInfoService;
@@ -77,9 +79,12 @@ public class FetchFileUploaderNameJob extends AbstractJob {
                     }
 
                     // update uploaderName to database
-                    result.getData()
-                            .getIdToUsername()
-                            .forEach((id, name) -> fileInfoService.updateUploaderName(id, name));
+                    Map<Integer, String> idToUsername = result.getData().getIdToUsername();
+
+                    list.stream().forEach(file -> {
+                        Optional.ofNullable(idToUsername.get(file.getUploaderId()))
+                                .ifPresent(name -> fileInfoService.updateUploaderName(file.getId(), name));
+                    });
                 },
                 e -> log.error("Failed to fetch uploaderNames", e));
     }
