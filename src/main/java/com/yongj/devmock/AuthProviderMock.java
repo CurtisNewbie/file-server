@@ -35,13 +35,13 @@ public class AuthProviderMock extends GenericAuthenticationProvider {
         UserVo uv = new UserVo();
         uv.setId(3);
         uv.setUsername("zhuangyongj");
-        uv.setRole(UserRole.ADMIN.getValue());
+        uv.setRole(UserRole.ADMIN);
 
         log.info("Dev profile mock - authenticated user: {}", uv.toString());
 
         return new UsernamePasswordAuthenticationToken(uv,
                 "123456",
-                Arrays.asList(new SimpleGrantedAuthority(uv.getRole())));
+                Arrays.asList(new SimpleGrantedAuthority(uv.getRole().getValue())));
     }
 
     @Override
