@@ -65,7 +65,7 @@
   </select>
 
   <!-- when uploaderId is present, ignore user_group, but keep name as a parameter -->
-  <select id="selectBasicInfoByUserIdSelective" resultType="com.yongj.dao.FileInfo">
+  <select id="selectFileListForUserSelective" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
     <if test="p.uploaderId == null">
@@ -94,6 +94,28 @@
     </where>
     order by id desc
   </select>
+
+  <select id="selectFileListForUserAndTag" resultType="com.yongj.dao.FileInfo">
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
+    from file_info fi
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
+    left join file_tag ft on fi.id = ft.file_id
+    left join tag t on ft.tag_id = t.id
+    <where>
+      (
+          fi.user_group = 0
+          or (fi.user_group = 1 and fi.uploader_id = #{userId})
+          or fs.id IS NOT NULL
+      )
+      and t.name = #{tagName}
+      <if test="p.filename != null and p.filename != ''">
+        and name like "%"#{filename}"%"
+      </if>
+      and fi.is_logic_deleted = 0
+    </where>
+    order by id desc
+  </select>
+
   <select id="selectValidateInfoById" resultType="com.yongj.dao.FileInfo">
     select fi.id
     from file_info fi

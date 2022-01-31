@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -207,11 +208,15 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
-        SelectBasicFileInfoParam param = BeanCopyUtils.toType(reqVo, SelectBasicFileInfoParam.class);
+        SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
         if (reqVo.filterForOwnedFilesOnly()) {
             param.setUploaderId(reqVo.getUserId());
         }
-        IPage<FileInfo> dataList = fileInfoMapper.selectBasicInfoByUserIdSelective(forPage(reqVo.getPagingVo()), param);
+        final Page<?> p = forPage(reqVo.getPagingVo());
+        // based on whether tagName is present, we use different queries
+        IPage<FileInfo> dataList = StringUtils.hasText(param.getTagName()) ?
+                fileInfoMapper.selectFileListForUserAndTag(p, param.getUserId(), param.getTagName(), param.getFilename()) :
+                fileInfoMapper.selectFileListForUserSelective(p, param);
         return PagingUtil.toPageList(dataList, (e) -> {
             FileInfoVo v = fileInfoConverter.toVo(e);
             v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));

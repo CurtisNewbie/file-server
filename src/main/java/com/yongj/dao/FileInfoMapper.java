@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.lang.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,14 @@ public interface FileInfoMapper extends BaseMapper<FileInfo> {
      * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
      * fi.upload_time
      */
-    IPage<FileInfo> selectBasicInfoByUserIdSelective(Page<?> page, @Param("p") SelectBasicFileInfoParam param);
+    IPage<FileInfo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
+
+    /**
+     * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
+     * fi.upload_time
+     */
+    IPage<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("userId") int userId, @Param("tagName") String tagName,
+                                                @Nullable @Param("filename") String filename);
 
     /**
      * Select user_group, user_id, is_logic_deleted

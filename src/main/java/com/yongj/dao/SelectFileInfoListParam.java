@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SelectBasicFileInfoParam {
+public class SelectFileInfoListParam {
 
     /** id of user */
     private Integer userId;
