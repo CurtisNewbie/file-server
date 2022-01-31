@@ -23,6 +23,7 @@ import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,6 +45,7 @@ import static com.curtisnewbie.common.util.PagingUtil.forPage;
 /**
  * @author yongjie.zhuang
  */
+@Slf4j
 @Service
 @Transactional
 public class FileServiceImpl implements FileService {
@@ -64,6 +66,8 @@ public class FileServiceImpl implements FileService {
     private FileSharingConverter fileSharingConverter;
     @Autowired
     private FileTagMapper fileTagMapper;
+    @Autowired
+    private TagMapper tagMapper;
     @Autowired
     private RedisController redisController;
 
@@ -365,15 +369,18 @@ public class FileServiceImpl implements FileService {
         try {
             lock.lock();
 
+            // find the tag first, and create one for current user if necessary
+            final int tagId = createTagIfNecessary(userId, tagName);
+
             // check if it's already tagged
-            final FileTag selected = selectFileTag(userId, fileId, tagName);
+            final FileTag selected = selectFileTag(fileId, tagId);
 
             // insert one if it doesn't exist
             if (selected == null) {
                 FileTag inserted = new FileTag();
                 inserted.setUserId(userId);
                 inserted.setFileId(fileId);
-                inserted.setName(tagName);
+                inserted.setTagId(tagId);
                 inserted.setCreateBy(taggedBy);
                 inserted.setCreateTime(LocalDateTime.now());
                 fileTagMapper.insert(inserted);
@@ -386,9 +393,7 @@ public class FileServiceImpl implements FileService {
                 updated.setIsDel(IsDel.NORMAL);
                 updated.setUpdateBy(taggedBy);
                 final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
-                        .eq("user_id", userId)
-                        .eq("file_id", fileId)
-                        .eq("name", tagName)
+                        .eq("id", selected.getId())
                         .eq("is_del", IsDel.DELETED.getValue());
                 fileTagMapper.update(updated, where);
             }
@@ -408,25 +413,43 @@ public class FileServiceImpl implements FileService {
         try {
             lock.lock();
 
-            final FileTag selected = selectFileTag(userId, fileId, tagName);
-            if (selected == null)
+            Tag tag = selectTag(userId, tagName);
+            if (tag == null) {
+                log.info("Tag for '{}' doesn't exist, unable to untag file", tagName);
                 return;
+            }
 
+            final FileTag fileTag = selectFileTag(fileId, tag.getId());
+            if (fileTag == null) {
+                log.info("FileTag for file_id: {}, tag_id: {} doesn't exist", fileId, tag.getId());
+                return;
+            }
+
+            // todo we don't delete the tag here for now
             // set as deleted
-            if (!selected.isDeleted()) {
+            if (!fileTag.isDeleted()) {
                 final FileTag updated = new FileTag();
                 updated.setIsDel(IsDel.DELETED);
                 updated.setUpdateBy(untaggedBy);
                 final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
-                        .eq("user_id", userId)
-                        .eq("file_id", fileId)
-                        .eq("name", tagName)
+                        .eq("id", fileTag.getId())
                         .eq("is_del", IsDel.NORMAL.getValue());
-                fileTagMapper.update(updated, where);
+                if (fileTagMapper.update(updated, where) > 0)
+                    log.info("Untagged file, file_id: {}, tag_name: {}", fileId, tagName);
             }
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public List<String> listFileTags(int userId) {
+        return fileTagMapper.listFileTags(userId);
+    }
+
+    @Override
+    public List<String> listFileTags(int userId, int fileId) {
+        return fileTagMapper.listTagsForFile(userId, fileId);
     }
 
     // ------------------------------------- private helper methods ------------------------------------
@@ -438,15 +461,57 @@ public class FileServiceImpl implements FileService {
         return l;
     }
 
-    private FileTag selectFileTag(final int userId, final int fileId, final String tagName) {
+    private FileTag selectFileTag(final int fileId, final int tagId) {
         final QueryWrapper<FileTag> cond = new QueryWrapper<FileTag>()
-                .eq("user_id", userId)
                 .eq("file_id", fileId)
-                .eq("name", tagName);
+                .eq("tag_id", tagId)
+                .eq("is_del", IsDel.NORMAL.getValue());
         return fileTagMapper.selectOne(cond);
+    }
+
+    private Tag selectTag(final int userId, final String name) {
+        final QueryWrapper<Tag> cond = new QueryWrapper<Tag>()
+                .eq("user_id", userId)
+                .eq("name", name)
+                .eq("is_del", IsDel.NORMAL.getValue());
+        return tagMapper.selectOne(cond);
+    }
+
+    /**
+     * Create tag for current user if necessary
+     * <p>
+     * This method requires proper locking and synchronization
+     * </p>
+     *
+     * @param userId  id of user
+     * @param tagName name of tag
+     * @return id of tag
+     */
+    private int createTagIfNecessary(final int userId, final String tagName) {
+        final Tag selected = selectTag(userId, tagName);
+        if (selected == null) {
+            Tag inserted = new Tag();
+            inserted.setUserId(userId);
+            inserted.setName(tagName);
+            return inserted.getId();
+        }
+
+        // update is_del back to normal
+        if (selected.isDeleted()) {
+            final Tag updated = new Tag();
+            updated.setIsDel(IsDel.NORMAL);
+
+            final QueryWrapper<Tag> cond = new QueryWrapper<Tag>()
+                    .eq("id", selected.getId())
+                    .eq("is_del", IsDel.DELETED.getValue());
+            tagMapper.update(updated, cond);
+        }
+
+        return selected.getId();
     }
 
     private Lock getFileTagLock(int userId, int fileId, String tagName) {
         return redisController.getLock(String.format("file:tag:uid:%s:fid:%s:name:%s", userId, fileId, tagName));
     }
+
 }

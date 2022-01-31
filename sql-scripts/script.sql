@@ -23,16 +23,28 @@ CREATE TABLE IF NOT EXISTS file_info (
 
 CREATE TABLE IF NOT EXISTS file_tag (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
-    file_id INT UNSIGNED NOT NULL COMMENT "file_info.id",
-    name VARCHAR(50) NOT NULL COMMENT 'name of tag',
-    user_id INT UNSIGNED NOT NULL COMMENT 'user.id',
-    create_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the user is created',
-    create_by VARCHAR(255) NOT NULL COMMENT 'who created this user',
-    update_time DATETIME COMMENT 'when the user is updated',
-    update_by VARCHAR(255) COMMENT 'who updated this user',
+    file_id INT UNSIGNED NOT NULL COMMENT "id of file_info",
+    tag_id INT UNSIGNED NOT NULL COMMENT "id of tag",
+    user_id INT UNSIGNED NOT NULL COMMENT 'id of user who created this file_tag relation',
+    create_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the record is created',
+    create_by VARCHAR(255) NOT NULL COMMENT 'who created this record',
+    update_time DATETIME COMMENT 'when the record is updated',
+    update_by VARCHAR(255) COMMENT 'who updated this record',
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    CONSTRAINT uk_user_file_tag UNIQUE (user_id, file_id, name)
-) ENGINE=InnoDB comment 'file tag';
+    CONSTRAINT uk_file_tag UNIQUE (file_id, tag_id)
+) ENGINE=InnoDB comment 'join table between file_info and tag';
+
+CREATE TABLE IF NOT EXISTS tag (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
+    name VARCHAR(50) NOT NULL COMMENT 'name of tag',
+    user_id INT UNSIGNED NOT NULL COMMENT 'user who owns this tag (tags are isolated between different users)',
+    create_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the record is created',
+    create_by VARCHAR(255) NOT NULL COMMENT 'who created this record',
+    update_time DATETIME COMMENT 'when the record is updated',
+    update_by VARCHAR(255) COMMENT 'who updated this record',
+    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+    CONSTRAINT uk_user_tag UNIQUE (user_id, name)
+) ENGINE=InnoDB comment 'tag';
 
 CREATE TABLE IF NOT EXISTS file_sharing (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,

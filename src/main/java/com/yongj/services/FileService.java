@@ -154,4 +154,21 @@ public interface FileService {
      * Untag a file
      */
     void untagFile(@Validated @NotNull UntagFileCmd cmd);
+
+    /**
+     * List all file tags for user
+     *
+     * @param userId id of user
+     * @return tag names
+     */
+    List<String> listFileTags(final int userId);
+
+    /**
+     * List all tags for current user and file
+     *
+     * @param userId id of user
+     * @param fileId id of file
+     * @return tag names
+     */
+    List<String> listFileTags(final int userId, final int fileId);
 }

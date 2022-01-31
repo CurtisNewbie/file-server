@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yongj.dao.FileTagMapper">
+
+  <select id="listFileTags" resultType="java.lang.String">
+    select t.name from file_tag ft
+    left join tag t on ft.tag_id = t.id
+    where t.user_id = #{userId}
+    and ft.is_del = 0
+    and t.is_del = 0
+  </select>
+
+  <select id="listTagsForFile" resultType="java.lang.String">
+    select t.name from file_tag ft
+    left join tag t on ft.tag_id = t.id
+    where t.user_id = #{userId}
+    and ft.file_id = #{fileId}
+    and ft.is_del = 0
+    and t.is_del = 0
+  </select>
+</mapper>
