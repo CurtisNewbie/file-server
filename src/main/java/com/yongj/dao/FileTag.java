@@ -19,8 +19,14 @@ public class FileTag extends DaoSkeleton {
     private Integer fileId;
 
     /**
-     * Tag.id
+     * tag's name
      */
-    @TableField("tag_id")
-    private Integer tagId;
+    @TableField("name")
+    private String name;
+
+    /**
+     * User.id
+     */
+    @TableField("user_id")
+    private Integer userId;
 }

@@ -9,7 +9,7 @@ import com.curtisnewbie.module.task.vo.TaskVo;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdReq;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdResp;
-import com.yongj.services.FileInfoService;
+import com.yongj.services.FileService;
 import com.yongj.vo.FileUploaderInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionException;
@@ -33,7 +33,7 @@ public class FetchFileUploaderNameJob extends AbstractJob {
     private static final Integer LIMIT = 30;
 
     @Autowired
-    private FileInfoService fileInfoService;
+    private FileService fileInfoService;
     @Autowired
     private UserServiceFeign userServiceFeign;
 

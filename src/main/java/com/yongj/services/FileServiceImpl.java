@@ -3,12 +3,14 @@ package com.yongj.services;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.dao.*;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 
@@ -43,7 +47,7 @@ import static com.curtisnewbie.common.util.PagingUtil.forPage;
  */
 @Service
 @Transactional
-public class FileInfoServiceImpl implements FileInfoService {
+public class FileServiceImpl implements FileService {
 
     @Autowired
     private FileInfoConverter fileInfoConverter;
@@ -59,6 +63,10 @@ public class FileInfoServiceImpl implements FileInfoService {
     private FileSharingMapper fileSharingMapper;
     @Autowired
     private FileSharingConverter fileSharingConverter;
+    @Autowired
+    private FileTagMapper fileTagMapper;
+    @Autowired
+    private RedisController redisController;
 
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException {
@@ -346,12 +354,100 @@ public class FileInfoServiceImpl implements FileInfoService {
         fileInfoMapper.update(updateParam, cond);
     }
 
-    // ------------------------------------- private helper methods
+    @Override
+    public void tagFile(final TagFileCmd cmd) {
+        final String tagName = cmd.getTagName();
+        final String taggedBy = cmd.getTaggedBy();
+        final int fileId = cmd.getFileId();
+        final int userId = cmd.getUserId();
+
+        // tag the file with lock
+        final Lock lock = getFileTagLock(userId, fileId, tagName);
+        try {
+            lock.lock();
+
+            // check if it's already tagged
+            final FileTag selected = selectFileTag(userId, fileId, tagName);
+
+            // insert one if it doesn't exist
+            if (selected == null) {
+                FileTag inserted = new FileTag();
+                inserted.setUserId(userId);
+                inserted.setFileId(fileId);
+                inserted.setName(tagName);
+                inserted.setCreateBy(taggedBy);
+                inserted.setCreateTime(LocalDateTime.now());
+                fileTagMapper.insert(inserted);
+                return;
+            }
+
+            // reset, if it's deleted
+            if (selected.isDeleted()) {
+                final FileTag updated = new FileTag();
+                updated.setIsDel(IsDel.NORMAL);
+                updated.setUpdateBy(taggedBy);
+                final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
+                        .eq("user_id", userId)
+                        .eq("file_id", fileId)
+                        .eq("name", tagName)
+                        .eq("is_del", IsDel.DELETED.getValue());
+                fileTagMapper.update(updated, where);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void untagFile(@NotNull UntagFileCmd cmd) {
+        final String tagName = cmd.getTagName();
+        final String untaggedBy = cmd.getUntaggedBy();
+        final int fileId = cmd.getFileId();
+        final int userId = cmd.getUserId();
+
+        final Lock lock = getFileTagLock(userId, fileId, tagName);
+        try {
+            lock.lock();
+
+            final FileTag selected = selectFileTag(userId, fileId, tagName);
+            if (selected == null)
+                return;
+
+            // set as deleted
+            if (!selected.isDeleted()) {
+                final FileTag updated = new FileTag();
+                updated.setIsDel(IsDel.DELETED);
+                updated.setUpdateBy(untaggedBy);
+                final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
+                        .eq("user_id", userId)
+                        .eq("file_id", fileId)
+                        .eq("name", tagName)
+                        .eq("is_del", IsDel.NORMAL.getValue());
+                fileTagMapper.update(updated, where);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    // ------------------------------------- private helper methods ------------------------------------
 
     private List<ZipCompressEntry> prepareZipEntries(String[] entryNames, InputStream[] entries) {
         List<ZipCompressEntry> l = new ArrayList<>(entries.length);
         for (int i = 0; i < entries.length; i++)
             l.add(new ZipCompressEntry(entryNames[i], entries[i]));
         return l;
+    }
+
+    private FileTag selectFileTag(final int userId, final int fileId, final String tagName) {
+        final QueryWrapper<FileTag> cond = new QueryWrapper<FileTag>()
+                .eq("user_id", userId)
+                .eq("file_id", fileId)
+                .eq("name", tagName);
+        return fileTagMapper.selectOne(cond);
+    }
+
+    private Lock getFileTagLock(int userId, int fileId, String tagName) {
+        return redisController.getLock(String.format("file:tag:uid:%s:fid:%s:name:%s", userId, fileId, tagName));
     }
 }

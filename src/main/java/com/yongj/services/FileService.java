@@ -20,7 +20,7 @@ import java.util.List;
  * @author yongjie.zhuang
  */
 @Validated
-public interface FileInfoService {
+public interface FileService {
 
     /**
      * Grant file's access to other user
@@ -144,4 +144,14 @@ public interface FileInfoService {
      * Update uploaderName
      */
     void updateUploaderName(int fileId, @NotNull String uploaderName);
+
+    /**
+     * Tag a file
+     */
+    void tagFile(@Validated @NotNull TagFileCmd cmd);
+
+    /**
+     * Untag a file
+     */
+    void untagFile(@Validated @NotNull UntagFileCmd cmd);
 }

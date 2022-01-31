@@ -23,7 +23,7 @@ import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
-import com.yongj.services.FileInfoService;
+import com.yongj.services.FileService;
 import com.yongj.services.TempTokenFileDownloadService;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
@@ -72,7 +72,7 @@ public class FileController {
     @Autowired
     private FileExtensionService fileExtensionService;
     @Autowired
-    private FileInfoService fileInfoService;
+    private FileService fileInfoService;
     @Autowired
     private TempTokenFileDownloadService tempTokenFileDownloadService;
     @Autowired

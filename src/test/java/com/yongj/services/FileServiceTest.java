@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 import java.util.zip.ZipFile;
 
 /**
- * Test for {@link FileInfoService}
+ * Test for {@link FileService}
  *
  * @author yongjie.zhuang
  */
@@ -38,7 +38,7 @@ import java.util.zip.ZipFile;
 @SpringBootTest
 @Rollback
 @Transactional
-public class FileInfoServiceTest {
+public class FileServiceTest {
 
     private static final String TEST_DOWNLOADED_FILE = "downloaded-file";
     private static final String UPLOADED_TEST_FILE_ZIP = "test-files.zip";
@@ -48,7 +48,7 @@ public class FileInfoServiceTest {
     private static final int TEST_USER_ID_2 = 2;
 
     @Autowired
-    FileInfoService fileInfoService;
+    FileService fileInfoService;
 
     @Autowired
     FileInfoMapper fileInfoMapper;
@@ -60,7 +60,7 @@ public class FileInfoServiceTest {
     FsGroupService fsGroupService;
 
 
-    /** Test {@link FileInfoService#updateFile(UpdateFileCmd)} */
+    /** Test {@link FileService#updateFile(UpdateFileCmd)} */
     @Test
     void shouldUploadFile() {
         mockFsGroupService();
@@ -79,7 +79,7 @@ public class FileInfoServiceTest {
         });
     }
 
-    /** Test {@link FileInfoService#uploadFilesAsZip(UploadZipFileVo)} */
+    /** Test {@link FileService#uploadFilesAsZip(UploadZipFileVo)} */
     @Test
     public void shouldUploadFilesAsZip() {
         mockFsGroupService();
@@ -126,7 +126,7 @@ public class FileInfoServiceTest {
     }
 
 
-    /** Test {@link FileInfoService#findPagedFilesForUser(ListFileInfoReqVo)} */
+    /** Test {@link FileService#findPagedFilesForUser(ListFileInfoReqVo)} */
     @Test
     void shouldFindPagedFilesForUser() {
         ListFileInfoReqVo reqVo = new ListFileInfoReqVo();
@@ -137,7 +137,7 @@ public class FileInfoServiceTest {
         Assertions.assertNotNull(fileInfoService.findPagedFilesForUser(reqVo));
     }
 
-    /** Test {@link FileInfoService#findPagedFileIdsForPhysicalDeleting(PagingVo)} */
+    /** Test {@link FileService#findPagedFileIdsForPhysicalDeleting(PagingVo)} */
     @Test
     void shouldFindPagedFilesForPhysicalDeleting() {
         PagingVo pv = new PagingVo();
@@ -231,7 +231,7 @@ public class FileInfoServiceTest {
         doCleanUp(fi);
     }
 
-    /** Test {@link FileInfoService#markFileDeletedPhysically(int)} */
+    /** Test {@link FileService#markFileDeletedPhysically(int)} */
     @Test
     void shouldMarkFileDeletedPhysically() throws IOException {
         mockFsGroupService();

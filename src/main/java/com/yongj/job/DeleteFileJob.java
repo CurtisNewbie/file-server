@@ -5,7 +5,7 @@ import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FsGroup;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
-import com.yongj.services.FileInfoService;
+import com.yongj.services.FileService;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.PhysicDeleteFileVo;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class DeleteFileJob implements Job {
     private static final Integer LIMIT = 100;
 
     @Autowired
-    private FileInfoService fileInfoService;
+    private FileService fileInfoService;
     @Autowired
     private IOHandler ioHandler;
     @Autowired
