@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS file_tag (
     update_time DATETIME COMMENT 'when the user is updated',
     update_by VARCHAR(255) COMMENT 'who updated this user',
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    CONSTRAINT uk_file_tag UNIQUE (file_id, tag_id);
+    CONSTRAINT uk_file_tag UNIQUE (file_id, tag_id)
 ) ENGINE=InnoDB comment 'join table for file_info and tag';
 
 CREATE TABLE IF NOT EXISTS tag (
