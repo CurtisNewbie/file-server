@@ -361,6 +361,11 @@ public class FileController {
         return download(req, resp, fi);
     }
 
+    @GetMapping("/tag/list")
+    public Result<List<String>> listTags() throws InvalidAuthenticationException {
+        return Result.of(fileInfoService.listFileTags(AuthUtil.getUserId()));
+    }
+
 
     private StreamingResponseBody download(HttpServletRequest req, HttpServletResponse resp, FileInfo fi) throws IOException {
         // set header for the downloaded file

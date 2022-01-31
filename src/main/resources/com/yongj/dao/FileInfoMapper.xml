@@ -108,7 +108,7 @@
           or fs.id IS NOT NULL
       )
       and t.name = #{tagName}
-      <if test="p.filename != null and p.filename != ''">
+      <if test="filename != null and filename != ''">
         and name like "%"#{filename}"%"
       </if>
       and fi.is_logic_deleted = 0

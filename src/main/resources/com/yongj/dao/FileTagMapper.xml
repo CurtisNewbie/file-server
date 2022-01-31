@@ -3,10 +3,8 @@
 <mapper namespace="com.yongj.dao.FileTagMapper">
 
   <select id="listFileTags" resultType="java.lang.String">
-    select t.name from file_tag ft
-    left join tag t on ft.tag_id = t.id
+    select t.name from tag t
     where t.user_id = #{userId}
-    and ft.is_del = 0
     and t.is_del = 0
   </select>
 
