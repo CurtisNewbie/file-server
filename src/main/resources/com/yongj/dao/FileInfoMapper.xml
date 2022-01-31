@@ -68,25 +68,35 @@
   <select id="selectBasicInfoByUserIdSelective" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
+    <if test="p.uploaderId == null">
+      left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
+    </if>
+    <if test="p.tagName != null">
+      left join file_tag ft on (fi.id = ft.file_id and ft.user_id = #{p.userId})
+    </if>
     <where>
-      fi.is_logic_deleted = 0
       <choose>
         <when test="p.uploaderId != null">
           and fi.uploader_id = #{p.uploaderId}
         </when>
         <otherwise>
-          and (fi.user_group = 0
+          and (
+            fi.user_group = 0
             or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
-            or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{p.userId})
+            or fs.id IS NOT NULL
           )
-          <if test="p.userGroup != null">
-            and user_group = #{p.userGroup}
-          </if>
         </otherwise>
       </choose>
+      <if test="p.userGroup != null">
+        and user_group = #{p.userGroup}
+      </if>
       <if test="p.filename != null and p.filename != ''">
         and name like "%"#{p.filename}"%"
       </if>
+      <if test="p.tagName != null">
+        and ft.name = #{p.tagName}
+      </if>
+      and fi.is_logic_deleted = 0
     </where>
     order by id desc
   </select>

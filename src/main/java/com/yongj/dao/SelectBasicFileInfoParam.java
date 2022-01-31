@@ -24,4 +24,6 @@ public class SelectBasicFileInfoParam {
     /** id of uploader, if this is set, only the files with this uploaderId is queried */
     private Integer uploaderId;
 
+    /** tag name */
+    private String tagName;
 }

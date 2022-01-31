@@ -32,6 +32,9 @@ public class ListFileInfoReqVo extends PageableVo {
     @JsonIgnore
     private Integer userId;
 
+    /** tag name */
+    private String tagName;
+
     /** Validate vo */
     public void validate() throws MsgEmbeddedException {
         ValidUtils.requireNonNull(getPagingVo());
