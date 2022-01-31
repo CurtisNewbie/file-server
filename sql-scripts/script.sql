@@ -21,6 +21,29 @@ CREATE TABLE IF NOT EXISTS file_info (
     fs_group_id INT NOT NULL COMMENT 'id of fs_group'
 );
 
+CREATE TABLE IF NOT EXISTS file_tag (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
+    file_id INT UNSIGNED NOT NULL COMMENT "file_info.id",
+    tag_id INT UNSIGNED NOT NULL COMMENT "tag.id",
+    create_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the user is created',
+    create_by VARCHAR(255) NOT NULL COMMENT 'who created this user',
+    update_time DATETIME COMMENT 'when the user is updated',
+    update_by VARCHAR(255) COMMENT 'who updated this user',
+    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+    CONSTRAINT uk_file_tag UNIQUE (file_id, tag_id);
+) ENGINE=InnoDB comment 'join table for file_info and tag';
+
+CREATE TABLE IF NOT EXISTS tag (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
+    name VARCHAR(50) NOT NULL COMMENT 'name of tag',
+    create_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the user is created',
+    create_by VARCHAR(255) NOT NULL COMMENT 'who created this user',
+    update_time DATETIME COMMENT 'when the user is updated',
+    update_by VARCHAR(255) COMMENT 'who updated this user',
+    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+    CONSTRAINT uk_name UNIQUE (name)
+) ENGINE=InnoDB comment 'tag for files';
+
 CREATE TABLE IF NOT EXISTS file_sharing (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     file_id INT NOT NULL COMMENT "id of file_info",

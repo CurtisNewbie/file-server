@@ -18,7 +18,7 @@
     <auth-module.version>2.0.6-SNAPSHOT</auth-module.version>
     <auth-module-web.version>2.0.6-SNAPSHOT</auth-module-web.version>
     <log-tracing-module.version>2.0.2-SNAPSHOT</log-tracing-module.version>
-    <common-module.version>2.0.5-SNAPSHOT</common-module.version>
+    <common-module.version>2.0.6-SNAPSHOT</common-module.version>
     <redis-util-module.version>2.0.2-SNAPSHOT</redis-util-module.version>
     <distributed-task-module.version>2.0.4-SNAPSHOT</distributed-task-module.version>
     <messaging-module.version>2.0.4-SNAPSHOT</messaging-module.version>
