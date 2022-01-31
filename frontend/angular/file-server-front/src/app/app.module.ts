@@ -76,7 +76,11 @@ import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.
     MatSelectModule,
     MatDialogModule,
   ],
-  entryComponents: [ConfirmDialogComponent, GrantAccessDialogComponent],
+  entryComponents: [
+    ConfirmDialogComponent,
+    GrantAccessDialogComponent,
+    ManageTagDialogComponent,
+  ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: APP_BASE_HREF, useValue: "/" },
