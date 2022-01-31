@@ -2,9 +2,9 @@
 
   <springProfile name="test">
     <appender name="TRACED_FILEOUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <file>logs/auth-service.log</file>
+      <file>logs/file-service.log</file>
       <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-        <fileNamePattern>logs/auth-service.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+        <fileNamePattern>logs/file-service.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
         <maxFileSize>100MB</maxFileSize>
         <maxHistory>7</maxHistory>
         <totalSizeCap>1GB</totalSizeCap>
