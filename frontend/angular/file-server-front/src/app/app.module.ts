@@ -37,6 +37,7 @@ import { TaskHistoryComponent } from "./task-history/task-history.component";
 import { RegisterComponent } from "./register/register.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
+import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.component";
 
 @NgModule({
   exports: [],
@@ -53,6 +54,7 @@ import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-d
     TaskHistoryComponent,
     RegisterComponent,
     GrantAccessDialogComponent,
+    ManageTagDialogComponent,
   ],
   imports: [
     MatMenuModule,

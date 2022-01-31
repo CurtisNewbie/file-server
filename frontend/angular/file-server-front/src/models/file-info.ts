@@ -90,6 +90,8 @@ export interface SearchFileInfoParam {
   userGroup: number;
   /** ownership */
   ownership: number;
+  /** name of tag */
+  tagName: string;
 }
 
 /** Parameters for uploading a file */
@@ -112,6 +114,8 @@ export interface FetchFileInfoListParam {
   pagingVo: Paging;
   /** ownership */
   ownership: number;
+  /** tagName */
+  tagName: string;
 }
 
 /** Parameters used for fetching list of file info */
@@ -154,6 +158,7 @@ export function emptySearchFileInfoParam(): SearchFileInfoParam {
     name: null,
     userGroup: null,
     ownership: null,
+    tagName: null,
   };
 }
 
@@ -196,4 +201,22 @@ export interface FileAccessGranted {
   createDate: string;
   /** the access is granted by */
   createdBy: string;
+}
+
+export interface Tag {
+  id: number;
+
+  /** name of tag */
+  name: string;
+
+  /** when the record is created */
+  createTime: string;
+
+  /** who created this record */
+  createBy: string;
+}
+
+export interface ListTagsForFileResp {
+  pagingVo: Paging;
+  payload: Tag[];
 }

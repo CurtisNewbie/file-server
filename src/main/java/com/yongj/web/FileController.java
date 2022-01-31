@@ -3,8 +3,10 @@ package com.yongj.web;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
+import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
 import com.curtisnewbie.module.auth.util.AuthUtil;
@@ -15,6 +17,7 @@ import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdResp;
 import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
+import com.yongj.converters.TagConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
@@ -54,6 +57,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.module.auth.util.AuthUtil.getUserId;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -79,6 +84,8 @@ public class FileController {
     private FileInfoConverter fileInfoConverter;
     @Autowired
     private FileSharingConverter fileSharingConverter;
+    @Autowired
+    private TagConverter tagConverter;
 
     @LogOperation(name = "/file/upload", description = "upload file")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
@@ -100,7 +107,7 @@ public class FileController {
         try {
             if (multipartFiles.length == 1) {
                 fileInfoService.uploadFile(UploadFileVo.builder()
-                        .userId(AuthUtil.getUserId())
+                        .userId(getUserId())
                         .username(AuthUtil.getUsername())
                         .fileName(fileNames[0])
                         .userGroup(userGroupEnum)
@@ -117,7 +124,7 @@ public class FileController {
                 String zipFile = fileNames[0];
                 String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
                 fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
-                        .userId(AuthUtil.getUserId())
+                        .userId(getUserId())
                         .username(AuthUtil.getUsername())
                         .zipFile(zipFile)
                         .entryNames(entryNames)
@@ -185,7 +192,7 @@ public class FileController {
     @PostMapping(path = "/remove-granted-access")
     public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) throws InvalidAuthenticationException {
 
-        fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), AuthUtil.getUserId());
+        fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), getUserId());
         return Result.ok();
     }
 
@@ -194,7 +201,7 @@ public class FileController {
     public StreamingResponseBody download(@PathParam("id") int id, HttpServletResponse resp, HttpServletRequest req)
             throws MsgEmbeddedException, InvalidAuthenticationException, IOException {
 
-        final int userId = AuthUtil.getUserId();
+        final int userId = getUserId();
 
         // validate user authority
         fileInfoService.validateUserDownload(userId, id);
@@ -212,7 +219,7 @@ public class FileController {
         // validate param
         reqVo.validate();
 
-        reqVo.setUserId(AuthUtil.getUserId());
+        reqVo.setUserId(getUserId());
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
         // collect list of ids to request their usernames, if uploader name is absent
@@ -245,7 +252,7 @@ public class FileController {
     public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
         ValidUtils.requireNonNull(reqVo.getId());
-        fileInfoService.deleteFileLogically(AuthUtil.getUserId(), reqVo.getId());
+        fileInfoService.deleteFileLogically(getUserId(), reqVo.getId());
         return Result.ok();
     }
 
@@ -308,7 +315,7 @@ public class FileController {
                 .id(reqVo.getId())
                 .fileName(reqVo.getName())
                 .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
-                .updatedBy(AuthUtil.getUserId())
+                .updatedBy(getUserId())
                 .build());
         return Result.ok();
     }
@@ -322,7 +329,7 @@ public class FileController {
         FileInfo fi = fileInfoService.findById(reqVo.getId());
         ValidUtils.requireNonNull(fi, "File not found");
 
-        if (!Objects.equals(fi.getUploaderId(), AuthUtil.getUserId())) {
+        if (!Objects.equals(fi.getUploaderId(), getUserId())) {
             throw new MsgEmbeddedException("Only the owner of the file can generate temporary token");
         }
 
@@ -361,9 +368,39 @@ public class FileController {
         return download(req, resp, fi);
     }
 
-    @GetMapping("/tag/list")
-    public Result<List<String>> listTags() throws InvalidAuthenticationException {
-        return Result.of(fileInfoService.listFileTags(AuthUtil.getUserId()));
+    @GetMapping("/tag/list/all")
+    public Result<List<String>> listAllTags() throws InvalidAuthenticationException {
+        return Result.of(fileInfoService.listFileTags(getUserId()));
+    }
+
+    @PostMapping("/tag/list-for-file")
+    public Result<PageableVo<List<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) throws InvalidAuthenticationException {
+        PageableVo<List<TagVo>> pv = fileInfoService.listFileTags(getUserId(), req.getFileId(), forPage(req.getPagingVo()));
+        return Result.of(PagingUtil.convert(pv, tagConverter::toWebVo));
+    }
+
+    @PostMapping("/tag")
+    public Result<Void> tagFile(@Validated @RequestBody TagFileWebReqVo req) throws InvalidAuthenticationException {
+        fileInfoService.tagFile(TagFileCmd.builder()
+                .fileId(req.getFileId())
+                .tagName(req.getTagName())
+                .userId(getUserId())
+                .taggedBy(AuthUtil.getUsername())
+                .build());
+
+        return Result.ok();
+    }
+
+    @PostMapping("/untag")
+    public Result<Void> untagFile(@Validated @RequestBody UntagFileWebReqVo req) throws InvalidAuthenticationException {
+        fileInfoService.untagFile(UntagFileCmd.builder()
+                .fileId(req.getFileId())
+                .tagName(req.getTagName())
+                .userId(getUserId())
+                .untaggedBy(AuthUtil.getUsername())
+                .build());
+
+        return Result.ok();
     }
 
 

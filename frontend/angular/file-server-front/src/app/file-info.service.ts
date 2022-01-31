@@ -10,6 +10,7 @@ import {
   FetchFileInfoList,
   FetchFileInfoListParam,
   ListGrantedAccessResp,
+  ListTagsForFileResp,
   UpdateFileUserGroupParam,
   UploadFileParam,
 } from "src/models/file-info";
@@ -54,6 +55,62 @@ export class FileInfoService {
   ): Observable<Resp<FetchFileInfoList>> {
     return this.http.post<Resp<FetchFileInfoList>>(
       buildApiPath("/file/list"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Fetch list of file tags
+   */
+  public fetchTags(): Observable<Resp<string[]>> {
+    return this.http.get<Resp<string[]>>(
+      buildApiPath("/file/tag/list/all"),
+      headers
+    );
+  }
+
+  /**
+   * Fetch tags for current file
+   * @param fileId
+   * @returns
+   */
+  public fetchTagsForFile(
+    fileId: number,
+    pagingVo: Paging
+  ): Observable<Resp<ListTagsForFileResp>> {
+    return this.http.post<Resp<ListTagsForFileResp>>(
+      buildApiPath("/file/tag/list-for-file"),
+      { fileId: fileId, pagingVo: pagingVo },
+      headers
+    );
+  }
+
+  /**
+   * Tag current file
+   * @param param
+   */
+  public tagFile(param: {
+    fileId: number;
+    tagName: string;
+  }): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/file/tag/"),
+      param,
+      headers
+    );
+  }
+
+  /**
+   * Untag current file
+   * @param param
+   */
+  public untagFile(param: {
+    fileId: number;
+    tagName: string;
+  }): Observable<Resp<void>> {
+    return this.http.post<Resp<void>>(
+      buildApiPath("/file/untag/"),
       param,
       headers
     );

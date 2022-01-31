@@ -25,6 +25,7 @@ import { animateElementExpanding } from "../../animate/animate-util";
 import { buildApiPath } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
+import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -63,6 +64,7 @@ export class HomePageComponent implements OnInit {
   progress: string = null;
   displayedUploadName: string = null;
   fileUploadSubscription: Subscription = null;
+  tags: string[];
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
@@ -85,6 +87,7 @@ export class HomePageComponent implements OnInit {
     });
     this.fetchSupportedExtensions();
     this.fetchFileInfoList();
+    this.fetchTags();
     // always select private group for uploading
     this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
   }
@@ -104,6 +107,14 @@ export class HomePageComponent implements OnInit {
     });
   }
 
+  fetchTags(): void {
+    this.fileService.fetchTags().subscribe({
+      next: (resp) => {
+        this.tags = resp.data;
+      },
+    });
+  }
+
   /** fetch file info list */
   fetchFileInfoList(): void {
     this.fileService
@@ -112,6 +123,7 @@ export class HomePageComponent implements OnInit {
         filename: this.searchParam.name,
         userGroup: this.searchParam.userGroup,
         ownership: this.searchParam.ownership,
+        tagName: this.searchParam.tagName,
       })
       .subscribe({
         next: (resp) => {
@@ -326,6 +338,13 @@ export class HomePageComponent implements OnInit {
     this.searchParam.ownership = ownership;
   }
 
+  /**
+   * Set tag to the searching param
+   */
+  setTag(tag: string): void {
+    this.searchParam.tagName = tag;
+  }
+
   searchNameInputKeyPressed(event: any): void {
     if (event.key === "Enter") {
       console.log("Pressed 'Enter' key, init search file list procedure");
@@ -422,6 +441,20 @@ export class HomePageComponent implements OnInit {
       this.dialog.open(GrantAccessDialogComponent, {
         width: "700px",
         data: { fileId: u.id, fileName: u.name },
+      });
+
+    dialogRef.afterClosed().subscribe((confirm) => {
+      // do nothing
+    });
+  }
+
+  popToManageTag(u: FileInfo): void {
+    if (!u) return;
+
+    const dialogRef: MatDialogRef<ManageTagDialogComponent, boolean> =
+      this.dialog.open(ManageTagDialogComponent, {
+        width: "700px",
+        data: { fileId: u.id, filename: u.name },
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {

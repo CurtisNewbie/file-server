@@ -9,7 +9,7 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-@TableName("file_tag")
+@TableName("tag")
 public class Tag extends DaoSkeleton {
 
     /** name of tag */

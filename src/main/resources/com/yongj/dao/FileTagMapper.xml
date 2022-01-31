@@ -8,8 +8,8 @@
     and t.is_del = 0
   </select>
 
-  <select id="listTagsForFile" resultType="java.lang.String">
-    select t.name from file_tag ft
+  <select id="listTagsForFile" resultType="com.yongj.dao.Tag">
+    select * from file_tag ft
     left join tag t on ft.tag_id = t.id
     where t.user_id = #{userId}
     and ft.file_id = #{fileId}

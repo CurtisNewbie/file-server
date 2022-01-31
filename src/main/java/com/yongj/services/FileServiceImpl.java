@@ -9,10 +9,12 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
+import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
@@ -71,6 +73,8 @@ public class FileServiceImpl implements FileService {
     private TagMapper tagMapper;
     @Autowired
     private RedisController redisController;
+    @Autowired
+    private TagConverter tagConverter;
 
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException {
@@ -375,7 +379,7 @@ public class FileServiceImpl implements FileService {
             lock.lock();
 
             // find the tag first, and create one for current user if necessary
-            final int tagId = createTagIfNecessary(userId, tagName);
+            final int tagId = createTagIfNecessary(userId, tagName, cmd.getTaggedBy());
 
             // check if it's already tagged
             final FileTag selected = selectFileTag(fileId, tagId);
@@ -448,13 +452,13 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<String> listFileTags(int userId) {
+    public List<String> listFileTags(final int userId) {
         return fileTagMapper.listFileTags(userId);
     }
 
     @Override
-    public List<String> listFileTags(int userId, int fileId) {
-        return fileTagMapper.listTagsForFile(userId, fileId);
+    public PageableVo<List<TagVo>> listFileTags(final int userId, final int fileId, final Page<?> page) {
+        return PagingUtil.toPageable(fileTagMapper.listTagsForFile(page, userId, fileId), tagConverter::toVo);
     }
 
     // ------------------------------------- private helper methods ------------------------------------
@@ -469,16 +473,14 @@ public class FileServiceImpl implements FileService {
     private FileTag selectFileTag(final int fileId, final int tagId) {
         final QueryWrapper<FileTag> cond = new QueryWrapper<FileTag>()
                 .eq("file_id", fileId)
-                .eq("tag_id", tagId)
-                .eq("is_del", IsDel.NORMAL.getValue());
+                .eq("tag_id", tagId);
         return fileTagMapper.selectOne(cond);
     }
 
     private Tag selectTag(final int userId, final String name) {
         final QueryWrapper<Tag> cond = new QueryWrapper<Tag>()
                 .eq("user_id", userId)
-                .eq("name", name)
-                .eq("is_del", IsDel.NORMAL.getValue());
+                .eq("name", name);
         return tagMapper.selectOne(cond);
     }
 
@@ -492,12 +494,14 @@ public class FileServiceImpl implements FileService {
      * @param tagName name of tag
      * @return id of tag
      */
-    private int createTagIfNecessary(final int userId, final String tagName) {
+    private int createTagIfNecessary(final int userId, final String tagName, final String createBy) {
         final Tag selected = selectTag(userId, tagName);
         if (selected == null) {
             Tag inserted = new Tag();
             inserted.setUserId(userId);
             inserted.setName(tagName);
+            inserted.setCreateBy(createBy);
+            tagMapper.insert(inserted);
             return inserted.getId();
         }
 

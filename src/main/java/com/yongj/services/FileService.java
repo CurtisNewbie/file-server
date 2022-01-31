@@ -1,7 +1,9 @@
 package com.yongj.services;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
@@ -170,5 +172,5 @@ public interface FileService {
      * @param fileId id of file
      * @return tag names
      */
-    List<String> listFileTags(final int userId, final int fileId);
+    PageableVo<List<TagVo>> listFileTags(final int userId, final int fileId, final Page<?> page);
 }
