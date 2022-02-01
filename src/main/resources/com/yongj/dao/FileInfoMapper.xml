@@ -64,29 +64,41 @@
     and (user_group = 0 or (user_group = 1 and uploader_id = #{userId}))
   </select>
 
-  <!-- when uploaderId is present, ignore user_group, but keep name as a parameter -->
   <select id="selectFileListForUserSelective" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
-    <if test="p.uploaderId == null">
+    <if test="p.filterOwnedFiles == false">
       left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     </if>
     <where>
       <choose>
-        <when test="p.uploaderId != null">
-          and fi.uploader_id = #{p.uploaderId}
+        <when test="p.filterOwnedFiles == true">
+          and fi.uploader_id = #{p.userId}
+          <if test="p.userGroup != null">
+            and fi.user_group = #{p.userGroup}
+          </if>
         </when>
         <otherwise>
-          and (
-            fi.user_group = 0
-            or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
-            or fs.id IS NOT NULL
-          )
+        <choose>
+          <when test="p.userGroup == 0">
+            and fi.user_group = 0
+          </when>
+          <when test="p.userGroup == 1">
+            and fi.user_group = 1
+            and (
+              fi.uploader_id = #{p.userId}
+              or (fs.id is not null and fs.is_del = 0)
+            )
+          </when>
+          <otherwise>
+            and (
+              fi.uploader_id = #{p.userId}
+              or (fs.id is not null and fs.is_del = 0)
+            )
+          </otherwise>
+        </choose>
         </otherwise>
       </choose>
-      <if test="p.userGroup != null">
-        and user_group = #{p.userGroup}
-      </if>
       <if test="p.filename != null and p.filename != ''">
         and name like "%"#{p.filename}"%"
       </if>

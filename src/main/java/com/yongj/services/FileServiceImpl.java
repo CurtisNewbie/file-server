@@ -214,7 +214,7 @@ public class FileServiceImpl implements FileService {
     public PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
         SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
         if (reqVo.filterForOwnedFilesOnly()) {
-            param.setUploaderId(reqVo.getUserId());
+            param.setFilterOwnedFiles(true);
         }
         final Page<?> p = forPage(reqVo.getPagingVo());
         // based on whether tagName is present, we use different queries

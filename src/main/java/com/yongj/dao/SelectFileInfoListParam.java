@@ -21,8 +21,8 @@ public class SelectFileInfoListParam {
     /** name of the file */
     private String filename;
 
-    /** id of uploader, if this is set, only the files with this uploaderId is queried */
-    private Integer uploaderId;
+    /** only return files that is uploaded by current user */
+    private boolean filterOwnedFiles;
 
     /** tag name */
     private String tagName;
