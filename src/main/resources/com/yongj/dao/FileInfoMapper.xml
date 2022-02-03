@@ -121,7 +121,7 @@
       )
       and t.name = #{tagName}
       <if test="filename != null and filename != ''">
-        and name like "%"#{filename}"%"
+        and fi.name like "%"#{filename}"%"
       </if>
       and fi.is_logic_deleted = 0
     </where>
