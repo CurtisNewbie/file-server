@@ -41,7 +41,6 @@ public interface FileExtensionService {
      * Add new file extension
      *
      * @throws com.yongj.exceptions.IllegalExtException   if the name of the file extension is illegal
-     * @throws com.yongj.exceptions.DuplicateExtException if a file extension with the same name exists already
      */
     void addFileExt(@NotNull FileExtension fileExtension);
 }

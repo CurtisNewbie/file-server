@@ -76,7 +76,7 @@ public class FileServiceImpl implements FileService {
     private TagConverter tagConverter;
 
     @Override
-    public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException {
+    public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) {
         // make sure the file exists
         // check if the file exists
         QueryWrapper<FileInfo> fQry = new QueryWrapper<>();
@@ -275,7 +275,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public void validateUserDownload(int userId, int id) throws MsgEmbeddedException {
+    public void validateUserDownload(int userId, int id) {
         // validate whether this file can be downloaded by current user
         FileInfo f = fileInfoMapper.selectValidateInfoById(id, userId);
         AssertUtils.nonNull(f, "File is not found or you are not allowed to download this file");
@@ -288,12 +288,11 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void deleteFileLogically(int userId, int id) throws MsgEmbeddedException {
+    public void deleteFileLogically(int userId, int id) {
         // check if the file is owned by this user
         Integer uploaderId = fileInfoMapper.selectUploaderIdById(id);
-        if (!Objects.equals(userId, uploaderId)) {
-            throw new MsgEmbeddedException("You can only delete file that you uploaded");
-        }
+        AssertUtils.nonNull(uploaderId, "Record not found");
+        AssertUtils.equals(userId, (int) uploaderId, "You can only delete file that you uploaded");
         fileInfoMapper.logicDelete(id);
     }
 

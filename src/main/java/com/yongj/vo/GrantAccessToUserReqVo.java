@@ -1,7 +1,7 @@
 package com.yongj.vo;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.util.AssertUtils;
 import lombok.Data;
 
 /**
@@ -16,9 +16,9 @@ public class GrantAccessToUserReqVo {
     /** name of user who is granted access to the file */
     private String grantedTo;
 
-    public void validate() throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(fileId);
-        ValidUtils.requireNonNull(grantedTo);
+    public void validate() {
+        AssertUtils.nonNull(fileId);
+        AssertUtils.hasText(grantedTo);
     }
 
 }

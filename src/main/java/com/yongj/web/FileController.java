@@ -1,10 +1,7 @@
 package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.EnumUtils;
-import com.curtisnewbie.common.util.PagingUtil;
-import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.Result;
@@ -56,6 +53,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.curtisnewbie.common.util.AssertUtils.nonNull;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.module.auth.util.AuthUtil.getUserId;
@@ -92,13 +90,11 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String[] fileNames,
                             @RequestParam("file") MultipartFile[] multipartFiles,
-                            @RequestParam("userGroup") Integer userGroup) throws IOException, InvalidAuthenticationException,
-            MsgEmbeddedException {
+                            @RequestParam("userGroup") FileUserGroupEnum userGroupEnum) throws IOException {
 
-        FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
-        ValidUtils.requireNonNull(userGroupEnum, "Incorrect user group");
-        ValidUtils.requireNotEmpty(multipartFiles, "No file uploaded");
-        ValidUtils.requireNotEmpty(fileNames, "No file uploaded");
+        AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
+        AssertUtils.notEmpty(multipartFiles, "No file uploaded");
+        AssertUtils.notEmpty(fileNames, "No file uploaded");
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
@@ -117,9 +113,7 @@ public class FileController {
                 multiple upload, compress them into a single file zip file
                 the first one is the zipFile's name, and the rest are the entries
                  */
-            if (fileNames.length != multipartFiles.length + 1)
-                throw new MsgEmbeddedException("Parameters illegal");
-
+            AssertUtils.equals(fileNames.length, multipartFiles.length + 1);
             String zipFile = fileNames[0];
             String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
             fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
@@ -136,18 +130,14 @@ public class FileController {
 
     @LogOperation(name = "/file/grant-access", description = "grant file's access to other user")
     @PostMapping(path = "/grant-access")
-    public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) throws MsgEmbeddedException,
-            InvalidAuthenticationException {
-
+    public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
         v.validate();
-
         final String grantedToUsername = v.getGrantedTo();
         final Result<Integer> result = userServiceFeign.findIdByUsername(grantedToUsername);
         result.assertIsOk();
 
         Integer grantedToId = result.getData();
-        if (grantedToId == null)
-            throw new MsgEmbeddedException("User '" + grantedToUsername + "' doesn't exist");
+        AssertUtils.nonNull(grantedToId, "User '" + grantedToUsername + "' doesn't exist");
 
         fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
                 .fileId(v.getFileId())
@@ -158,9 +148,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/list-granted-access")
-    public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(v.getPagingVo());
-
+    public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
         final PageablePayloadSingleton<List<FileSharingVo>> pps = fileInfoService.listGrantedAccess(v.getFileId(), v.getPagingVo());
         final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
         // collect list of userIds
@@ -186,7 +174,7 @@ public class FileController {
 
     @LogOperation(name = "/file/remove-granted-access", description = "remove granted file's access")
     @PostMapping(path = "/remove-granted-access")
-    public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) throws InvalidAuthenticationException {
+    public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
 
         fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), getUserId());
         return Result.ok();
@@ -195,7 +183,7 @@ public class FileController {
     @LogOperation(name = "/file/download", description = "download file")
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public StreamingResponseBody download(@PathParam("id") int id, HttpServletResponse resp, HttpServletRequest req)
-            throws MsgEmbeddedException, InvalidAuthenticationException, IOException {
+            throws InvalidAuthenticationException, IOException {
 
         final int userId = getUserId();
 
@@ -204,7 +192,7 @@ public class FileController {
 
         // get fileInfo
         final FileInfo fi = fileInfoService.findById(id);
-        ValidUtils.requireNonNull(fi, "File not found");
+        nonNull(fi, "File not found");
 
         return download(req, resp, fi);
     }
@@ -245,9 +233,8 @@ public class FileController {
 
     @LogOperation(name = "/file/delete", description = "delete file")
     @PostMapping(path = "/delete")
-    public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws MsgEmbeddedException,
-            InvalidAuthenticationException {
-        ValidUtils.requireNonNull(reqVo.getId());
+    public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
+        AssertUtils.nonNull(reqVo.getId());
         fileInfoService.deleteFileLogically(getUserId(), reqVo.getId());
         return Result.ok();
     }
@@ -261,8 +248,8 @@ public class FileController {
 
     @LogOperation(name = "/file/extension/add", description = "add file extension")
     @PostMapping("/extension/add")
-    public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) throws MsgEmbeddedException {
-        ValidUtils.requireNotEmpty(reqVo.getName());
+    public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
+        AssertUtils.hasText(reqVo.getName(), "extension name must not be empty");
         FileExtension ext = new FileExtension();
         // by default disabled
         ext.setIsEnabled(FileExtensionIsEnabledEnum.DISABLED.getValue());
@@ -295,7 +282,7 @@ public class FileController {
         // check if the isEnabled value is valid
         FileExtensionIsEnabledEnum isEnabledEnum = EnumUtils.parse(vo.getIsEnabled(),
                 FileExtensionIsEnabledEnum.class);
-        ValidUtils.requireNonNull(isEnabledEnum);
+        AssertUtils.nonNull(isEnabledEnum, "isEnabled value illegal");
         fileExtensionService.updateFileExtSelective(vo);
         return Result.ok();
     }

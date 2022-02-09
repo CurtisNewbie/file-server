@@ -1,6 +1,8 @@
 package com.yongj.enums;
 
 import com.curtisnewbie.common.enums.IntEnum;
+import com.curtisnewbie.common.util.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * @author yongjie.zhuang
@@ -21,5 +23,10 @@ public enum FileExtensionIsEnabledEnum implements IntEnum {
     @Override
     public int getValue() {
         return this.value;
+    }
+
+    @JsonCreator
+    public static FileExtensionIsEnabledEnum forValue(int v) {
+        return EnumUtils.parse(v, FileExtensionIsEnabledEnum.class);
     }
 }

@@ -29,7 +29,7 @@ public interface FileService {
      *
      * @param cmd cmd
      */
-    void grantFileAccess(@NotNull GrantFileAccessCmd cmd) throws MsgEmbeddedException;
+    void grantFileAccess(@NotNull GrantFileAccessCmd cmd);
 
     /**
      * Save a single file
@@ -87,7 +87,7 @@ public interface FileService {
      * @param userId user.id
      * @throws MsgEmbeddedException
      */
-    void validateUserDownload(int userId, int fileId) throws MsgEmbeddedException;
+    void validateUserDownload(int userId, int fileId);
 
     /**
      * Get filename of file
@@ -102,7 +102,7 @@ public interface FileService {
      * @param userId id of the user
      * @param fileId file's id
      */
-    void deleteFileLogically(int userId, int fileId) throws MsgEmbeddedException;
+    void deleteFileLogically(int userId, int fileId);
 
     /**
      * Physically delete the file (this method should be invoked by the scheduler
