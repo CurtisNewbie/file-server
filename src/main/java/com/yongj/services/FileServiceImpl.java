@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
@@ -26,6 +25,7 @@ import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,6 +155,8 @@ public class FileServiceImpl implements FileService {
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
+        f.setCreateBy(param.getUsername());
+        f.setCreateTime(LocalDateTime.now());
         fileInfoMapper.insert(f);
         return f;
     }
@@ -198,6 +200,8 @@ public class FileServiceImpl implements FileService {
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
+        f.setCreateBy(param.getUsername());
+        f.setCreateTime(LocalDateTime.now());
         fileInfoMapper.insert(f);
         return f;
     }
@@ -257,7 +261,12 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findById(int id) {
-        return fileInfoMapper.selectById(id);
+        QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
+                .eq("id", id)
+                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue())
+                .eq("is_del", IsDel.NORMAL.getValue());
+
+        return fileInfoMapper.selectOne(cond);
     }
 
     @Override
@@ -282,12 +291,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public String getFilename(int id) {
-        return fileInfoMapper.selectNameById(id);
-    }
-
-    @Override
     public void deleteFileLogically(int userId, int id) {
         // check if the file is owned by this user
         Integer uploaderId = fileInfoMapper.selectUploaderIdById(id);
@@ -298,29 +301,47 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void markFileDeletedPhysically(int id) {
-        fileInfoMapper.markFilePhysicDeleted(id, new Date());
+        fileInfoMapper.markFilePhysicDeleted(id, LocalDateTime.now());
     }
 
     @Override
-    public void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId)
-            throws MsgEmbeddedException {
+    public void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId, @Nullable String updatedBy) {
         Integer uploader = fileInfoMapper.selectUploaderIdById(id);
-        if (uploader == null)
-            throw new MsgEmbeddedException("File not found");
+        AssertUtils.nonNull(uploader, "File not found");
+        AssertUtils.equals((int) uploader, userId, "You are not allowed to update this file");
 
-        if (!Objects.equals(uploader, userId))
-            throw new MsgEmbeddedException("You are not allowed to update this file");
+        final FileInfo param = new FileInfo();
+        param.setUpdateBy(updatedBy);
+        param.setUpdateTime(LocalDateTime.now());
+        param.setUserGroup(fug.getValue());
 
-        fileInfoMapper.updateFileUserGroup(id, fug.getValue());
+        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
+                .eq("id", id)
+                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue())
+                .eq("is_del", IsDel.NORMAL.getValue());
+
+        fileInfoMapper.update(param, cond);
     }
 
     @Override
     public void updateFile(@NotNull UpdateFileCmd cmd) {
+        Integer uploaderId = fileInfoMapper.selectUploaderIdById(cmd.getId());
+        AssertUtils.nonNull(uploaderId, "Record not found");
+        AssertUtils.equals((int) uploaderId, cmd.getUpdatedById(), "You are not allowed to update this file");
+
         FileInfo fi = new FileInfo();
         fi.setId(cmd.getId());
         fi.setUserGroup(cmd.getUserGroup().getValue());
         fi.setName(cmd.getFileName());
-        fileInfoMapper.updateInfo(fi);
+        fi.setUpdateTime(LocalDateTime.now());
+        fi.setUpdateBy(cmd.getUpdatedByName());
+
+        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
+                .eq("id", cmd.getId())
+                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue())
+                .eq("is_del", IsDel.NORMAL.getValue());
+
+        fileInfoMapper.update(fi, cond);
     }
 
     @Override

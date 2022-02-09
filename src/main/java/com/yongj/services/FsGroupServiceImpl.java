@@ -1,6 +1,6 @@
 package com.yongj.services;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.converters.FsGroupConverter;
@@ -58,9 +58,9 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Override
     public void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode, @Nullable String updatedBy) {
-        final LambdaQueryWrapper<FsGroup> condition = new LambdaQueryWrapper<FsGroup>()
-                .eq(FsGroup::getId, fsGroupId)
-                .eq(FsGroup::getIsDel, IsDel.NORMAL);
+        final QueryWrapper<FsGroup> condition = new QueryWrapper<FsGroup>()
+                .eq("id", fsGroupId)
+                .eq("is_del", IsDel.NORMAL.getValue());
 
         final FsGroup param = new FsGroup();
         param.setMode(mode.getValue());

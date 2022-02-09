@@ -183,17 +183,6 @@ public class FileServiceTest {
     }
 
     @Test
-    void shouldGetFilename() throws IOException {
-        mockFsGroupService();
-        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(fi);
-
-        String fname = fileInfoService.getFilename(fi.getId());
-        Assertions.assertEquals(fname, UPLOADED_TEST_FILE);
-        doCleanUp(fi);
-    }
-
-    @Test
     void ShouldRetrieveFileInputStream() throws IOException {
         mockFsGroupService();
         FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
@@ -223,7 +212,7 @@ public class FileServiceTest {
 
         Assertions.assertDoesNotThrow(() -> {
             fileInfoService.deleteFileLogically(TEST_USER_ID, fi.getId());
-            FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
+            FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsLogicDeleted(), FileLogicDeletedEnum.LOGICALLY_DELETED.getValue());
         });
@@ -240,7 +229,7 @@ public class FileServiceTest {
 
         Assertions.assertDoesNotThrow(() -> {
             fileInfoService.markFileDeletedPhysically(fi.getId());
-            FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
+            FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsPhysicDeleted(), FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
         });
@@ -255,9 +244,9 @@ public class FileServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
-            fileInfoService.updateFileUserGroup(fi.getId(), FileUserGroupEnum.PUBLIC, TEST_USER_ID);
+            fileInfoService.updateFileUserGroup(fi.getId(), FileUserGroupEnum.PUBLIC, TEST_USER_ID, "unit test");
 
-            FileInfo sfi = fileInfoMapper.selectByPrimaryKey(fi.getId());
+            FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getUserGroup(), FileUserGroupEnum.PUBLIC.getValue());
         });

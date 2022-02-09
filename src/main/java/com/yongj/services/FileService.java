@@ -8,6 +8,7 @@ import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.vo.*;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -90,13 +91,6 @@ public interface FileService {
     void validateUserDownload(int userId, int fileId);
 
     /**
-     * Get filename of file
-     *
-     * @param id file's id
-     */
-    String getFilename(int id);
-
-    /**
      * Logically delete the file
      *
      * @param userId id of the user
@@ -118,7 +112,7 @@ public interface FileService {
      * @param fug    fileUserGroup
      * @param userId who updated this file
      */
-    void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId) throws MsgEmbeddedException;
+    void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId, @Nullable String updatedBy);
 
     /**
      * Update file's info

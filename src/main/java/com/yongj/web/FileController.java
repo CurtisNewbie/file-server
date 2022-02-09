@@ -57,6 +57,7 @@ import static com.curtisnewbie.common.util.AssertUtils.nonNull;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.module.auth.util.AuthUtil.getUserId;
+import static com.curtisnewbie.module.auth.util.AuthUtil.getUsername;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -300,7 +301,8 @@ public class FileController {
                 .id(reqVo.getId())
                 .fileName(reqVo.getName())
                 .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
-                .updatedBy(getUserId())
+                .updatedById(getUserId())
+                .updatedByName(getUsername())
                 .build());
         return Result.ok();
     }

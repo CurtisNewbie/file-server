@@ -1,6 +1,6 @@
 package com.yongj.services;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
@@ -69,9 +69,9 @@ public class FileExtensionServiceImpl implements FileExtensionService {
         Objects.requireNonNull(fileExtVo.getId());
 
         final FileExtension param = fileExtConverter.toDo(fileExtVo);
-        final LambdaQueryWrapper<FileExtension> condition = new LambdaQueryWrapper<FileExtension>()
-                .eq(FileExtension::getId, fileExtVo.getId())
-                .eq(FileExtension::getIsDel, IsDel.NORMAL);
+        final QueryWrapper<FileExtension> condition = new QueryWrapper<FileExtension>()
+                .eq("id", fileExtVo.getId())
+                .eq("is_del", IsDel.NORMAL.getValue());
 
         fileExtensionMapper.update(param, condition);
     }

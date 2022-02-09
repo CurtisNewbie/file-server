@@ -8,29 +8,15 @@
     WHERE id = #{id}
     AND is_logic_deleted = 0
   </update>
+
   <update id="markFilePhysicDeleted">
     UPDATE file_info
     SET is_physic_deleted = 1,
+    update_time = #{deleteDate},
+    update_by = "system",
     physic_delete_time = #{deleteDate}
     WHERE id = #{id}
     AND is_physic_deleted = 0
-  </update>
-  <update id="updateFileUserGroup">
-    UPDATE file_info
-    SET user_group = #{userGroup}
-    WHERE id = #{id}
-  </update>
-  <update id="updateInfo">
-    update file_info
-    <set>
-      <if test="userGroup != null">
-        user_group = #{userGroup},
-      </if>
-      <if test="name != null and name != ''">
-        name = #{name}
-      </if>
-    </set>
-    where id = #{id}
   </update>
 
   <select id="selectBasicInfoByUserId" resultType="com.yongj.dao.FileInfo">
@@ -45,7 +31,7 @@
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
     <if test="p.filterOwnedFiles == false">
-      left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
+      left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId} and fs.is_del = 0)
     </if>
     <where>
       <choose>
@@ -80,7 +66,7 @@
         and name like "%"#{p.filename}"%"
       </if>
       and fi.is_logic_deleted = 0
-      and is_del = 0
+      and fi.is_del = 0
     </where>
     order by id desc
   </select>
@@ -88,9 +74,9 @@
   <select id="selectFileListForUserAndTag" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
-    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
-    left join file_tag ft on fi.id = ft.file_id
-    left join tag t on ft.tag_id = t.id
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId} and fs.is_del = 0)
+    left join file_tag ft on (fi.id = ft.file_id and ft.is_del = 0)
+    left join tag t on (ft.tag_id = t.id and t.is_del = 0)
     <where>
       (
           fi.user_group = 0
@@ -102,7 +88,7 @@
         and fi.name like "%"#{filename}"%"
       </if>
       and fi.is_logic_deleted = 0
-      and is_del = 0
+      and fi.is_del = 0
     </where>
     order by id desc
   </select>
@@ -117,12 +103,14 @@
     )
     and is_del = 0
   </select>
+
   <select id="selectNameById" resultType="java.lang.String">
     select name
     from file_info
     where id = #{id}
     and is_del = 0
   </select>
+
   <select id="selectUploaderIdById" resultType="java.lang.Integer">
     select uploader_id
     from file_info
@@ -135,10 +123,12 @@
     where is_logic_deleted = 1
     and is_physic_deleted = 0
   </select>
+
   <select id="selectDownloadInfoById" resultType="com.yongj.dao.FileInfo">
     select fs_group_id, uuid, uploader_id
     from file_info
     where id = #{id}
+    and is_logic_deleted = 0
   </select>
 
 </mapper>

@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yongj.enums.FileUserGroupEnum;
 import lombok.Builder;
 import lombok.Data;
@@ -23,5 +24,10 @@ public class UpdateFileCmd {
     private FileUserGroupEnum userGroup;
 
     /** id of user who updated the file */
-    private int updatedBy;
+    @JsonIgnore
+    private int updatedById;
+
+    /** name of user who updated the file */
+    @JsonIgnore
+    private String updatedByName;
 }

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.lang.Nullable;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FileInfoMapper extends BaseMapper<FileInfo> {
@@ -60,23 +60,10 @@ public interface FileInfoMapper extends BaseMapper<FileInfo> {
      * @param id         id
      * @param deleteDate the date that is marked as physically deleted
      */
-    void markFilePhysicDeleted(@Param("id") int id, @Param("deleteDate") Date deleteDate);
-
-    /**
-     * Update user_group
-     *
-     * @param id        id
-     * @param userGroup userGroup
-     */
-    void updateFileUserGroup(@Param("id") int id, @Param("userGroup") int userGroup);
+    void markFilePhysicDeleted(@Param("id") int id, @Param("deleteDate") LocalDateTime deleteDate);
 
     /**
      * Select fs_group_id, uuid, uploader_id
      */
     FileInfo selectDownloadInfoById(int id);
-
-    /**
-     * Update user_group, name selectively
-     */
-    void updateInfo(FileInfo fi);
 }
