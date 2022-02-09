@@ -91,8 +91,9 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String[] fileNames,
                             @RequestParam("file") MultipartFile[] multipartFiles,
-                            @RequestParam("userGroup") FileUserGroupEnum userGroupEnum) throws IOException {
+                            @RequestParam("userGroup") int userGroup) throws IOException {
 
+        final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
         AssertUtils.notEmpty(multipartFiles, "No file uploaded");
         AssertUtils.notEmpty(fileNames, "No file uploaded");
