@@ -51,7 +51,7 @@ public class FsGroupServiceImpl implements FsGroupService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<FsGroupVo>> findByPage(@NotNull ListAllFsGroupReqVo param) {
         return toPageList(
-                fsGroupMapper.findByPage(forPage(param.getPagingVo()), fsGroupConverter.toDo(param)),
+                fsGroupMapper.findByPage(forPage(param.getPagingVo()), fsGroupConverter.toDo(param.getFsGroup())),
                 fsGroupConverter::toVo
         );
     }

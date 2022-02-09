@@ -13,7 +13,5 @@ public interface FsGroupConverter {
 
     FsGroup toDo(FsGroupVo v);
 
-    FsGroup toDo(ListAllFsGroupReqVo v);
-
     FsGroupVo toVo(FsGroup f);
 }
