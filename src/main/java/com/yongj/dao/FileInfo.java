@@ -1,19 +1,15 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.curtisnewbie.common.dao.DaoSkeleton;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 @TableName("file_info")
-public class FileInfo {
-
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+public class FileInfo extends DaoSkeleton {
 
     /** name of the file */
     @TableField("name")

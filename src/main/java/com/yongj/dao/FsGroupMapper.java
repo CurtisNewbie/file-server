@@ -1,5 +1,6 @@
 package com.yongj.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
@@ -11,15 +12,11 @@ import java.util.List;
  *
  * @author yongjie.zhuang
  */
-public interface FsGroupMapper {
-
-    int insert(FsGroup record);
+public interface FsGroupMapper extends BaseMapper<FsGroup> {
 
     FsGroup selectByPrimaryKey(Integer id);
 
     List<FsGroup> selectAll();
-
-    int updateByPrimaryKey(FsGroup record);
 
     FsGroup findFirstForWrite();
 

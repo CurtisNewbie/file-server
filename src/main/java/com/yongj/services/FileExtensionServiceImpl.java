@@ -1,5 +1,7 @@
 package com.yongj.services;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.converters.FileExtConverter;
@@ -64,8 +66,13 @@ public class FileExtensionServiceImpl implements FileExtensionService {
     @Override
     public void updateFileExtSelective(@NotNull FileExtVo fileExtVo) {
         Objects.requireNonNull(fileExtVo.getId());
-        FileExtension fe = fileExtConverter.toDo(fileExtVo);
-        fileExtensionMapper.updateSelective(fe);
+
+        final FileExtension param = fileExtConverter.toDo(fileExtVo);
+        final LambdaQueryWrapper<FileExtension> condition = new LambdaQueryWrapper<FileExtension>()
+                .eq(FileExtension::getId, fileExtVo.getId())
+                .eq(FileExtension::getIsDel, IsDel.NORMAL);
+
+        fileExtensionMapper.update(param, condition);
     }
 
     @Override
@@ -75,6 +82,7 @@ public class FileExtensionServiceImpl implements FileExtensionService {
             throw new IllegalExtException("File extension '" + fileExtension.getName() + "' format illegal");
         if (fileExtensionMapper.findIdByName(fileExtension.getName()) != null)
             throw new DuplicateExtException("File extension '" + fileExtension.getName() + "' already exists");
+
         fileExtensionMapper.insert(fileExtension);
     }
 

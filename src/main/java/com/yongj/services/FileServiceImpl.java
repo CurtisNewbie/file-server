@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.util.ValidUtils;
@@ -251,10 +252,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException {
-        FileInfo fi = fileInfoMapper.selectByPrimaryKey(id);
-        Objects.requireNonNull(fi, "Record not found");
+        FileInfo fi = fileInfoMapper.selectById(id);
+        AssertUtils.nonNull(fi, "Record not found");
+
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
-        Objects.requireNonNull(fsg, "Unable to download file, because fs_group is not found");
+        AssertUtils.nonNull(fi, "Unable to download file, fs_group for this file is not found");
+
         final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
         ioHandler.readFile(absPath, outputStream);
     }
@@ -262,7 +265,7 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findById(int id) {
-        return fileInfoMapper.selectByPrimaryKey(id);
+        return fileInfoMapper.selectById(id);
     }
 
     @Override

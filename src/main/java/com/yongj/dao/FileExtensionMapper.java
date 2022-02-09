@@ -1,5 +1,6 @@
 package com.yongj.dao;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * @author yongjie.zhuang
  */
-public interface FileExtensionMapper {
+public interface FileExtensionMapper extends BaseMapper<FileExtension> {
 
     /**
      * Find all enabled file extensions
@@ -27,19 +28,9 @@ public interface FileExtensionMapper {
     List<FileExtension> findAll();
 
     /**
-     * Update selective
-     */
-    void updateSelective(FileExtension fileExt);
-
-    /**
      * Select * selectively
      */
     IPage<FileExtension> findAllSelective(Page p, @Param("p") FileExtension param);
-
-    /**
-     * Insert a new file extension
-     */
-    void insert(FileExtension ext);
 
     /**
      * Select first id of file extension with the given name

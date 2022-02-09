@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -271,6 +272,8 @@ public class FileController {
         // by default disabled
         ext.setIsEnabled(FileExtensionIsEnabledEnum.DISABLED.getValue());
         ext.setName(reqVo.getName());
+        ext.setCreateBy(AuthUtil.getUsername());
+        ext.setCreateTime(LocalDateTime.now());
         fileExtensionService.addFileExt(ext);
         return Result.ok();
     }

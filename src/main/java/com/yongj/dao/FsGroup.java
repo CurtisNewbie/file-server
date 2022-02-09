@@ -1,9 +1,8 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.curtisnewbie.common.dao.DaoSkeleton;
 import lombok.Data;
 
 /**
@@ -13,10 +12,7 @@ import lombok.Data;
  */
 @Data
 @TableName("fs_group")
-public class FsGroup {
-
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+public class FsGroup extends DaoSkeleton {
 
     /** group name */
     @TableField("name")

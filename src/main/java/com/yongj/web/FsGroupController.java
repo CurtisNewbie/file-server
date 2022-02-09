@@ -6,6 +6,7 @@ import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.auth.aop.LogOperation;
+import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.FsGroupVo;
@@ -40,7 +41,7 @@ public class FsGroupController {
         FsGroupMode fgm = EnumUtils.parse(reqVo.getMode(), FsGroupMode.class);
         ValidUtils.requireNonNull(fgm, "fs_group mode value illegal");
 
-        fsGroupService.updateFsGroupMode(reqVo.getId(), fgm);
+        fsGroupService.updateFsGroupMode(reqVo.getId(), fgm, AuthUtil.getUsername());
         return Result.ok();
     }
 

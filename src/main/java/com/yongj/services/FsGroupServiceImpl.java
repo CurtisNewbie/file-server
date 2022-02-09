@@ -1,8 +1,7 @@
 package com.yongj.services;
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.PagingUtil;
-import com.curtisnewbie.common.util.ValidUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.converters.FsGroupConverter;
 import com.yongj.dao.FsGroup;
@@ -11,12 +10,17 @@ import com.yongj.enums.FsGroupMode;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.common.util.PagingUtil.toPageList;
 
 /**
  * @author yongjie.zhuang
@@ -46,16 +50,23 @@ public class FsGroupServiceImpl implements FsGroupService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<FsGroupVo>> findByPage(@NotNull ListAllFsGroupReqVo param) {
-        return PagingUtil.toPageList(
-                fsGroupMapper.findByPage(PagingUtil.forPage(param.getPagingVo()), fsGroupConverter.toDo(param)),
+        return toPageList(
+                fsGroupMapper.findByPage(forPage(param.getPagingVo()), fsGroupConverter.toDo(param)),
                 fsGroupConverter::toVo
         );
     }
 
     @Override
-    public void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode) throws MsgEmbeddedException {
-        FsGroup fsg = fsGroupMapper.selectByPrimaryKey(fsGroupId);
-        ValidUtils.requireNonNull(fsg, "fs_group not exists");
-        fsGroupMapper.updateFsGroupModeById(fsGroupId, mode.getValue());
+    public void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode, @Nullable String updatedBy) {
+        final LambdaQueryWrapper<FsGroup> condition = new LambdaQueryWrapper<FsGroup>()
+                .eq(FsGroup::getId, fsGroupId)
+                .eq(FsGroup::getIsDel, IsDel.NORMAL);
+
+        final FsGroup param = new FsGroup();
+        param.setMode(mode.getValue());
+        param.setUpdateTime(LocalDateTime.now());
+        param.setUpdateBy(updatedBy);
+
+        fsGroupMapper.update(param, condition);
     }
 }

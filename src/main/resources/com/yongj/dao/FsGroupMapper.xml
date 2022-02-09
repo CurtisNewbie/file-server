@@ -1,21 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yongj.dao.FsGroupMapper">
-  <insert id="insert" parameterType="com.yongj.dao.FsGroup">
-    insert into fs_group (id, name, base_folder, mode
-    )
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{baseFolder,jdbcType=VARCHAR}, #{mode}
-    )
-  </insert>
-  <update id="updateByPrimaryKey" parameterType="com.yongj.dao.FsGroup">
-    update fs_group
-    set name = #{name,jdbcType=VARCHAR},
-    base_folder = #{baseFolder,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
   <update id="updateFsGroupModeById">
     update fs_group
-    set mode = #{mode}
+    set mode = #{mode},
+    update_time = now()
     where id = #{id}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultType="com.yongj.dao.FsGroup">

@@ -1,12 +1,12 @@
 package com.yongj.services;
 
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -40,5 +40,5 @@ public interface FsGroupService {
     /**
      * Update fs_group's mode
      */
-    void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode) throws MsgEmbeddedException;
+    void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode, @Nullable String updatedBy);
 }

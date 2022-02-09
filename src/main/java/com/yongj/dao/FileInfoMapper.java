@@ -11,12 +11,6 @@ import java.util.List;
 
 public interface FileInfoMapper extends BaseMapper<FileInfo> {
 
-    FileInfo selectByPrimaryKey(Integer id);
-
-    List<FileInfo> selectAll();
-
-    int updateByPrimaryKey(FileInfo record);
-
     /**
      * Select name, uuid, size_in_bytes
      */
