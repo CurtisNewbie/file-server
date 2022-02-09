@@ -2,7 +2,6 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.advice.GlobalControllerAdvice;
 import com.curtisnewbie.common.vo.Result;
-import com.yongj.exceptions.DuplicateExtException;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.exceptions.IllegalPathException;
 import org.slf4j.Logger;
@@ -33,10 +32,4 @@ public class CtrlAdvice extends GlobalControllerAdvice {
         return Result.error(e.getMessage());
     }
 
-    @ExceptionHandler({DuplicateExtException.class})
-    @ResponseBody
-    public Result<?> handleDuplicateExtException(Exception e) {
-        logger.warn("Duplicate file extension - '{}'", e.getMessage());
-        return Result.error(e.getMessage());
-    }
 }

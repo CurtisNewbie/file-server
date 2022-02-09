@@ -7,8 +7,6 @@ import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.converters.FileExtConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileExtensionMapper;
-import com.yongj.exceptions.DuplicateExtException;
-import com.yongj.exceptions.IllegalExtException;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +20,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.curtisnewbie.common.util.AssertUtils.isNull;
+import static com.curtisnewbie.common.util.AssertUtils.isTrue;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageList;
+import static java.lang.String.format;
 
 
 /**
@@ -78,10 +79,8 @@ public class FileExtensionServiceImpl implements FileExtensionService {
     @Override
     public void addFileExt(@NotNull FileExtension fileExtension) {
         Objects.requireNonNull(fileExtension.getName());
-        if (!FILE_EXT_PATTERN.matcher(fileExtension.getName()).matches())
-            throw new IllegalExtException("File extension '" + fileExtension.getName() + "' format illegal");
-        if (fileExtensionMapper.findIdByName(fileExtension.getName()) != null)
-            throw new DuplicateExtException("File extension '" + fileExtension.getName() + "' already exists");
+        isTrue(FILE_EXT_PATTERN.matcher(fileExtension.getName()).matches(), format("File extension '%s' format illegal", fileExtension.getName()));
+        isNull(fileExtensionMapper.findIdByName(fileExtension.getName()), format("File extension '%s' already exists", fileExtension.getName()));
 
         fileExtensionMapper.insert(fileExtension);
     }

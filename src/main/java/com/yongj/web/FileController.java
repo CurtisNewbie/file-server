@@ -23,7 +23,6 @@ import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileService;
@@ -105,36 +104,32 @@ public class FileController {
         // if there are multiple files, this will be the name of the zip file
         pathResolver.validateFileExtension(fileNames[0]);
 
-        try {
-            if (multipartFiles.length == 1) {
-                fileInfoService.uploadFile(UploadFileVo.builder()
-                        .userId(getUserId())
-                        .username(AuthUtil.getUsername())
-                        .fileName(fileNames[0])
-                        .userGroup(userGroupEnum)
-                        .inputStream(multipartFiles[0].getInputStream())
-                        .build());
-            } else {
+        if (multipartFiles.length == 1) {
+            fileInfoService.uploadFile(UploadFileVo.builder()
+                    .userId(getUserId())
+                    .username(AuthUtil.getUsername())
+                    .fileName(fileNames[0])
+                    .userGroup(userGroupEnum)
+                    .inputStream(multipartFiles[0].getInputStream())
+                    .build());
+        } else {
                 /*
                 multiple upload, compress them into a single file zip file
                 the first one is the zipFile's name, and the rest are the entries
                  */
-                if (fileNames.length != multipartFiles.length + 1)
-                    throw new MsgEmbeddedException("Parameters illegal");
+            if (fileNames.length != multipartFiles.length + 1)
+                throw new MsgEmbeddedException("Parameters illegal");
 
-                String zipFile = fileNames[0];
-                String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
-                fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
-                        .userId(getUserId())
-                        .username(AuthUtil.getUsername())
-                        .zipFile(zipFile)
-                        .entryNames(entryNames)
-                        .userGroup(userGroupEnum)
-                        .inputStreams(collectInputStreams(multipartFiles))
-                        .build());
-            }
-        } catch (NoWritableFsGroupException e) {
-            return Result.error("No writable fs_group found, unable to upload file, please contact administrator");
+            String zipFile = fileNames[0];
+            String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
+            fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
+                    .userId(getUserId())
+                    .username(AuthUtil.getUsername())
+                    .zipFile(zipFile)
+                    .entryNames(entryNames)
+                    .userGroup(userGroupEnum)
+                    .inputStreams(collectInputStreams(multipartFiles))
+                    .build());
         }
         return Result.ok();
     }

@@ -8,7 +8,6 @@ import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
-import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.PagingVo;
@@ -21,7 +20,6 @@ import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileSharingIsDel;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.exceptions.NoWritableFsGroupException;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
@@ -86,10 +84,10 @@ public class FileServiceImpl implements FileService {
                 .eq("id", cmd.getFileId())
                 .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue());
         FileInfo file = fileInfoMapper.selectOne(fQry);
-        ValidUtils.requireNonNull(file, "File not found");
+        AssertUtils.nonNull(file, "File not found");
 
         // check if the grantedTo is the uploader
-        ValidUtils.requireNotEquals(file.getUploaderId(), cmd.getGrantedTo(), "You can't grant access to the file's uploader");
+        AssertUtils.notEquals(file.getUploaderId(), cmd.getGrantedTo(), "You can't grant access to the file's uploader");
 
         // check if the user already had access to the file
         QueryWrapper<FileSharing> fsQry = new QueryWrapper<>();
@@ -97,7 +95,7 @@ public class FileServiceImpl implements FileService {
                 .eq("file_id", cmd.getFileId())
                 .eq("user_id", cmd.getGrantedTo());
         FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
-        ValidUtils.assertTrue(fileSharing == null || Objects.equals(fileSharing.getIsDel(), FileSharingIsDel.TRUE.getValue()),
+        AssertUtils.isTrue(fileSharing == null || Objects.equals(fileSharing.getIsDel(), FileSharingIsDel.TRUE.getValue()),
                 "User already had access to this file");
 
         if (fileSharing == null) {
@@ -137,8 +135,7 @@ public class FileServiceImpl implements FileService {
         final String uuid = UUID.randomUUID().toString();
         // find the first writable fs_group to use
         FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
-        if (fsGroup == null)
-            throw new NoWritableFsGroupException();
+        AssertUtils.nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
 
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId, fsGroup.getBaseFolder());
@@ -170,23 +167,18 @@ public class FileServiceImpl implements FileService {
         final FileUserGroupEnum userGroup = param.getUserGroup();
         final InputStream[] inputStreams = param.getInputStreams();
 
-        Objects.requireNonNull(entryNames);
-        Objects.requireNonNull(userGroup);
-        Objects.requireNonNull(zipFile);
-        Objects.requireNonNull(inputStreams);
-
-        if (inputStreams.length == 0)
-            throw new IllegalArgumentException();
-        if (entryNames.length != inputStreams.length)
-            throw new IllegalArgumentException();
+        AssertUtils.notEmpty(entryNames);
+        AssertUtils.nonNull(userGroup);
+        AssertUtils.hasText(zipFile);
+        AssertUtils.notEmpty(inputStreams);
+        AssertUtils.equals(entryNames.length, inputStreams.length);
 
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
 
         // find the first writable fs_group to use
         FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
-        if (fsGroup == null)
-            throw new NoWritableFsGroupException();
+        AssertUtils.nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
 
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
@@ -272,9 +264,11 @@ public class FileServiceImpl implements FileService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(int id) throws IOException {
         FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
-        Objects.requireNonNull(fi, "Record not found");
+        AssertUtils.nonNull(fi, "Record not found");
+
         FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
-        Objects.requireNonNull(fsg);
+        AssertUtils.nonNull(fsg, "FS Group for this record is not found");
+
         final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
         return Files.newInputStream(Paths.get(absPath));
     }
@@ -284,7 +278,7 @@ public class FileServiceImpl implements FileService {
     public void validateUserDownload(int userId, int id) throws MsgEmbeddedException {
         // validate whether this file can be downloaded by current user
         FileInfo f = fileInfoMapper.selectValidateInfoById(id, userId);
-        ValidUtils.requireNonNull(f, "File is not found or you are not allowed to download this file");
+        AssertUtils.nonNull(f, "File is not found or you are not allowed to download this file");
     }
 
     @Override
