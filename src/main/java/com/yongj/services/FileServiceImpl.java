@@ -385,7 +385,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void tagFile(final TagFileCmd cmd) {
-        final String tagName = cmd.getTagName();
+        final String tagName = cmd.getTagName().trim();
         final String taggedBy = cmd.getTaggedBy();
         final int fileId = cmd.getFileId();
         final int userId = cmd.getUserId();
