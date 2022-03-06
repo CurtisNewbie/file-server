@@ -14,6 +14,9 @@ public interface PathResolver {
 
     /**
      * Resolve absolute path for the given uuid and userId
+     * <p>
+     * This method calls {@link #resolveAbsolutePath(String, String, String)}
+     * </p>
      *
      * @param uuid
      * @param userId
@@ -21,6 +24,16 @@ public interface PathResolver {
      * @return absolute path
      */
     String resolveAbsolutePath(@NotEmpty String uuid, int userId, String fsGroupFolder);
+
+    /**
+     * Resolve absolute path for the given uuid and owner
+     *
+     * @param uuid
+     * @param owner         (e.g., uploadApp or uploaderId)
+     * @param fsGroupFolder
+     * @return absolute path
+     */
+    String resolveAbsolutePath(@NotEmpty String uuid, String owner, String fsGroupFolder);
 
     /**
      * Validate the file extension of the given path

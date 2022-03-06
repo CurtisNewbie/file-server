@@ -1,6 +1,5 @@
 package com.yongj.vo;
 
-import com.yongj.enums.FileUserGroupEnum;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,19 +10,13 @@ import java.io.InputStream;
  */
 @Data
 @Builder
-public class UploadFileVo {
-
-    /** uploader id */
-    private int userId;
-
-    /** uploader name */
-    private String username;
+public class UploadAppFileCmd {
 
     /** file name */
     private String fileName;
 
-    /** user group */
-    private FileUserGroupEnum userGroup;
+    /** upload app */
+    private String uploadApp;
 
     /** input stream */
     private InputStream inputStream;

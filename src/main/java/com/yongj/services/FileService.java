@@ -1,7 +1,6 @@
 package com.yongj.services;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.PagingVo;
@@ -11,6 +10,7 @@ import com.yongj.vo.*;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,15 +33,19 @@ public interface FileService {
     void grantFileAccess(@NotNull GrantFileAccessCmd cmd);
 
     /**
-     * Save a single file
+     * Save a single file from app
+     */
+    FileInfo uploadAppFile(@NotNull UploadAppFileCmd cmd) throws IOException;
+
+    /**
+     * Save a single file from user
      */
     FileInfo uploadFile(@NotNull UploadFileVo param) throws IOException;
 
     /**
      * Save multiple files as a single zip
      */
-    FileInfo uploadFilesAsZip(@NotNull UploadZipFileVo param)
-            throws IOException;
+    FileInfo uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
 
     /**
      * Find file info for user (with pagination)
@@ -68,6 +72,7 @@ public interface FileService {
      * @param id           file's id
      * @param outputStream outputStream
      */
+    @Deprecated // todo doesn't seem to be useful, consider removing it
     void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException;
 
     /**
@@ -83,10 +88,17 @@ public interface FileService {
     InputStream retrieveFileInputStream(int id) throws IOException;
 
     /**
+     * Validate whether current app can download this file
+     *
+     * @param appName
+     * @param fileId id of file_info
+     */
+    void validateAppDownload(@NotBlank String appName, int fileId);
+
+    /**
      * Validate whether current user can download this file
      *
      * @param userId user.id
-     * @throws MsgEmbeddedException
      */
     void validateUserDownload(int userId, int fileId);
 

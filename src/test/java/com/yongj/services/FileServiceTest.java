@@ -29,6 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipFile;
 
+//todo Fix the test cases, these doesn't work for FsGroup, basePath is deprecated already
+
 /**
  * Test for {@link FileService}
  *
@@ -36,7 +38,6 @@ import java.util.zip.ZipFile;
  */
 @Slf4j
 @SpringBootTest
-@Rollback
 @Transactional
 public class FileServiceTest {
 
@@ -183,7 +184,7 @@ public class FileServiceTest {
     }
 
     @Test
-    void ShouldRetrieveFileInputStream() throws IOException {
+    void shouldRetrieveFileInputStream() throws IOException {
         mockFsGroupService();
         FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
         Assertions.assertNotNull(fi);
@@ -205,6 +206,7 @@ public class FileServiceTest {
     }
 
     @Test
+    @Rollback
     void shouldDeleteFileLogically() throws IOException {
         mockFsGroupService();
         FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
@@ -222,6 +224,7 @@ public class FileServiceTest {
 
     /** Test {@link FileService#markFileDeletedPhysically(int)} */
     @Test
+    @Rollback
     void shouldMarkFileDeletedPhysically() throws IOException {
         mockFsGroupService();
         FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
@@ -238,6 +241,7 @@ public class FileServiceTest {
     }
 
     @Test
+    @Rollback
     void shouldUpdateFileUserGroup() throws IOException {
         mockFsGroupService();
         FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);

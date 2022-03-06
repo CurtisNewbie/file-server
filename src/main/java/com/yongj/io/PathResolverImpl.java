@@ -30,11 +30,16 @@ public class PathResolverImpl implements PathResolver {
 
     @Override
     public String resolveAbsolutePath(@NotEmpty String uuid, int userId, String fsGroupFolder) {
+        return resolveAbsolutePath(uuid, String.valueOf(userId), fsGroupFolder);
+    }
+
+    @Override
+    public String resolveAbsolutePath(@NotEmpty String uuid, String owner, String fsGroupFolder) {
         String absPath = fsGroupFolder + File.separator
-                + userId + File.separator
+                + owner + File.separator
                 + uuid;
         logger.debug("Resolving path for UUID: '{}' and userId: '{}' resolved absolute path: '{}'",
-                uuid, userId, absPath);
+                uuid, owner, absPath);
         return absPath;
     }
 

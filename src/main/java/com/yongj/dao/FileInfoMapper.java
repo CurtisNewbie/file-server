@@ -7,14 +7,11 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+/**
+ * @author yongj.zhuang
+ */
 public interface FileInfoMapper extends BaseMapper<FileInfo> {
-
-    /**
-     * Select name, uuid, size_in_bytes
-     */
-    List<FileInfo> selectBasicInfoByUserId(@Param("userId") int userId);
 
     /**
      * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
@@ -63,7 +60,7 @@ public interface FileInfoMapper extends BaseMapper<FileInfo> {
     void markFilePhysicDeleted(@Param("id") int id, @Param("deleteDate") LocalDateTime deleteDate);
 
     /**
-     * Select fs_group_id, uuid, uploader_id
+     * Select fs_group_id, uuid, uploader_id, upload_type
      */
     FileInfo selectDownloadInfoById(int id);
 }

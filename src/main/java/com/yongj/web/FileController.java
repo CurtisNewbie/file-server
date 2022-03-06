@@ -20,6 +20,7 @@ import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.UploadType;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileService;
@@ -111,10 +112,10 @@ public class FileController {
                     .inputStream(multipartFiles[0].getInputStream())
                     .build());
         } else {
-                /*
-                multiple upload, compress them into a single file zip file
+            /*
+                upload multiple files, compress them into a single file zip file
                 the first one is the zipFile's name, and the rest are the entries
-                 */
+             */
             AssertUtils.equals(fileNames.length, multipartFiles.length + 1);
             String zipFile = fileNames[0];
             String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);

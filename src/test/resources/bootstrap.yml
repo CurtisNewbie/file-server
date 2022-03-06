@@ -79,7 +79,7 @@ authmodule:
 mybatis:
   config-location: classpath:mybatis-config.xml
 mybatis-plus:
-  typeEnumsPackage: com.curtisnewbie.common.dao
+  typeEnumsPackage: com.curtisnewbie.common.dao;com.yongj.enums
 
 # name of the application group (same cluster should share the same name)
 distributed-task-module:
