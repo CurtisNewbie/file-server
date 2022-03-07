@@ -1,8 +1,8 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.curtisnewbie.common.util.EnhancedMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.lang.Nullable;
 
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 /**
  * @author yongj.zhuang
  */
-public interface FileInfoMapper extends BaseMapper<FileInfo> {
+public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
 
     /**
      * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,

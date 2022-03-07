@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS file_info (
     is_logic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is logically deleted, 0-normal, 1-deleted",
     is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
     size_in_bytes BIGINT NOT NULL COMMENT "size of file in bytes",
-    uploader_id INT NOT NULL COMMENT "uploader id, i.e., user.id",
+    uploader_id INT NOT NULL DEFAULT 0 COMMENT "uploader id, i.e., user.id",
     upload_type TINYINT NOT NULL DEFAULT 0 COMMENT 'upload type: 0-user uploaded, 1-application uploaded',
     upload_app VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'app that uploaded this file, only used when the file is uploaded by an app',
     uploader_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'uploader name',

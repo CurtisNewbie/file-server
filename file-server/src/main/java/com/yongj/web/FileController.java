@@ -20,7 +20,6 @@ import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileExtensionIsEnabledEnum;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.enums.UploadType;
 import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileService;

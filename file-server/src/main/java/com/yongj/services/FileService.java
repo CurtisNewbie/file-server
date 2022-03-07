@@ -88,6 +88,13 @@ public interface FileService {
     InputStream retrieveFileInputStream(int id) throws IOException;
 
     /**
+     * Retrieve file's inputStream via id
+     *
+     * @param uuid file's uuid
+     */
+    InputStream retrieveFileInputStream(@NotNull String uuid) throws IOException;
+
+    /**
      * Validate whether current app can download this file
      *
      * @param appName

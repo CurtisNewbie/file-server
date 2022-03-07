@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: file-service-test
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+
+jwt-module:
+  issuer: yongj.zhuang-auth-service

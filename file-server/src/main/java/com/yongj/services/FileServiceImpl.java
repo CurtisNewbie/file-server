@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -37,7 +38,10 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
@@ -330,6 +334,19 @@ public class FileServiceImpl implements FileService {
             absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
 
         return Files.newInputStream(Paths.get(absPath));
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public InputStream retrieveFileInputStream(String uuid) throws IOException {
+        LambdaQueryWrapper<FileInfo> w = new LambdaQueryWrapper<FileInfo>()
+                .select(FileInfo::getId)
+                .eq(FileInfo::getUuid, uuid);
+
+        Integer id = fileInfoMapper.selectAndConvert(w, FileInfo::getId);
+        AssertUtils.notNull(id, "File not found, key: %s", uuid);
+
+        return retrieveFileInputStream(id);
     }
 
     @Override
