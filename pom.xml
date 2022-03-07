@@ -10,9 +10,10 @@
   </parent>
 
   <groupId>com.yongj</groupId>
-  <artifactId>file-server</artifactId>
+  <artifactId>file-server-parent</artifactId>
+  <name>file-server-parent</name>
   <version>1.1.0-SNAPSHOT</version>
-  <name>file-server</name>
+  <packaging>pom</packaging>
 
   <properties>
     <auth-module.version>2.0.7-SNAPSHOT</auth-module.version>
@@ -25,155 +26,9 @@
     <java.version>8</java.version>
   </properties>
 
-  <dependencies>
-
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.alibaba.cloud</groupId>
-      <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>auth-module</artifactId>
-      <version>${auth-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>auth-module-web</artifactId>
-      <version>${auth-module-web.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-openfeign</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjweaver</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>common-module</artifactId>
-      <version>${common-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>log-tracing-module</artifactId>
-      <version>${log-tracing-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>redis-util-module</artifactId>
-      <version>${redis-util-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.session</groupId>
-      <artifactId>spring-session-data-redis</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.baomidou</groupId>
-      <artifactId>mybatis-plus-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>distributed-task-module</artifactId>
-      <version>${distributed-task-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>messaging-module</artifactId>
-      <version>${messaging-module.version}</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <finalName>file-service-build</finalName>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <forceJavacCompilerUse>true</forceJavacCompilerUse>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-            </path>
-            <path>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${org.mapstruct.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <modules>
+    <module>file-server</module>
+    <module>file-server-remote</module>
+  </modules>
 
 </project>

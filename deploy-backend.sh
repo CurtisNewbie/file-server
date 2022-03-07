@@ -1,9 +1,12 @@
 #!/bin/bash
 
+fs="file-server/"
+fsremote="file-server-remote/"
 remotepath="curtisnewbie.com"
 jarname="file-service-build.jar"
 
-mvn clean package -Dmaven.test.skip=true  
+mvn clean install -Dmaven.test.skip=true -f "$fsremote/pom.xml"
+mvn clean package -Dmaven.test.skip=true -f "$fs/pom.xml"
 
 mvnpkg=$?
 
@@ -12,4 +15,4 @@ then
     exit -1
 fi
 
-scp "target/${jarname}" "zhuangyongj@${remotepath}:~/services/file-service/file-server.jar"
+scp "$fs/target/${jarname}" "zhuangyongj@${remotepath}:~/services/file-service/file-server.jar"
