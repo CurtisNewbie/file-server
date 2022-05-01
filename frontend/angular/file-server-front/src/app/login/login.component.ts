@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { NavigationService, NavType } from "../navigation.service";
 import { NotificationService } from "../notification.service";
 import { UserService } from "../user.service";
+import { setToken } from "../util/api-util";
 
 @Component({
   selector: "app-login",
@@ -20,7 +21,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userService.navigateToPageIfIsLoggedIn(NavType.HOME_PAGE);
+    this.userService.fetchUserInfo();
   }
 
   /**
@@ -33,9 +34,9 @@ export class LoginComponent implements OnInit {
     }
     this.userService.login(this.usernameInput, this.passwordInput).subscribe({
       next: (resp) => {
-        // login successful
-        this.userService.fetchUserInfo();
+        setToken(resp.data);
         this.routeToHomePage();
+        this.userService.fetchUserInfo();
       },
       complete: () => {
         this.passwordInput = "";

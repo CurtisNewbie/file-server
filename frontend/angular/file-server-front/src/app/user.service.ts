@@ -1,24 +1,16 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { Resp } from "src/models/resp";
 import { ChangePasswordParam, UserInfo } from "src/models/user-info";
 import { NavigationService, NavType } from "./navigation.service";
 import { NotificationService } from "./notification.service";
-import { buildApiPath } from "./util/api-util";
-
-const headers = {
-  headers: new HttpHeaders({
-    "Content-Type": "application/json",
-  }),
-  withCredentials: true,
-};
+import { buildApiPath, buildOptions, setToken } from "./util/api-util";
 
 @Injectable({
   providedIn: "root",
 })
 export class UserService {
-  private userInfo: UserInfo = null;
   private roleSubject = new Subject<string>();
   private isLoggedInSubject = new Subject<boolean>();
   private userInfoSubject = new Subject<UserInfo>();
@@ -30,42 +22,68 @@ export class UserService {
     this.isLoggedInSubject.asObservable();
 
   constructor(
+    private http: HttpClient,
     private nav: NavigationService,
-    private notifi: NotificationService,
-    private http: HttpClient
+    private notifi: NotificationService
   ) {}
 
   /**
-   * Attempt to signin
+   * Attempt to sign-in
    * @param username
    * @param password
    */
   public login(username: string, password: string): Observable<Resp<any>> {
-    let formData = new FormData();
-    formData.append("username", username);
-    formData.append("password", password);
-    return this.http.post<Resp<any>>(buildApiPath("/login"), formData, {
-      withCredentials: true,
-    });
+    return this.http.post<Resp<any>>(
+      buildApiPath("/user/login", "auth-service"),
+      {
+        username: username,
+        password: password,
+      },
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   /**
    * Logout current user
    */
-  public logout(): Observable<any> {
-    this.setLogout();
-    return this.http.get<void>(buildApiPath("/logout"), {
-      withCredentials: true,
-    });
+  public logout(): void {
+    setToken(null);
+    this.notifyLoginStatus(false);
+    this.nav.navigateTo(NavType.LOGIN_PAGE);
   }
 
   /**
-   * Set user being logged out
+   * Add user, only admin is allowed to add user
+   * @param username
+   * @param password
+   * @returns
    */
-  public setLogout(): void {
-    this.userInfo = null;
-    this.notifyLoginStatus(false);
-    this.nav.navigateTo(NavType.LOGIN_PAGE);
+  public addUser(
+    username: string,
+    password: string,
+    userRole: string
+  ): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/user/register", "auth-service"),
+      { username, password, userRole },
+      buildOptions()
+    );
+  }
+
+  /**
+   * Register user
+   * @param username
+   * @param password
+   * @returns
+   */
+  public register(username: string, password: string): Observable<Resp<any>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/user/register/request", "auth-service"),
+      { username, password },
+      buildOptions()
+    );
   }
 
   /**
@@ -73,23 +91,28 @@ export class UserService {
    */
   public fetchUserInfo(): void {
     this.http
-      .get<Resp<UserInfo>>(buildApiPath("/user/info"), {
-        withCredentials: true,
-      })
+      .get<Resp<UserInfo>>(
+        buildApiPath("/user/info", "auth-service"),
+        buildOptions()
+      )
       .subscribe({
         next: (resp) => {
           if (resp.data != null) {
-            this.userInfo = resp.data;
-            this.notifyRole(this.userInfo.role);
+            this.notifyRole(resp.data.role);
             this.notifyLoginStatus(true);
             this.notifyUserInfo(resp.data);
           } else {
             this.notifi.toast("Please login first");
+            setToken(null);
             this.nav.navigateTo(NavType.LOGIN_PAGE);
             this.notifyLoginStatus(false);
           }
         },
       });
+  }
+
+  private notifyUserInfo(userInfo: UserInfo): void {
+    this.userInfoSubject.next(userInfo);
   }
 
   /** Notify the role of the user via observable */
@@ -102,22 +125,21 @@ export class UserService {
     this.isLoggedInSubject.next(isLoggedIn);
   }
 
-  private notifyUserInfo(userInfo: UserInfo): void {
-    this.userInfoSubject.next(userInfo);
-  }
-
   /**
-   * Get user info that is previously fetched
+   * Fetch user details
    */
-  public getUserInfo(): UserInfo {
-    return this.userInfo;
-  }
-
-  /**
-   * Check if the service has the user info already
-   */
-  public hasUserInfo(): boolean {
-    return this.userInfo != null;
+  public fetchUserDetails(): Observable<
+    Resp<{
+      id;
+      username;
+      role;
+      registerDate;
+    }>
+  > {
+    return this.http.get<Resp<any>>(
+      buildApiPath("/user/detail", "auth-service"),
+      buildOptions()
+    );
   }
 
   /**
@@ -127,41 +149,7 @@ export class UserService {
     return this.http.post<Resp<any>>(
       buildApiPath("/user/password/update"),
       param,
-      headers
+      buildOptions()
     );
-  }
-
-  /**
-   * Register user
-   * @param username
-   * @param password
-   * @returns
-   */
-  public register(username: string, password: string): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>(
-      buildApiPath("/user/register/request"),
-      { username, password },
-      headers
-    );
-  }
-
-  /**
-   * Navigate to the specified page if the user is logged in
-   */
-  public navigateToPageIfIsLoggedIn(page: NavType): void {
-    if (this.hasUserInfo()) {
-      console.log("User has logged in, navigate to page:", page);
-      this.nav.navigateTo(page);
-    } else {
-      this.isLoggedInObservable.subscribe({
-        next: (isLoggedIn) => {
-          if (isLoggedIn) {
-            console.log("User has logged in, navigate to page:", page);
-            this.nav.navigateTo(page);
-          }
-        },
-      });
-      this.fetchUserInfo();
-    }
   }
 }

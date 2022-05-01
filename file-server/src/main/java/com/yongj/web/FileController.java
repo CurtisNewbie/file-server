@@ -37,7 +37,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -176,10 +175,8 @@ public class FileController {
         return Result.ok();
     }
 
-    @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public StreamingResponseBody download(@PathParam("id") int id, HttpServletResponse resp, HttpServletRequest req)
-            throws InvalidAuthenticationException, IOException {
-
+    @GetMapping(path = "/url")
+    public Result<String> getDownloadUrl(@RequestParam("id") int id) throws MsgEmbeddedException {
         final int userId = TraceUtils.tUser().getUserId();
 
         // validate user authority
@@ -189,7 +186,7 @@ public class FileController {
         final FileInfo fi = fileInfoService.findById(id);
         nonNull(fi, "File not found");
 
-        return download(req, resp, fi);
+        return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fi.getId(), 5));
     }
 
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -311,14 +308,7 @@ public class FileController {
             throw new MsgEmbeddedException("Only the owner of the file can generate temporary token");
         }
 
-        final String token = tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getId());
-        String link = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/api/file/token/download")
-                .query("token={token}")
-                .buildAndExpand(token)
-                .toUri().toString();
-        return Result.of(link);
+        return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fi.getId(), 30));
     }
 
     @GetMapping("/token/download")
@@ -393,7 +383,6 @@ public class FileController {
         // write file directly to outputStream without holding servlet's thread
         InputStream in = fileInfoService.retrieveFileInputStream(fi.getId());
         if (useGzip) {
-            resp.addHeader(HttpHeaders.CONTENT_ENCODING, "gzip");
             return new GzipStreamingResponseBody(in);
         } else
             return new PlainStreamingResponseBody(in);

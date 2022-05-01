@@ -77,9 +77,7 @@ export class HomePageComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.userService.hasUserInfo()) {
-      this.isGuest = this.userService.getUserInfo().role === "guest";
-    }
+    this.userService.fetchUserInfo();
     this.userService.roleObservable.subscribe({
       next: (role) => {
         this.isGuest = role === "guest";
@@ -487,5 +485,22 @@ export class HomePageComponent implements OnInit {
     if (!row.isOwner) return null;
 
     return this.idEquals(this.expandedElement, row) ? null : this.copy(row);
+  }
+
+  /**
+   * Fetch download url and open it in a new tab
+   * @param fileId
+   */
+  jumpToDownloadUrl(fileId: number): void {
+    this.fileService.getDownloadUrl(fileId).subscribe({
+      next: (resp) => {
+        let token = resp.data;
+        let url = buildApiPath(
+          "/file/token/download?token=" + token,
+          "file-service"
+        );
+        window.open(url, "_blank");
+      },
+    });
   }
 }

@@ -17,9 +17,10 @@ public interface TempTokenFileDownloadService {
      * Generate a one-time used token for file sharing
      *
      * @param id file's id
+     * @param minutes duration of the token in minutes
      * @return token
      */
-    String generateTempTokenForFile(int id) throws MsgEmbeddedException;
+    String generateTempTokenForFile(int id, int minutes) throws MsgEmbeddedException;
 
     /**
      * Get uuid for the given token

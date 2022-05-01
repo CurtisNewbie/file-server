@@ -10,6 +10,12 @@ spring:
     request-timeout: 1200000
   main:
     allow-bean-definition-overriding: true
+  sleuth:
+    baggage:
+      remote-fields:
+        - id
+        - username
+        - role
 
 # base path for the exposed api
 web.base-path: "/open/api/"

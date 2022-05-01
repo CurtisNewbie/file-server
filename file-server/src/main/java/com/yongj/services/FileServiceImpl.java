@@ -366,7 +366,6 @@ public class FileServiceImpl implements FileService {
         // validate whether this file can be downloaded by current user
         FileInfo f = fileInfoMapper.selectValidateInfoById(id, userId);
         nonNull(f, "File is not found or you are not allowed to download this file");
-        isTrue(f.getUploadType() == UploadType.USER_UPLOADED, "You are not allowed to download this file");
     }
 
     @Override

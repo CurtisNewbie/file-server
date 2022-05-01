@@ -19,19 +19,17 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadService {
 
-    private static final long DEFAULT_TIME = 10;
-    private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MINUTES;
     private final TokenGenerator tokenGenerator = new NumberTokenGenerator();
 
     @Autowired
     private RedisController redisController;
 
     @Override
-    public String generateTempTokenForFile(int id) throws MsgEmbeddedException {
+    public String generateTempTokenForFile(int id, int minutes) throws MsgEmbeddedException {
         final String token = tokenGenerator.generate(Optional.of(15));
         log.info("Generated token: {} for file's id: {}", token, id);
 
-        if (!redisController.expire(token, id, DEFAULT_TIME, DEFAULT_TIME_UNIT)) {
+        if (!redisController.expire(token, id, minutes,TimeUnit.MINUTES)) {
             throw new MsgEmbeddedException("Unable to generate token, please try again later");
         }
         return token;

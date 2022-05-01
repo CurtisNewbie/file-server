@@ -1,4 +1,4 @@
-import { HttpClient, HttpEvent, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpEvent } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import {
@@ -21,14 +21,7 @@ import {
 } from "src/models/fs-group";
 import { Paging } from "src/models/paging";
 import { Resp } from "src/models/resp";
-import { buildApiPath } from "./util/api-util";
-
-const headers = {
-  headers: new HttpHeaders({
-    "Content-Type": "application/json",
-  }),
-  withCredentials: true,
-};
+import { buildApiPath, buildOptions } from "./util/api-util";
 
 @Injectable({
   providedIn: "root",
@@ -43,7 +36,7 @@ export class FileInfoService {
     return this.http.post<Resp<any>>(
       buildApiPath("/file/delete"),
       { id: id },
-      headers
+      buildOptions()
     );
   }
 
@@ -56,7 +49,7 @@ export class FileInfoService {
     return this.http.post<Resp<FetchFileInfoList>>(
       buildApiPath("/file/list"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -66,7 +59,7 @@ export class FileInfoService {
   public fetchTags(): Observable<Resp<string[]>> {
     return this.http.get<Resp<string[]>>(
       buildApiPath("/file/tag/list/all"),
-      headers
+      buildOptions()
     );
   }
 
@@ -82,7 +75,7 @@ export class FileInfoService {
     return this.http.post<Resp<ListTagsForFileResp>>(
       buildApiPath("/file/tag/list-for-file"),
       { fileId: fileId, pagingVo: pagingVo },
-      headers
+      buildOptions()
     );
   }
 
@@ -97,7 +90,7 @@ export class FileInfoService {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/tag/"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -112,7 +105,7 @@ export class FileInfoService {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/untag/"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -122,7 +115,7 @@ export class FileInfoService {
   public fetchSupportedFileExtensionNames(): Observable<Resp<string[]>> {
     return this.http.get<Resp<string[]>>(
       buildApiPath("/file/extension/name"),
-      headers
+      buildOptions()
     );
   }
 
@@ -135,7 +128,17 @@ export class FileInfoService {
     return this.http.post<Resp<FetchFileExtList>>(
       buildApiPath("/file/extension/list"),
       param,
-      headers
+      buildOptions()
+    );
+  }
+
+  /**
+   * Get file's download url
+   */
+  public getDownloadUrl(fileId: number): Observable<Resp<string>> {
+    return this.http.get<Resp<string>>(
+      buildApiPath("/file/url?id=" + fileId),
+      buildOptions()
     );
   }
 
@@ -146,7 +149,7 @@ export class FileInfoService {
     return this.http.post<Resp<FileExt[]>>(
       buildApiPath("/file/extension/update"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -159,7 +162,7 @@ export class FileInfoService {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/extension/add"),
       { name: name },
-      headers
+      buildOptions()
     );
   }
 
@@ -195,7 +198,7 @@ export class FileInfoService {
     return this.http.post<Resp<string>>(
       buildApiPath("/file/token/generate"),
       { id: id },
-      headers
+      buildOptions()
     );
   }
 
@@ -206,7 +209,7 @@ export class FileInfoService {
     return this.http.post<Resp<any>>(
       buildApiPath("/file/info/update"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -219,7 +222,7 @@ export class FileInfoService {
     return this.http.post<Resp<any>>(
       buildApiPath("/fsgroup/list"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -232,7 +235,7 @@ export class FileInfoService {
     return this.http.post<Resp<any>>(
       buildApiPath("/fsgroup/mode/update"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -246,7 +249,7 @@ export class FileInfoService {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/grant-access"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -258,7 +261,7 @@ export class FileInfoService {
     return this.http.post<Resp<ListGrantedAccessResp>>(
       buildApiPath("/file/list-granted-access"),
       param,
-      headers
+      buildOptions()
     );
   }
 
@@ -270,7 +273,7 @@ export class FileInfoService {
     return this.http.post<Resp<void>>(
       buildApiPath("/file/remove-granted-access"),
       param,
-      headers
+      buildOptions()
     );
   }
 }
