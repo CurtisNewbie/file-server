@@ -1,17 +1,17 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.advice.RoleRequired;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.trace.TUser;
+import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.module.auth.aop.LogOperation;
-import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdReq;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdResp;
-import com.curtisnewbie.service.auth.remote.vo.UserVo;
 import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,8 +55,6 @@ import java.util.stream.Collectors;
 import static com.curtisnewbie.common.util.AssertUtils.nonNull;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
-import static com.curtisnewbie.module.auth.util.AuthUtil.getUserId;
-import static com.curtisnewbie.module.auth.util.AuthUtil.getUsername;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -86,8 +83,6 @@ public class FileController {
     @Autowired
     private TagConverter tagConverter;
 
-    @LogOperation(name = "/file/upload", description = "upload file")
-    @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String[] fileNames,
                             @RequestParam("file") MultipartFile[] multipartFiles,
@@ -101,11 +96,12 @@ public class FileController {
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
         pathResolver.validateFileExtension(fileNames[0]);
+        TUser tUser = TraceUtils.tUser();
 
         if (multipartFiles.length == 1) {
             fileInfoService.uploadFile(UploadFileVo.builder()
-                    .userId(getUserId())
-                    .username(AuthUtil.getUsername())
+                    .userId(tUser.getUserId())
+                    .username(TraceUtils.tUser().getUsername())
                     .fileName(fileNames[0])
                     .userGroup(userGroupEnum)
                     .inputStream(multipartFiles[0].getInputStream())
@@ -119,8 +115,8 @@ public class FileController {
             String zipFile = fileNames[0];
             String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
             fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
-                    .userId(getUserId())
-                    .username(AuthUtil.getUsername())
+                    .userId(tUser.getUserId())
+                    .username(TraceUtils.tUser().getUsername())
                     .zipFile(zipFile)
                     .entryNames(entryNames)
                     .userGroup(userGroupEnum)
@@ -130,7 +126,6 @@ public class FileController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/grant-access", description = "grant file's access to other user")
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
         v.validate();
@@ -143,7 +138,7 @@ public class FileController {
 
         fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
                 .fileId(v.getFileId())
-                .grantedBy(AuthUtil.getUsername())
+                .grantedBy(TraceUtils.tUser().getUsername())
                 .grantedTo(grantedToId)
                 .build());
         return Result.ok();
@@ -174,20 +169,18 @@ public class FileController {
         return Result.of(resp);
     }
 
-    @LogOperation(name = "/file/remove-granted-access", description = "remove granted file's access")
     @PostMapping(path = "/remove-granted-access")
     public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
 
-        fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), getUserId());
+        fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), TraceUtils.tUser().getUserId());
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/download", description = "download file")
     @GetMapping(path = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public StreamingResponseBody download(@PathParam("id") int id, HttpServletResponse resp, HttpServletRequest req)
             throws InvalidAuthenticationException, IOException {
 
-        final int userId = getUserId();
+        final int userId = TraceUtils.tUser().getUserId();
 
         // validate user authority
         fileInfoService.validateUserDownload(userId, id);
@@ -205,7 +198,7 @@ public class FileController {
         // validate param
         reqVo.validate();
 
-        reqVo.setUserId(getUserId());
+        reqVo.setUserId(TraceUtils.tUser().getUserId());
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
         // collect list of ids to request their usernames, if uploader name is absent
@@ -233,11 +226,10 @@ public class FileController {
         return Result.of(res);
     }
 
-    @LogOperation(name = "/file/delete", description = "delete file")
     @PostMapping(path = "/delete")
     public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
         AssertUtils.nonNull(reqVo.getId());
-        fileInfoService.deleteFileLogically(getUserId(), reqVo.getId());
+        fileInfoService.deleteFileLogically(TraceUtils.tUser().getUserId(), reqVo.getId());
         return Result.ok();
     }
 
@@ -248,7 +240,7 @@ public class FileController {
         );
     }
 
-    @LogOperation(name = "/file/extension/add", description = "add file extension")
+    @RoleRequired(role = "admin")
     @PostMapping("/extension/add")
     public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
         AssertUtils.hasText(reqVo.getName(), "extension name must not be empty");
@@ -256,12 +248,13 @@ public class FileController {
         // by default disabled
         ext.setIsEnabled(FileExtensionIsEnabledEnum.DISABLED.getValue());
         ext.setName(reqVo.getName());
-        ext.setCreateBy(AuthUtil.getUsername());
+        ext.setCreateBy(TraceUtils.tUser().getUsername());
         ext.setCreateTime(LocalDateTime.now());
         fileExtensionService.addFileExt(ext);
         return Result.ok();
     }
 
+    @RoleRequired(role = "admin")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
         vo.validate();
@@ -272,8 +265,7 @@ public class FileController {
         return Result.of(res);
     }
 
-    @LogOperation(name = "/file/extension/update", description = "update status of supported file extension")
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping(path = "/extension/update")
     public Result<Void> updateFileExtensionStatus(@RequestBody FileExtVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getId());
@@ -289,35 +281,33 @@ public class FileController {
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/info/update", description = "update file info")
-    @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     @PostMapping("/info/update")
     public Result<Void> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
 
         // validate param
         reqVo.validate();
+        TUser tUser = TraceUtils.tUser();
 
         fileInfoService.updateFile(UpdateFileCmd.builder()
                 .id(reqVo.getId())
                 .fileName(reqVo.getName())
                 .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
-                .updatedById(getUserId())
-                .updatedByName(getUsername())
+                .updatedById(tUser.getUserId())
+                .updatedByName(tUser.getUsername())
                 .build());
         return Result.ok();
     }
 
-    @LogOperation(name = "/file/token/generate", description = "generate temp token for file download")
-    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @PostMapping("/token/generate")
     public Result<String> generateToken(@RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException, NoSuchMethodException {
         ValidUtils.requireNonNull(reqVo.getId(), "id can't be empty");
         FileInfo fi = fileInfoService.findById(reqVo.getId());
         ValidUtils.requireNonNull(fi, "File not found");
+        TUser tUser = TraceUtils.tUser();
 
-        if (!Objects.equals(fi.getUploaderId(), getUserId())) {
+        if (!Objects.equals(fi.getUploaderId(), tUser.getUserId())) {
             throw new MsgEmbeddedException("Only the owner of the file can generate temporary token");
         }
 
@@ -331,15 +321,10 @@ public class FileController {
         return Result.of(link);
     }
 
-    @LogOperation(name = "/file/token/download", description = "Download file using temp token")
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
                                                  @PathParam("token") String token) throws IOException,
             MsgEmbeddedException {
-
-        Optional<UserVo> optionalUserEntity = AuthUtil.getOptionalUser();
-        String username = optionalUserEntity.isPresent() ? optionalUserEntity.get().getUsername() : "Anonymous";
-        logger.info("User {} attempts to download file using token {}", username, token);
 
         ValidUtils.requireNotEmpty(token, "Token can't be empty");
         final Integer id = tempTokenFileDownloadService.getIdByToken(token);
@@ -358,12 +343,12 @@ public class FileController {
 
     @GetMapping("/tag/list/all")
     public Result<List<String>> listAllTags() throws InvalidAuthenticationException {
-        return Result.of(fileInfoService.listFileTags(getUserId()));
+        return Result.of(fileInfoService.listFileTags(TraceUtils.tUser().getUserId()));
     }
 
     @PostMapping("/tag/list-for-file")
     public Result<PageableVo<List<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) throws InvalidAuthenticationException {
-        PageableVo<List<TagVo>> pv = fileInfoService.listFileTags(getUserId(), req.getFileId(), forPage(req.getPagingVo()));
+        PageableVo<List<TagVo>> pv = fileInfoService.listFileTags(TraceUtils.tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
         return Result.of(PagingUtil.convert(pv, tagConverter::toWebVo));
     }
 
@@ -372,8 +357,8 @@ public class FileController {
         fileInfoService.tagFile(TagFileCmd.builder()
                 .fileId(req.getFileId())
                 .tagName(req.getTagName())
-                .userId(getUserId())
-                .taggedBy(AuthUtil.getUsername())
+                .userId(TraceUtils.tUser().getUserId())
+                .taggedBy(TraceUtils.tUser().getUsername())
                 .build());
 
         return Result.ok();
@@ -384,8 +369,8 @@ public class FileController {
         fileInfoService.untagFile(UntagFileCmd.builder()
                 .fileId(req.getFileId())
                 .tagName(req.getTagName())
-                .userId(getUserId())
-                .untaggedBy(AuthUtil.getUsername())
+                .userId(TraceUtils.tUser().getUserId())
+                .untaggedBy(TraceUtils.tUser().getUsername())
                 .build());
 
         return Result.ok();

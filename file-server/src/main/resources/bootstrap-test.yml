@@ -17,19 +17,9 @@ spring:
         server-addr: ${nacosaddr}:8848
       config:
         server-addr: ${nacosaddr}:8848
-    sentinel:
-      transport:
-        port: 8719
-        dashboard: sentinel-dashboard:6060
 
 distributed-task-module:
   scheduling.disabled: false
-
-authmodule:
-  enableAccessLog: true
-  enableOperateLog: true
-  service:
-    token: ${jwt-token}
 
 server:
   port: 8443
@@ -46,7 +36,3 @@ namingPollingThreadCount: 2
 
 # quartz thread pool size
 org.quartz.threadPool.threadCount: 2
-
-jwt-module:
-  publicKey: ${jwt-module.publicKey}
-  privateKey: ${jwt-module.privateKey}

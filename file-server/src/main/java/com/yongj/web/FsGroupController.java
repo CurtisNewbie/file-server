@@ -1,12 +1,12 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.advice.RoleRequired;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.module.auth.aop.LogOperation;
-import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.FsGroupVo;
@@ -14,7 +14,6 @@ import com.yongj.vo.ListAllFsGroupReqVo;
 import com.yongj.vo.ListAllFsGroupRespVo;
 import com.yongj.vo.UpdateFsGroupModeReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +31,7 @@ public class FsGroupController {
     @Autowired
     private FsGroupService fsGroupService;
 
-    @LogOperation(name = "/fsgroup/mode/update", description = "update fsgroup mode")
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping("/mode/update")
     public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) throws MsgEmbeddedException {
         reqVo.validate();
@@ -41,11 +39,11 @@ public class FsGroupController {
         FsGroupMode fgm = EnumUtils.parse(reqVo.getMode(), FsGroupMode.class);
         ValidUtils.requireNonNull(fgm, "fs_group mode value illegal");
 
-        fsGroupService.updateFsGroupMode(reqVo.getId(), fgm, AuthUtil.getUsername());
+        fsGroupService.updateFsGroupMode(reqVo.getId(), fgm, TraceUtils.tUser().getUsername());
         return Result.ok();
     }
 
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping("/list")
     public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) throws MsgEmbeddedException {
         reqVo.validate();

@@ -42,13 +42,6 @@
       <version>${common-module.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>auth-module</artifactId>
-      <version>${auth-module.version}</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>

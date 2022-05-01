@@ -1,6 +1,5 @@
 package com.yongj;
 
-import com.curtisnewbie.module.auth.config.EnableFeignJwtAuthorization;
 import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -10,20 +9,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.*;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
-@EnableFeignJwtAuthorization
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.curtisnewbie.service.auth.remote.feign")
-@EnableRedisHttpSession(redisNamespace = "file-service:session")
-@PropertySources({
-        @PropertySource("classpath:dubbo-${spring.profiles.active}.properties"),
-})
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 @SpringBootApplication
 @MapperScan("com.yongj.dao")
 public class FileServerApplication {

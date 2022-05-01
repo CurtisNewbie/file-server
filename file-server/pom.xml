@@ -20,6 +20,17 @@
   <dependencies>
 
     <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>auth-service-remote</artifactId>
+      <version>${auth-service-remote.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-sleuth</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.yongj</groupId>
       <artifactId>file-server-remote</artifactId>
       <version>${project.version}</version>
@@ -33,18 +44,6 @@
     <dependency>
       <groupId>com.alibaba.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>auth-module</artifactId>
-      <version>${auth-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>auth-module-web</artifactId>
-      <version>${auth-module-web.version}</version>
     </dependency>
 
     <dependency>
@@ -97,12 +96,6 @@
       <groupId>com.curtisnewbie</groupId>
       <artifactId>common-module</artifactId>
       <version>${common-module.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.curtisnewbie</groupId>
-      <artifactId>log-tracing-module</artifactId>
-      <version>${log-tracing-module.version}</version>
     </dependency>
 
     <dependency>

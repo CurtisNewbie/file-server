@@ -12,36 +12,7 @@ spring:
     allow-bean-definition-overriding: true
 
 # base path for the exposed api
-web.base-path: "/api/"
-
-# custom login processing url
-authmodule:
-  permittedAntPatterns:
-    - "/"
-    - "/api/file/token/download"
-    - "/api/login"
-    - "/api/logout"
-    - "/api/user/info"
-    - "/api/user/register/request"
-    - "/**/*.js"
-    - "/**/*.css"
-    - "/favicon.ico"
-  loginProcessingUrl: /api/login
-  # custom login page url
-  customLoginPage: /
-  # logout url
-  logoutUrl: /api/logout
-  enableAccessLog: true
-  enableOperateLog: true
-  enableControllerConsoleLog: false
-  isAppAuthorizationChecked: true
-  # enable customized cors filter
-  cors:
-    isFilterEnabled: false
-    allowOrigin: "*"
-    allowMethods: "GET,PUT,POST,DELETE,OPTION"
-    allowCredential: true
-    allowHeaders: "content-type, x-gwt-module-base, x-gwt-permutation, clientid, longpush, set-cookie"
+web.base-path: "/open/api/"
 
 mybatis:
   config-location: classpath:mybatis-config.xml
@@ -52,6 +23,3 @@ mybatis-plus:
 # name of the application group (same cluster should share the same name)
 distributed-task-module:
   application-group: file-server
-
-jwt-module:
-  issuer: yongj.zhuang-auth-service

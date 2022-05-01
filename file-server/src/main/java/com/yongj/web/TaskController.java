@@ -1,13 +1,13 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.advice.RoleRequired;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
-import com.curtisnewbie.module.auth.aop.LogOperation;
-import com.curtisnewbie.module.auth.util.AuthUtil;
 import com.curtisnewbie.module.task.constants.TaskConcurrentEnabled;
 import com.curtisnewbie.module.task.constants.TaskEnabled;
 import com.curtisnewbie.module.task.scheduling.JobUtils;
@@ -20,7 +20,6 @@ import com.yongj.converters.TaskFsConverter;
 import com.yongj.converters.TaskHistoryFsConverter;
 import com.yongj.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +50,7 @@ public class TaskController {
     @Autowired
     private TaskHistoryFsConverter taskHistoryFsConverter;
 
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping("/list")
     public Result<ListTaskByPageRespFsVo> listTaskByPage(@RequestBody ListTaskByPageReqFsVo reqVo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(reqVo.getPagingVo());
@@ -69,7 +68,7 @@ public class TaskController {
         return Result.of(resp);
     }
 
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping("/history")
     public Result<ListTaskHistoryByPageRespWebVo> listTaskHistoryByPage(@RequestBody ListTaskHistoryByPageReqWebVo reqVo)
             throws MsgEmbeddedException {
@@ -88,8 +87,7 @@ public class TaskController {
         return Result.of(resp);
     }
 
-    @LogOperation(name = "/task/update", description = "update task")
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping("/update")
     public Result<Void> update(@RequestBody UpdateTaskReqVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNonNull(vo.getId());
@@ -105,18 +103,17 @@ public class TaskController {
             TaskConcurrentEnabled tce = EnumUtils.parse(vo.getConcurrentEnabled(), TaskConcurrentEnabled.class);
             ValidUtils.requireNonNull(tce);
         }
-        vo.setUpdateBy(AuthUtil.getUsername());
+        vo.setUpdateBy(TraceUtils.tUser().getUsername());
         taskService.updateById(vo);
         return Result.ok();
     }
 
-    @LogOperation(name = "/task/trigger", description = "trigger task")
-    @PreAuthorize("hasAuthority('admin')")
+    @RoleRequired(role = "admin")
     @PostMapping("/trigger")
     public Result<Void> trigger(@RequestBody TriggerTaskReqVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
         ValidUtils.requireNonNull(vo.getId());
         TaskVo tv = taskService.selectById(vo.getId());
-        nodeCoordinationService.coordinateJobTriggering(tv, AuthUtil.getUsername());
+        nodeCoordinationService.coordinateJobTriggering(tv, TraceUtils.tUser().getUsername());
         return Result.ok();
     }
 }
