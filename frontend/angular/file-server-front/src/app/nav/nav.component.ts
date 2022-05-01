@@ -15,6 +15,7 @@ export class NavComponent implements OnInit {
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
+    this.userService.fetchUserInfo();
     this.userService.userInfoObservable.subscribe({
       next: (user) => {
         this.isAdmin = user.role === "admin";
@@ -29,17 +30,10 @@ export class NavComponent implements OnInit {
         }
       },
     });
-    if (!this.userService.hasUserInfo()) {
-      this.userService.fetchUserInfo();
-    }
   }
 
   /** log out current user and navigate back to login page */
   logout(): void {
-    this.userService.logout().subscribe({
-      complete: () => {
-        console.log("Logged out user, navigate back to login page");
-      },
-    });
+    this.userService.logout();
   }
 }

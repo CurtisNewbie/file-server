@@ -57,6 +57,6 @@ export class ErrorInterceptor implements HttpInterceptor {
   }
 
   private setLogout(): void {
-    this.userService.setLogout();
+    this.userService.logout();
   }
 }

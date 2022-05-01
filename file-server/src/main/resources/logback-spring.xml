@@ -1,5 +1,9 @@
 <configuration>
 
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <property name="CONSOLE_LOG_PATTERN"
+            value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
   <springProfile name="test">
     <appender name="TRACED_FILEOUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <file>logs/file-service.log</file>
@@ -10,7 +14,7 @@
         <totalSizeCap>1GB</totalSizeCap>
       </rollingPolicy>
       <encoder>
-        <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - [%X{traceId}] - %msg%n</pattern>
+        <pattern>${CONSOLE_LOG_PATTERN}</pattern>
       </encoder>
     </appender>
 
@@ -22,8 +26,9 @@
   <springProfile name="dev">
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
-        <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - [%X{traceId}] - %msg%n</pattern>
+        <pattern>${CONSOLE_LOG_PATTERN}</pattern>
       </encoder>
+
     </appender>
     <root level="info">
       <appender-ref ref="STDOUT"/>
