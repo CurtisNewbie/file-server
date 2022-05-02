@@ -20,14 +20,14 @@
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
-      <artifactId>distributed-task-web-module</artifactId>
-      <version>${distributed-task-web-module.version}</version>
+      <artifactId>auth-service-remote</artifactId>
+      <version>${auth-service-remote.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
-      <artifactId>auth-service-remote</artifactId>
-      <version>${auth-service-remote.version}</version>
+      <artifactId>distributed-task-web-module</artifactId>
+      <version>${distributed-task-web-module.version}</version>
     </dependency>
 
     <dependency>
