@@ -10,6 +10,7 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
+  <version>${api.version}</version>
   <groupId>com.yongj</groupId>
   <artifactId>file-server-remote</artifactId>
   <name>file-server-remote</name>
