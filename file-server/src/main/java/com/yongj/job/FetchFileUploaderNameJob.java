@@ -83,7 +83,7 @@ public class FetchFileUploaderNameJob extends AbstractJob {
 
                     list.stream().forEach(file -> {
                         Optional.ofNullable(idToUsername.get(file.getUploaderId()))
-                                .ifPresent(name -> fileInfoService.updateUploaderName(file.getId(), name));
+                                .ifPresent(name -> fileInfoService.fillBlankUploaderName(file.getId(), name));
                     });
                 },
                 e -> log.error("Failed to fetch uploaderNames", e));

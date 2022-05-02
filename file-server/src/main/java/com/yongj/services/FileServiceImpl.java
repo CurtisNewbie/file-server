@@ -80,6 +80,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) {
+        // check if the grantedTo is the uploader
+        AssertUtils.notEquals(cmd.getGrantedTo(), cmd.getGrantedByUserId(), "You can't grant file access to yourself");
+
         // make sure the file exists
         // check if the file exists
         QueryWrapper<FileInfo> fQry = new QueryWrapper<>();
@@ -89,8 +92,8 @@ public class FileServiceImpl implements FileService {
         FileInfo file = fileInfoMapper.selectOne(fQry);
         nonNull(file, "File not found");
 
-        // check if the grantedTo is the uploader
-        AssertUtils.notEquals(file.getUploaderId(), cmd.getGrantedTo(), "You can't grant access to the file's uploader");
+        // only uploader can grant access to the file
+        AssertUtils.equals((int) file.getUploaderId(), cmd.getGrantedByUserId(), "Only uploader can grant access to the file");
 
         // check if the user already had access to the file
         QueryWrapper<FileSharing> fsQry = new QueryWrapper<>();
@@ -107,9 +110,9 @@ public class FileServiceImpl implements FileService {
             fileSharingMapper.insert(FileSharing.builder()
                     .userId(cmd.getGrantedTo())
                     .fileId(cmd.getFileId())
-                    .createdBy(cmd.getGrantedBy())
+                    .createdBy(cmd.getGrantedByName())
                     .createDate(now)
-                    .updatedBy(cmd.getGrantedBy())
+                    .updatedBy(cmd.getGrantedByName())
                     .updateDate(now)
                     .build());
         } else {
@@ -118,7 +121,7 @@ public class FileServiceImpl implements FileService {
             updateParam.setId(fileSharing.getId());
             updateParam.setIsDel(FileSharingIsDel.FALSE.getValue());
             updateParam.setUpdateDate(LocalDateTime.now());
-            updateParam.setUpdatedBy(cmd.getGrantedBy());
+            updateParam.setUpdatedBy(cmd.getGrantedByName());
             fileSharingMapper.updateById(updateParam);
         }
     }
@@ -424,7 +427,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, @NotNull PagingVo paging) {
+    public PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, int requestUserId, @NotNull PagingVo paging) {
+        Assert.isTrue(isFileOwner(requestUserId, fileId), "Only uploader can list granted access");
+
         QueryWrapper<FileSharing> condition = new QueryWrapper<>();
         condition.select("id", "user_id", "create_date", "created_by")
                 .eq("file_id", fileId)
@@ -435,10 +440,12 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void removeGrantedAccess(int fileId, int userId, int removedBy) {
+    public void removeGrantedAccess(int fileId, int userId, int removedByUserId) {
+        Assert.isTrue(isFileOwner(removedByUserId, fileId), "Only uploader can remove granted access");
+
         FileSharing updateParam = new FileSharing();
         updateParam.setIsDel(FileSharingIsDel.TRUE.getValue());
-        updateParam.setUpdatedBy(String.valueOf(removedBy));
+        updateParam.setUpdatedBy(String.valueOf(removedByUserId));
         updateParam.setUpdateDate(LocalDateTime.now());
 
         QueryWrapper<FileSharing> whereCondition = new QueryWrapper<>();
@@ -450,7 +457,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void updateUploaderName(int fileId, @NotNull String uploaderName) {
+    public void fillBlankUploaderName(int fileId, @NotNull String uploaderName) {
         final FileInfo updateParam = new FileInfo();
         updateParam.setUploaderName(uploaderName);
 
@@ -554,6 +561,16 @@ public class FileServiceImpl implements FileService {
     @Override
     public PageableVo<List<TagVo>> listFileTags(final int userId, final int fileId, final Page<?> page) {
         return PagingUtil.toPageable(fileTagMapper.listTagsForFile(page, userId, fileId), tagConverter::toVo);
+    }
+
+    @Override
+    public boolean isFileOwner(int userId, int fileId) {
+        return fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>()
+                .select(FileInfo::getId)
+                .eq(FileInfo::getId, fileId)
+                .eq(FileInfo::getUploaderId, userId)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL)
+                .last("limit 1")) != null;
     }
 
     // ------------------------------------- private helper methods ------------------------------------

@@ -9,12 +9,18 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
+@Builder
 public class GrantFileAccessCmd {
 
     /**
-     * Id of user who granted the access
+     * name of user who granted the access
      */
-    private final String grantedBy;
+    private final String grantedByName;
+
+     /**
+     * id of user who granted the access
+     */
+    private final int grantedByUserId;
 
     /**
      * id of the file
@@ -26,10 +32,4 @@ public class GrantFileAccessCmd {
      */
     private final int grantedTo;
 
-    @Builder
-    public GrantFileAccessCmd(String grantedBy, int fileId, int grantedTo) {
-        this.grantedBy = grantedBy;
-        this.fileId = fileId;
-        this.grantedTo = grantedTo;
-    }
 }

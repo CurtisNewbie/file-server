@@ -72,7 +72,8 @@ public interface FileService {
      * @param id           file's id
      * @param outputStream outputStream
      */
-    @Deprecated // todo doesn't seem to be useful, consider removing it
+    @Deprecated
+    // todo doesn't seem to be useful, consider removing it
     void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException;
 
     /**
@@ -98,7 +99,7 @@ public interface FileService {
      * Validate whether current app can download this file
      *
      * @param appName
-     * @param fileId id of file_info
+     * @param fileId  id of file_info
      */
     void validateAppDownload(@NotBlank String appName, int fileId);
 
@@ -142,23 +143,24 @@ public interface FileService {
      * List granted file's accesses
      *
      * @param fileId file_info.id
+     * @param userId id of user
      * @param paging info
      */
-    PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, @NotNull PagingVo paging);
+    PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, int userId, @NotNull PagingVo paging);
 
     /**
      * Remove granted file access
      *
-     * @param fileId    file's id
-     * @param userId    user's id
-     * @param removedBy id of user to removed the access
+     * @param fileId          file's id
+     * @param userId          user's id
+     * @param removedByUserId id of user to removed the access
      */
-    void removeGrantedAccess(int fileId, int userId, int removedBy);
+    void removeGrantedAccess(int fileId, int userId, int removedByUserId);
 
     /**
      * Update uploaderName
      */
-    void updateUploaderName(int fileId, @NotNull String uploaderName);
+    void fillBlankUploaderName(int fileId, @NotNull String uploaderName);
 
     /**
      * Tag a file
@@ -186,4 +188,9 @@ public interface FileService {
      * @return tag names
      */
     PageableVo<List<TagVo>> listFileTags(final int userId, final int fileId, final Page<?> page);
+
+    /**
+     * Check if the user if the owner of the file
+     */
+    boolean isFileOwner(int userId, int fileId);
 }
