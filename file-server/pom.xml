@@ -6,10 +6,9 @@
     <groupId>com.yongj</groupId>
     <artifactId>file-server-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
   </parent>
 
-  <groupId>com.yongj</groupId>
   <artifactId>file-server</artifactId>
   <name>file-server</name>
 
@@ -18,6 +17,12 @@
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>distributed-task-web-module</artifactId>
+      <version>${distributed-task-web-module.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.curtisnewbie</groupId>
