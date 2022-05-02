@@ -2,7 +2,7 @@
 
 Upload file, list files, and download file.
 
-In this branch, this app is ***not a standalone server***, it internally uses Dubbo for RPC to talk to other services (e..g, auth-service mentioned below). You must have `auth-service` setup as well as other middleware. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
+In this branch, this app is ***not a standalone server***. You must have `auth-service` setup as well as other middleware. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories (it's gonna be very difficult tho).
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
 
@@ -101,40 +101,20 @@ This project depends on the following modules that you must manually install (us
 - curtisnewbie-bom
     - description: BOM file for dependency management
     - url: https://github.com/CurtisNewbie/curtisnewbie-bom
-    - branch: main
     - under `/microservice` folder
-
-- auth-module
-    - description: for user authentication, security and integration with auth-service
-    - url: https://github.com/CurtisNewbie/auth-module
-    - branch: main 
 
 - common-module
     - description: for common utility classes 
     - url: https://github.com/CurtisNewbie/common-module
-    - branch: main
-
-- service-module
-    - description: import dependencies for a Dubbo service
-    - url: https://github.com/CurtisNewbie/service-module
-    - branch: main
 
 - redis-util-module
     - description: Utility classes for Redis
     - url: https://github.com/CurtisNewbie/redis-util-module
-    - branch: main
-
-- log-tracing-module
-    - description: for log tracing between web endpoints and service layers
-    - url: https://github.com/CurtisNewbie/log-tracing-module
-    - branch: main
 
 - distributed-task-module
     - description: for distributed task scheduling
     - url: https://github.com/CurtisNewbie/distributed-task-module
-    - branch: main
 
 - messaging-module
     - description: for RabbitMQ-based messaging 
     - url: https://github.com/CurtisNewbie/messaging-module
-    - branch: main

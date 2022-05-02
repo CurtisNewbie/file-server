@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <auth-service-remote.version>1.1.0-SNAPSHOT</auth-service-remote.version>
+    <auth-service-remote.version>1.0.11-SNAPSHOT</auth-service-remote.version>
     <common-module.version>2.0.9-SNAPSHOT</common-module.version>
     <redis-util-module.version>2.0.2-SNAPSHOT</redis-util-module.version>
     <distributed-task-module.version>2.0.4-SNAPSHOT</distributed-task-module.version>

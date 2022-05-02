@@ -15,7 +15,6 @@ import com.curtisnewbie.module.task.service.NodeCoordinationService;
 import com.curtisnewbie.module.task.service.TaskHistoryService;
 import com.curtisnewbie.module.task.service.TaskService;
 import com.curtisnewbie.module.task.vo.*;
-import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.yongj.converters.TaskFsConverter;
 import com.yongj.converters.TaskHistoryFsConverter;
 import com.yongj.vo.*;
@@ -89,7 +88,7 @@ public class TaskController {
 
     @RoleRequired(role = "admin")
     @PostMapping("/update")
-    public Result<Void> update(@RequestBody UpdateTaskReqVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
+    public Result<Void> update(@RequestBody UpdateTaskReqVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getId());
 
         if (vo.getCronExpr() != null && !JobUtils.isCronExprValid(vo.getCronExpr())) {
@@ -110,7 +109,7 @@ public class TaskController {
 
     @RoleRequired(role = "admin")
     @PostMapping("/trigger")
-    public Result<Void> trigger(@RequestBody TriggerTaskReqVo vo) throws MsgEmbeddedException, InvalidAuthenticationException {
+    public Result<Void> trigger(@RequestBody TriggerTaskReqVo vo) throws MsgEmbeddedException {
         ValidUtils.requireNonNull(vo.getId());
         TaskVo tv = taskService.selectById(vo.getId());
         nodeCoordinationService.coordinateJobTriggering(tv, TraceUtils.tUser().getUsername());
