@@ -1,11 +1,17 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Subscription, timer } from "rxjs";
 import { Observable, Subject } from "rxjs";
 import { Resp } from "src/models/resp";
 import { ChangePasswordParam, UserInfo } from "src/models/user-info";
 import { NavigationService, NavType } from "./navigation.service";
 import { NotificationService } from "./notification.service";
-import { buildApiPath, buildOptions, setToken } from "./util/api-util";
+import {
+  buildApiPath,
+  buildOptions,
+  getToken,
+  setToken,
+} from "./util/api-util";
 
 @Injectable({
   providedIn: "root",
@@ -14,6 +20,16 @@ export class UserService {
   private roleSubject = new Subject<string>();
   private isLoggedInSubject = new Subject<boolean>();
   private userInfoSubject = new Subject<UserInfo>();
+  private tokenRefresher: Subscription = timer(1000, 60_000).subscribe(() => {
+    let t = getToken();
+    if (t != null) {
+      this.exchangeToken(t).subscribe({
+        next: (resp) => {
+          setToken(resp.data);
+        },
+      });
+    }
+  });
 
   userInfoObservable: Observable<UserInfo> =
     this.userInfoSubject.asObservable();
@@ -148,8 +164,18 @@ export class UserService {
    */
   public changePassword(param: ChangePasswordParam): Observable<Resp<any>> {
     return this.http.post<Resp<any>>(
-      buildApiPath("/user/password/update"),
+      buildApiPath("/user/password/update", "auth-service"),
       param,
+      buildOptions()
+    );
+  }
+  /**
+   * Exchange Token
+   */
+  private exchangeToken(token: string): Observable<Resp<string>> {
+    return this.http.post<Resp<any>>(
+      buildApiPath("/token/exchange", "auth-service"),
+      { token: token },
       buildOptions()
     );
   }

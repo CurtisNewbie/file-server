@@ -4,6 +4,7 @@ import { HttpHeaders } from "@angular/common/http";
 const isThroughGateway = true;
 
 const BASE_API = "/open/api";
+const TOKEN = "token";
 
 export function buildApiPath(
   subPath: string,
@@ -18,15 +19,19 @@ export function buildOptions() {
   return {
     headers: new HttpHeaders({
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem("token"),
+      Authorization: localStorage.getItem(TOKEN),
     }),
     withCredentials: true,
   };
 }
 
 export function setToken(token: string) {
-  if (token === null) localStorage.removeItem("token");
+  if (token === null) localStorage.removeItem(TOKEN);
   else {
-    localStorage.setItem("token", token);
+    localStorage.setItem(TOKEN, token);
   }
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN);
 }
