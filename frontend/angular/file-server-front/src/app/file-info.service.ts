@@ -1,4 +1,4 @@
-import { HttpClient, HttpEvent } from "@angular/common/http";
+import { HttpClient, HttpEvent, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import {
@@ -21,7 +21,7 @@ import {
 } from "src/models/fs-group";
 import { Paging } from "src/models/paging";
 import { Resp } from "src/models/resp";
-import { buildApiPath, buildOptions } from "./util/api-util";
+import { buildApiPath, buildOptions, getToken } from "./util/api-util";
 
 @Injectable({
   providedIn: "root",
@@ -180,6 +180,7 @@ export class FileInfoService {
       formData.append("file", f);
     }
     formData.append("userGroup", uploadParam.userGruop.toString());
+
     return this.http.post<HttpEvent<any>>(
       buildApiPath("/file/upload"),
       formData,
@@ -187,6 +188,9 @@ export class FileInfoService {
         observe: "events",
         reportProgress: true,
         withCredentials: true,
+        headers: new HttpHeaders({
+          Authorization: getToken(),
+        }),
       }
     );
   }
