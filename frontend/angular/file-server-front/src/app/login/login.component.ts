@@ -21,7 +21,9 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userService.fetchUserInfo();
+    this.userService.fetchUserInfo(() =>
+      this.nav.navigateTo(NavType.HOME_PAGE)
+    );
   }
 
   /**
