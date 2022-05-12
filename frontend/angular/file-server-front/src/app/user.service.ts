@@ -11,6 +11,7 @@ import {
   buildOptions,
   getToken,
   setToken,
+  onEmptyToken,
 } from "./util/api-util";
 
 @Injectable({
@@ -41,7 +42,9 @@ export class UserService {
     private http: HttpClient,
     private nav: NavigationService,
     private notifi: NotificationService
-  ) {}
+  ) {
+    onEmptyToken(() => this.logout());
+  }
 
   /**
    * Attempt to sign-in

@@ -5,6 +5,11 @@ const isThroughGateway = true;
 
 const BASE_API = "/open/api";
 const TOKEN = "token";
+let emptyTokenCallback;
+
+export function onEmptyToken(callback) {
+  emptyTokenCallback = callback;
+}
 
 export function buildApiPath(
   subPath: string,
@@ -16,10 +21,16 @@ export function buildApiPath(
 }
 
 export function buildOptions() {
+  let token = getToken();
+  if (!token && emptyTokenCallback) {
+    console.log("No token found, invoking registered onEmptyToken callback");
+    emptyTokenCallback();
+    return;
+  }
   return {
     headers: new HttpHeaders({
       "Content-Type": "application/json",
-      Authorization: localStorage.getItem(TOKEN),
+      Authorization: token,
     }),
     withCredentials: true,
   };
