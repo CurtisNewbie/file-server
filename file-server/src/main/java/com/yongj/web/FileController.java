@@ -30,6 +30,7 @@ import com.yongj.web.streaming.PlainStreamingResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -315,7 +316,7 @@ public class FileController {
             InvalidAuthenticationException {
 
         final TUser tUser = tUser();
-        isTrue(fileInfoService.isFileOwner(reqVo.getId(), tUser.getUserId()),
+        isTrue(fileInfoService.isFileOwner(tUser.getUserId(), reqVo.getId()),
                 "Only the owner of the file can generate temporary token");
 
         return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getId(), 30));
@@ -410,5 +411,9 @@ public class FileController {
         for (int i = 0; i < files.length; i++)
             inputStreams[i] = files[i].getInputStream();
         return inputStreams;
+    }
+
+    private static String buildDownloadTokenUrl(String token, String urlPattern) {
+        return String.format(urlPattern, token);
     }
 }

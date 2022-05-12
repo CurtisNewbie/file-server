@@ -417,12 +417,18 @@ export class HomePageComponent implements OnInit {
    */
   generateTempToken(u: FileInfo): void {
     if (!u) return;
+
     this.fileService.generateFileTempToken(u.id).subscribe({
       next: (resp) => {
         const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
           this.dialog.open(ConfirmDialogComponent, {
             width: "700px",
-            data: { msg: ["Link to download this file:", resp.data] },
+            data: {
+              msg: [
+                "Link to download this file:",
+                this.concatTempFileDownloadUrl(resp.data),
+              ],
+            },
           });
 
         dialogRef.afterClosed().subscribe((confirm) => {
@@ -430,6 +436,15 @@ export class HomePageComponent implements OnInit {
         });
       },
     });
+  }
+
+  concatTempFileDownloadUrl(tempToken: string): string {
+    return (
+      window.location.protocol +
+      "//" +
+      window.location.host +
+      buildApiPath("/file/token/download?token=" + tempToken, "file-service")
+    );
   }
 
   popToGrantAccess(u: FileInfo): void {
