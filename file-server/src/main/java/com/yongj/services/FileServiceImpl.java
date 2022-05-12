@@ -569,7 +569,7 @@ public class FileServiceImpl implements FileService {
                 .select(FileInfo::getId)
                 .eq(FileInfo::getId, fileId)
                 .eq(FileInfo::getUploaderId, userId)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
                 .last("limit 1")) != null;
     }
 
