@@ -47,7 +47,8 @@
           </when>
           <otherwise>
             and (
-              fi.uploader_id = #{p.userId}
+              fi.user_group = 0
+              or fi.uploader_id = #{p.userId}
               or (fs.id is not null and fs.is_del = 0)
             )
           </otherwise>
