@@ -38,7 +38,7 @@
     <dependency>
       <groupId>com.yongj</groupId>
       <artifactId>file-server-remote</artifactId>
-      <version>${project.version}</version>
+      <version>${api.version}</version>
     </dependency>
 
     <dependency>
