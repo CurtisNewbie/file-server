@@ -15,7 +15,6 @@ import { FormsModule } from "@angular/forms";
 import { NavComponent } from "./nav/nav.component";
 import { RespInterceptor } from "./interceptors/resp-interceptor";
 import { ErrorInterceptor } from "./interceptors/error-interceptor";
-import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -34,7 +33,6 @@ import { ConfirmDialogComponent } from "./dialog/confirm/confirm-dialog.componen
 import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
 import { TaskHistoryComponent } from "./task-history/task-history.component";
-import { RegisterComponent } from "./register/register.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.component";
@@ -46,13 +44,11 @@ import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.
     HomePageComponent,
     LoginComponent,
     NavComponent,
-    ChangePasswordComponent,
     ManageExtensionComponent,
     ConfirmDialogComponent,
     FsGroupComponent,
     ManageTasksComponent,
     TaskHistoryComponent,
-    RegisterComponent,
     GrantAccessDialogComponent,
     ManageTagDialogComponent,
   ],

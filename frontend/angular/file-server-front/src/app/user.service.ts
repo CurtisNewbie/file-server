@@ -163,16 +163,6 @@ export class UserService {
   }
 
   /**
-   * Change password
-   */
-  public changePassword(param: ChangePasswordParam): Observable<Resp<any>> {
-    return this.http.post<Resp<any>>(
-      buildApiPath("/user/password/update", "auth-service"),
-      param,
-      buildOptions()
-    );
-  }
-  /**
    * Exchange Token
    */
   private exchangeToken(token: string): Observable<Resp<string>> {

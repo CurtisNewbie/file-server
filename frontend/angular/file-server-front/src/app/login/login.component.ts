@@ -55,8 +55,4 @@ export class LoginComponent implements OnInit {
       this.login();
     }
   }
-
-  goToRegisterPage(): void {
-    this.nav.navigateTo(NavType.REGISTER_PAGE);
-  }
 }
