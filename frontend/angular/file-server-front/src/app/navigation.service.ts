@@ -22,6 +22,5 @@ export enum NavType {
   MANAGE_EXT = "manage-extension",
   MANAGE_USER = "manager-user",
   ACCESS_LOG = "access-log",
-  CHANGE_PASSWORD = "change-password",
   TASK_HISTORY = "task-history",
 }
