@@ -24,8 +24,9 @@ public final class IOUtils {
      * @param from   from channel
      * @param to     to channel
      * @param buffer buffer
+     * @return number of bytes copied
      */
-    public static void copy(ReadableByteChannel from, WritableByteChannel to, ByteBuffer buffer) throws IOException {
+    public static long copy(ReadableByteChannel from, WritableByteChannel to, ByteBuffer buffer) throws IOException {
         int p = 0;
         final boolean isFileChannel = to instanceof FileChannel;
 
@@ -39,5 +40,6 @@ public final class IOUtils {
             }
             ((Buffer) buffer).clear();
         }
+        return p;
     }
 }

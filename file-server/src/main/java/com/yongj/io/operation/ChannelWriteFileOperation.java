@@ -29,8 +29,7 @@ public class ChannelWriteFileOperation implements WriteFileOperation {
         try (final FileChannel fc = FileChannel.open(file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
              ReadableByteChannel rc = Channels.newChannel(inputStream)) {
 
-            copy(rc, fc, buffer);
+            return copy(rc, fc, buffer);
         }
-        return file.length();
     }
 }
