@@ -7,6 +7,7 @@ import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdReq;
@@ -127,6 +128,7 @@ public class FileController {
         return Result.ok();
     }
 
+    @LogOperation(name = "grantAccessToUser", description = "Grant file access")
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
@@ -178,6 +180,7 @@ public class FileController {
         return Result.of(resp);
     }
 
+    @LogOperation(name = "removeGrantedFileAccess", description = "Remove granted file access")
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/remove-granted-access")
     public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
@@ -233,6 +236,7 @@ public class FileController {
         return Result.of(res);
     }
 
+    @LogOperation(name = "deleteFile", description = "Delete a file logically")
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/delete")
     public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
@@ -248,6 +252,7 @@ public class FileController {
         );
     }
 
+    @LogOperation(name = "addFileExtension", description = "Add file extension")
     @RoleRequired(role = "admin")
     @PostMapping("/extension/add")
     public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
@@ -412,7 +417,4 @@ public class FileController {
         return inputStreams;
     }
 
-    private static String buildDownloadTokenUrl(String token, String urlPattern) {
-        return String.format(urlPattern, token);
-    }
 }

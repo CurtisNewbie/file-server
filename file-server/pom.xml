@@ -21,7 +21,13 @@
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>auth-service-remote</artifactId>
-      <version>${auth-service-remote.version}</version>
+      <version>${auth-service-api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.curtisnewbie</groupId>
+      <artifactId>auth-service-messaging</artifactId>
+      <version>${auth-service-api.version}</version>
     </dependency>
 
     <dependency>

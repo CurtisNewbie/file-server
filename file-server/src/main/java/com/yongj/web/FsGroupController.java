@@ -7,6 +7,7 @@ import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.FsGroupVo;
@@ -24,6 +25,7 @@ import java.util.List;
 /**
  * @author yongjie.zhuang
  */
+@RoleRequired(role = "admin")
 @RequestMapping("${web.base-path}/fsgroup")
 @RestController
 public class FsGroupController {
@@ -31,7 +33,7 @@ public class FsGroupController {
     @Autowired
     private FsGroupService fsGroupService;
 
-    @RoleRequired(role = "admin")
+    @LogOperation(name = "updateFsGroupMode", description = "Update FsGroup Mode (READ/READ_WRITE)")
     @PostMapping("/mode/update")
     public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) throws MsgEmbeddedException {
         reqVo.validate();
@@ -43,7 +45,6 @@ public class FsGroupController {
         return Result.ok();
     }
 
-    @RoleRequired(role = "admin")
     @PostMapping("/list")
     public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) throws MsgEmbeddedException {
         reqVo.validate();
