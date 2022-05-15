@@ -57,6 +57,7 @@ export class UserService {
       {
         username: username,
         password: password,
+        appName: "file-service",
       },
       {
         withCredentials: true,
