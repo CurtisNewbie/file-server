@@ -2,13 +2,18 @@ package com.yongj.io.operation;
 
 import com.yongj.io.ZipCompressEntry;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static com.yongj.util.IOUtils.copy;
 
 /**
  * Simple implementation of {@link ZipFileOperation} using {@link java.util.zip.ZipOutputStream}
@@ -17,26 +22,21 @@ import java.util.zip.ZipOutputStream;
  */
 public class SimpleZipFileOperation implements ZipFileOperation {
 
-    private static final int BUFFER_SIZE = 8192;
-
     @Override
     public long compressFile(String absPath, List<ZipCompressEntry> entries) throws IOException {
-        File file = new File(absPath);
+        final File file = new File(absPath);
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(8192 * 2);
 
-        byte[] buffer = new byte[BUFFER_SIZE];
+        try (final ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
+             final WritableByteChannel wc = Channels.newChannel(zipOut)) {
 
-        try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));) {
             for (ZipCompressEntry entry : entries) {
-                ZipEntry ze = new ZipEntry(entry.getEntryName());
+                final ZipEntry ze = new ZipEntry(entry.getEntryName());
                 zipOut.putNextEntry(ze);
-
-                try (BufferedInputStream inputStream = new BufferedInputStream(entry.getInputStream())) {
-                    int size;
-                    while ((size = inputStream.read(buffer)) != -1) {
-                        zipOut.write(buffer, 0, size);
-                    }
-                    zipOut.flush();
+                try (final ReadableByteChannel rc = Channels.newChannel(entry.getInputStream())) {
+                    copy(rc, wc, buffer);
                 }
+                zipOut.closeEntry();
             }
         }
         return file.length();

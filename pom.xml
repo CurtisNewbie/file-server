@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <api.version>1.1.1-SNAPSHOT</api.version>
+    <api.version>1.1.2-SNAPSHOT</api.version>
 
     <distributed-task-web-module.version>1.0.0-SNAPSHOT</distributed-task-web-module.version>
     <distributed-task-module.version>2.0.6-SNAPSHOT</distributed-task-module.version>

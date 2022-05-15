@@ -16,8 +16,7 @@ public interface WriteFileOperation {
      *
      * @param absPath     absolute path of the file
      * @param inputStream inputStream
-     * @return size of file in bytes
-     * @throws IOException
+     * @return size of the file
      */
     long writeFile(String absPath, InputStream inputStream) throws IOException;
 
