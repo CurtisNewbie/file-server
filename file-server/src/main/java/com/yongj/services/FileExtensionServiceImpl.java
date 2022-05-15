@@ -85,4 +85,9 @@ public class FileExtensionServiceImpl implements FileExtensionService {
         fileExtensionMapper.insert(fileExtension);
     }
 
+    @Override
+    public boolean isEnabled(String fileExt) {
+        return fileExtensionMapper.getIdOfEnabledFileExt(fileExt) != null;
+    }
+
 }

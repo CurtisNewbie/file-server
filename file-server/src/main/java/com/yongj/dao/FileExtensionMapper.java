@@ -39,4 +39,6 @@ public interface FileExtensionMapper extends BaseMapper<FileExtension> {
      * @return id
      */
     Integer findIdByName(@Param("name") String name);
+
+    Integer getIdOfEnabledFileExt(@Param("ext") String fileExt);
 }

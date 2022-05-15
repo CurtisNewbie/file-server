@@ -3,8 +3,7 @@ package com.yongj.vo;
 import com.yongj.enums.FileUserGroupEnum;
 import lombok.Builder;
 import lombok.Data;
-
-import java.io.InputStream;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author yongjie.zhuang
@@ -25,9 +24,5 @@ public class UploadZipFileVo {
     /** zip file's name */
     private String zipFile;
 
-    /** entries' name */
-    private String[] entryNames;
-
-    /** entries' inputstream */
-    private InputStream[] inputStreams;
+    private MultipartFile[] multipartFiles;
 }

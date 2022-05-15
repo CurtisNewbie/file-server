@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -216,15 +217,12 @@ public class FileServiceImpl implements FileService {
     public FileInfo uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
         final int userId = param.getUserId();
         final String zipFile = param.getZipFile();
-        final String[] entryNames = param.getEntryNames();
         final FileUserGroupEnum userGroup = param.getUserGroup();
-        final InputStream[] inputStreams = param.getInputStreams();
+        final MultipartFile[] multipartFiles = param.getMultipartFiles();
 
-        notEmpty(entryNames);
         nonNull(userGroup);
         hasText(zipFile);
-        notEmpty(inputStreams);
-        AssertUtils.equals(entryNames.length, inputStreams.length);
+        notEmpty(multipartFiles);
 
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
@@ -238,7 +236,7 @@ public class FileServiceImpl implements FileService {
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
-        final long sizeInBytes = ioHandler.writeZipFile(absPath, prepareZipEntries(entryNames, inputStreams));
+        final long sizeInBytes = ioHandler.writeZipFile(absPath, prepareZipEntries(multipartFiles));
         // save file info record
         FileInfo f = new FileInfo();
         f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
@@ -575,10 +573,11 @@ public class FileServiceImpl implements FileService {
 
     // ------------------------------------- private helper methods ------------------------------------
 
-    private List<ZipCompressEntry> prepareZipEntries(String[] entryNames, InputStream[] entries) {
-        List<ZipCompressEntry> l = new ArrayList<>(entries.length);
-        for (int i = 0; i < entries.length; i++)
-            l.add(new ZipCompressEntry(entryNames[i], entries[i]));
+    private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
+        List<ZipCompressEntry> l = new ArrayList<>(multipartFiles.length);
+        for (final MultipartFile mf : multipartFiles) {
+            l.add(new ZipCompressEntry(mf.getOriginalFilename(), mf.getInputStream()));
+        }
         return l;
     }
 

@@ -86,25 +86,25 @@ public class FileController {
 
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<?> upload(@RequestParam("fileName") String[] fileNames,
+    public Result<?> upload(@RequestParam("fileName") String fileName,
                             @RequestParam("file") MultipartFile[] multipartFiles,
                             @RequestParam("userGroup") int userGroup) throws IOException {
 
         final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
         AssertUtils.notEmpty(multipartFiles, "No file uploaded");
-        AssertUtils.notEmpty(fileNames, "No file uploaded");
+        AssertUtils.hasText(fileName, "File name can'tb be empty");
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
-        pathResolver.validateFileExtension(fileNames[0]);
+        pathResolver.validateFileExtension(fileName);
         TUser tUser = tUser();
 
         if (multipartFiles.length == 1) {
             fileInfoService.uploadFile(UploadFileVo.builder()
                     .userId(tUser.getUserId())
                     .username(tUser.getUsername())
-                    .fileName(fileNames[0])
+                    .fileName(fileName)
                     .userGroup(userGroupEnum)
                     .inputStream(multipartFiles[0].getInputStream())
                     .build());
@@ -113,16 +113,12 @@ public class FileController {
                 upload multiple files, compress them into a single file zip file
                 the first one is the zipFile's name, and the rest are the entries
              */
-            AssertUtils.equals(fileNames.length, multipartFiles.length + 1);
-            String zipFile = fileNames[0];
-            String[] entryNames = Arrays.copyOfRange(fileNames, 1, fileNames.length);
             fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
                     .userId(tUser.getUserId())
                     .username(tUser.getUsername())
-                    .zipFile(zipFile)
-                    .entryNames(entryNames)
+                    .zipFile(fileName)
                     .userGroup(userGroupEnum)
-                    .inputStreams(collectInputStreams(multipartFiles))
+                    .multipartFiles(multipartFiles)
                     .build());
         }
         return Result.ok();
@@ -408,13 +404,6 @@ public class FileController {
 
     private static String encodeAttachmentName(String filePath) throws UnsupportedEncodingException {
         return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8.name());
-    }
-
-    private static InputStream[] collectInputStreams(MultipartFile[] files) throws IOException {
-        InputStream[] inputStreams = new InputStream[files.length];
-        for (int i = 0; i < files.length; i++)
-            inputStreams[i] = files[i].getInputStream();
-        return inputStreams;
     }
 
 }

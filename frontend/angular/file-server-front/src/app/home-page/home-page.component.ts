@@ -189,14 +189,16 @@ export class HomePageComponent implements OnInit {
     }
 
     // the first one is always the one displayed
-    this.uploadParam.names.unshift(this.displayedUploadName);
+    this.uploadParam.fileName = this.displayedUploadName;
     this.fileUploadSubscription = this.fileService
       .postFile(this.uploadParam)
       .subscribe({
         next: (event) => {
           if (event.type === HttpEventType.UploadProgress) {
-            this.progress =
-              Math.round((100 * event.loaded) / event.total).toFixed(2) + "%";
+            let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
+            let ps = p + "%";
+            if (p == "100") ps += " (processing)";
+            this.progress = ps;
           }
         },
         complete: () => {
@@ -231,16 +233,14 @@ export class HomePageComponent implements OnInit {
     this.uploadParam.files = files;
 
     if (files.length > 1) {
-      this.displayedUploadName = firstFile.name + ".zip";
-      // the entries
+      let fn = firstFile.name;
+      let j = fn.lastIndexOf(".");
+      this.displayedUploadName = (j > 0 ? fn.slice(0, j) : fn) + ".zip";
+
       let fileNames: string[] = [];
-      for (let n of files) {
-        fileNames.push(n.name);
-      }
-      this.uploadParam.names = fileNames;
+      for (let n of files) fileNames.push(n.name);
     } else {
       this.displayedUploadName = firstFile.name;
-      this.uploadParam.names = [];
     }
     console.log(this.uploadParam);
   }
@@ -352,7 +352,7 @@ export class HomePageComponent implements OnInit {
 
   resetFileUploadParam(): void {
     this.uploadParam.files = null;
-    this.uploadParam.names = null;
+    this.uploadParam.fileName = null;
     this.uploadFileInput.nativeElement.value = null;
     this.displayedUploadName = null;
     this.progress = null;

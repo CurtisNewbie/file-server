@@ -35,8 +35,17 @@
   <select id="findIdByName" resultType="java.lang.Integer">
     select id
     from file_extension
-    where name = #{name}
+    where lower(name) = lower(#{name})
     and is_del = 0
+    limit 1
+  </select>
+
+  <select id="getIdOfEnabledFileExt" resultType="java.lang.Integer">
+    select id
+    from file_extension
+    where lower(name) = lower(#{ext})
+    and is_del = 0
+    and is_enabled = 0
     limit 1
   </select>
 </mapper>

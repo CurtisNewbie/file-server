@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.curtisnewbie.common.util.MultipartUtil;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.dao.FileInfoMapper;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -82,29 +84,19 @@ public class FileServiceTest {
 
     /** Test {@link FileService#uploadFilesAsZip(UploadZipFileVo)} */
     @Test
-    public void shouldUploadFilesAsZip() {
+    public void shouldUploadFilesAsZip() throws IOException {
         mockFsGroupService();
-        String[] entryNames = new String[2];
-        InputStream[] iss = new InputStream[2];
 
-        InputStream tf1 = getTestFile(UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(tf1);
-        entryNames[0] = UPLOADED_TEST_FILE;
-        iss[0] = tf1;
-
-        InputStream tf2 = getTestFile(UPLOADED_TEST_FILE_2);
-        Assertions.assertNotNull(tf2);
-        entryNames[1] = UPLOADED_TEST_FILE_2;
-        iss[1] = tf2;
+        MultipartFile mf = MultipartUtil.toMultipartFile(getTestFile(UPLOADED_TEST_FILE), UPLOADED_TEST_FILE);
+        MultipartFile mf1 = MultipartUtil.toMultipartFile(getTestFile(UPLOADED_TEST_FILE_2), UPLOADED_TEST_FILE_2);
 
         Assertions.assertDoesNotThrow(() -> {
             FileInfo fi = fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
                     .userId(TEST_USER_ID)
                     .username("zhuangyongj")
                     .zipFile(UPLOADED_TEST_FILE_ZIP)
-                    .inputStreams(iss)
-                    .entryNames(entryNames)
                     .userGroup(FileUserGroupEnum.PRIVATE)
+                    .multipartFiles(new MultipartFile[]{mf, mf1})
                     .build());
             Assertions.assertNotNull(fi, "No FileInfo returned");
             Path fp = Paths.get(

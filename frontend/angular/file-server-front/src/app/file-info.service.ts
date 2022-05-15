@@ -173,9 +173,7 @@ export class FileInfoService {
    */
   public postFile(uploadParam: UploadFileParam): Observable<HttpEvent<any>> {
     let formData = new FormData();
-    for (let name of uploadParam.names) {
-      formData.append("fileName", name);
-    }
+    formData.append("fileName", uploadParam.fileName);
     for (let f of uploadParam.files) {
       formData.append("file", f);
     }

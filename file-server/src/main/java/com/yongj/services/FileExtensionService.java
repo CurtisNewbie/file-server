@@ -2,6 +2,7 @@ package com.yongj.services;
 
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.dao.FileExtension;
+import com.yongj.exceptions.IllegalExtException;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +41,12 @@ public interface FileExtensionService {
     /**
      * Add new file extension
      *
-     * @throws com.yongj.exceptions.IllegalExtException   if the name of the file extension is illegal
+     * @throws IllegalExtException if the name of the file extension is illegal
      */
     void addFileExt(@NotNull FileExtension fileExtension);
+
+    /**
+     * Check whether the file extension is enabled
+     */
+    boolean isEnabled(String fileExt);
 }

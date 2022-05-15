@@ -96,8 +96,8 @@ export interface SearchFileInfoParam {
 
 /** Parameters for uploading a file */
 export interface UploadFileParam {
-  /** name of the file, if it's a zip file, the first one will be the zip file's name */
-  names: string[];
+  /** name of the file */
+  fileName: string;
   /** file */
   files: File[];
   /** user group that the file belongs to */
@@ -126,16 +126,6 @@ export interface SearchFileInfoParam {
   userGroup: number;
   /** ownership */
   ownership: number;
-}
-
-/** Parameters for uploading a file */
-export interface UploadFileParam {
-  /** name of the file, if it's a zip file, the first one will be the zip file's name */
-  names: string[];
-  /** file */
-  files: File[];
-  /** user group that the file belongs to */
-  userGruop: number;
 }
 
 /** Parameters for fetching list of file info */
@@ -168,7 +158,7 @@ export function emptySearchFileInfoParam(): SearchFileInfoParam {
 export function emptyUploadFileParam(): UploadFileParam {
   return {
     files: null,
-    names: null,
+    fileName: null,
     userGruop: null,
   };
 }
