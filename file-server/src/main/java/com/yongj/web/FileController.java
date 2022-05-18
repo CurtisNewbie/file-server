@@ -26,8 +26,7 @@ import com.yongj.services.FileService;
 import com.yongj.services.TempTokenFileDownloadService;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
-import com.yongj.web.streaming.GzipStreamingResponseBody;
-import com.yongj.web.streaming.PlainStreamingResponseBody;
+import com.yongj.web.streaming.ChannelStreamingResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +42,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
@@ -327,12 +328,12 @@ public class FileController {
                                                  @PathParam("token") String token) throws IOException,
             MsgEmbeddedException {
 
-        ValidUtils.requireNotEmpty(token, "Token can't be empty");
+        AssertUtils.hasText(token, "Token can't be empty");
         final Integer id = tempTokenFileDownloadService.getIdByToken(token);
-        ValidUtils.requireNonNull(id, "Token is invalid or expired");
+        AssertUtils.notNull(id, "Token is invalid or expired");
 
         FileInfo fi = fileInfoService.findById(id);
-        ValidUtils.requireNonNull(fi, "File not found");
+        AssertUtils.notNull(fi, "File not found");
         if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
             // remove the token
             tempTokenFileDownloadService.removeToken(token);
@@ -386,24 +387,23 @@ public class FileController {
         resp.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + encodeAttachmentName(fi.getName()));
         resp.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fi.getSizeInBytes()));
 
-        // negotiate whether we should use gzip or plain streaming
+        // use FileChannel#transferTo to download file
+        return new ChannelStreamingResponseBody(fileInfoService.retrieveFileChannel(fi.getId()), fi.getName());
+    }
+
+    private static String encodeAttachmentName(String filePath) throws UnsupportedEncodingException {
+        return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8.name());
+    }
+
+    /** negotiate whether we should use gzip or plain streaming */
+    private static boolean useGzip(HttpServletRequest req) {
         Enumeration<String> encodings = req.getHeaders(HttpHeaders.ACCEPT_ENCODING);
         boolean useGzip = false;
         while (encodings.hasMoreElements()) {
             if (encodings.nextElement().trim().equalsIgnoreCase("gzip"))
                 useGzip = true;
         }
-
-        // write file directly to outputStream without holding servlet's thread
-        InputStream in = fileInfoService.retrieveFileInputStream(fi.getId());
-        if (useGzip) {
-            return new GzipStreamingResponseBody(in);
-        } else
-            return new PlainStreamingResponseBody(in);
-    }
-
-    private static String encodeAttachmentName(String filePath) throws UnsupportedEncodingException {
-        return URLEncoder.encode(PathUtils.extractFileName(filePath), StandardCharsets.UTF_8.name());
+        return useGzip;
     }
 
 }

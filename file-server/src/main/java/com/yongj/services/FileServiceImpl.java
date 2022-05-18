@@ -36,8 +36,8 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.channels.FileChannel;
+import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -322,19 +322,12 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(int id) throws IOException {
-        FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
-        nonNull(fi, "Record not found");
+        return Files.newInputStream(resolveFilePath(id));
+    }
 
-        FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
-        nonNull(fsg, "FS Group for this record is not found");
-
-        final String absPath;
-        if (fi.getUploadType() == UploadType.APP_UPLOADED)
-            absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploadApp(), fsg.getBaseFolder());
-        else
-            absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
-
-        return Files.newInputStream(Paths.get(absPath));
+    @Override
+    public FileChannel retrieveFileChannel(int id) throws IOException {
+        return FileChannel.open(resolveFilePath(id), StandardOpenOption.READ);
     }
 
     @Override
@@ -632,6 +625,21 @@ public class FileServiceImpl implements FileService {
 
     private Lock getFileTagLock(int userId, int fileId, String tagName) {
         return redisController.getLock(String.format("file:tag:uid:%s:fid:%s:name:%s", userId, fileId, tagName));
+    }
+
+    private Path resolveFilePath(int id) {
+        FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
+        nonNull(fi, "Record not found");
+
+        FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
+        nonNull(fsg, "FS Group for this record is not found");
+
+        final String absPath;
+        if (fi.getUploadType() == UploadType.APP_UPLOADED)
+            absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploadApp(), fsg.getBaseFolder());
+        else
+            absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
+        return Paths.get(absPath);
     }
 
 }

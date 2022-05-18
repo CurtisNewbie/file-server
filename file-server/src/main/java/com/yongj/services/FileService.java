@@ -15,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 /**
@@ -87,6 +88,13 @@ public interface FileService {
      * @param id file's id
      */
     InputStream retrieveFileInputStream(int id) throws IOException;
+
+    /**
+     * Retrieve file's FileChannel via id
+     *
+     * @param id file's id
+     */
+    FileChannel retrieveFileChannel(int id) throws IOException;
 
     /**
      * Retrieve file's inputStream via id
