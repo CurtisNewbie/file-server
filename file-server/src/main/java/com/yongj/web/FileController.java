@@ -87,6 +87,9 @@ public class FileController {
     @Autowired
     private TagConverter tagConverter;
 
+    /**
+     * Upload file, only user and admin are allowed to upload file (guest is not allowed)
+     */
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String fileName,
@@ -127,6 +130,9 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * Grant access to the file to another user (only file uploader can do so)
+     */
     @LogOperation(name = "grantAccessToUser", description = "Grant file access")
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/grant-access")
@@ -150,6 +156,9 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * List accesses granted to the file (for current user)
+     */
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/list-granted-access")
     public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
@@ -179,6 +188,9 @@ public class FileController {
         return Result.of(resp);
     }
 
+    /**
+     * Remove the access granted to a user (for current user, and only file uploader can do it)
+     */
     @LogOperation(name = "removeGrantedFileAccess", description = "Remove granted file access")
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/remove-granted-access")
@@ -187,6 +199,11 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * Get the download url
+     *
+     * @param id file's id
+     */
     @GetMapping(path = "/url")
     public Result<String> getDownloadUrl(@RequestParam("id") int id) throws MsgEmbeddedException {
         final int userId = tUser().getUserId();
@@ -201,8 +218,11 @@ public class FileController {
         return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fi.getId(), 5));
     }
 
+    /**
+     * List accessible files for current user
+     */
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<ListFileInfoRespVo> listAll(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
+    public Result<ListFileInfoRespVo> listFiles(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
         // validate param
         reqVo.validate();
@@ -235,6 +255,9 @@ public class FileController {
         return Result.of(res);
     }
 
+    /**
+     * Delete file (only file uploader can do it)
+     */
     @LogOperation(name = "deleteFile", description = "Delete a file logically")
     @RoleRequired(role = "user,admin")
     @PostMapping(path = "/delete")
@@ -244,6 +267,9 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * List supported file extension names
+     */
     @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<List<String>> listSupportedFileExtensionNames() {
         return Result.of(
@@ -251,6 +277,9 @@ public class FileController {
         );
     }
 
+    /**
+     * Add a new file extension
+     */
     @LogOperation(name = "addFileExtension", description = "Add file extension")
     @RoleRequired(role = "admin")
     @PostMapping("/extension/add")
@@ -266,9 +295,12 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * List details of all file extensions
+     */
     @RoleRequired(role = "admin")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<ListFileExtRespVo> listSupportedFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
+    public Result<ListFileExtRespVo> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
         vo.validate();
 
         PageablePayloadSingleton<List<FileExtVo>> dataList = fileExtensionService.getDetailsOfAllByPageSelective(vo);
@@ -277,6 +309,9 @@ public class FileController {
         return Result.of(res);
     }
 
+    /**
+     * Update file extension
+     */
     @RoleRequired(role = "admin")
     @LogOperation(name = "updateFileExtension", description = "Update file extension")
     @PostMapping(path = "/extension/update")
@@ -288,6 +323,9 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * Update file's info (only uploader can do it)
+     */
     @RoleRequired(role = "user,admin")
     @PostMapping("/info/update")
     public Result<Void> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) throws MsgEmbeddedException,
@@ -307,9 +345,12 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * Generate temporary token to share the file
+     */
     @RoleRequired(role = "user,admin")
     @PostMapping("/token/generate")
-    public Result<String> generateToken(@Valid @RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
+    public Result<String> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
 
         final TUser tUser = tUser();
@@ -319,6 +360,9 @@ public class FileController {
         return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getId(), 30));
     }
 
+    /**
+     * Download file by a generated token
+     */
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
                                                  @PathParam("token") String token) throws IOException,
@@ -339,17 +383,26 @@ public class FileController {
         return download(req, resp, fi);
     }
 
+    /**
+     * List all tags for current user
+     */
     @GetMapping("/tag/list/all")
     public Result<List<String>> listAllTags() throws InvalidAuthenticationException {
         return Result.of(fileInfoService.listFileTags(tUser().getUserId()));
     }
 
+    /**
+     * List all tags for the current user and the selected file
+     */
     @PostMapping("/tag/list-for-file")
     public Result<PageableVo<List<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) throws InvalidAuthenticationException {
         PageableVo<List<TagVo>> pv = fileInfoService.listFileTags(tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
         return Result.of(PagingUtil.convert(pv, tagConverter::toWebVo));
     }
 
+    /**
+     * Tag the file (only for current user)
+     */
     @PostMapping("/tag")
     public Result<Void> tagFile(@Validated @RequestBody TagFileWebReqVo req) throws InvalidAuthenticationException {
         final TUser tUser = tUser();
@@ -363,6 +416,9 @@ public class FileController {
         return Result.ok();
     }
 
+    /**
+     * Remove the tag for the file (only for current user)
+     */
     @PostMapping("/untag")
     public Result<Void> untagFile(@Validated @RequestBody UntagFileWebReqVo req) throws InvalidAuthenticationException {
         final TUser tUser = tUser();
