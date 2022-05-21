@@ -4,12 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.curtisnewbie.common.dao.DaoSkeleton;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 /**
  * file_sharing
@@ -17,11 +13,8 @@ import java.time.LocalDateTime;
  * @author yongjie.zhuang
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @TableName("file_sharing")
-public class FileSharing {
+public class FileSharing extends DaoSkeleton {
 
     /** id */
     @TableId(type = IdType.AUTO)
@@ -34,25 +27,5 @@ public class FileSharing {
     /** user who now have access to the file */
     @TableField("user_id")
     private Integer userId;
-
-    /** time created */
-    @TableField("create_date")
-    private LocalDateTime createDate;
-
-    /** created by */
-    @TableField("created_by")
-    private String createdBy;
-
-    /** time updated */
-    @TableField("update_date")
-    private LocalDateTime updateDate;
-
-    /** updated by */
-    @TableField("updated_by")
-    private String updatedBy;
-
-    /**  is deleted, 0: normal, 1: deleted */
-    @TableField("is_del")
-    private Integer isDel;
 }
 

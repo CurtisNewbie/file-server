@@ -108,21 +108,18 @@ public class FileServiceImpl implements FileService {
         if (fileSharing == null) {
             // insert file_sharing record
             final LocalDateTime now = LocalDateTime.now();
-            fileSharingMapper.insert(FileSharing.builder()
-                    .userId(cmd.getGrantedTo())
-                    .fileId(cmd.getFileId())
-                    .createdBy(cmd.getGrantedByName())
-                    .createDate(now)
-                    .updatedBy(cmd.getGrantedByName())
-                    .updateDate(now)
-                    .build());
+            FileSharing fs = new FileSharing();
+            fs.setUserId(cmd.getGrantedTo());
+            fs.setFileId(cmd.getFileId());
+            fs.setCreateBy(cmd.getGrantedByName());
+            fs.setUpdateBy(cmd.getGrantedByName());
+            fileSharingMapper.insert(fs);
         } else {
             // update is_del to false
             FileSharing updateParam = new FileSharing();
             updateParam.setId(fileSharing.getId());
-            updateParam.setIsDel(FileSharingIsDel.FALSE.getValue());
-            updateParam.setUpdateDate(LocalDateTime.now());
-            updateParam.setUpdatedBy(cmd.getGrantedByName());
+            updateParam.setIsDel(IsDel.NORMAL);
+            updateParam.setUpdateBy(cmd.getGrantedByName());
             fileSharingMapper.updateById(updateParam);
         }
     }
@@ -421,11 +418,11 @@ public class FileServiceImpl implements FileService {
     public PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, int requestUserId, @NotNull PagingVo paging) {
         Assert.isTrue(isFileOwner(requestUserId, fileId), "Only uploader can list granted access");
 
-        QueryWrapper<FileSharing> condition = new QueryWrapper<>();
-        condition.select("id", "user_id", "create_date", "created_by")
-                .eq("file_id", fileId)
-                .eq("is_del", FileSharingIsDel.FALSE.getValue())
-                .orderBy(true, false, "id");
+        LambdaQueryWrapper<FileSharing> condition = new LambdaQueryWrapper<>();
+        condition.select(FileSharing::getId, FileSharing::getUserId, FileSharing::getCreateTime, FileSharing::getCreateBy)
+                .eq(FileSharing::getFileId, fileId)
+                .eq(FileSharing::getIsDel, IsDel.NORMAL)
+                .orderByDesc(FileSharing::getId);
         Page page = PagingUtil.forPage(paging);
         return PagingUtil.toPageList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
     }
@@ -435,9 +432,8 @@ public class FileServiceImpl implements FileService {
         Assert.isTrue(isFileOwner(removedByUserId, fileId), "Only uploader can remove granted access");
 
         FileSharing updateParam = new FileSharing();
-        updateParam.setIsDel(FileSharingIsDel.TRUE.getValue());
-        updateParam.setUpdatedBy(String.valueOf(removedByUserId));
-        updateParam.setUpdateDate(LocalDateTime.now());
+        updateParam.setIsDel(IsDel.DELETED);
+        updateParam.setUpdateBy(String.valueOf(removedByUserId));
 
         QueryWrapper<FileSharing> whereCondition = new QueryWrapper<>();
         whereCondition
