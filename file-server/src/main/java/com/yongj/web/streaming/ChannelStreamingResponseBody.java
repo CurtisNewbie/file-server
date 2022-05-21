@@ -23,9 +23,9 @@ public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
     }
 
     @Override
-    void timedWriteTo(OutputStream outputStream) throws IOException {
+    long timedWriteTo(OutputStream outputStream) throws IOException {
         try (final WritableByteChannel wbc = Channels.newChannel(outputStream)) {
-            fileChannel.transferTo(0, Long.MAX_VALUE, wbc);
+            return fileChannel.transferTo(0, Long.MAX_VALUE, wbc);
         }
     }
 

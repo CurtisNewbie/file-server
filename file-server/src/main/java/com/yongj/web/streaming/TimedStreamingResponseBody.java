@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.NumberFormat;
 
 /**
  * A Timed StreamingResponseBody
@@ -30,15 +31,32 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
     @Override
     public void writeTo(OutputStream outputStream) throws IOException {
         StopWatch sw = new StopWatch();
+        long len = 0L;
         try {
             sw.start();
-            timedWriteTo(outputStream);
+            len = timedWriteTo(outputStream);
         } finally {
             sw.stop();
-            log.info("Downloaded file: '{}' took {} ms", fileName, sw.getTotalTimeMillis());
+            final long totalMillisec = sw.getTotalTimeMillis();
+            final String mbps = String.format("%.2f", mb(len) / sec(totalMillisec));
+            final NumberFormat nf = NumberFormat.getInstance();
+            log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s", fileName, nf.format(totalMillisec), nf.format(len), mbps);
         }
     }
 
-    abstract void timedWriteTo(OutputStream outputStream) throws IOException;
+    /**
+     * A timed and logged {@link #writeTo(OutputStream)} method
+     *
+     * @return number of bytes actually transferred
+     */
+    abstract long timedWriteTo(OutputStream outputStream) throws IOException;
+
+    private double mb(long bytes) {
+        return bytes / 1024d / 1024d;
+    }
+
+    private double sec(long millisec) {
+        return millisec / 1000d;
+    }
 
 }
