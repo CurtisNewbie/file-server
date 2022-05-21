@@ -1,7 +1,7 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.util.AssertUtils;
+import com.yongj.enums.FsGroupMode;
 import lombok.Data;
 
 /**
@@ -16,10 +16,10 @@ public class UpdateFsGroupModeReqVo {
     private Integer id;
 
     /** mode */
-    private Integer mode;
+    private FsGroupMode mode;
 
-    public void validate() throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(getId());
-        ValidUtils.requireNonNull(getMode());
+    public void validate() {
+        AssertUtils.notNull(getId());
+        AssertUtils.notNull(getMode());
     }
 }

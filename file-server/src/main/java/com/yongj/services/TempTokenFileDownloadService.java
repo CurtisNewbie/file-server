@@ -1,6 +1,5 @@
 package com.yongj.services;
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
@@ -20,7 +19,7 @@ public interface TempTokenFileDownloadService {
      * @param minutes duration of the token in minutes
      * @return token
      */
-    String generateTempTokenForFile(int id, int minutes) throws MsgEmbeddedException;
+    String generateTempTokenForFile(int id, int minutes) ;
 
     /**
      * Get uuid for the given token

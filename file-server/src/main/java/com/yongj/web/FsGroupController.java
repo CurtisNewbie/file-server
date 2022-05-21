@@ -1,14 +1,10 @@
 package com.yongj.web;
 
 import com.curtisnewbie.common.advice.RoleRequired;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.trace.TraceUtils;
-import com.curtisnewbie.common.util.EnumUtils;
-import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
-import com.yongj.enums.FsGroupMode;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
@@ -35,20 +31,13 @@ public class FsGroupController {
 
     @LogOperation(name = "updateFsGroupMode", description = "Update FsGroup Mode (READ/READ_WRITE)")
     @PostMapping("/mode/update")
-    public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) throws MsgEmbeddedException {
-        reqVo.validate();
-
-        FsGroupMode fgm = EnumUtils.parse(reqVo.getMode(), FsGroupMode.class);
-        ValidUtils.requireNonNull(fgm, "fs_group mode value illegal");
-
-        fsGroupService.updateFsGroupMode(reqVo.getId(), fgm, TraceUtils.tUser().getUsername());
+    public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) {
+        fsGroupService.updateFsGroupMode(reqVo.getId(), reqVo.getMode(), TraceUtils.tUser().getUsername());
         return Result.ok();
     }
 
     @PostMapping("/list")
-    public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) throws MsgEmbeddedException {
-        reqVo.validate();
-
+    public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo){
         PageablePayloadSingleton<List<FsGroupVo>> pi = fsGroupService.findByPage(reqVo);
         ListAllFsGroupRespVo res = new ListAllFsGroupRespVo(pi.getPayload());
         res.setPagingVo(pi.getPagingVo());

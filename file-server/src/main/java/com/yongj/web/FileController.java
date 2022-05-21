@@ -205,7 +205,7 @@ public class FileController {
      * @param id file's id
      */
     @GetMapping(path = "/url")
-    public Result<String> getDownloadUrl(@RequestParam("id") int id) throws MsgEmbeddedException {
+    public Result<String> getDownloadUrl(@RequestParam("id") int id) {
         final int userId = tUser().getUserId();
 
         // validate user authority
@@ -222,11 +222,7 @@ public class FileController {
      * List accessible files for current user
      */
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<ListFileInfoRespVo> listFiles(@RequestBody ListFileInfoReqVo reqVo) throws MsgEmbeddedException,
-            InvalidAuthenticationException {
-        // validate param
-        reqVo.validate();
-
+    public Result<ListFileInfoRespVo> listFiles(@RequestBody ListFileInfoReqVo reqVo) {
         reqVo.setUserId(tUser().getUserId());
         PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
@@ -395,7 +391,7 @@ public class FileController {
      * List all tags for the current user and the selected file
      */
     @PostMapping("/tag/list-for-file")
-    public Result<PageableVo<List<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) throws InvalidAuthenticationException {
+    public Result<PageableVo<List<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) {
         PageableVo<List<TagVo>> pv = fileInfoService.listFileTags(tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
         return Result.of(PagingUtil.convert(pv, tagConverter::toWebVo));
     }
@@ -404,7 +400,7 @@ public class FileController {
      * Tag the file (only for current user)
      */
     @PostMapping("/tag")
-    public Result<Void> tagFile(@Validated @RequestBody TagFileWebReqVo req) throws InvalidAuthenticationException {
+    public Result<Void> tagFile(@Validated @RequestBody TagFileWebReqVo req) {
         final TUser tUser = tUser();
         fileInfoService.tagFile(TagFileCmd.builder()
                 .fileId(req.getFileId())
@@ -420,7 +416,7 @@ public class FileController {
      * Remove the tag for the file (only for current user)
      */
     @PostMapping("/untag")
-    public Result<Void> untagFile(@Validated @RequestBody UntagFileWebReqVo req) throws InvalidAuthenticationException {
+    public Result<Void> untagFile(@Validated @RequestBody UntagFileWebReqVo req) {
         final TUser tUser = tUser();
         fileInfoService.untagFile(UntagFileCmd.builder()
                 .fileId(req.getFileId())

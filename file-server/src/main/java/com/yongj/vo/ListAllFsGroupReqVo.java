@@ -15,9 +15,4 @@ public class ListAllFsGroupReqVo extends PageableVo {
 
     private FsGroupVo fsGroup;
 
-    public void validate() throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(getPagingVo());
-        ValidUtils.requireNonNull(getPagingVo().getPage());
-        ValidUtils.requireNonNull(getPagingVo().getLimit());
-    }
 }

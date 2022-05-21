@@ -1,7 +1,5 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yongj.enums.FileOwnership;
@@ -34,13 +32,6 @@ public class ListFileInfoReqVo extends PageableVo {
 
     /** tag name */
     private String tagName;
-
-    /** Validate vo */
-    public void validate() throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(getPagingVo());
-        ValidUtils.requireNonNull(getPagingVo().getLimit());
-        ValidUtils.requireNonNull(getPagingVo().getPage());
-    }
 
     /**
      * Check whether we are only requesting files that we own

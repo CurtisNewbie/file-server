@@ -1,6 +1,5 @@
 package com.yongj.services;
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.util.NumberTokenGenerator;
 import com.yongj.util.TokenGenerator;
@@ -11,6 +10,8 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static com.curtisnewbie.common.util.AssertUtils.isTrue;
 
 /**
  * @author yongjie.zhuang
@@ -25,13 +26,12 @@ public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadSe
     private RedisController redisController;
 
     @Override
-    public String generateTempTokenForFile(int id, int minutes) throws MsgEmbeddedException {
+    public String generateTempTokenForFile(int id, int minutes) {
         final String token = tokenGenerator.generate(Optional.of(15));
-        log.info("Generated token: {} for file's id: {}", token, id);
+        log.info("Generated token: {} for file's id: {}, exp: {} min", token, id, minutes);
 
-        if (!redisController.expire(token, id, minutes,TimeUnit.MINUTES)) {
-            throw new MsgEmbeddedException("Unable to generate token, please try again later");
-        }
+        isTrue(redisController.setIfNotExists(token, id, minutes, TimeUnit.MINUTES),
+                "Unable to generate token, please try again later");
         return token;
     }
 
