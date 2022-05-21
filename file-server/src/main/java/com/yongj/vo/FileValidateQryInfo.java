@@ -1,4 +1,4 @@
-package com.yongj.dao;
+package com.yongj.vo;
 
 import lombok.Data;
 
