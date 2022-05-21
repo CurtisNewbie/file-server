@@ -296,13 +296,12 @@ public class FileController {
      */
     @RoleRequired(role = "admin")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<ListFileExtRespVo> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) throws MsgEmbeddedException {
-        vo.validate();
-
-        PageablePayloadSingleton<List<FileExtVo>> dataList = fileExtensionService.getDetailsOfAllByPageSelective(vo);
-        ListFileExtRespVo res = new ListFileExtRespVo(dataList.getPayload());
-        res.setPagingVo(dataList.getPagingVo());
-        return Result.of(res);
+    public Result<PageableVo<List<FileExtVo>>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
+        PageablePayloadSingleton<List<FileExtVo>> pps = fileExtensionService.getDetailsOfAllByPageSelective(vo);
+        final PageableVo<List<FileExtVo>> p = new PageableVo<>();
+        p.setData(pps.getPayload());
+        p.setPagingVo(pps.getPagingVo());
+        return Result.of(p);
     }
 
     /**

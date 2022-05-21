@@ -58,6 +58,7 @@
                 <th mat-header-cell *matHeaderCellDef> ID </th>
                 <td mat-cell *matCellDef="let f"> {{f.id}} </td>
             </ng-container>
+
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
                 <td mat-cell *matCellDef="let f"> {{f.name}} </td>
@@ -70,6 +71,27 @@
                     <span *ngIf="f.isEnabled === FILE_EXT_DISABLED" class="status-red">disabled</span>
                 </td>
             </ng-container>
+
+            <ng-container matColumnDef="createBy">
+                <th mat-header-cell *matHeaderCellDef> Created By </th>
+                <td mat-cell *matCellDef="let f"> {{f.createBy}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createTime">
+                <th mat-header-cell *matHeaderCellDef> Create Time </th>
+                <td mat-cell *matCellDef="let f"> {{f.createTime}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="updateBy">
+                <th mat-header-cell *matHeaderCellDef> Updated By </th>
+                <td mat-cell *matCellDef="let f"> {{f.updateBy}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="updateTime">
+                <th mat-header-cell *matHeaderCellDef> Update Time </th>
+                <td mat-cell *matCellDef="let f"> {{f.updateTime}} </td>
+            </ng-container>
+
 
             <ng-container matColumnDef="expandedElement">
                 <td mat-cell *matCellDef="let f" [attr.colspan]="COLUMNS_TO_BE_DISPLAYED.length">

@@ -16,10 +16,18 @@ export interface FileExt {
    * whether this file extension is enabled
    */
   isEnabled: number;
+
+  createBy: string;
+
+  createTime: string;
+
+  updateBy: string;
+
+  updateTime: string;
 }
 
 export interface FetchFileExtList {
-  fileExtList: FileExt[];
+  payload: FileExt[];
 
   pagingVo: Paging;
 }

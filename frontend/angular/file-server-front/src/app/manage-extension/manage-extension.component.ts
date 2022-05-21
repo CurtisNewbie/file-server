@@ -22,7 +22,15 @@ import { FileInfoService } from "../file-info.service";
 export class ManageExtensionComponent implements OnInit {
   readonly FILE_EXT_ENABLED: number = FileExtIsEnabled.ENABLED;
   readonly FILE_EXT_DISABLED: number = FileExtIsEnabled.DISABLED;
-  readonly COLUMNS_TO_BE_DISPLAYED: string[] = ["id", "name", "status"];
+  readonly COLUMNS_TO_BE_DISPLAYED: string[] = [
+    "id",
+    "name",
+    "status",
+    "createBy",
+    "createTime",
+    "updateBy",
+    "updateTime",
+  ];
   readonly FILE_EXT_IS_ENABLED_OPTIONS: FileExtIsEnabledOption[] =
     FILE_EXT_IS_ENABLED_OPTIONS;
 
@@ -56,7 +64,7 @@ export class ManageExtensionComponent implements OnInit {
       .fetchSupportedFileExtensionDetails(this.searchParam)
       .subscribe({
         next: (resp) => {
-          this.fileExt = resp.data.fileExtList;
+          this.fileExt = resp.data.payload;
           this.pagingController.updatePages(resp.data.pagingVo.total);
         },
       });
