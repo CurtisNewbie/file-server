@@ -29,6 +29,7 @@
         AND is_enabled = #{p.isEnabled}
       </if>
       and is_del = 0
+      order by id desc
     </where>
   </select>
 
