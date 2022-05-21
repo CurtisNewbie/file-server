@@ -17,3 +17,6 @@ alter table file_sharing change updated_by update_by VARCHAR(255) NOT NULL DEFAU
 
 alter table fs_group modify create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created';
 alter table fs_group modify update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated';
+
+alter table file_info modify column logic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is logically deleted";
+alter table file_info modify column physic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is physically deleted";
