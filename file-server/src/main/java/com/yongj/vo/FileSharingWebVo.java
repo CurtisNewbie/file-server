@@ -2,6 +2,7 @@ package com.yongj.vo;
 
 import com.curtisnewbie.common.util.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -24,10 +25,12 @@ public class FileSharingWebVo {
     private String username;
 
     /** time created */
+    @JsonProperty("createDate")
     @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
-    private LocalDateTime createDate;
+    private LocalDateTime createTime;
 
     /** created by */
-    private String createdBy;
+    @JsonProperty("createdBy")
+    private String createBy;
 }
 

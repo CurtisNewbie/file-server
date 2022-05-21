@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -19,9 +20,9 @@ public class FileSharingVo {
     private Integer userId;
 
     /** time created */
-    private LocalDateTime createDate;
+    private LocalDateTime createTime;
 
     /** created by */
-    private String createdBy;
+    private String createBy;
 }
 
