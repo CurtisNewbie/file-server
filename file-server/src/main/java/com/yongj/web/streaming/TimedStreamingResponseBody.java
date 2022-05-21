@@ -34,8 +34,8 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
             sw.start();
             timedWriteTo(outputStream);
         } finally {
-            log.info("Downloaded file: '{}' took {} ms", fileName, sw.getTotalTimeMillis());
             sw.stop();
+            log.info("Downloaded file: '{}' took {} ms", fileName, sw.getTotalTimeMillis());
         }
     }
 
