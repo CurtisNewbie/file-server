@@ -15,4 +15,4 @@ then
     exit -1
 fi
 
-scp "$fs/target/${jarname}" "zhuangyongj@${remotepath}:~/services/file-service/file-server.jar"
+scp "$fs/target/${jarname}" "zhuangyongj@${remotepath}:~/services/file-service/build/file-server.jar"
