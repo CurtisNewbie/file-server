@@ -16,6 +16,7 @@ spring:
         - id
         - username
         - role
+        - services
 
 # base path for the exposed api
 web.base-path: "/open/api/"
