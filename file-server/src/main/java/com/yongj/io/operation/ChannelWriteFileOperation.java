@@ -24,7 +24,7 @@ public class ChannelWriteFileOperation implements WriteFileOperation {
         final File file = new File(absPath);
         isTrue(file.createNewFile(), "Failed to create new file");
 
-        final ByteBuffer buffer = ByteBuffer.allocateDirect(8192 * 2);
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(65536); // 64 * 1024
 
         try (final FileChannel fc = FileChannel.open(file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
              ReadableByteChannel rc = Channels.newChannel(inputStream)) {
