@@ -3,7 +3,10 @@ package com.yongj.web;
 import com.curtisnewbie.common.advice.RoleRequired;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.trace.TUser;
-import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.util.AssertUtils;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.EnumUtils;
+import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.Result;
@@ -17,7 +20,7 @@ import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
-import com.yongj.enums.FileExtensionIsEnabledEnum;
+import com.yongj.enums.FExtIsEnabled;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.io.PathResolver;
@@ -53,11 +56,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
-import static com.curtisnewbie.common.util.AssertUtils.nonNull;
+import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @author yongjie.zhuang
@@ -94,7 +96,7 @@ public class FileController {
         final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
         AssertUtils.notEmpty(multipartFiles, "No file uploaded");
-        AssertUtils.hasText(fileName, "File name can'tb be empty");
+        hasText(fileName, "File name can'tb be empty");
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
@@ -253,10 +255,10 @@ public class FileController {
     @RoleRequired(role = "admin")
     @PostMapping("/extension/add")
     public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
-        AssertUtils.hasText(reqVo.getName(), "extension name must not be empty");
+        hasText(reqVo.getName(), "extension name must not be empty");
         FileExtension ext = new FileExtension();
         // by default disabled
-        ext.setIsEnabled(FileExtensionIsEnabledEnum.DISABLED.getValue());
+        ext.setIsEnabled(FExtIsEnabled.DISABLED);
         ext.setName(reqVo.getName());
         ext.setCreateBy(tUser().getUsername());
         ext.setCreateTime(LocalDateTime.now());
@@ -276,19 +278,13 @@ public class FileController {
     }
 
     @RoleRequired(role = "admin")
+    @LogOperation(name = "updateFileExtension", description = "Update file extension")
     @PostMapping(path = "/extension/update")
-    public Result<Void> updateFileExtensionStatus(@RequestBody FileExtVo vo) throws MsgEmbeddedException {
-        nonNull(vo.getId());
+    public Result<Void> updateFileExtension(@RequestBody UpdateFileExtReq req) {
+        nonNull(req.getId());
+        notNull(req.getIsEnabled());
 
-        // either the name or isEnabled should be entered
-        if (vo.getIsEnabled() == null && !hasText(vo.getName())) {
-            throw new MsgEmbeddedException("Required parameters should not be null");
-        }
-        // check if the isEnabled value is valid
-        FileExtensionIsEnabledEnum isEnabledEnum = EnumUtils.parse(vo.getIsEnabled(),
-                FileExtensionIsEnabledEnum.class);
-        AssertUtils.nonNull(isEnabledEnum, "isEnabled value illegal");
-        fileExtensionService.updateFileExtSelective(vo);
+        fileExtensionService.updateFileExtension(req);
         return Result.ok();
     }
 
@@ -328,12 +324,12 @@ public class FileController {
                                                  @PathParam("token") String token) throws IOException,
             MsgEmbeddedException {
 
-        AssertUtils.hasText(token, "Token can't be empty");
+        hasText(token, "Token can't be empty");
         final Integer id = tempTokenFileDownloadService.getIdByToken(token);
-        AssertUtils.notNull(id, "Token is invalid or expired");
+        notNull(id, "Token is invalid or expired");
 
         FileInfo fi = fileInfoService.findById(id);
-        AssertUtils.notNull(fi, "File not found");
+        notNull(fi, "File not found");
         if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
             // remove the token
             tempTokenFileDownloadService.removeToken(token);

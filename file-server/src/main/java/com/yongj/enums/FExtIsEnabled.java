@@ -1,22 +1,27 @@
 package com.yongj.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.curtisnewbie.common.enums.IntEnum;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * @author yongjie.zhuang
  */
-public enum FileExtensionIsEnabledEnum implements IntEnum {
+public enum FExtIsEnabled implements IntEnum {
 
     /** current file extension is enabled */
     ENABLED(0),
     /** current file extension is disabled */
     DISABLED(1);
 
+    @JsonValue
+    @EnumValue
     public final int value;
 
-    FileExtensionIsEnabledEnum(int isEnabled) {
+    FExtIsEnabled(int isEnabled) {
         this.value = isEnabled;
     }
 
@@ -26,7 +31,7 @@ public enum FileExtensionIsEnabledEnum implements IntEnum {
     }
 
     @JsonCreator
-    public static FileExtensionIsEnabledEnum forValue(int v) {
-        return EnumUtils.parse(v, FileExtensionIsEnabledEnum.class);
+    public static FExtIsEnabled forValue(int v) {
+        return EnumUtils.parse(v, FExtIsEnabled.class);
     }
 }

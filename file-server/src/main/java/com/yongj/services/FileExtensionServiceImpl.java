@@ -2,13 +2,14 @@ package com.yongj.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
+import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
-import com.yongj.converters.FileExtConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileExtensionMapper;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
+import com.yongj.vo.UpdateFileExtReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,8 +39,6 @@ public class FileExtensionServiceImpl implements FileExtensionService {
 
     @Autowired
     private FileExtensionMapper fileExtensionMapper;
-    @Autowired
-    private FileExtConverter fileExtConverter;
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -59,18 +58,21 @@ public class FileExtensionServiceImpl implements FileExtensionService {
         Assert.notNull(param.getPagingVo(), "PagingVo can't be null");
 
         return toPageList(
-                fileExtensionMapper.findAllSelective(forPage(param.getPagingVo()), fileExtConverter.toDo(param)),
-                fileExtConverter::toVo
+                fileExtensionMapper.findAllSelective(forPage(param.getPagingVo()), BeanCopyUtils.toType(param, FileExtension.class)),
+                v -> BeanCopyUtils.toType(v, FileExtVo.class)
         );
     }
 
     @Override
-    public void updateFileExtSelective(@NotNull FileExtVo fileExtVo) {
-        Objects.requireNonNull(fileExtVo.getId());
+    public void updateFileExtension(@NotNull UpdateFileExtReq req) {
+        Objects.requireNonNull(req.getId());
 
-        final FileExtension param = fileExtConverter.toDo(fileExtVo);
+        final FileExtension param = BeanCopyUtils.toType(req, FileExtension.class);
+        param.setUpdateBy(TraceUtils.tUser().getUsername());
+        param.setUpdateTimeIfAbsent();
+
         final QueryWrapper<FileExtension> condition = new QueryWrapper<FileExtension>()
-                .eq("id", fileExtVo.getId())
+                .eq("id", req.getId())
                 .eq("is_del", IsDel.NORMAL.getValue());
 
         fileExtensionMapper.update(param, condition);

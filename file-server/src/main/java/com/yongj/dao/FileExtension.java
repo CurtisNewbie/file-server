@@ -3,6 +3,7 @@ package com.yongj.dao;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
+import com.yongj.enums.FExtIsEnabled;
 import lombok.Data;
 
 /**
@@ -22,5 +23,5 @@ public class FileExtension extends DaoSkeleton {
      * whether this file extension is enabled, 0-enabled, 1-disabled
      */
     @TableField("is_enabled")
-    private Integer isEnabled;
+    private FExtIsEnabled isEnabled;
 }

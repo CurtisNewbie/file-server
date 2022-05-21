@@ -5,6 +5,7 @@ import com.yongj.dao.FileExtension;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
+import com.yongj.vo.UpdateFileExtReq;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
@@ -36,7 +37,7 @@ public interface FileExtensionService {
     /**
      * Selectively Update file extension by id
      */
-    void updateFileExtSelective(@NotNull FileExtVo fileExtVo);
+    void updateFileExtension(@NotNull UpdateFileExtReq req);
 
     /**
      * Add new file extension

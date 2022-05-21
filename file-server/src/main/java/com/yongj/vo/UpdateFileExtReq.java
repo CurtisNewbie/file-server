@@ -7,7 +7,7 @@ import lombok.Data;
  * @author yongjie.zhuang
  */
 @Data
-public class FileExtVo {
+public class UpdateFileExtReq {
 
     /**
      * primary key
@@ -15,16 +15,7 @@ public class FileExtVo {
     private Integer id;
 
     /**
-     * name of file extension, e.g., "txt"
-     */
-    private String name;
-
-    /**
      * whether this file extension is enabled, 0-enabled, 1-disabled
      */
     private FExtIsEnabled isEnabled;
-
-    private String createdBy;
-
-    private String updatedBy;
 }
