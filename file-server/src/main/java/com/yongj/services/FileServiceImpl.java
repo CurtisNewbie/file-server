@@ -16,14 +16,16 @@ import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
-import com.yongj.enums.*;
+import com.yongj.enums.FileLogicDeletedEnum;
+import com.yongj.enums.FilePhysicDeletedEnum;
+import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.UploadType;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +37,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileChannel;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +106,7 @@ public class FileServiceImpl implements FileService {
                 .eq("file_id", cmd.getFileId())
                 .eq("user_id", cmd.getGrantedTo());
         FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
-        isTrue(fileSharing == null || Objects.equals(fileSharing.getIsDel(), FileSharingIsDel.TRUE.getValue()),
+        isTrue(fileSharing == null || fileSharing.getIsDel() == IsDel.DELETED,
                 "User already had access to this file");
 
         if (fileSharing == null) {
@@ -111,15 +115,12 @@ public class FileServiceImpl implements FileService {
             FileSharing fs = new FileSharing();
             fs.setUserId(cmd.getGrantedTo());
             fs.setFileId(cmd.getFileId());
-            fs.setCreateBy(cmd.getGrantedByName());
-            fs.setUpdateBy(cmd.getGrantedByName());
             fileSharingMapper.insert(fs);
         } else {
             // update is_del to false
             FileSharing updateParam = new FileSharing();
             updateParam.setId(fileSharing.getId());
             updateParam.setIsDel(IsDel.NORMAL);
-            updateParam.setUpdateBy(cmd.getGrantedByName());
             fileSharingMapper.updateById(updateParam);
         }
     }
@@ -162,8 +163,6 @@ public class FileServiceImpl implements FileService {
         f.setUploadType(UploadType.APP_UPLOADED); // uploaded by another app
         f.setUploadApp(uploadApp); // app that uploaded this
         f.setFsGroupId(fsGroup.getId());
-        f.setCreateBy(uploadApp);
-        f.setCreateTime(LocalDateTime.now());
         fileInfoMapper.insert(f);
         return f;
     }
@@ -204,8 +203,6 @@ public class FileServiceImpl implements FileService {
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
-        f.setCreateBy(param.getUsername());
-        f.setCreateTime(LocalDateTime.now());
         fileInfoMapper.insert(f);
         return f;
     }
@@ -247,8 +244,6 @@ public class FileServiceImpl implements FileService {
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
-        f.setCreateBy(param.getUsername());
-        f.setCreateTime(LocalDateTime.now());
         fileInfoMapper.insert(f);
         return f;
     }
@@ -291,18 +286,6 @@ public class FileServiceImpl implements FileService {
                         .id(f.getId())
                         .uploaderId(f.getUploaderId())
                         .build());
-    }
-
-    @Override
-    public void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException {
-        FileInfo fi = fileInfoMapper.selectById(id);
-        nonNull(fi, "Record not found");
-
-        FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
-        nonNull(fi, "Unable to download file, fs_group for this file is not found");
-
-        final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
-        ioHandler.readFile(absPath, outputStream);
     }
 
     @Override
@@ -374,25 +357,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId, @Nullable String updatedBy) {
-        Integer uploader = fileInfoMapper.selectUploaderIdById(id);
-        nonNull(uploader, "File not found");
-        AssertUtils.equals((int) uploader, userId, "You are not allowed to update this file");
-
-        final FileInfo param = new FileInfo();
-        param.setUpdateBy(updatedBy);
-        param.setUpdateTime(LocalDateTime.now());
-        param.setUserGroup(fug.getValue());
-
-        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
-                .eq("id", id)
-                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue())
-                .eq("is_del", IsDel.NORMAL.getValue());
-
-        fileInfoMapper.update(param, cond);
-    }
-
-    @Override
     public void updateFile(@NotNull UpdateFileCmd cmd) {
         Integer uploaderId = fileInfoMapper.selectUploaderIdById(cmd.getId());
         nonNull(uploaderId, "Record not found");
@@ -402,8 +366,6 @@ public class FileServiceImpl implements FileService {
         fi.setId(cmd.getId());
         fi.setUserGroup(cmd.getUserGroup().getValue());
         fi.setName(cmd.getFileName());
-        fi.setUpdateTime(LocalDateTime.now());
-        fi.setUpdateBy(cmd.getUpdatedByName());
 
         final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
                 .eq("id", cmd.getId())
@@ -433,13 +395,12 @@ public class FileServiceImpl implements FileService {
 
         FileSharing updateParam = new FileSharing();
         updateParam.setIsDel(IsDel.DELETED);
-        updateParam.setUpdateBy(String.valueOf(removedByUserId));
 
         QueryWrapper<FileSharing> whereCondition = new QueryWrapper<>();
         whereCondition
                 .eq("file_id", fileId)
                 .eq("user_id", userId)
-                .eq("is_del", FileSharingIsDel.FALSE.getValue());
+                .eq("is_del", IsDel.NORMAL);
         fileSharingMapper.update(updateParam, whereCondition);
     }
 
@@ -458,7 +419,6 @@ public class FileServiceImpl implements FileService {
     @Override
     public void tagFile(final TagFileCmd cmd) {
         final String tagName = cmd.getTagName().trim();
-        final String taggedBy = cmd.getTaggedBy();
         final int fileId = cmd.getFileId();
         final int userId = cmd.getUserId();
 
@@ -468,7 +428,7 @@ public class FileServiceImpl implements FileService {
             lock.lock();
 
             // find the tag first, and create one for current user if necessary
-            final int tagId = createTagIfNecessary(userId, tagName, cmd.getTaggedBy());
+            final int tagId = createTagIfNecessary(userId, tagName);
 
             // check if it's already tagged
             final FileTag selected = selectFileTag(fileId, tagId);
@@ -479,8 +439,6 @@ public class FileServiceImpl implements FileService {
                 inserted.setUserId(userId);
                 inserted.setFileId(fileId);
                 inserted.setTagId(tagId);
-                inserted.setCreateBy(taggedBy);
-                inserted.setCreateTime(LocalDateTime.now());
                 fileTagMapper.insert(inserted);
                 return;
             }
@@ -489,7 +447,6 @@ public class FileServiceImpl implements FileService {
             if (selected.isDeleted()) {
                 final FileTag updated = new FileTag();
                 updated.setIsDel(IsDel.NORMAL);
-                updated.setUpdateBy(taggedBy);
                 final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
                         .eq("id", selected.getId())
                         .eq("is_del", IsDel.DELETED.getValue());
@@ -503,7 +460,6 @@ public class FileServiceImpl implements FileService {
     @Override
     public void untagFile(@NotNull UntagFileCmd cmd) {
         final String tagName = cmd.getTagName();
-        final String untaggedBy = cmd.getUntaggedBy();
         final int fileId = cmd.getFileId();
         final int userId = cmd.getUserId();
 
@@ -528,7 +484,6 @@ public class FileServiceImpl implements FileService {
             if (!fileTag.isDeleted()) {
                 final FileTag updated = new FileTag();
                 updated.setIsDel(IsDel.DELETED);
-                updated.setUpdateBy(untaggedBy);
                 final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
                         .eq("id", fileTag.getId())
                         .eq("is_del", IsDel.NORMAL.getValue());
@@ -594,13 +549,12 @@ public class FileServiceImpl implements FileService {
      * @param tagName name of tag
      * @return id of tag
      */
-    private int createTagIfNecessary(final int userId, final String tagName, final String createBy) {
+    private int createTagIfNecessary(final int userId, final String tagName) {
         final Tag selected = selectTag(userId, tagName);
         if (selected == null) {
             Tag inserted = new Tag();
             inserted.setUserId(userId);
             inserted.setName(tagName);
-            inserted.setCreateBy(createBy);
             tagMapper.insert(inserted);
             return inserted.getId();
         }

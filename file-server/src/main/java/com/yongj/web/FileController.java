@@ -48,7 +48,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -148,7 +147,6 @@ public class FileController {
 
         fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
                 .fileId(v.getFileId())
-                .grantedByName(tUser.getUsername())
                 .grantedByUserId(tUser.getUserId())
                 .grantedTo(grantedToId)
                 .build());
@@ -265,8 +263,6 @@ public class FileController {
         // by default disabled
         ext.setIsEnabled(FExtIsEnabled.DISABLED);
         ext.setName(reqVo.getName());
-        ext.setCreateBy(tUser().getUsername());
-        ext.setCreateTime(LocalDateTime.now());
         fileExtensionService.addFileExt(ext);
         return Result.ok();
     }
@@ -315,7 +311,6 @@ public class FileController {
                 .fileName(reqVo.getName())
                 .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
                 .updatedById(tUser.getUserId())
-                .updatedByName(tUser.getUsername())
                 .build());
         return Result.ok();
     }
@@ -385,7 +380,6 @@ public class FileController {
                 .fileId(req.getFileId())
                 .tagName(req.getTagName())
                 .userId(tUser.getUserId())
-                .taggedBy(tUser.getUsername())
                 .build());
 
         return Result.ok();
@@ -401,7 +395,6 @@ public class FileController {
                 .fileId(req.getFileId())
                 .tagName(req.getTagName())
                 .userId(tUser.getUserId())
-                .untaggedBy(tUser.getUsername())
                 .build());
 
         return Result.ok();

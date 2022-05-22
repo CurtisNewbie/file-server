@@ -1,6 +1,7 @@
 package com.yongj;
 
 import com.curtisnewbie.common.advice.EnableRoleControl;
+import com.curtisnewbie.common.dao.EnableMBTraceInterceptor;
 import com.curtisnewbie.service.auth.messaging.helper.OperateLogAdvice;
 import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.Redisson;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
 
+@EnableMBTraceInterceptor
 @EnableRoleControl
 @Import(OperateLogAdvice.class)
 @EnableDiscoveryClient

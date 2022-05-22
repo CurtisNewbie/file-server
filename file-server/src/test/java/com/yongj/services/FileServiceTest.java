@@ -139,24 +139,6 @@ public class FileServiceTest {
         Assertions.assertNotNull(fileInfoService.findPagedFileIdsForPhysicalDeleting(pv));
     }
 
-    @Test
-    void shouldDownloadFile() throws IOException {
-        mockFsGroupService();
-        Path dp = Paths.get(basePath.concat(File.separator).concat(TEST_DOWNLOADED_FILE));
-        try (
-                OutputStream fout = new FileOutputStream(dp.toFile());
-        ) {
-            FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
-            Assertions.assertNotNull(fi);
-
-            fileInfoService.downloadFile(fi.getId(), fout);
-            Assertions.assertTrue(Files.exists(dp));
-
-            doCleanUp(fi);
-            doCleanUp(dp);
-        }
-    }
-
     private void doCleanUp(Path fp) {
         // cleanup test data
         try {
@@ -227,24 +209,6 @@ public class FileServiceTest {
             FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsPhysicDeleted(), FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
-        });
-
-        doCleanUp(fi);
-    }
-
-    @Test
-    @Rollback
-    void shouldUpdateFileUserGroup() throws IOException {
-        mockFsGroupService();
-        FileInfo fi = uploadTestFile(TEST_USER_ID, UPLOADED_TEST_FILE);
-        Assertions.assertNotNull(fi);
-
-        Assertions.assertDoesNotThrow(() -> {
-            fileInfoService.updateFileUserGroup(fi.getId(), FileUserGroupEnum.PUBLIC, TEST_USER_ID, "unit test");
-
-            FileInfo sfi = fileInfoMapper.selectById(fi.getId());
-            Assertions.assertNotNull(sfi);
-            Assertions.assertEquals(sfi.getUserGroup(), FileUserGroupEnum.PUBLIC.getValue());
         });
 
         doCleanUp(fi);

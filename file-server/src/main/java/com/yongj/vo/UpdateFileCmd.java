@@ -26,8 +26,4 @@ public class UpdateFileCmd {
     /** id of user who updated the file */
     @JsonIgnore
     private int updatedById;
-
-    /** name of user who updated the file */
-    @JsonIgnore
-    private String updatedByName;
 }

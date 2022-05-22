@@ -25,11 +25,6 @@ public interface FileExtensionService {
     List<String> getNamesOfAllEnabled();
 
     /**
-     * Find details of all file extensions
-     */
-    List<FileExtVo> getDetailsOfAll();
-
-    /**
      * Selectively find details of all file extensions (with pagination)
      */
     PageablePayloadSingleton<List<FileExtVo>> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param);

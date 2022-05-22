@@ -3,7 +3,6 @@ package com.yongj.vo;
 import com.yongj.enums.FileUserGroupEnum;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.lang.Nullable;
 
 import java.io.InputStream;
 

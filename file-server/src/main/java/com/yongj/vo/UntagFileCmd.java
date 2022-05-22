@@ -17,8 +17,5 @@ public class UntagFileCmd {
     @NotBlank
     private final String tagName;
 
-    @NotBlank
-    private final String untaggedBy;
-
     private final int userId;
 }

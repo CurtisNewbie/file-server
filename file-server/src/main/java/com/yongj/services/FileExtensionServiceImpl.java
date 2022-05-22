@@ -2,7 +2,6 @@ package com.yongj.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
-import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.yongj.dao.FileExtension;
@@ -48,12 +47,6 @@ public class FileExtensionServiceImpl implements FileExtensionService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public List<FileExtVo> getDetailsOfAll() {
-        return BeanCopyUtils.toTypeList(fileExtensionMapper.findAll(), FileExtVo.class);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public PageablePayloadSingleton<List<FileExtVo>> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param) {
         Assert.notNull(param.getPagingVo(), "PagingVo can't be null");
 
@@ -67,9 +60,8 @@ public class FileExtensionServiceImpl implements FileExtensionService {
     public void updateFileExtension(@NotNull UpdateFileExtReq req) {
         Objects.requireNonNull(req.getId());
 
-        final FileExtension param = BeanCopyUtils.toType(req, FileExtension.class);
-        param.setUpdateBy(TraceUtils.tUser().getUsername());
-        param.setUpdateTimeIfAbsent();
+        final FileExtension param = new FileExtension();
+        param.setIsEnabled(req.getIsEnabled());
 
         final QueryWrapper<FileExtension> condition = new QueryWrapper<FileExtension>()
                 .eq("id", req.getId())

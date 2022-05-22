@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
@@ -64,8 +63,6 @@ public class FsGroupServiceImpl implements FsGroupService {
 
         final FsGroup param = new FsGroup();
         param.setMode(mode.getValue());
-        param.setUpdateTime(LocalDateTime.now());
-        param.setUpdateBy(updatedBy);
 
         fsGroupMapper.update(param, condition);
     }

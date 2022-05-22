@@ -12,11 +12,6 @@ import lombok.Data;
 @Builder
 public class GrantFileAccessCmd {
 
-    /**
-     * name of user who granted the access
-     */
-    private final String grantedByName;
-
      /**
      * id of user who granted the access
      */

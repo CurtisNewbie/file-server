@@ -5,16 +5,13 @@ import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.PageableVo;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
-import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.vo.*;
-import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
@@ -68,16 +65,6 @@ public interface FileService {
     PageablePayloadSingleton<List<FileUploaderInfoVo>> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo);
 
     /**
-     * Download file via id to the given outputStream
-     *
-     * @param id           file's id
-     * @param outputStream outputStream
-     */
-    @Deprecated
-    // todo doesn't seem to be useful, consider removing it
-    void downloadFile(int id, @NotNull OutputStream outputStream) throws IOException;
-
-    /**
      * Find by id
      */
     FileInfo findById(int id);
@@ -106,7 +93,7 @@ public interface FileService {
     /**
      * Validate whether current app can download this file
      *
-     * @param appName
+     * @param appName app/service name
      * @param fileId  id of file_info
      */
     void validateAppDownload(@NotBlank String appName, int fileId);
@@ -132,15 +119,6 @@ public interface FileService {
      * @param id id of the file
      */
     void markFileDeletedPhysically(int id);
-
-    /**
-     * Update file's userGroup
-     *
-     * @param id     file's id
-     * @param fug    fileUserGroup
-     * @param userId who updated this file
-     */
-    void updateFileUserGroup(int id, @NotNull FileUserGroupEnum fug, int userId, @Nullable String updatedBy);
 
     /**
      * Update file's info

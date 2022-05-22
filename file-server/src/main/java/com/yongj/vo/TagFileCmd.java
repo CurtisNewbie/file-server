@@ -17,8 +17,5 @@ public class TagFileCmd {
     @NotBlank
     private final String tagName;
 
-    @NotBlank
-    private final String taggedBy;
-
     private final int userId;
 }
