@@ -23,7 +23,7 @@ export class UserService {
   private userInfoSubject = new Subject<UserInfo>();
 
   // refreshed every 5min
-  private tokenRefresher: Subscription = timer(360_000, 360_000).subscribe(
+  private tokenRefresher: Subscription = timer(60_000, 360_000).subscribe(
     () => {
       let t = getToken();
       if (t != null) {
