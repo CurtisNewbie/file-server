@@ -8,8 +8,7 @@ import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.PagingUtil;
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
-import com.curtisnewbie.common.vo.PageableVo;
+import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.converters.FileInfoConverter;
@@ -51,6 +50,7 @@ import java.util.concurrent.locks.Lock;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 
 /**
  * @author yongjie.zhuang
@@ -248,7 +248,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
+    public PageableList<FileInfoVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
         SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
         if (reqVo.filterForOwnedFilesOnly()) {
             param.setFilterOwnedFiles(true);
@@ -258,7 +258,7 @@ public class FileServiceImpl implements FileService {
         IPage<FileInfo> dataList = StringUtils.hasText(param.getTagName()) ?
                 fileInfoMapper.selectFileListForUserAndTag(p, param.getUserId(), param.getTagName(), param.getFilename()) :
                 fileInfoMapper.selectFileListForUserSelective(p, param);
-        return PagingUtil.toPageList(dataList, (e) -> {
+        return toPageableList(dataList, (e) -> {
             FileInfoVo v = fileInfoConverter.toVo(e);
             v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
             return v;
@@ -267,19 +267,19 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageablePayloadSingleton<List<PhysicDeleteFileVo>> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo) {
+    public PageableList<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo) {
         IPage<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting(forPage(pagingVo));
-        return PagingUtil.toPageList(dataList, fileInfoConverter::toPhysicDeleteFileVo);
+        return toPageableList(dataList, fileInfoConverter::toPhysicDeleteFileVo);
     }
 
     @Override
-    public PageablePayloadSingleton<List<FileUploaderInfoVo>> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo) {
+    public PageableList<FileUploaderInfoVo> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo) {
         final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
                 .select("id", "uploader_id")
                 .eq("uploader_name", "");
 
         final IPage<FileInfo> dataList = fileInfoMapper.selectPage(forPage(pagingVo), cond);
-        return PagingUtil.toPageList(dataList, (f) ->
+        return toPageableList(dataList, (f) ->
                 FileUploaderInfoVo.builder()
                         .id(f.getId())
                         .uploaderId(f.getUploaderId())
@@ -375,7 +375,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, int requestUserId, @NotNull PagingVo paging) {
+    public PageableList<FileSharingVo> listGrantedAccess(int fileId, int requestUserId, @NotNull PagingVo paging) {
         Assert.isTrue(isFileOwner(requestUserId, fileId), "Only uploader can list granted access");
 
         LambdaQueryWrapper<FileSharing> condition = new LambdaQueryWrapper<>();
@@ -384,7 +384,7 @@ public class FileServiceImpl implements FileService {
                 .eq(FileSharing::getIsDel, IsDel.NORMAL)
                 .orderByDesc(FileSharing::getId);
         Page page = PagingUtil.forPage(paging);
-        return PagingUtil.toPageList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
+        return toPageableList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
     }
 
     @Override
@@ -499,8 +499,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public PageableVo<List<TagVo>> listFileTags(final int userId, final int fileId, final Page<?> page) {
-        return PagingUtil.toPageable(fileTagMapper.listTagsForFile(page, userId, fileId), tagConverter::toVo);
+    public PageableList<TagVo> listFileTags(final int userId, final int fileId, final Page<?> page) {
+        return toPageableList(fileTagMapper.listTagsForFile(page, userId, fileId), tagConverter::toVo);
     }
 
     @Override

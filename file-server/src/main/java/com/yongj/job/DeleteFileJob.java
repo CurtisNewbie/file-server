@@ -1,6 +1,6 @@
 package com.yongj.job;
 
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FsGroup;
 import com.yongj.io.IOHandler;
@@ -52,7 +52,7 @@ public class DeleteFileJob implements Job {
         paging.setPage(1);
 
         // first page
-        PageablePayloadSingleton<List<PhysicDeleteFileVo>> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
+        PageableList<PhysicDeleteFileVo> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
         // while there are items in page
         while (!idsInPage.getPayload().isEmpty()) {
 

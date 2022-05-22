@@ -2,7 +2,7 @@ package com.yongj.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.converters.FsGroupConverter;
 import com.yongj.dao.FsGroup;
 import com.yongj.dao.FsGroupMapper;
@@ -16,10 +16,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
-import static com.curtisnewbie.common.util.PagingUtil.forPage;
-import static com.curtisnewbie.common.util.PagingUtil.toPageList;
+import static com.curtisnewbie.common.util.PagingUtil.*;
 
 /**
  * @author yongjie.zhuang
@@ -48,8 +46,8 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageablePayloadSingleton<List<FsGroupVo>> findByPage(@NotNull ListAllFsGroupReqVo param) {
-        return toPageList(
+    public PageableList<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param) {
+        return toPageableList(
                 fsGroupMapper.findByPage(forPage(param.getPagingVo()), fsGroupConverter.toDo(param.getFsGroup())),
                 fsGroupConverter::toVo
         );

@@ -6,9 +6,7 @@ import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.EnumUtils;
-import com.curtisnewbie.common.util.PagingUtil;
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
-import com.curtisnewbie.common.vo.PageableVo;
+import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
@@ -57,6 +55,7 @@ import java.util.stream.Collectors;
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
+import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 
 /**
@@ -160,7 +159,7 @@ public class FileController {
     @PostMapping(path = "/list-granted-access")
     public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
 
-        final PageablePayloadSingleton<List<FileSharingVo>> pps = fileInfoService.listGrantedAccess(v.getFileId(),
+        final PageableList<FileSharingVo> pps = fileInfoService.listGrantedAccess(v.getFileId(),
                 tUser().getUserId(), v.getPagingVo());
 
         final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
@@ -202,7 +201,7 @@ public class FileController {
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listFiles(@RequestBody ListFileInfoReqVo reqVo) {
         reqVo.setUserId(tUser().getUserId());
-        PageablePayloadSingleton<List<FileInfoVo>> pageable = fileInfoService.findPagedFilesForUser(reqVo);
+        PageableList<FileInfoVo> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
         // collect list of ids to request their usernames, if uploader name is absent
         final List<Integer> uploaderIds = pageable.getPayload().stream()
@@ -272,12 +271,8 @@ public class FileController {
      */
     @RoleControlled(rolesRequired = "admin")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<PageableVo<List<FileExtVo>>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
-        PageablePayloadSingleton<List<FileExtVo>> pps = fileExtensionService.getDetailsOfAllByPageSelective(vo);
-        final PageableVo<List<FileExtVo>> p = new PageableVo<>();
-        p.setData(pps.getPayload());
-        p.setPagingVo(pps.getPagingVo());
-        return Result.of(p);
+    public Result<PageableList<FileExtVo>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
+        return Result.of(fileExtensionService.getDetailsOfAllByPageSelective(vo));
     }
 
     /**
@@ -365,9 +360,9 @@ public class FileController {
      * List all tags for the current user and the selected file
      */
     @PostMapping("/tag/list-for-file")
-    public Result<PageableVo<List<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) {
-        PageableVo<List<TagVo>> pv = fileInfoService.listFileTags(tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
-        return Result.of(PagingUtil.convert(pv, tagConverter::toWebVo));
+    public Result<PageableList<TagWebVo>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) {
+        PageableList<TagVo> pv = fileInfoService.listFileTags(tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
+        return Result.of(convertPayload(pv, tagConverter::toWebVo));
     }
 
     /**

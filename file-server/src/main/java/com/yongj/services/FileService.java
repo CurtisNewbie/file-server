@@ -1,8 +1,7 @@
 package com.yongj.services;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
-import com.curtisnewbie.common.vo.PageableVo;
+import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.vo.*;
@@ -50,19 +49,19 @@ public interface FileService {
      *
      * @param reqVo filter and paging parameter
      */
-    PageablePayloadSingleton<List<FileInfoVo>> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
+    PageableList<FileInfoVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
 
     /**
      * Find logically deleted, but not physically deleted files' id (with pagination)
      *
      * @param pagingVo paging parameter
      */
-    PageablePayloadSingleton<List<PhysicDeleteFileVo>> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo);
+    PageableList<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo);
 
     /**
      * File uploader id of files that doesn't contain uploader name
      */
-    PageablePayloadSingleton<List<FileUploaderInfoVo>> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo);
+    PageableList<FileUploaderInfoVo> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo);
 
     /**
      * Find by id
@@ -132,7 +131,7 @@ public interface FileService {
      * @param userId id of user
      * @param paging info
      */
-    PageablePayloadSingleton<List<FileSharingVo>> listGrantedAccess(int fileId, int userId, @NotNull PagingVo paging);
+    PageableList<FileSharingVo> listGrantedAccess(int fileId, int userId, @NotNull PagingVo paging);
 
     /**
      * Remove granted file access
@@ -173,7 +172,7 @@ public interface FileService {
      * @param fileId id of file
      * @return tag names
      */
-    PageableVo<List<TagVo>> listFileTags(final int userId, final int fileId, final Page<?> page);
+    PageableList<TagVo> listFileTags(final int userId, final int fileId, final Page<?> page);
 
     /**
      * Check if the user if the owner of the file

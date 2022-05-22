@@ -1,7 +1,7 @@
 package com.yongj.services;
 
 
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.vo.FsGroupVo;
@@ -10,7 +10,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * Service for fs_group
@@ -35,7 +34,7 @@ public interface FsGroupService {
     /**
      * Find list of fs_group in pages
      */
-    PageablePayloadSingleton<List<FsGroupVo>> findByPage(@NotNull ListAllFsGroupReqVo param);
+    PageableList<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param);
 
     /**
      * Update fs_group's mode

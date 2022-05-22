@@ -3,7 +3,7 @@ package com.yongj.services;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileExtensionMapper;
 import com.yongj.vo.FileExtVo;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import static com.curtisnewbie.common.util.AssertUtils.isNull;
 import static com.curtisnewbie.common.util.AssertUtils.isTrue;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
-import static com.curtisnewbie.common.util.PagingUtil.toPageList;
+import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 import static java.lang.String.format;
 
 
@@ -47,10 +47,10 @@ public class FileExtensionServiceImpl implements FileExtensionService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageablePayloadSingleton<List<FileExtVo>> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param) {
+    public PageableList<FileExtVo> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param) {
         Assert.notNull(param.getPagingVo(), "PagingVo can't be null");
 
-        return toPageList(
+        return toPageableList(
                 fileExtensionMapper.findAllSelective(forPage(param.getPagingVo()), BeanCopyUtils.toType(param, FileExtension.class)),
                 v -> BeanCopyUtils.toType(v, FileExtVo.class)
         );

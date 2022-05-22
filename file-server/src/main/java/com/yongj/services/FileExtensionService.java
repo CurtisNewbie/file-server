@@ -1,6 +1,6 @@
 package com.yongj.services;
 
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FileExtension;
 import com.yongj.exceptions.IllegalExtException;
 import com.yongj.vo.FileExtVo;
@@ -27,7 +27,7 @@ public interface FileExtensionService {
     /**
      * Selectively find details of all file extensions (with pagination)
      */
-    PageablePayloadSingleton<List<FileExtVo>> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param);
+    PageableList<FileExtVo> getDetailsOfAllByPageSelective(@NotNull ListFileExtReqVo param);
 
     /**
      * Selectively Update file extension by id

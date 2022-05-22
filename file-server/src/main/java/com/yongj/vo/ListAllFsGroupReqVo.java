@@ -1,7 +1,5 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.ValidUtils;
 import com.curtisnewbie.common.vo.PageableVo;
 import lombok.Data;
 

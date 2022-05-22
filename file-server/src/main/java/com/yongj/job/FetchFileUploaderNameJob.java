@@ -1,7 +1,7 @@
 package com.yongj.job;
 
 import com.curtisnewbie.common.util.Runner;
-import com.curtisnewbie.common.vo.PageablePayloadSingleton;
+import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.task.scheduling.AbstractJob;
@@ -46,7 +46,7 @@ public class FetchFileUploaderNameJob extends AbstractJob {
         paging.setLimit(LIMIT);
         paging.setPage(1);
 
-        PageablePayloadSingleton<List<FileUploaderInfoVo>> pps = fileInfoService.findPagedFilesWithoutUploaderName(paging);
+        PageableList<FileUploaderInfoVo> pps = fileInfoService.findPagedFilesWithoutUploaderName(paging);
         while (!pps.getPayload().isEmpty()) {
 
             log.info("Found {} files, preparing to fetch uploaderNames for them", pps.getPayload().size());
