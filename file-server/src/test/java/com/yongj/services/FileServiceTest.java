@@ -13,6 +13,7 @@ import com.yongj.vo.ListFileInfoReqVo;
 import com.yongj.vo.UpdateFileCmd;
 import com.yongj.vo.UploadFileVo;
 import com.yongj.vo.UploadZipFileVo;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,9 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,7 +100,7 @@ public class FileServiceTest {
                     .zipFile(UPLOADED_TEST_FILE_ZIP)
                     .userGroup(FileUserGroupEnum.PRIVATE)
                     .multipartFiles(new MultipartFile[]{mf, mf1})
-                    .build());
+                    .build()).get();
             Assertions.assertNotNull(fi, "No FileInfo returned");
             Path fp = Paths.get(
                     basePath.concat(File.separator)
@@ -234,7 +237,8 @@ public class FileServiceTest {
         });
     }
 
-    private FileInfo uploadTestFile(int userId, String fileName) throws IOException {
+    @SneakyThrows
+    private FileInfo uploadTestFile(int userId, String fileName) {
         final InputStream inputStream = getTestFile(UPLOADED_TEST_FILE);
         Assertions.assertNotNull(inputStream, "Unable to find the file that will be uploaded");
 
@@ -244,6 +248,6 @@ public class FileServiceTest {
                 .username("zhuangyongj")
                 .userGroup(FileUserGroupEnum.PRIVATE)
                 .inputStream(inputStream)
-                .build());
+                .build()).get();
     }
 }

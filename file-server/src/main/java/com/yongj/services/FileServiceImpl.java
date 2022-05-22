@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
@@ -166,7 +167,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public FileInfo uploadFile(@NotNull UploadFileVo param) throws IOException {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public CompletableFuture<FileInfo> uploadFile(@NotNull UploadFileVo param) throws IOException {
         final String fileName = param.getFileName();
         final FileUserGroupEnum userGroup = param.getUserGroup();
         final InputStream inputStream = param.getInputStream();
@@ -178,6 +180,7 @@ public class FileServiceImpl implements FileService {
 
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
+
         // find the first writable fs_group to use
         FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
@@ -187,26 +190,29 @@ public class FileServiceImpl implements FileService {
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
-        final long sizeInBytes = ioHandler.writeFile(absPath, inputStream);
-        // save file info record
-        FileInfo f = new FileInfo();
-        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-        f.setName(fileName);
-        f.setUploaderId(uploaderId);
-        f.setUploaderName(param.getUsername());
-        f.setUploadTime(LocalDateTime.now());
-        f.setUploadType(UploadType.USER_UPLOADED);
-        f.setUuid(uuid);
-        f.setUserGroup(userGroup.getValue());
-        f.setSizeInBytes(sizeInBytes);
-        f.setFsGroupId(fsGroup.getId());
-        fileInfoMapper.insert(f);
-        return f;
+        return ioHandler.writeFileAsync(absPath, inputStream)
+                .thenApplyAsync(sizeInBytes -> {
+                    // save file info record
+                    FileInfo f = new FileInfo();
+                    f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+                    f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+                    f.setName(fileName);
+                    f.setUploaderId(uploaderId);
+                    f.setUploaderName(param.getUsername());
+                    f.setUploadTime(LocalDateTime.now());
+                    f.setUploadType(UploadType.USER_UPLOADED);
+                    f.setUuid(uuid);
+                    f.setUserGroup(userGroup.getValue());
+                    f.setSizeInBytes(sizeInBytes);
+                    f.setFsGroupId(fsGroup.getId());
+                    fileInfoMapper.insert(f);
+                    return f;
+                });
     }
 
     @Override
-    public FileInfo uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public CompletableFuture<FileInfo> uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
         final int userId = param.getUserId();
         final String zipFile = param.getZipFile();
         final FileUserGroupEnum userGroup = param.getUserGroup();
@@ -228,22 +234,24 @@ public class FileServiceImpl implements FileService {
         // create directories if not exists
         ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
-        final long sizeInBytes = ioHandler.writeZipFile(absPath, prepareZipEntries(multipartFiles));
-        // save file info record
-        FileInfo f = new FileInfo();
-        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-        f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
-        f.setUploaderId(userId);
-        f.setUploadTime(LocalDateTime.now());
-        f.setUploaderName(param.getUsername());
-        f.setUploadType(UploadType.USER_UPLOADED);
-        f.setUuid(uuid);
-        f.setUserGroup(userGroup.getValue());
-        f.setSizeInBytes(sizeInBytes);
-        f.setFsGroupId(fsGroup.getId());
-        fileInfoMapper.insert(f);
-        return f;
+        return ioHandler.writeZipFileAsync(absPath, prepareZipEntries(multipartFiles))
+                .thenApplyAsync(sizeInBytes -> {
+                    // save file info record
+                    FileInfo f = new FileInfo();
+                    f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+                    f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+                    f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
+                    f.setUploaderId(userId);
+                    f.setUploadTime(LocalDateTime.now());
+                    f.setUploaderName(param.getUsername());
+                    f.setUploadType(UploadType.USER_UPLOADED);
+                    f.setUuid(uuid);
+                    f.setUserGroup(userGroup.getValue());
+                    f.setSizeInBytes(sizeInBytes);
+                    f.setFsGroupId(fsGroup.getId());
+                    fileInfoMapper.insert(f);
+                    return f;
+                });
     }
 
     @Override

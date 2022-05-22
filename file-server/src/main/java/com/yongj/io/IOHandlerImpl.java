@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author yongjie.zhuang
@@ -51,6 +52,17 @@ public class IOHandlerImpl implements IOHandler {
     }
 
     @Override
+    public CompletableFuture<Long> writeFileAsync(@NotEmpty String absPath, @NotNull InputStream inputStream) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return writeFile(absPath, inputStream);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to write file", e);
+            }
+        });
+    }
+
+    @Override
     public void createParentDirIfNotExists(@NotEmpty String absPath) throws IOException {
         Files.createDirectories(Paths.get(absPath).getParent());
     }
@@ -63,6 +75,17 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public long writeZipFile(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries) throws IOException {
         return zipFileOperation.compressFile(absPath, entries);
+    }
+
+    @Override
+    public CompletableFuture<Long> writeZipFileAsync(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return writeZipFile(absPath, entries);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to write zip file", e);
+            }
+        });
     }
 
     @Override

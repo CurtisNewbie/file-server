@@ -35,6 +35,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -50,6 +51,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
@@ -89,22 +91,24 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<?> upload(@RequestParam("fileName") String fileName,
-                            @RequestParam("file") MultipartFile[] multipartFiles,
-                            @RequestParam("userGroup") int userGroup) throws IOException {
+    public DeferredResult<Result<Void>> upload(@RequestParam("fileName") String fileName,
+                                               @RequestParam("file") MultipartFile[] multipartFiles,
+                                               @RequestParam("userGroup") int userGroup) throws IOException {
 
         final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
         AssertUtils.notEmpty(multipartFiles, "No file uploaded");
-        hasText(fileName, "File name can'tb be empty");
+        hasText(fileName, "File name can't be empty");
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
         pathResolver.validateFileExtension(fileName);
         TUser tUser = tUser();
 
+        DeferredResult<Result<Void>> deferred = new DeferredResult<>();
+        CompletableFuture<FileInfo> future;
         if (multipartFiles.length == 1) {
-            fileInfoService.uploadFile(UploadFileVo.builder()
+            future = fileInfoService.uploadFile(UploadFileVo.builder()
                     .userId(tUser.getUserId())
                     .username(tUser.getUsername())
                     .fileName(fileName)
@@ -116,7 +120,7 @@ public class FileController {
                 upload multiple files, compress them into a single file zip file
                 the first one is the zipFile's name, and the rest are the entries
              */
-            fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
+            future = fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
                     .userId(tUser.getUserId())
                     .username(tUser.getUsername())
                     .zipFile(fileName)
@@ -124,7 +128,11 @@ public class FileController {
                     .multipartFiles(multipartFiles)
                     .build());
         }
-        return Result.ok();
+        future.whenCompleteAsync((f, e) -> {
+            if (e != null) deferred.setResult(Result.error(e.getMessage()));
+            else deferred.setResult(Result.ok());
+        });
+        return deferred;
     }
 
     /**

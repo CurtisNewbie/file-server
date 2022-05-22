@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Service for files
@@ -37,12 +38,12 @@ public interface FileService {
     /**
      * Save a single file from user
      */
-    FileInfo uploadFile(@NotNull UploadFileVo param) throws IOException;
+    CompletableFuture<FileInfo> uploadFile(@NotNull UploadFileVo param) throws IOException;
 
     /**
      * Save multiple files as a single zip
      */
-    FileInfo uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
+    CompletableFuture<FileInfo> uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
 
     /**
      * Find file info for user (with pagination)
