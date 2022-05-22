@@ -89,29 +89,27 @@ public class FileServiceImpl implements FileService {
         AssertUtils.notEquals(cmd.getGrantedTo(), cmd.getGrantedByUserId(), "You can't grant file access to yourself");
 
         // make sure the file exists
-        // check if the file exists
-        QueryWrapper<FileInfo> fQry = new QueryWrapper<>();
-        fQry.select("id", "uploader_id")
-                .eq("id", cmd.getFileId())
-                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue());
-        FileInfo file = fileInfoMapper.selectOne(fQry);
+        final LambdaQueryWrapper<FileInfo> fQry = new LambdaQueryWrapper<>();
+        fQry.select(FileInfo::getId, FileInfo::getUploaderId)
+                .eq(FileInfo::getId, cmd.getFileId())
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue());
+        final FileInfo file = fileInfoMapper.selectOne(fQry);
         nonNull(file, "File not found");
 
         // only uploader can grant access to the file
         AssertUtils.equals((int) file.getUploaderId(), cmd.getGrantedByUserId(), "Only uploader can grant access to the file");
 
         // check if the user already had access to the file
-        QueryWrapper<FileSharing> fsQry = new QueryWrapper<>();
-        fsQry.select("id", "is_del")
-                .eq("file_id", cmd.getFileId())
-                .eq("user_id", cmd.getGrantedTo());
-        FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
+        final LambdaQueryWrapper<FileSharing> fsQry = new LambdaQueryWrapper<>();
+        fsQry.select(FileSharing::getId, FileSharing::getIsDel)
+                .eq(FileSharing::getFileId, cmd.getFileId())
+                .eq(FileSharing::getUserId, cmd.getGrantedTo());
+        final FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
         isTrue(fileSharing == null || fileSharing.getIsDel() == IsDel.DELETED,
                 "User already had access to this file");
 
         if (fileSharing == null) {
             // insert file_sharing record
-            final LocalDateTime now = LocalDateTime.now();
             FileSharing fs = new FileSharing();
             fs.setUserId(cmd.getGrantedTo());
             fs.setFileId(cmd.getFileId());
