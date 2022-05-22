@@ -1,6 +1,6 @@
 package com.yongj.web;
 
-import com.curtisnewbie.common.advice.RoleRequired;
+import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.vo.PageablePayloadSingleton;
 import com.curtisnewbie.common.vo.Result;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author yongjie.zhuang
  */
-@RoleRequired(role = "admin")
+@RoleControlled(rolesRequired = "admin")
 @RequestMapping("${web.base-path}/fsgroup")
 @RestController
 public class FsGroupController {
@@ -37,7 +37,7 @@ public class FsGroupController {
     }
 
     @PostMapping("/list")
-    public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo){
+    public Result<ListAllFsGroupRespVo> listAll(@RequestBody ListAllFsGroupReqVo reqVo) {
         PageablePayloadSingleton<List<FsGroupVo>> pi = fsGroupService.findByPage(reqVo);
         ListAllFsGroupRespVo res = new ListAllFsGroupRespVo(pi.getPayload());
         res.setPagingVo(pi.getPagingVo());

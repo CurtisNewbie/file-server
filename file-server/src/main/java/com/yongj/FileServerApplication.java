@@ -1,5 +1,6 @@
 package com.yongj;
 
+import com.curtisnewbie.common.advice.EnableRoleControl;
 import com.curtisnewbie.service.auth.messaging.helper.OperateLogAdvice;
 import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.Redisson;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
 
+@EnableRoleControl
 @Import(OperateLogAdvice.class)
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.curtisnewbie.service.auth.remote.feign")

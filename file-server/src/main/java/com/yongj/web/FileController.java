@@ -1,6 +1,6 @@
 package com.yongj.web;
 
-import com.curtisnewbie.common.advice.RoleRequired;
+import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.util.AssertUtils;
@@ -90,7 +90,7 @@ public class FileController {
     /**
      * Upload file, only user and admin are allowed to upload file (guest is not allowed)
      */
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<?> upload(@RequestParam("fileName") String fileName,
                             @RequestParam("file") MultipartFile[] multipartFiles,
@@ -134,7 +134,7 @@ public class FileController {
      * Grant access to the file to another user (only file uploader can do so)
      */
     @LogOperation(name = "grantAccessToUser", description = "Grant file access")
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/grant-access")
     public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
         final TUser tUser = tUser();
@@ -159,7 +159,7 @@ public class FileController {
     /**
      * List accesses granted to the file (for current user)
      */
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/list-granted-access")
     public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
 
@@ -192,7 +192,7 @@ public class FileController {
      * Remove the access granted to a user (for current user, and only file uploader can do it)
      */
     @LogOperation(name = "removeGrantedFileAccess", description = "Remove granted file access")
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/remove-granted-access")
     public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
         fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), tUser().getUserId());
@@ -255,7 +255,7 @@ public class FileController {
      * Delete file (only file uploader can do it)
      */
     @LogOperation(name = "deleteFile", description = "Delete a file logically")
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/delete")
     public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
         AssertUtils.nonNull(reqVo.getId());
@@ -277,7 +277,7 @@ public class FileController {
      * Add a new file extension
      */
     @LogOperation(name = "addFileExtension", description = "Add file extension")
-    @RoleRequired(role = "admin")
+    @RoleControlled(rolesRequired = "admin")
     @PostMapping("/extension/add")
     public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
         hasText(reqVo.getName(), "extension name must not be empty");
@@ -294,7 +294,7 @@ public class FileController {
     /**
      * List details of all file extensions
      */
-    @RoleRequired(role = "admin")
+    @RoleControlled(rolesRequired = "admin")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<PageableVo<List<FileExtVo>>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
         PageablePayloadSingleton<List<FileExtVo>> pps = fileExtensionService.getDetailsOfAllByPageSelective(vo);
@@ -307,7 +307,7 @@ public class FileController {
     /**
      * Update file extension
      */
-    @RoleRequired(role = "admin")
+    @RoleControlled(rolesRequired = "admin")
     @LogOperation(name = "updateFileExtension", description = "Update file extension")
     @PostMapping(path = "/extension/update")
     public Result<Void> updateFileExtension(@RequestBody UpdateFileExtReq req) {
@@ -321,7 +321,7 @@ public class FileController {
     /**
      * Update file's info (only uploader can do it)
      */
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/info/update")
     public Result<Void> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
@@ -343,7 +343,7 @@ public class FileController {
     /**
      * Generate temporary token to share the file
      */
-    @RoleRequired(role = "user,admin")
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/token/generate")
     public Result<String> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
             InvalidAuthenticationException {
