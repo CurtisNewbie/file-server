@@ -34,7 +34,7 @@ import static java.lang.String.format;
 @Transactional
 public class FileExtensionServiceImpl implements FileExtensionService {
 
-    private final Pattern FILE_EXT_PATTERN = Pattern.compile("[a-zA-Z0-9]+");
+    private final Pattern FILE_EXT_PATTERN = Pattern.compile("^[a-zA-Z0-9]+$");
 
     @Autowired
     private FileExtensionMapper fileExtensionMapper;
