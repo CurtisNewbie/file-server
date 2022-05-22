@@ -21,16 +21,20 @@ export class UserService {
   private roleSubject = new Subject<string>();
   private isLoggedInSubject = new Subject<boolean>();
   private userInfoSubject = new Subject<UserInfo>();
-  private tokenRefresher: Subscription = timer(1000, 60_000).subscribe(() => {
-    let t = getToken();
-    if (t != null) {
-      this.exchangeToken(t).subscribe({
-        next: (resp) => {
-          setToken(resp.data);
-        },
-      });
+
+  // refreshed every 5min
+  private tokenRefresher: Subscription = timer(360_000, 360_000).subscribe(
+    () => {
+      let t = getToken();
+      if (t != null) {
+        this.exchangeToken(t).subscribe({
+          next: (resp) => {
+            setToken(resp.data);
+          },
+        });
+      }
     }
-  });
+  );
 
   userInfoObservable: Observable<UserInfo> =
     this.userInfoSubject.asObservable();
