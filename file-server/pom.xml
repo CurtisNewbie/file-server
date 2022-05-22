@@ -33,7 +33,7 @@
     <dependency>
       <groupId>com.curtisnewbie</groupId>
       <artifactId>distributed-task-web-module</artifactId>
-      <version>${distributed-task-web-module.version}</version>
+      <version>${distributed-task-module.version}</version>
     </dependency>
 
     <dependency>

@@ -16,7 +16,6 @@ import {
 import { PagingController } from "src/models/paging";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { FileInfoService } from "../file-info.service";
-import { UserService } from "../user.service";
 
 @Component({
   selector: "app-fs-group",
@@ -54,7 +53,7 @@ export class FsGroupComponent implements OnInit {
       })
       .subscribe({
         next: (resp) => {
-          this.fsGroups = resp.data.fsGroups;
+          this.fsGroups = resp.data.payload;
           this.pagingController.updatePages(resp.data.pagingVo.total);
         },
       });

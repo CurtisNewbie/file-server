@@ -48,7 +48,7 @@ export interface UpdateFsGroupModeReqVo {
 }
 
 export interface ListAllFsGroupRespVo {
-  fsGroups: FsGroup[];
+  payload: FsGroup[];
 
   pagingVo: Paging;
 }

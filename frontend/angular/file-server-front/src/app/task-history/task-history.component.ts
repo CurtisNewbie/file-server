@@ -48,8 +48,8 @@ export class TaskHistoryComponent implements OnInit {
   }
 
   fetchHistoryList() {
-    let epochStart = null;
-    let epochEnd = null;
+    let epochStart: number = null;
+    let epochEnd: number = null;
     if (this.startDate != null) epochStart = this.startDate.getTime();
     if (this.endDate != null) epochEnd = this.endDate.getTime();
     if (epochStart > epochEnd) {
