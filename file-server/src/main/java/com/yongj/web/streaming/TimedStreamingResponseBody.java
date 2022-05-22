@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
 
+import static com.yongj.util.IOSpeedLogUtils.*;
+
 /**
  * A Timed StreamingResponseBody
  *
@@ -38,7 +40,7 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
         } finally {
             sw.stop();
             final long totalMillisec = sw.getTotalTimeMillis();
-            final String mbps = String.format("%.2f", mb(len) / sec(totalMillisec));
+            final String mbps = mbps(len, totalMillisec);
             final NumberFormat nf = NumberFormat.getInstance();
             log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s", fileName, nf.format(totalMillisec), nf.format(len), mbps);
         }
@@ -50,13 +52,5 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
      * @return number of bytes actually transferred
      */
     abstract long timedWriteTo(OutputStream outputStream) throws IOException;
-
-    private double mb(long bytes) {
-        return bytes / 1024d / 1024d;
-    }
-
-    private double sec(long millisec) {
-        return millisec / 1000d;
-    }
 
 }

@@ -17,10 +17,10 @@ import static com.yongj.util.IOUtils.copy;
  *
  * @author yongjie.zhuang
  */
-public class ChannelWriteFileOperation implements WriteFileOperation {
+public class ChannelWriteFileOperation extends TimedWriteFileOperation {
 
     @Override
-    public long writeFile(String absPath, InputStream inputStream) throws IOException {
+    public long timedWriteFile(String absPath, InputStream inputStream) throws IOException {
         final File file = new File(absPath);
         isTrue(file.createNewFile(), "Failed to create new file");
 
