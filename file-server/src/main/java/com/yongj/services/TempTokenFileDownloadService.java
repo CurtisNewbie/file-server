@@ -15,11 +15,11 @@ public interface TempTokenFileDownloadService {
     /**
      * Generate a one-time used token for file sharing
      *
-     * @param id file's id
+     * @param id      file's id
      * @param minutes duration of the token in minutes
      * @return token
      */
-    String generateTempTokenForFile(int id, int minutes) ;
+    String generateTempTokenForFile(int id, int minutes);
 
     /**
      * Get uuid for the given token

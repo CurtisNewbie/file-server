@@ -507,10 +507,10 @@ export class HomePageComponent implements OnInit {
    * @param fileId
    */
   jumpToDownloadUrl(fileId: number): void {
-    this.fileService.getDownloadUrl(fileId).subscribe({
+    this.fileService.generateFileTempToken(fileId).subscribe({
       next: (resp) => {
-        let token = resp.data;
-        let url = buildApiPath(
+        const token = resp.data;
+        const url = buildApiPath(
           "/file/token/download?token=" + token,
           "file-service"
         );

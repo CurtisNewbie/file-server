@@ -144,7 +144,8 @@
 
             <ng-container matColumnDef="download">
                 <th mat-header-cell *matHeaderCellDef> Download </th>
-                <td mat-cell *matCellDef="let f"> <a (click)="jumpToDownloadUrl(f.id)"><small>Download</small></a> </td>
+                <td mat-cell *matCellDef="let f"> <a (click)="jumpToDownloadUrl(f.id)"
+                        target="#"><small>Download</small></a> </td>
             </ng-container>
 
             <ng-container matColumnDef="expandedElement">

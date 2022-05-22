@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.curtisnewbie.common.util.AssertUtils.isTrue;
@@ -20,6 +19,7 @@ import static com.curtisnewbie.common.util.AssertUtils.isTrue;
 @Slf4j
 public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadService {
 
+    private static final int TOKEN_LEN = 15;
     private final TokenGenerator tokenGenerator = new NumberTokenGenerator();
 
     @Autowired
@@ -27,7 +27,7 @@ public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadSe
 
     @Override
     public String generateTempTokenForFile(int id, int minutes) {
-        final String token = tokenGenerator.generate(Optional.of(15));
+        final String token = tokenGenerator.generate(TOKEN_LEN);
         log.info("Generated token: {} for file's id: {}, exp: {} min", token, id, minutes);
 
         isTrue(redisController.setIfNotExists(token, id, minutes, TimeUnit.MINUTES),

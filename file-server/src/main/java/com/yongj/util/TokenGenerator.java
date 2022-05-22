@@ -1,6 +1,6 @@
 package com.yongj.util;
 
-import java.util.Optional;
+import org.springframework.lang.Nullable;
 
 /**
  * Generator of token
@@ -12,8 +12,8 @@ public interface TokenGenerator {
     /**
      * Generate token
      *
-     * @param length (optional)
+     * @param length
      * @return token
      */
-    String generate(Optional<Integer> length);
+    String generate(@Nullable Integer length);
 }

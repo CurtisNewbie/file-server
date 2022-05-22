@@ -59,7 +59,6 @@ import static com.curtisnewbie.common.trace.TraceUtils.tUser;
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
-import static org.springframework.util.Assert.isTrue;
 
 /**
  * @author yongjie.zhuang
@@ -200,25 +199,6 @@ public class FileController {
     }
 
     /**
-     * Get the download url
-     *
-     * @param id file's id
-     */
-    @GetMapping(path = "/url")
-    public Result<String> getDownloadUrl(@RequestParam("id") int id) {
-        final int userId = tUser().getUserId();
-
-        // validate user authority
-        fileInfoService.validateUserDownload(userId, id);
-
-        // get fileInfo
-        final FileInfo fi = fileInfoService.findById(id);
-        nonNull(fi, "File not found");
-
-        return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fi.getId(), 5));
-    }
-
-    /**
      * List accessible files for current user
      */
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -341,18 +321,18 @@ public class FileController {
     }
 
     /**
-     * Generate temporary token to share the file
+     * Generate temporary token to download the file
      */
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/token/generate")
-    public Result<String> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) throws MsgEmbeddedException,
-            InvalidAuthenticationException {
+    public Result<String> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) {
 
         final TUser tUser = tUser();
-        isTrue(fileInfoService.isFileOwner(tUser.getUserId(), reqVo.getId()),
-                "Only the owner of the file can generate temporary token");
 
-        return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(reqVo.getId(), 30));
+        // validate user authority
+        final Integer fileId = reqVo.getId();
+        fileInfoService.validateUserDownload(tUser.getUserId(), fileId);
+
+        return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15));
     }
 
     /**
