@@ -142,7 +142,7 @@ export class HomePageComponent implements OnInit {
     return buildApiPath("/file/download?id=" + id);
   }
 
-  /** Convert number of bytes to apporpriate unit */
+  /** Convert number of bytes to appropriate unit */
   resolveSize(sizeInBytes: number): string {
     if (sizeInBytes > GB_UNIT) {
       return this.divideUnit(sizeInBytes, GB_UNIT) + " gb";
@@ -197,7 +197,7 @@ export class HomePageComponent implements OnInit {
           if (event.type === HttpEventType.UploadProgress) {
             let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
             let ps = p + "%";
-            if (p == "100") ps += " (processing)";
+            if (p == "100.00") ps = "File Processing ...";
             this.progress = ps;
           }
         },
