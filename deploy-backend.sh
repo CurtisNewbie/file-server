@@ -1,18 +1,33 @@
 #!/bin/bash
 
+# --------- dependencies
 fs="file-server/"
 fsremote="file-server-remote/"
-remotepath="curtisnewbie.com"
+# ---------
+
+# --------- build
 jarname="file-service-build.jar"
+# ---------
+
+# --------- remote
+remote="alphaboi@curtisnewbie.com"
+remote_path="~/services/file-service/build/file-server.jar"
+# ---------
 
 mvn clean install -Dmaven.test.skip=true -f "$fsremote/pom.xml"
-mvn clean package -Dmaven.test.skip=true -f "$fs/pom.xml"
+echo "Installed ${fsremote}"
 
-mvnpkg=$?
-
-if [ ! $mvnpkg -eq 0 ] 
-then
+if [ ! $? -eq 0 ]; then
     exit -1
 fi
 
-scp "$fs/target/${jarname}" "zhuangyongj@${remotepath}:~/services/file-service/build/file-server.jar"
+mvn clean package -Dmaven.test.skip=true -f "$fs/pom.xml"
+echo "Installed ${fs}"
+
+mvnpkg=$?
+
+if [ ! $mvnpkg -eq 0 ]; then
+    exit -1
+fi
+
+scp "$fs/target/${jarname}" "${remote}:${remote_path}"

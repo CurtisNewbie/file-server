@@ -24,8 +24,9 @@ distributed-task-module:
 server:
   port: 8443
 
+# "/home/zhuangyongj/file/fileserver"
 base:
-  path: "/home/zhuangyongj/file/fileserver"
+  path: ${fsbasepath}
 
 redisson-config: redisson-test.yaml
 
