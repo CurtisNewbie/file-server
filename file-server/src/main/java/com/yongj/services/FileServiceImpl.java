@@ -168,46 +168,19 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public CompletableFuture<FileInfo> uploadFile(@NotNull UploadFileVo param) throws IOException {
-        final String fileName = param.getFileName();
-        final FileUserGroupEnum userGroup = param.getUserGroup();
-        final InputStream inputStream = param.getInputStream();
-        final int uploaderId = param.getUserId();
+    public CompletableFuture<FileInfo> uploadFile(UploadFileVo param) {
+        final SingleUploadChainHelper chainHelper = new SingleUploadChainHelper();
+        chainHelper.uuid = UUID.randomUUID().toString();
+        chainHelper.uploaderId = param.getUserId();
+        chainHelper.inputStream = param.getInputStream();
+        chainHelper.fileName = param.getFileName();
+        chainHelper.uploaderName = param.getUsername();
+        chainHelper.userGroup = param.getUserGroup();
 
-        Assert.notNull(fileName, "fileName == null");
-        Assert.notNull(userGroup, "userGroup == null");
-        Assert.notNull(inputStream, "inputStream == null");
-
-        // assign random uuid
-        final String uuid = UUID.randomUUID().toString();
-
-        // find the first writable fs_group to use
-        FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
-        nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
-
-        // resolve absolute path
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId, fsGroup.getBaseFolder());
-        // create directories if not exists
-        ioHandler.createParentDirIfNotExists(absPath);
-        // write file to channel
-        return ioHandler.writeFileAsync(absPath, inputStream)
-                .thenApplyAsync(sizeInBytes -> {
-                    // save file info record
-                    FileInfo f = new FileInfo();
-                    f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-                    f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-                    f.setName(fileName);
-                    f.setUploaderId(uploaderId);
-                    f.setUploaderName(param.getUsername());
-                    f.setUploadTime(LocalDateTime.now());
-                    f.setUploadType(UploadType.USER_UPLOADED);
-                    f.setUuid(uuid);
-                    f.setUserGroup(userGroup.getValue());
-                    f.setSizeInBytes(sizeInBytes);
-                    f.setFsGroupId(fsGroup.getId());
-                    fileInfoMapper.insert(f);
-                    return f;
-                });
+        return CompletableFuture.supplyAsync(() -> resolveFsGroup(chainHelper))
+                .thenApplyAsync(this::resolveAbsPath)
+                .thenApplyAsync(this::uploadSingleFile)
+                .thenApplyAsync(this::saveFileInfo);
     }
 
     @Override
@@ -596,6 +569,71 @@ public class FileServiceImpl implements FileService {
         else
             absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
         return Paths.get(absPath);
+    }
+
+    private static class SingleUploadChainHelper {
+        private FileUserGroupEnum userGroup;
+        private String uploaderName;
+        private String fileName;
+        private String uuid;
+        private int uploaderId;
+        private FsGroup fsGroup;
+        private String absPath;
+        private InputStream inputStream;
+        private Long sizeInBytes;
+    }
+
+    private SingleUploadChainHelper resolveFsGroup(final SingleUploadChainHelper chainHelper) {
+        // find the first writable fs_group to use
+        final FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
+        nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
+        chainHelper.fsGroup = fsGroup;
+        return chainHelper;
+    }
+
+    private SingleUploadChainHelper resolveAbsPath(SingleUploadChainHelper chainHelper) {
+        final String absPath = pathResolver.resolveAbsolutePath(chainHelper.uuid, chainHelper.uploaderId,
+                chainHelper.fsGroup.getBaseFolder());
+        nonNull(absPath, "Unable to resolve absolute path, unable to upload file, please contact administrator");
+
+        try {
+            ioHandler.createParentDirIfNotExists(absPath);
+        } catch (IOException e) {
+            log.error("Failed to create parent dir, {}", absPath, e);
+            throw new IllegalStateException("Failed to upload file, unknown error");
+        }
+
+        chainHelper.absPath = absPath;
+        return chainHelper;
+    }
+
+    private SingleUploadChainHelper uploadSingleFile(SingleUploadChainHelper chainHelper) {
+        final String absPath = chainHelper.absPath;
+        try {
+            final long size = ioHandler.writeFile(absPath, chainHelper.inputStream);
+            chainHelper.sizeInBytes = size;
+        } catch (IOException e) {
+            log.error("Failed to write file, {}", absPath, e);
+            throw new IllegalStateException("Failed to upload file, unknown error");
+        }
+        return chainHelper;
+    }
+
+    private FileInfo saveFileInfo(SingleUploadChainHelper chainHelper) {
+        FileInfo f = new FileInfo();
+        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        f.setName(chainHelper.fileName);
+        f.setUploaderId(chainHelper.uploaderId);
+        f.setUploaderName(chainHelper.uploaderName);
+        f.setUploadTime(LocalDateTime.now());
+        f.setUploadType(UploadType.USER_UPLOADED);
+        f.setUuid(chainHelper.uuid);
+        f.setUserGroup(chainHelper.userGroup.getValue());
+        f.setSizeInBytes(chainHelper.sizeInBytes);
+        f.setFsGroupId(chainHelper.fsGroup.getId());
+        fileInfoMapper.insert(f);
+        return f;
     }
 
 }

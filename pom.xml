@@ -22,7 +22,7 @@
     <auth-service-api.version>1.1.0-SNAPSHOT</auth-service-api.version>
     <common-module.version>2.1.2-SNAPSHOT</common-module.version>
     <redis-util-module.version>2.0.2-SNAPSHOT</redis-util-module.version>
-    <messaging-module.version>2.0.4-SNAPSHOT</messaging-module.version>
+    <messaging-module.version>2.0.5-SNAPSHOT</messaging-module.version>
     <java.version>8</java.version>
   </properties>
 

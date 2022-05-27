@@ -131,7 +131,9 @@ public class FileController {
                     .multipartFiles(multipartFiles)
                     .build());
         }
-        future.whenCompleteAsync((f, e) -> log.info("Uploading file finished, file_info: {}", f, e));
+        log.info("File uploaded, processing asynchronously, file_name: {}", fileName);
+        future.whenCompleteAsync((f, e) -> log.info("File uploaded and persisted in database, file_name: {}, file_info: {}",
+                fileName, f, e));
         return Result.ok();
     }
 

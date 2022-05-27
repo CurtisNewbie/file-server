@@ -38,7 +38,7 @@ public interface FileService {
     /**
      * Save a single file from user
      */
-    CompletableFuture<FileInfo> uploadFile(@NotNull UploadFileVo param) throws IOException;
+    CompletableFuture<FileInfo> uploadFile(@Validated @NotNull UploadFileVo param) throws IOException;
 
     /**
      * Save multiple files as a single zip

@@ -4,6 +4,8 @@ import com.yongj.enums.FileUserGroupEnum;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.InputStream;
 
 /**
@@ -20,11 +22,14 @@ public class UploadFileVo {
     private String username;
 
     /** file name */
+    @NotEmpty
     private String fileName;
 
     /** user group */
+    @NotNull
     private FileUserGroupEnum userGroup;
 
     /** input stream */
+    @NotNull
     private InputStream inputStream;
 }
