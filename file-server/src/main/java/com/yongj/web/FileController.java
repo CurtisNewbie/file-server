@@ -28,14 +28,12 @@ import com.yongj.services.TempTokenFileDownloadService;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
 import com.yongj.web.streaming.ChannelStreamingResponseBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -63,11 +61,10 @@ import static com.curtisnewbie.common.util.PagingUtil.forPage;
 /**
  * @author yongjie.zhuang
  */
+@Slf4j
 @RestController
 @RequestMapping("${web.base-path}/file")
 public class FileController {
-
-    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Autowired
     private UserServiceFeign userServiceFeign;
@@ -91,9 +88,9 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
-    public DeferredResult<Result<Void>> upload(@RequestParam("fileName") String fileName,
-                                               @RequestParam("file") MultipartFile[] multipartFiles,
-                                               @RequestParam("userGroup") int userGroup) throws IOException {
+    public Result<Void> upload(@RequestParam("fileName") String fileName,
+                               @RequestParam("file") MultipartFile[] multipartFiles,
+                               @RequestParam("userGroup") int userGroup) throws IOException {
 
         final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
@@ -105,7 +102,13 @@ public class FileController {
         pathResolver.validateFileExtension(fileName);
         TUser tUser = tUser();
 
-        DeferredResult<Result<Void>> deferred = new DeferredResult<>();
+        /*
+        It turns out that the servlet engine like tomcat actually caches the uploaded file to disk (or memory
+        if it's small). When it calls this method, it essentially means that the multipart file has been fully
+        cached, and what we are doing here is very likely just moving file from cache to our folders. The uploading
+        may fail while we are 'copying', it doesn't matter, cas we don't want the clients to stay idle while they
+        have done their part.
+         */
         CompletableFuture<FileInfo> future;
         if (multipartFiles.length == 1) {
             future = fileInfoService.uploadFile(UploadFileVo.builder()
@@ -128,11 +131,8 @@ public class FileController {
                     .multipartFiles(multipartFiles)
                     .build());
         }
-        future.whenCompleteAsync((f, e) -> {
-            if (e != null) deferred.setResult(Result.error(e.getMessage()));
-            else deferred.setResult(Result.ok());
-        });
-        return deferred;
+        future.whenCompleteAsync((f, e) -> log.info("Uploading file finished, file_info: {}", f, e));
+        return Result.ok();
     }
 
     /**
