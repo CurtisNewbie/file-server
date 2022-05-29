@@ -2,15 +2,9 @@
 
 Upload file, list files, and download file.
 
-In this branch, this app is ***not a standalone server***. You must have `auth-service` setup as well as other middleware. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories (it's gonna be very difficult tho).
+This app is ***not a standalone server***, you must have `auth-service`, `auth-gateway` and other middlewares setup. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
-
-## Related-Services
-
-- auth-service 
-    - description: service for managing users, access log and operation log.
-    - url: https://github.com/CurtisNewbie/auth-service
 
 ## Middleware
 
@@ -23,7 +17,7 @@ In this branch, this app is ***not a standalone server***. You must have `auth-s
 
 Data Type | Property Name | Description | Default Value
 ----------|---------------|-------------|---------------
-string | base.path | base path used by application, this path is not used for file storage, where the uploaded files are stored depends on the table `fs_group`. Currently, this path is only used for `TempFolderDeleteFileOperation` which is an implementation of `DeleteFileOperation`. When the application is configured to use this file operation, deleting a file means that this file is moved to the temp folder, and the location of the temp folder depends on this `base.path` configuration | none  
+string | base.path | base path used by application, this path is not used for file storage, where the uploaded files are stored depends on the table `fs_group`. Currently, this path is only used for `TempFolderDeleteFileOperation` which is an implementation of `DeleteFileOperation`. When the application is configured to use this file operation, deleting a file means that this file is moved to the temp folder, and the location of the temp folder depends on this `base.path` configuration | none
 
 ## File Operations and SPI Interfaces
 
