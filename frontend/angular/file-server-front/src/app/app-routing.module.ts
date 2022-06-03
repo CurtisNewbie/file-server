@@ -5,6 +5,7 @@ import { HomePageComponent } from "./home-page/home-page.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
+import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
 import { TaskHistoryComponent } from "./task-history/task-history.component";
 
 const routes: Routes = [
@@ -31,6 +32,10 @@ const routes: Routes = [
   {
     path: "task-history",
     component: TaskHistoryComponent,
+  },
+  {
+    path: "pdf-viewer",
+    component: PdfViewerComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

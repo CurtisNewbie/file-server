@@ -23,4 +23,5 @@ export enum NavType {
   MANAGE_USER = "manager-user",
   ACCESS_LOG = "access-log",
   TASK_HISTORY = "task-history",
+  PDF_VIEWER = "pdf-viewer",
 }

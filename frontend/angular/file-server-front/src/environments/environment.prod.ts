@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  file_server_path: window.location.origin,
 };

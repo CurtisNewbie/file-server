@@ -40,7 +40,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -340,7 +339,7 @@ public class FileController {
      */
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
-                                                 @PathParam("token") String token) throws IOException,
+                                                 @RequestParam("token") String token) throws IOException,
             MsgEmbeddedException {
 
         hasText(token, "Token can't be empty");

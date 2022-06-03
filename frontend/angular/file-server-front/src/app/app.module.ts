@@ -1,6 +1,6 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
-
+import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { HomePageComponent } from "./home-page/home-page.component";
@@ -36,10 +36,12 @@ import { TaskHistoryComponent } from "./task-history/task-history.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.component";
+import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
 
 @NgModule({
   exports: [],
   declarations: [
+    PdfViewerComponent,
     AppComponent,
     HomePageComponent,
     LoginComponent,
@@ -53,6 +55,7 @@ import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.
     ManageTagDialogComponent,
   ],
   imports: [
+    PdfJsViewerModule,
     MatMenuModule,
     BrowserModule,
     BrowserAnimationsModule,

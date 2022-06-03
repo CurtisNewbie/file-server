@@ -1,4 +1,4 @@
-import { HttpEventType } from "@angular/common/http";
+import { HttpClient, HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
@@ -26,6 +26,7 @@ import { buildApiPath } from "../util/api-util";
 import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
+import { NavigationService, NavType } from "../navigation.service";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -73,7 +74,9 @@ export class HomePageComponent implements OnInit {
     private userService: UserService,
     private notifi: NotificationService,
     private dialog: MatDialog,
-    private fileService: FileInfoService
+    private fileService: FileInfoService,
+    private nav: NavigationService,
+    private httpClient: HttpClient
   ) {}
 
   ngOnInit() {
@@ -410,6 +413,31 @@ export class HomePageComponent implements OnInit {
           this.expandedElement = null;
         },
       });
+  }
+
+  /** Guess whether the file is displayable by its name */
+  isDisplayable(filename: string): boolean {
+    if (!filename) return false;
+
+    if (filename.indexOf(".pdf") != -1) return true;
+
+    // todo probably support images as well in the future :D
+
+    return false;
+  }
+
+  /** Display the file */
+  display(u: FileInfo): void {
+    this.fileService.generateFileTempToken(u.id).subscribe({
+      next: (resp) => {
+        const token = resp.data;
+        const url = buildApiPath(
+          "/file/token/download?token=" + token,
+          "file-service"
+        );
+        this.nav.navigateTo(NavType.PDF_VIEWER, [{ name: u.name, url: url }]);
+      },
+    });
   }
 
   /**
