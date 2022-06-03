@@ -12,6 +12,7 @@ import { PagingController } from "src/models/paging";
 import { NotificationService } from "../notification.service";
 import { animateElementExpanding } from "../../animate/animate-util";
 import { FileInfoService } from "../file-info.service";
+import { isMobile } from "../util/env-util";
 
 @Component({
   selector: "app-manage-extension",
@@ -22,7 +23,7 @@ import { FileInfoService } from "../file-info.service";
 export class ManageExtensionComponent implements OnInit {
   readonly FILE_EXT_ENABLED: number = FileExtIsEnabled.ENABLED;
   readonly FILE_EXT_DISABLED: number = FileExtIsEnabled.DISABLED;
-  readonly COLUMNS_TO_BE_DISPLAYED: string[] = [
+  readonly DESKTOP_COLUMNS_TO_BE_DISPLAYED: string[] = [
     "id",
     "name",
     "status",
@@ -31,6 +32,7 @@ export class ManageExtensionComponent implements OnInit {
     "updateBy",
     "updateTime",
   ];
+  readonly MOBILE_COLUMNS_TO_BE_DISPLAYED: string[] = ["id", "name", "status"];
   readonly FILE_EXT_IS_ENABLED_OPTIONS: FileExtIsEnabledOption[] =
     FILE_EXT_IS_ENABLED_OPTIONS;
 
@@ -41,6 +43,7 @@ export class ManageExtensionComponent implements OnInit {
   expandedElement: FileExt = null;
   addExtPanelDisplayed: boolean = false;
   extToBeAdded: string = null;
+  isMobile: boolean = isMobile();
 
   private isSearchParamChagned: boolean = false;
 

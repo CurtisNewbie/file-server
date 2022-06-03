@@ -8,7 +8,26 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  font-size: 15px;
+}
+
+@media only screen and (min-width: 801px) {
+  html {
+    font-size: 0.7rem;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  html {
+    font-size: 0.5rem;
+  }
+  .mat-raised-button,
+  mat-form-field,
+  mat-label,
+  mat-table,
+  .mat-header-cell,
+  .mat-cell {
+    font-size: 1rem;
+  }
 }
 
 .status-green {

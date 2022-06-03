@@ -27,6 +27,7 @@ import { FileInfoService } from "../file-info.service";
 import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
+import { isMobile } from "../util/env-util";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -46,12 +47,18 @@ export class HomePageComponent implements OnInit {
   readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS;
   readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
     FILE_OWNERSHIP_OPTIONS;
-  readonly COLUMN_TO_BE_DISPLAYED: string[] = [
+  readonly DESKTOP_COLUMN_TO_BE_DISPLAYED: string[] = [
     "name",
     "uploader",
     "uploadTime",
     "size",
     "userGroup",
+    "download",
+  ];
+
+  readonly MOBILE_COLUMN_TO_BE_DISPLAYED: string[] = [
+    "name",
+    "size",
     "download",
   ];
 
@@ -66,6 +73,7 @@ export class HomePageComponent implements OnInit {
   displayedUploadName: string = null;
   fileUploadSubscription: Subscription = null;
   tags: string[];
+  isMobile: boolean = isMobile();
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
@@ -525,6 +533,7 @@ export class HomePageComponent implements OnInit {
    * @returns expandedElement
    */
   determineExpandedElement(row: FileInfo): FileInfo {
+    if (this.isMobile) return null; // mobile should never expand
     if (!row.isOwner) return null;
 
     return this.idEquals(this.expandedElement, row) ? null : this.copy(row);
