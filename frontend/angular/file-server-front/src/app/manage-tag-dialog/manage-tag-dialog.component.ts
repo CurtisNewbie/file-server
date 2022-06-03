@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { PageEvent } from "@angular/material/paginator";
 import { Tag } from "src/models/file-info";
-import { Paging, PagingController } from "src/models/paging";
+import { PagingController } from "src/models/paging";
 import { FileInfoService } from "../file-info.service";
 import { NotificationService } from "../notification.service";
 
