@@ -507,7 +507,7 @@ export class HomePageComponent implements OnInit {
     const dialogRef: MatDialogRef<ManageTagDialogComponent, boolean> =
       this.dialog.open(ManageTagDialogComponent, {
         width: "700px",
-        data: { fileId: u.id, filename: u.name },
+        data: { fileId: u.id, filename: u.name, autoComplete: this.tags },
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {

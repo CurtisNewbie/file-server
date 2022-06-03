@@ -1,15 +1,21 @@
 <h1 mat-dialog-title>Mange File Tags</h1>
 <div mat-dialog-content>
-    <div class="mb-2">
+    <form class="mb-2">
         <p>Adding tag to '{{data.filename}}'</p>
         <mat-form-field appearance="fill" style="width: 100%;">
             <mat-label>Tag Name</mat-label>
-            <input matInput type="text" [(ngModel)]="tagName">
+            <input matInput type="text" [(ngModel)]="tagName" (ngModelChange)="onTagNameChanged()"
+                [matAutocomplete]="auto" [ngModelOptions]="{standalone: true}">
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of filtered" [value]="tagName">
+                    {{option}}
+                </mat-option>
+            </mat-autocomplete>
         </mat-form-field>
-        <div class="d-flex justify-content-md-end">
+        <div class=" d-flex justify-content-md-end">
             <button mat-button (click)="tagFile()">Submit</button>
         </div>
-    </div>
+    </form>
 
     <ng-container>
         <h6 class="mb-3">Tags For This File:</h6>

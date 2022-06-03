@@ -9,6 +9,7 @@ import { NotificationService } from "../notification.service";
 export interface ManageTagDialogData {
   fileId: number;
   filename: string;
+  autoComplete: string[];
 }
 
 @Component({
@@ -24,9 +25,10 @@ export class ManageTagDialogComponent implements OnInit {
     "createBy",
     "removeButton",
   ];
-
   tagName: string = "";
   tags: Tag[] = [];
+  acTags: string[] = [];
+  filtered: string[] = [];
   pagingController: PagingController = new PagingController();
 
   constructor(
@@ -37,7 +39,10 @@ export class ManageTagDialogComponent implements OnInit {
       ManageTagDialogData
     >,
     @Inject(MAT_DIALOG_DATA) public data: ManageTagDialogData
-  ) {}
+  ) {
+    this.acTags = data.autoComplete;
+    console.log(`Autocomplete: ${this.acTags}`);
+  }
 
   ngOnInit() {
     this.fetchTags();
@@ -83,5 +88,18 @@ export class ManageTagDialogComponent implements OnInit {
           this.fetchTags();
         },
       });
+  }
+
+  onTagNameChanged() {
+    this.filtered = this.filter(this.tagName);
+    console.log(`Autocomplete: ${this.acTags}`);
+  }
+
+  private filter(value: string): string[] {
+    if (!value) return this.acTags;
+
+    return this.acTags.filter((option) =>
+      option.toLowerCase().includes(value.toLowerCase())
+    );
   }
 }

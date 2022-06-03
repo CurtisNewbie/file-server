@@ -4,6 +4,7 @@ import { PdfJsViewerModule } from "ng2-pdfjs-viewer";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { HomePageComponent } from "./home-page/home-page.component";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
 import {
   APP_BASE_HREF,
   HashLocationStrategy,
@@ -55,6 +56,7 @@ import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
     ManageTagDialogComponent,
   ],
   imports: [
+    MatAutocompleteModule,
     PdfJsViewerModule,
     MatMenuModule,
     BrowserModule,
