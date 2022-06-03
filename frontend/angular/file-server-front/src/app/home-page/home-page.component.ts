@@ -214,7 +214,9 @@ export class HomePageComponent implements OnInit {
         },
         complete: () => {
           this.resetFileUploadParam();
-          this.fetchFileInfoList();
+
+          // Delay this because the uploaded file may not yet be written to database immediately
+          setTimeout(this.fetchFileInfoList, 500);
         },
         error: () => {
           this.notifi.toast("Failed to upload file");
