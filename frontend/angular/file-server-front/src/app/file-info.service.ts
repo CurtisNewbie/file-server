@@ -177,7 +177,7 @@ export class FileInfoService {
     for (let f of uploadParam.files) {
       formData.append("file", f);
     }
-    formData.append("userGroup", uploadParam.userGruop.toString());
+    formData.append("userGroup", uploadParam.userGroup.toString());
 
     return this.http.post<HttpEvent<any>>(
       buildApiPath("/file/upload"),

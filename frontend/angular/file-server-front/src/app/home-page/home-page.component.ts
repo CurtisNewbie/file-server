@@ -98,7 +98,7 @@ export class HomePageComponent implements OnInit {
     this.fetchFileInfoList();
     this.fetchTags();
     // always select private group for uploading
-    this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
+    this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
   }
 
   /** fetch supported file extension */
@@ -182,9 +182,9 @@ export class HomePageComponent implements OnInit {
       this.notifi.toast("File name cannot be empty");
       return;
     }
-    if (this.uploadParam.userGruop == null) {
+    if (this.uploadParam.userGroup == null) {
       // default private group
-      this.uploadParam.userGruop = FileUserGroupEnum.USER_GROUP_PRIVATE;
+      this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
     }
     console.log("Upload file", this.uploadParam);
 
@@ -286,7 +286,7 @@ export class HomePageComponent implements OnInit {
 
   /** Set usergruop for the uploading file */
   setUploadUserGroup(userGroup: number): void {
-    this.uploadParam.userGruop = userGroup;
+    this.uploadParam.userGroup = userGroup;
   }
 
   /**
@@ -429,7 +429,7 @@ export class HomePageComponent implements OnInit {
 
     if (filename.indexOf(".pdf") != -1) return true;
 
-    // todo probably support images as well in the future :D
+    // todo probably support images and videos as well in the future :D
 
     return false;
   }
@@ -443,7 +443,9 @@ export class HomePageComponent implements OnInit {
           "/file/token/download?token=" + token,
           "file-service"
         );
-        this.nav.navigateTo(NavType.PDF_VIEWER, [{ name: u.name, url: url }]);
+        this.nav.navigateTo(NavType.PDF_VIEWER, [
+          { name: u.name, url: url, uuid: u.uuid },
+        ]);
       },
     });
   }

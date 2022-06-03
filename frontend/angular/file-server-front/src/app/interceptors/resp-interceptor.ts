@@ -30,14 +30,14 @@ export class RespInterceptor implements HttpInterceptor {
         if (!(e instanceof HttpResponse || e instanceof HttpHeaderResponse)) {
           return true;
         }
-        console.log("Intercept HttpResponse:", e);
+
+        // console.log("Intercept HttpResponse:", e);
+
         if (e instanceof HttpResponse) {
-          // normal http response with body, check if it has any error by field 'hasError'
           let r: Resp<any> = e.body as Resp<any>;
           if (r.hasError) {
             this.notifi.toast(r.msg, 6000);
-            // filter out this value
-            return false;
+            return false; // filter out this value
           }
         }
         return true;

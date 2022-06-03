@@ -2,7 +2,6 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, ParamMap, Params } from "@angular/router";
 import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
-import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-viewer",
@@ -10,6 +9,7 @@ import { environment } from "src/environments/environment";
   styleUrls: ["./pdf-viewer.component.css"],
 })
 export class PdfViewerComponent implements OnInit {
+  uuid: string;
   shortname: string;
 
   @ViewChild("pdfViewer", { static: true })
@@ -19,13 +19,10 @@ export class PdfViewerComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
-      const name = params.get("name");
-      this.shortname = this.shorten(name);
-
-      const url = params.get("url");
-
+      this.shortname = this.shorten(params.get("name"));
+      this.uuid = params.get("uuid");
       this.httpClient
-        .get(url, {
+        .get(params.get("url"), {
           responseType: "blob",
           observe: "body",
         })
@@ -33,6 +30,19 @@ export class PdfViewerComponent implements OnInit {
           next: (blob) => {
             this.pdfViewer.pdfSrc = blob;
             this.pdfViewer.refresh();
+
+            // jump to the previous page when document is loaded
+            this.pdfViewer.onDocumentLoad.subscribe(() => {
+              let page = localStorage.getItem(this.storageKey(this.uuid));
+              if (page) {
+                this.pdfViewer.page = parseInt(page);
+              }
+            });
+
+            // record the last page
+            this.pdfViewer.onPageChange.subscribe((page) => {
+              localStorage.setItem(this.storageKey(this.uuid), page);
+            });
           },
         });
     });
@@ -43,5 +53,9 @@ export class PdfViewerComponent implements OnInit {
     if (delimiter < name.length - 1) {
       return name.substring(delimiter + 1, name.length);
     }
+  }
+
+  private storageKey(uuid): string {
+    return `pdf:viewer:${this.uuid}`;
   }
 }

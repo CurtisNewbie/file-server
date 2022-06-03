@@ -101,7 +101,7 @@ export interface UploadFileParam {
   /** file */
   files: File[];
   /** user group that the file belongs to */
-  userGruop: number;
+  userGroup: number;
 }
 
 /** Parameters for fetching list of file info */
@@ -159,7 +159,7 @@ export function emptyUploadFileParam(): UploadFileParam {
   return {
     files: null,
     fileName: null,
-    userGruop: null,
+    userGroup: null,
   };
 }
 
