@@ -147,8 +147,7 @@
             </ng-container>
 
             <ng-container matColumnDef="expandedElement">
-                <td mat-cell *matCellDef="let u"
-                    [attr.colspan]="(isMobile? MOBILE_COLUMN_TO_BE_DISPLAYED :  DESKTOP_COLUMN_TO_BE_DISPLAYED).length">
+                <td mat-cell *matCellDef="let u" [attr.colspan]="COLUMNS.length">
                     <div class="element-detail"
                         [@detailExpand]="idEquals(u, expandedElement) ? 'expanded' : 'collapsed'">
                         <div class="row row-cols-lg-auto g-3 align-items-center " *ngIf="expandedElement != null">
@@ -207,11 +206,9 @@
                 </td>
             </ng-container>
 
-            <tr mat-header-row
-                *matHeaderRowDef="isMobile? MOBILE_COLUMN_TO_BE_DISPLAYED :  DESKTOP_COLUMN_TO_BE_DISPLAYED"></tr>
-            <tr mat-row
-                *matRowDef="let row; columns: (isMobile? MOBILE_COLUMN_TO_BE_DISPLAYED :  DESKTOP_COLUMN_TO_BE_DISPLAYED);"
-                class="element-row" [class.expanded-row]="idEquals(row, expandedElement)"
+            <tr mat-header-row *matHeaderRowDef="COLUMNS"></tr>
+            <tr mat-row *matRowDef="let row; columns: COLUMNS;" class="element-row"
+                [class.expanded-row]="idEquals(row, expandedElement)"
                 (click)="expandedElement = determineExpandedElement(row)"
                 [matTooltip]="row.isOwner ? 'Click to expand' : ''">
             </tr>
@@ -219,8 +216,9 @@
 
         </table>
 
-        <mat-paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
-            [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page">
+        <mat-paginator #paginator [length]="pagingController.paging.total" [pageSize]="pagingController.paging.limit"
+            [pageSizeOptions]="pagingController.PAGE_LIMIT_OPTIONS" (page)="handle($event)" aria-label="Select page"
+            [showFirstLastButtons]="true">
         </mat-paginator>
 
     </div>

@@ -1,7 +1,7 @@
 import { HttpClient, HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { PageEvent } from "@angular/material/paginator";
+import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { Subscription } from "rxjs";
 
 import {
@@ -28,6 +28,7 @@ import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
+import { ThrowStmt } from "@angular/compiler";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -47,20 +48,7 @@ export class HomePageComponent implements OnInit {
   readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS;
   readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
     FILE_OWNERSHIP_OPTIONS;
-  readonly DESKTOP_COLUMN_TO_BE_DISPLAYED: string[] = [
-    "name",
-    "uploader",
-    "uploadTime",
-    "size",
-    "userGroup",
-    "download",
-  ];
-
-  readonly MOBILE_COLUMN_TO_BE_DISPLAYED: string[] = [
-    "name",
-    "size",
-    "download",
-  ];
+  readonly COLUMNS = this.displayedColumns();
 
   expandedElement: FileInfo;
   fileExtSet: Set<string> = new Set();
@@ -77,6 +65,9 @@ export class HomePageComponent implements OnInit {
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
+
+  @ViewChild("paginator", { static: true })
+  paginator: MatPaginator;
 
   constructor(
     private userService: UserService,
@@ -312,6 +303,7 @@ export class HomePageComponent implements OnInit {
   /** Reset all parameters used for searching */
   resetSearchParam(): void {
     this.searchParam = emptySearchFileInfoParam();
+    this.paginator.firstPage();
   }
 
   /** Set userGroup to the searching param */
@@ -369,6 +361,7 @@ export class HomePageComponent implements OnInit {
     this.uploadFileInput.nativeElement.value = null;
     this.displayedUploadName = null;
     this.progress = null;
+    this.paginator.firstPage();
   }
 
   handle(e: PageEvent): void {
@@ -558,5 +551,11 @@ export class HomePageComponent implements OnInit {
         window.open(url, "_blank");
       },
     });
+  }
+
+  private displayedColumns() {
+    return isMobile
+      ? ["name", "size", "download"]
+      : ["name", "uploader", "uploadTime", "size", "userGroup", "download"];
   }
 }
