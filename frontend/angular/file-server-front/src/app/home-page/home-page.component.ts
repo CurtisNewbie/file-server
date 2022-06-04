@@ -541,7 +541,8 @@ export class HomePageComponent implements OnInit {
    * Fetch download url and open it in a new tab
    * @param fileId
    */
-  jumpToDownloadUrl(fileId: number): void {
+  jumpToDownloadUrl(fileId: number, event: any): void {
+    event.stopPropagation();
     this.fileService.generateFileTempToken(fileId).subscribe({
       next: (resp) => {
         const token = resp.data;
@@ -549,7 +550,7 @@ export class HomePageComponent implements OnInit {
           "/file/token/download?token=" + token,
           "file-service"
         );
-        window.open(url, "_blank");
+        window.open(url, "_parent");
       },
     });
   }
