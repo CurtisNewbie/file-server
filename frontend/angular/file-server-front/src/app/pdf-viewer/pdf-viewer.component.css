@@ -1,4 +1,4 @@
-#pdfViewer {
-  height: 100vh;
+#pdfViewerDiv {
+  height: 90vh;
   touch-action: manipulation;
 }
