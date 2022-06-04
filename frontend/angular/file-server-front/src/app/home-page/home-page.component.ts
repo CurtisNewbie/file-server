@@ -300,10 +300,11 @@ export class HomePageComponent implements OnInit {
     this.fetchFileInfoList();
   }
 
-  /** Reset all parameters used for searching */
+  /** Reset all parameters used for searching, and the fetch the list */
   resetSearchParam(): void {
     this.searchParam = emptySearchFileInfoParam();
     this.paginator.firstPage();
+    this.fetchFileInfoList();
   }
 
   /** Set userGroup to the searching param */
