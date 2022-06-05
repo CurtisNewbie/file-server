@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { FsGroupComponent } from "./fs-group/fs-group.component";
 import { HomePageComponent } from "./home-page/home-page.component";
+import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { LoginComponent } from "./login/login.component";
 import { ManageExtensionComponent } from "./manage-extension/manage-extension.component";
 import { ManageTasksComponent } from "./manage-tasks/manage-tasks.component";
@@ -36,6 +37,10 @@ const routes: Routes = [
   {
     path: "pdf-viewer",
     component: PdfViewerComponent,
+  },
+  {
+    path: "image-viewer",
+    component: ImageViewerComponent,
   },
   { path: "**", redirectTo: "/login-page" },
 ];

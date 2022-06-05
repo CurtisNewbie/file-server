@@ -1,0 +1,21 @@
+<h4 style="word-wrap: break-word;">{{name}}</h4>
+<div style="height: 100%;">
+    <div *ngIf="!name" class="ml-5 mr-5 alert alert-secondary">
+        No Image selected. Consider picking one to preview?
+    </div>
+    <div class="row row-cols-lg-auto g-3 align-items-center">
+        <div class="col-12">
+            <button mat-raised-button (click)="makeImageLarger()" class="m-2">
+                Larger
+            </button>
+            <button mat-raised-button (click)="makeImageSmaller()" class="m-2">
+                Smaller
+            </button>
+        </div>
+    </div>
+    <div class="container">
+        <div>
+            <img [src]="url" [alt]="'Rendered - ' + name" [style.height]="imgHeight + 'px'" />
+        </div>
+    </div>
+</div>

@@ -38,6 +38,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.component";
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
+import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 
 @NgModule({
   exports: [],
@@ -54,6 +55,7 @@ import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
     TaskHistoryComponent,
     GrantAccessDialogComponent,
     ManageTagDialogComponent,
+    ImageViewerComponent,
   ],
   imports: [
     MatAutocompleteModule,

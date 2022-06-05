@@ -1,13 +1,12 @@
-<h4 style="word-wrap: break-word;">{{shortname}}</h4>
+<h4 style="word-wrap: break-word;">{{name}}</h4>
 <div style="height: 100%;">
-    <div *ngIf="!shortname" class="ml-5 mr-5 alert alert-secondary">
+    <div *ngIf="!name" class="ml-5 mr-5 alert alert-secondary">
         No PDF selected. Consider picking one to read?
     </div>
-    <span #viewerPlaceHolder></span>
     <div class="container">
         <div id="pdfViewerDiv">
             <ng2-pdfjs-viewer [zoom]="'page-fit'" id="pdfViewer" viewerId="fs-pdf-viewer" [download]="true"
-                [downloadFileName]="shortname" [showSpinner]="true" [fullScreen]="true" #pdfViewer>
+                [downloadFileName]="name" [showSpinner]="true" [fullScreen]="true" #pdfViewer>
             </ng2-pdfjs-viewer>
         </div>
     </div>

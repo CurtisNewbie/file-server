@@ -10,7 +10,7 @@ import { PdfJsViewerComponent } from "ng2-pdfjs-viewer";
 })
 export class PdfViewerComponent implements OnInit {
   uuid: string;
-  shortname: string;
+  name: string;
 
   @ViewChild("pdfViewer", { static: true })
   pdfViewer: PdfJsViewerComponent;
@@ -19,7 +19,7 @@ export class PdfViewerComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe((params: ParamMap) => {
-      this.shortname = this.shorten(params.get("name"));
+      this.name = params.get("name");
       this.uuid = params.get("uuid");
       this.httpClient
         .get(params.get("url"), {
@@ -48,14 +48,7 @@ export class PdfViewerComponent implements OnInit {
     });
   }
 
-  private shorten(name: string): string {
-    let delimiter = name.lastIndexOf("/");
-    if (delimiter < name.length - 1) {
-      return name.substring(delimiter + 1, name.length);
-    }
-  }
-
   private storageKey(uuid): string {
-    return `pdf:viewer:${this.uuid}`;
+    return `pdf:viewer:${uuid}`;
   }
 }

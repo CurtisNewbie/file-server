@@ -64,6 +64,7 @@ export class HomePageComponent implements OnInit {
     "download",
   ];
   readonly MOBILE_COLUMNS = ["name", "size", "download"];
+  readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
 
   expandedElement: FileInfo;
   fileExtSet: Set<string> = new Set();
@@ -222,7 +223,7 @@ export class HomePageComponent implements OnInit {
           this.resetFileUploadParam();
 
           // Delay this because the uploaded file may not yet be written to database immediately
-          setTimeout(this.fetchFileInfoList, 500);
+          setTimeout(() => this.fetchFileInfoList(), 1_000);
         },
         error: () => {
           this.notifi.toast("Failed to upload file");
@@ -438,11 +439,24 @@ export class HomePageComponent implements OnInit {
   isDisplayable(filename: string): boolean {
     if (!filename) return false;
 
-    if (filename.indexOf(".pdf") != -1) return true;
+    if (this._isPdf(filename) || this._isImage(filename)) return true;
 
-    // todo probably support images and videos as well in the future, or may be not :D
+    // todo probably support videos as well in the future, or may be not :D
 
     return false;
+  }
+
+  private _isPdf(filename: string): boolean {
+    return filename.indexOf(".pdf") != -1;
+  }
+
+  private _isImage(filename: string): boolean {
+    let i = filename.lastIndexOf(".");
+    if (i < 0 || i == filename.length - 1) return false;
+
+    let suffix = filename.slice(i + 1);
+
+    return this.IMAGE_SUFFIX.has(suffix);
   }
 
   /** Display the file */
@@ -454,7 +468,11 @@ export class HomePageComponent implements OnInit {
           "/file/token/download?token=" + token,
           "file-service"
         );
-        this.nav.navigateTo(NavType.PDF_VIEWER, [
+        let navType = this._isPdf(u.name)
+          ? NavType.PDF_VIEWER
+          : NavType.IMAGE_VIEWER;
+
+        this.nav.navigateTo(navType, [
           { name: u.name, url: url, uuid: u.uuid },
         ]);
       },
