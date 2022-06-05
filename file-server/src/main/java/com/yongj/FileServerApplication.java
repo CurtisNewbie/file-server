@@ -14,7 +14,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableOperateLog
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.curtisnewbie.service.auth.remote.feign")
-@SpringBootApplication(scanBasePackages = "com.curtisnewbie")
+@SpringBootApplication(scanBasePackages = {"com.curtisnewbie", "com.yongj"})
 @MapperScan("com.yongj.dao")
 public class FileServerApplication {
 

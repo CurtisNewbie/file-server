@@ -1,5 +1,12 @@
 import { HttpClient, HttpEventType } from "@angular/common/http";
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewChecked,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { Subscription } from "rxjs";
@@ -48,7 +55,16 @@ export class HomePageComponent implements OnInit {
   readonly USER_GROUP_OPTIONS: FileUserGroupOption[] = FILE_USER_GROUP_OPTIONS;
   readonly FILE_OWNERSHIP_OPTIONS: FileOwnershipOption[] =
     FILE_OWNERSHIP_OPTIONS;
-  readonly COLUMNS = this.displayedColumns();
+
+  readonly DESKTOP_COLUMNS = [
+    "name",
+    "uploader",
+    "uploadTime",
+    "size",
+    "userGroup",
+    "download",
+  ];
+  readonly MOBILE_COLUMNS = ["name", "size", "download"];
 
   expandedElement: FileInfo;
   fileExtSet: Set<string> = new Set();
@@ -553,11 +569,5 @@ export class HomePageComponent implements OnInit {
         window.open(url, "_parent");
       },
     });
-  }
-
-  private displayedColumns() {
-    return isMobile
-      ? ["name", "size", "download"]
-      : ["name", "uploader", "uploadTime", "size", "userGroup", "download"];
   }
 }
