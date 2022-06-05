@@ -402,7 +402,7 @@ public class FileServiceImpl implements FileService {
         final int userId = cmd.getUserId();
 
         // tag the file with lock
-        final Lock lock = getFileTagLock(userId, fileId, tagName);
+        final Lock lock = getFileTagLock(userId, tagName);
         try {
             lock.lock();
 
@@ -442,15 +442,17 @@ public class FileServiceImpl implements FileService {
         final int fileId = cmd.getFileId();
         final int userId = cmd.getUserId();
 
-        final Lock lock = getFileTagLock(userId, fileId, tagName);
+        final Lock lock = getFileTagLock(userId, tagName);
         try {
             lock.lock();
 
+            // each tag is bound to a specific user
             Tag tag = selectTag(userId, tagName);
             if (tag == null) {
                 log.info("Tag for '{}' doesn't exist, unable to untag file", tagName);
                 return;
             }
+            final int tagId = tag.getId();
 
             final FileTag fileTag = selectFileTag(fileId, tag.getId());
             if (fileTag == null) {
@@ -466,8 +468,27 @@ public class FileServiceImpl implements FileService {
                 final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
                         .eq("id", fileTag.getId())
                         .eq("is_del", IsDel.NORMAL.getValue());
-                if (fileTagMapper.update(updated, where) > 0)
+
+                if (fileTagMapper.update(updated, where) > 0) {
                     log.info("Untagged file, file_id: {}, tag_name: {}", fileId, tagName);
+
+                    /*
+                        check if the tag is still associated with other files, if not, we remove it
+                        remember, the tag is bound for a specific user only, so this doesn't affect
+                        other users
+                     */
+                    Integer anyId = fileTagMapper.selectAndConvert(new LambdaQueryWrapper<FileTag>()
+                            .select(FileTag::getId)
+                            .eq(FileTag::getTagId, tagId)
+                            .eq(FileTag::getIsDel, IsDel.NORMAL)
+                            .last("limit 1"), FileTag::getId);
+                    if (anyId == null) {
+                        Tag ut = new Tag();
+                        ut.setIsDel(IsDel.DELETED);
+                        ut.setId(tagId);
+                        tagMapper.updateById(ut);
+                    }
+                }
             }
         } finally {
             lock.unlock();
@@ -552,8 +573,8 @@ public class FileServiceImpl implements FileService {
         return selected.getId();
     }
 
-    private Lock getFileTagLock(int userId, int fileId, String tagName) {
-        return redisController.getLock(String.format("file:tag:uid:%s:fid:%s:name:%s", userId, fileId, tagName));
+    private Lock getFileTagLock(int userId, String tagName) {
+        return redisController.getLock(String.format("file:tag:uid:%s:name:%s", userId, tagName));
     }
 
     private Path resolveFilePath(int id) {
@@ -610,8 +631,7 @@ public class FileServiceImpl implements FileService {
     private SingleUploadChainHelper uploadSingleFile(SingleUploadChainHelper chainHelper) {
         final String absPath = chainHelper.absPath;
         try {
-            final long size = ioHandler.writeFile(absPath, chainHelper.inputStream);
-            chainHelper.sizeInBytes = size;
+            chainHelper.sizeInBytes = ioHandler.writeFile(absPath, chainHelper.inputStream);
         } catch (IOException e) {
             log.error("Failed to write file, {}", absPath, e);
             throw new IllegalStateException("Failed to upload file, unknown error");

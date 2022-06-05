@@ -1,8 +1,8 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.curtisnewbie.common.util.EnhancedMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author yongjie.zhuang
  */
-public interface FileTagMapper extends BaseMapper<FileTag> {
+public interface FileTagMapper extends EnhancedMapper<FileTag> {
 
     List<String> listFileTags(@Param("userId") int userId);
 

@@ -1,11 +1,11 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.curtisnewbie.common.util.EnhancedMapper;
 
 /**
  * Mapper for tag
  *
  * @author yongjie.zhuang
  */
-public interface TagMapper extends BaseMapper<Tag> {
+public interface TagMapper extends EnhancedMapper<Tag> {
 }
