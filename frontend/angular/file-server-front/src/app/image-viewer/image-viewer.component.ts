@@ -10,7 +10,7 @@ export class ImageViewerComponent implements OnInit {
   name: string;
   url: string;
   imgHeight: number = 600;
-  readonly delta = 100;
+  readonly delta = 150;
 
   constructor(private route: ActivatedRoute) {}
 
