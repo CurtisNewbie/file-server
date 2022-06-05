@@ -35,7 +35,6 @@ import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
-import { ThrowStmt } from "@angular/compiler";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -441,7 +440,7 @@ export class HomePageComponent implements OnInit {
 
     if (filename.indexOf(".pdf") != -1) return true;
 
-    // todo probably support images and videos as well in the future :D
+    // todo probably support images and videos as well in the future, or may be not :D
 
     return false;
   }
@@ -521,7 +520,8 @@ export class HomePageComponent implements OnInit {
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {
-      // do nothing
+      this.fetchTags();
+      this.expandedElement = null;
     });
   }
 
