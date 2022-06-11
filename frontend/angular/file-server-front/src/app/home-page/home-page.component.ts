@@ -1,12 +1,5 @@
-import { HttpClient, HttpEventType } from "@angular/common/http";
-import {
-  AfterViewChecked,
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
+import { HttpEventType } from "@angular/common/http";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { Subscription } from "rxjs";
@@ -70,14 +63,28 @@ export class HomePageComponent implements OnInit {
   fileExtSet: Set<string> = new Set();
   fileInfoList: FileInfo[] = [];
   searchParam: SearchFileInfoParam = emptySearchFileInfoParam();
-  uploadParam: UploadFileParam = emptyUploadFileParam();
   isGuest: boolean = true;
   pagingController: PagingController = new PagingController();
   progress: string = null;
-  displayedUploadName: string = null;
-  fileUploadSubscription: Subscription = null;
   tags: string[];
   isMobile: boolean = isMobile();
+
+  /*
+  ---------
+
+  For uploading
+  
+  ---------
+  */
+
+  uploadParam: UploadFileParam = emptyUploadFileParam();
+  displayedUploadName: string = null;
+  isCompressed: boolean = true;
+  isUploading: boolean = false;
+
+  /** Always points to current file, so the next will be uploadIndex+1 */
+  uploadIndex = -1;
+  uploadSub: Subscription = null;
 
   @ViewChild("uploadFileInput", { static: true })
   uploadFileInput: ElementRef<HTMLInputElement>;
@@ -90,26 +97,22 @@ export class HomePageComponent implements OnInit {
     private notifi: NotificationService,
     private dialog: MatDialog,
     private fileService: FileInfoService,
-    private nav: NavigationService,
-    private httpClient: HttpClient
+    private nav: NavigationService
   ) {}
 
   ngOnInit() {
     this.userService.fetchUserInfo();
-    this.userService.roleObservable.subscribe({
-      next: (role) => {
-        this.isGuest = role === "guest";
-      },
-    });
-    this.fetchSupportedExtensions();
+    this.userService.roleObservable.subscribe(
+      (role) => (this.isGuest = role === "guest")
+    );
+    this._fetchSupportedExtensions();
     this.fetchFileInfoList();
-    this.fetchTags();
-    // always select private group for uploading
+    this._fetchTags();
     this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
   }
 
   /** fetch supported file extension */
-  private fetchSupportedExtensions(): void {
+  private _fetchSupportedExtensions(): void {
     this.fileService.fetchSupportedFileExtensionNames().subscribe({
       next: (resp) => {
         this.fileExtSet.clear();
@@ -117,17 +120,13 @@ export class HomePageComponent implements OnInit {
           this.fileExtSet.add(e.toLowerCase());
         }
       },
-      error: (err) => {
-        console.log(err);
-      },
+      error: (err) => console.log(err),
     });
   }
 
-  fetchTags(): void {
+  private _fetchTags(): void {
     this.fileService.fetchTags().subscribe({
-      next: (resp) => {
-        this.tags = resp.data;
-      },
+      next: (resp) => (this.tags = resp.data),
     });
   }
 
@@ -149,89 +148,163 @@ export class HomePageComponent implements OnInit {
             this.pagingController.updatePages(total);
           }
         },
-        error: (err) => {
-          console.log(err);
-        },
+        error: (err) => console.log(err),
       });
-  }
-
-  /** Concatenate url for downloading the file  */
-  concatFileHref(id: number): string {
-    return buildApiPath("/file/download?id=" + id);
   }
 
   /** Convert number of bytes to appropriate unit */
   resolveSize(sizeInBytes: number): string {
     if (sizeInBytes > GB_UNIT) {
-      return this.divideUnit(sizeInBytes, GB_UNIT) + " gb";
+      return this._divideUnit(sizeInBytes, GB_UNIT) + " gb";
     }
     if (sizeInBytes > MB_UNIT) {
-      return this.divideUnit(sizeInBytes, MB_UNIT) + " mb";
+      return this._divideUnit(sizeInBytes, MB_UNIT) + " mb";
     }
-    return this.divideUnit(sizeInBytes, KB_UNIT) + " kb";
+    return this._divideUnit(sizeInBytes, KB_UNIT) + " kb";
   }
 
-  private divideUnit(size: number, unit: number): string {
+  private _divideUnit(size: number, unit: number): string {
     return (size / unit).toFixed(1);
+  }
+
+  private _isSingleUpload() {
+    return !this._isMultipleUpload();
+  }
+
+  private _isMultipleUpload() {
+    let len = this.uploadParam.files.length;
+    return len > 1;
+  }
+
+  private _isZipCompressed() {
+    return this._isMultipleUpload() && this.isCompressed;
   }
 
   /** Upload file */
   upload(): void {
-    if (this.isFileUploading()) {
-      this.notifi.toast("Uplading file, please wait a moment");
+    if (this.isUploading) {
+      this.notifi.toast("Uploading, please wait a moment or cancel it first");
       return;
     }
+
     if (this.uploadParam.files == null || this.uploadParam.files.length < 1) {
       this.notifi.toast("Please select a file to upload");
       return;
     }
-    if (!this.displayedUploadName) {
+
+    let isSingleUpload = this._isSingleUpload();
+    let isZipCompressed = this._isZipCompressed();
+
+    // single file upload or multiple upload as a zip, name is required
+    if (!this.displayedUploadName && (isSingleUpload || isZipCompressed)) {
       this.notifi.toast("File name cannot be empty");
       return;
     }
-    if (this.uploadParam.userGroup == null) {
-      // default private group
+
+    if (this.uploadParam.userGroup == null)
       this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
-    }
-    console.log("Upload file", this.uploadParam);
 
-    // validate file extension by name
-    let fileExt = this.parseFileExt(this.displayedUploadName);
-    if (!fileExt) {
-      this.notifi.toast(`File extension must not be empty`);
-      return;
-    }
-    if (!this.isFileExtSupported(fileExt)) {
-      this.notifi.toast(`File extension '${fileExt}' isn't supported`);
-      return;
-    }
+    /*
+      if it's a single file upload, or it's zip compressed, we only validate the 
+      displayedUploadName, otherwise we validate every single file 
+    */
+    if (isSingleUpload || isZipCompressed) {
+      if (!this._validateFileExt(this.displayedUploadName)) return;
 
-    // the first one is always the one displayed
-    this.uploadParam.fileName = this.displayedUploadName;
-    this.fileUploadSubscription = this.fileService
-      .postFile(this.uploadParam)
-      .subscribe({
-        next: (event) => {
-          if (event.type === HttpEventType.UploadProgress) {
-            let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
-            let ps = p + "%";
-            if (p == "100.00") ps = "File Processing ...";
-            this.progress = ps;
-          }
-        },
-        complete: () => {
-          this.resetFileUploadParam();
+      this.isUploading = true;
+      this.uploadParam.fileName = this.displayedUploadName;
+      this._doUpload(this.uploadParam);
+    } else {
+      for (let f of this.uploadParam.files) {
+        if (!this._validateFileExt(f.name)) return;
+      }
 
-          // Delay this because the uploaded file may not yet be written to database immediately
-          setTimeout(() => this.fetchFileInfoList(), 1_000);
-        },
-        error: () => {
-          this.notifi.toast("Failed to upload file");
-        },
-      });
+      this.isUploading = true;
+      this._doUpload(this._prepNextUpload());
+    }
   }
 
-  isFileExtSupported(fileExt: string): boolean {
+  private _doUpload(uploadParam: UploadFileParam) {
+    const name = uploadParam.fileName;
+    this.uploadSub = this.fileService.postFile(uploadParam).subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          // how many files left
+          let remaining;
+          let index = this.uploadIndex;
+          if (index == -1) remaining = "";
+          else {
+            let files = this.uploadParam.files;
+            if (!files) remaining = "";
+            else {
+              let len = files.length;
+              if (index >= len) remaining = "";
+              else remaining = `${len - this.uploadIndex - 1} file remaining`;
+            }
+          }
+
+          // upload progress
+          let p = Math.round((100 * event.loaded) / event.total).toFixed(2);
+          let ps;
+          if (p == "100.00")
+            ps = `Processing '${uploadParam.fileName}' ... ${remaining}`;
+          else ps = `Uploading ${uploadParam.fileName} ${p}% ${remaining}`;
+          this.progress = ps;
+        }
+      },
+      complete: () => {
+        // Delay this because the uploaded file may not yet be written to the database
+        setTimeout(() => this.fetchFileInfoList(), 1_000);
+
+        let next = this._prepNextUpload();
+        if (!next) {
+          this.isUploading = false;
+          this._resetFileUploadParam();
+        } else this._doUpload(next); // upload next file
+      },
+      error: () => {
+        this.notifi.toast(`Failed to upload file ${name}`);
+        this.isUploading = false;
+        this._resetFileUploadParam();
+      },
+    });
+  }
+
+  private _prepNextUpload(): UploadFileParam {
+    if (!this.isUploading) return null;
+
+    let i = this.uploadIndex;
+    let files = this.uploadParam.files;
+    let next_i = i + 1;
+
+    if (next_i >= files.length) return null;
+
+    let next = files[next_i];
+    this.uploadIndex = next_i;
+
+    return {
+      fileName: next.name,
+      files: [next],
+      userGroup: this.uploadParam.userGroup,
+    };
+  }
+
+  private _validateFileExt(name: string): boolean {
+    // validate file extension by name
+    let file_ext = this._parseFileExt(name);
+    if (!file_ext) {
+      this.notifi.toast(`File extension must not be empty`);
+      return false;
+    }
+
+    if (!this._isFileExtSupported(file_ext)) {
+      this.notifi.toast(`File extension '${file_ext}' isn't supported`);
+      return false;
+    }
+    return true;
+  }
+
+  private _isFileExtSupported(fileExt: string): boolean {
     if (!fileExt) return false;
 
     fileExt = fileExt.toLowerCase();
@@ -244,7 +317,7 @@ export class HomePageComponent implements OnInit {
   /** Handle events on file selected/changed */
   onFileSelected(files: File[]): void {
     if (files.length < 1) {
-      this.resetFileUploadParam();
+      this._resetFileUploadParam();
       return;
     }
 
@@ -270,7 +343,7 @@ export class HomePageComponent implements OnInit {
    * @param {*} path
    * @returns fileExtension, or "" if there isn't one
    */
-  parseFileExt(path: string): string {
+  private _parseFileExt(path: string): string {
     if (!path || path.endsWith(".")) {
       return "";
     }
@@ -293,7 +366,7 @@ export class HomePageComponent implements OnInit {
     return "";
   }
 
-  /** Set usergruop for the uploading file */
+  /** Set user_gruop for the uploading file */
   setUploadUserGroup(userGroup: number): void {
     this.uploadParam.userGroup = userGroup;
   }
@@ -372,10 +445,12 @@ export class HomePageComponent implements OnInit {
     }
   }
 
-  resetFileUploadParam(): void {
-    this.uploadParam.files = null;
-    this.uploadParam.fileName = null;
+  private _resetFileUploadParam(): void {
+    if (this.isUploading) return;
+
+    this.uploadParam = emptyUploadFileParam();
     this.uploadFileInput.nativeElement.value = null;
+    this.uploadIndex = -1;
     this.displayedUploadName = null;
     this.progress = null;
     this.paginator.firstPage();
@@ -403,22 +478,19 @@ export class HomePageComponent implements OnInit {
 
   /** Cancel the file uploading */
   cancelFileUpload(): void {
-    if (!this.isFileUploading()) {
+    if (!this.isUploading) return;
+
+    if (this.uploadSub != null && !this.uploadSub.closed) {
+      this.uploadSub.unsubscribe();
       return;
     }
-    this.fileUploadSubscription.unsubscribe();
-    this.resetFileUploadParam();
+
+    this.isUploading = false;
+    this._resetFileUploadParam();
     this.notifi.toast("File uploading cancelled");
   }
 
-  /** Is a file being loaded currently */
-  isFileUploading(): boolean {
-    return (
-      this.fileUploadSubscription != null && !this.fileUploadSubscription.closed
-    );
-  }
-
-  /** Update file's userGroup */
+  /** Update file's info */
   update(u: FileInfo): void {
     if (!u) return;
     this.fileService
@@ -441,7 +513,7 @@ export class HomePageComponent implements OnInit {
 
     if (this._isPdf(filename) || this._isImage(filename)) return true;
 
-    // todo probably support videos as well in the future, or may be not :D
+    // videos are not supported for now, these can be downloaded and then played right? :D
 
     return false;
   }
@@ -493,7 +565,7 @@ export class HomePageComponent implements OnInit {
             data: {
               msg: [
                 "Link to download this file:",
-                this.concatTempFileDownloadUrl(resp.data),
+                this._concatTempFileDownloadUrl(resp.data),
               ],
             },
           });
@@ -505,7 +577,7 @@ export class HomePageComponent implements OnInit {
     });
   }
 
-  concatTempFileDownloadUrl(tempToken: string): string {
+  private _concatTempFileDownloadUrl(tempToken: string): string {
     return (
       window.location.protocol +
       "//" +
@@ -538,12 +610,12 @@ export class HomePageComponent implements OnInit {
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {
-      this.fetchTags();
+      this._fetchTags();
       this.expandedElement = null;
     });
   }
 
-  copy(f: FileInfo): FileInfo {
+  private _copy(f: FileInfo): FileInfo {
     if (!f) return null;
     let copy = { ...f };
     return copy;
@@ -568,7 +640,7 @@ export class HomePageComponent implements OnInit {
     if (this.isMobile) return null; // mobile should never expand
     if (!row.isOwner) return null;
 
-    return this.idEquals(this.expandedElement, row) ? null : this.copy(row);
+    return this.idEquals(this.expandedElement, row) ? null : this._copy(row);
   }
 
   /**

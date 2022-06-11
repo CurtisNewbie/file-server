@@ -10,7 +10,7 @@
     <div class="input-group input-group-sm mb-1 " matTooltip="Multiple files are uploaded as a single zip"
         matTooltipPosition="below">
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
-            aria-describedby="basic-addon1" multiple>
+            aria-describedby="basic-addon1" multiple [disabled]="isUploading">
     </div>
     <div class="mt-3 mb-2">
         <form class="row row-cols-sm-auto g-3 align-items-center">
@@ -19,7 +19,7 @@
                     <mat-label>User Group</mat-label>
                     <mat-select [(value)]="uploadParam.userGroup"
                         matTooltip="Public group files are accessible for anyone. Private group files are only accessible for you"
-                        matTooltipPosition="below">
+                        matTooltipPosition="below" [disabled]="isUploading">
                         <mat-option [value]="option.value" *ngFor="let option of USER_GROUP_OPTIONS">
                             {{option.name}}
                         </mat-option>
@@ -29,10 +29,10 @@
             <div>
                 <button class="ml-2 mr-2" mat-raised-button (click)="upload()" #tooltip="matTooltip"
                     matTooltip="Multiple files are uploaded as a single zip" matTooltipPosition="right"
-                    [disabled]="isFileUploading()">
+                    [disabled]="isUploading">
                     Upload
                 </button>
-                <button class="ml-2 mr-2" *ngIf="isFileUploading()" mat-raised-button (click)="cancelFileUpload()">
+                <button class="ml-2 mr-2" *ngIf="isUploading" mat-raised-button (click)="cancelFileUpload()">
                     Cancel
                 </button>
             </div>
