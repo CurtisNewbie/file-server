@@ -28,6 +28,7 @@ import { GrantAccessDialogComponent } from "../grant-access-dialog/grant-access-
 import { ManageTagDialogComponent } from "../manage-tag-dialog/manage-tag-dialog.component";
 import { NavigationService, NavType } from "../navigation.service";
 import { isMobile } from "../util/env-util";
+import { MAT_HAMMER_OPTIONS } from "@angular/material";
 
 const KB_UNIT: number = 1024;
 const MB_UNIT: number = 1024 * 1024;
@@ -108,7 +109,6 @@ export class HomePageComponent implements OnInit {
     this._fetchSupportedExtensions();
     this.fetchFileInfoList();
     this._fetchTags();
-    this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
   }
 
   /** fetch supported file extension */
@@ -172,12 +172,15 @@ export class HomePageComponent implements OnInit {
   }
 
   private _isMultipleUpload() {
-    let len = this.uploadParam.files.length;
-    return len > 1;
+    return this.uploadParam.files.length > 1;
   }
 
   private _isZipCompressed() {
     return this._isMultipleUpload() && this.isCompressed;
+  }
+
+  private _isBatchUpload() {
+    return this._isMultipleUpload() && !this.isCompressed;
   }
 
   /** Upload file */
@@ -187,7 +190,7 @@ export class HomePageComponent implements OnInit {
       return;
     }
 
-    if (this.uploadParam.files == null || this.uploadParam.files.length < 1) {
+    if (this.uploadParam.files.length < 1) {
       this.notifi.toast("Please select a file to upload");
       return;
     }
@@ -659,5 +662,9 @@ export class HomePageComponent implements OnInit {
         window.open(url, "_parent");
       },
     });
+  }
+
+  isFileNameInputDisabled(): boolean {
+    return this.isUploading || this._isBatchUpload();
   }
 }

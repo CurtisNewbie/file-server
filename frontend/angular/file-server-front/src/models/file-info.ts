@@ -157,7 +157,7 @@ export function emptySearchFileInfoParam(): SearchFileInfoParam {
  */
 export function emptyUploadFileParam(): UploadFileParam {
   return {
-    files: null,
+    files: [],
     fileName: null,
     userGroup: FileUserGroupEnum.USER_GROUP_PRIVATE,
   };

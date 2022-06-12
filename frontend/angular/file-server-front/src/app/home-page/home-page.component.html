@@ -1,7 +1,8 @@
 <div [hidden]="isGuest">
-    <mat-form-field appearance="fill" style="width: 100%;" [hidden]="this.uploadParam.files == null" class="mb-2">
+    <mat-form-field appearance="fill" style="width: 100%;" [hidden]="uploadParam.files == null" class="mb-2">
         <mat-label>Filename</mat-label>
-        <input matInput type="text" id="filenameInput" [(ngModel)]="displayedUploadName">
+        <input matInput type="text" id="filenameInput" [(ngModel)]="displayedUploadName"
+            [disabled]="isFileNameInputDisabled()">
         <button *ngIf="displayedUploadName" matSuffix aria-label="Clear" (click)="displayedUploadName=''"
             class="btn-close">
         </button>
@@ -40,7 +41,7 @@
                 <small style="color: cadetblue;" *ngIf="progress != null">Progress: {{progress}}</small>
             </div>
             <div class="col-12">
-                <section>
+                <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 1">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="isCompressed"
                         (ngModelChange)="onIsCompressedChanged()">Compressed
                     </mat-checkbox>
