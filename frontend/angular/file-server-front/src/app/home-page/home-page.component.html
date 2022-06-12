@@ -4,7 +4,7 @@
         <input matInput type="text" id="filenameInput" [(ngModel)]="displayedUploadName"
             [disabled]="isFileNameInputDisabled()">
         <button *ngIf="displayedUploadName" matSuffix aria-label="Clear" (click)="displayedUploadName=''"
-            class="btn-close">
+            class="btn-close" [disabled]="isUploading">
         </button>
     </mat-form-field>
 
@@ -27,7 +27,8 @@
                 </mat-form-field>
             </div>
             <div class="col-12">
-                <button class="ml-2 mr-2" mat-raised-button (click)="upload()" [disabled]="isUploading">
+                <button class="ml-2 mr-2" mat-raised-button (click)="upload()" [disabled]="isUploading"
+                    *ngIf="!isUploading">
                     Upload
                 </button>
                 <button class="ml-2 mr-2" *ngIf="isUploading" mat-raised-button (click)="cancelFileUpload()">

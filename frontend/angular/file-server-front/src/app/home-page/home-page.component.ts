@@ -535,7 +535,7 @@ export class HomePageComponent implements OnInit {
         const j = fn.lastIndexOf(".");
         this.displayedUploadName = (j > 0 ? fn.slice(0, j) : fn) + ".zip";
       } else {
-        this.displayedUploadName = `Batch Upload: ${files.length} in total`;
+        this.displayedUploadName = `Batch Upload: ${files.length} files in total`;
       }
     }
   }
@@ -554,7 +554,7 @@ export class HomePageComponent implements OnInit {
 
   private _prepNextUpload(): UploadFileParam {
     if (!this.isUploading) return null;
-    if (this._isZipCompressed()) return null;
+    if (this._isSingleUpload() || this._isZipCompressed()) return null;
 
     let i = this.uploadIndex; // if this is the first one, i will be -1
     let files = this.uploadParam.files;
