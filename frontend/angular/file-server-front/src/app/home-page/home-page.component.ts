@@ -143,18 +143,6 @@ export class HomePageComponent implements OnInit {
     return this._divideUnit(sizeInBytes, KB_UNIT) + " kb";
   }
 
-  private _divideUnit(size: number, unit: number): string {
-    return (size / unit).toFixed(1);
-  }
-
-  private _isSingleUpload() {
-    return !this._isMultipleUpload();
-  }
-
-  private _isMultipleUpload() {
-    return this.uploadParam.files.length > 1;
-  }
-
   /** Upload file */
   upload(): void {
     if (this.isUploading) {
@@ -664,5 +652,17 @@ export class HomePageComponent implements OnInit {
 
   private _isBatchUpload() {
     return this._isMultipleUpload() && !this.isCompressed;
+  }
+
+  private _divideUnit(size: number, unit: number): string {
+    return (size / unit).toFixed(1);
+  }
+
+  private _isSingleUpload() {
+    return !this._isMultipleUpload();
+  }
+
+  private _isMultipleUpload() {
+    return this.uploadParam.files.length > 1;
   }
 }
