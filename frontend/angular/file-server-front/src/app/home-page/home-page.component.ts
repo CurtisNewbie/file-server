@@ -551,8 +551,10 @@ export class HomePageComponent implements OnInit {
     this.progress = null;
     this.paginator.firstPage();
   }
+
   private _prepNextUpload(): UploadFileParam {
     if (!this.isUploading) return null;
+    if (this._isZipCompressed()) return null;
 
     let i = this.uploadIndex; // if this is the first one, i will be -1
     let files = this.uploadParam.files;
