@@ -79,7 +79,7 @@ export class HomePageComponent implements OnInit {
 
   uploadParam: UploadFileParam = emptyUploadFileParam();
   displayedUploadName: string = null;
-  isCompressed: boolean = true;
+  isCompressed: boolean = false;
   isUploading: boolean = false;
 
   /** Always points to current file, so the next will be uploadIndex+1 */
@@ -258,13 +258,17 @@ export class HomePageComponent implements OnInit {
 
         let next = this._prepNextUpload();
         if (!next) {
+          this.progress = null;
           this.isUploading = false;
           this._resetFileUploadParam();
-        } else this._doUpload(next); // upload next file
+        } else {
+          this._doUpload(next); // upload next file
+        }
       },
       error: () => {
-        this.notifi.toast(`Failed to upload file ${name}`);
+        this.progress = null;
         this.isUploading = false;
+        this.notifi.toast(`Failed to upload file ${name}`);
         this._resetFileUploadParam();
       },
     });
@@ -273,13 +277,15 @@ export class HomePageComponent implements OnInit {
   private _prepNextUpload(): UploadFileParam {
     if (!this.isUploading) return null;
 
-    let i = this.uploadIndex;
+    let i = this.uploadIndex; // if this is the first one, i will be -1
     let files = this.uploadParam.files;
     let next_i = i + 1;
 
     if (next_i >= files.length) return null;
 
     let next = files[next_i];
+    if (!next) return null;
+
     this.uploadIndex = next_i;
 
     return {
@@ -290,7 +296,6 @@ export class HomePageComponent implements OnInit {
   }
 
   private _validateFileExt(name: string): boolean {
-    // validate file extension by name
     let file_ext = this._parseFileExt(name);
     if (!file_ext) {
       this.notifi.toast(`File extension must not be empty`);
@@ -316,26 +321,38 @@ export class HomePageComponent implements OnInit {
 
   /** Handle events on file selected/changed */
   onFileSelected(files: File[]): void {
+    if (this.isUploading) return; // files can't be changed while uploading
+
     if (files.length < 1) {
       this._resetFileUploadParam();
+      console.log("files clear");
       return;
     }
 
-    // always use the name of the first file
-    let firstFile: File = files[0];
     this.uploadParam.files = files;
+    this._setDisplayedFileName();
+  }
 
-    if (files.length > 1) {
-      let fn = firstFile.name;
-      let j = fn.lastIndexOf(".");
-      this.displayedUploadName = (j > 0 ? fn.slice(0, j) : fn) + ".zip";
+  onIsCompressedChanged() {
+    if (!this.uploadParam || !this.uploadParam.files) return;
+    this._setDisplayedFileName();
+  }
 
-      let fileNames: string[] = [];
-      for (let n of files) fileNames.push(n.name);
-    } else {
+  private _setDisplayedFileName(): void {
+    const files = this.uploadParam.files;
+
+    const firstFile: File = files[0];
+    if (this._isSingleUpload()) {
       this.displayedUploadName = firstFile.name;
+    } else {
+      const fn = firstFile.name;
+      if (this._isZipCompressed()) {
+        const j = fn.lastIndexOf(".");
+        this.displayedUploadName = (j > 0 ? fn.slice(0, j) : fn) + ".zip";
+      } else {
+        this.displayedUploadName = `Batch Upload: ${files.length} in total`;
+      }
     }
-    console.log(this.uploadParam);
   }
 
   /**
@@ -366,29 +383,6 @@ export class HomePageComponent implements OnInit {
     return "";
   }
 
-  /** Set user_gruop for the uploading file */
-  setUploadUserGroup(userGroup: number): void {
-    this.uploadParam.userGroup = userGroup;
-  }
-
-  /**
-   * Set the specified page and fetch the file info list
-   * @param page
-   */
-  gotoPage(page: number): void {
-    this.pagingController.setPage(page);
-    this.fetchFileInfoList();
-  }
-
-  /**
-   * Set current page size and fetch the file info list
-   * @param pageSize
-   */
-  setPageSize(pageSize: number): void {
-    this.pagingController.setPageLimit(pageSize);
-    this.fetchFileInfoList();
-  }
-
   /** Reset all parameters used for searching, and the fetch the list */
   resetSearchParam(): void {
     this.searchParam = emptySearchFileInfoParam();
@@ -408,7 +402,10 @@ export class HomePageComponent implements OnInit {
     const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> =
       this.dialog.open(ConfirmDialogComponent, {
         width: "500px",
-        data: { msg: [`You sure you want to delete '${name}'`] },
+        data: {
+          msg: [`You sure you want to delete '${name}'`],
+          isNoBtnDisplayed: true,
+        },
       });
 
     dialogRef.afterClosed().subscribe((confirm) => {
@@ -448,6 +445,7 @@ export class HomePageComponent implements OnInit {
   private _resetFileUploadParam(): void {
     if (this.isUploading) return;
 
+    this.isCompressed = false;
     this.uploadParam = emptyUploadFileParam();
     this.uploadFileInput.nativeElement.value = null;
     this.uploadIndex = -1;
@@ -564,9 +562,11 @@ export class HomePageComponent implements OnInit {
             width: "700px",
             data: {
               msg: [
-                "Link to download this file:",
-                this._concatTempFileDownloadUrl(resp.data),
+                `Link to download this file: ${this._concatTempFileDownloadUrl(
+                  resp.data
+                )}`,
               ],
+              isNoBtnDisplayed: false,
             },
           });
 

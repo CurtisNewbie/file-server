@@ -38,7 +38,8 @@ import { MatMenuModule } from "@angular/material/menu";
 import { GrantAccessDialogComponent } from "./grant-access-dialog/grant-access-dialog.component";
 import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.component";
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
-import { ImageViewerComponent } from './image-viewer/image-viewer.component';
+import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
+import { MatCheckboxModule } from "@angular/material/checkbox";
 
 @NgModule({
   exports: [],
@@ -58,6 +59,7 @@ import { ImageViewerComponent } from './image-viewer/image-viewer.component';
     ImageViewerComponent,
   ],
   imports: [
+    MatCheckboxModule,
     MatAutocompleteModule,
     PdfJsViewerModule,
     MatMenuModule,

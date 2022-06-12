@@ -159,7 +159,7 @@ export function emptyUploadFileParam(): UploadFileParam {
   return {
     files: null,
     fileName: null,
-    userGroup: null,
+    userGroup: FileUserGroupEnum.USER_GROUP_PRIVATE,
   };
 }
 
