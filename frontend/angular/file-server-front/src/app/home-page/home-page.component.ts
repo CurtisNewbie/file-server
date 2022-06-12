@@ -431,7 +431,6 @@ export class HomePageComponent implements OnInit {
    */
   determineExpandedElement(row: FileInfo): FileInfo {
     if (this.isMobile) return null; // mobile should never expand
-    if (!row.isOwner) return null;
 
     return this.idEquals(this.expandedElement, row) ? null : this._copy(row);
   }
