@@ -414,11 +414,9 @@ export class HomePageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((confirm) => {
       console.log(confirm);
       if (confirm) {
-        this.fileService.deleteFile(id).subscribe({
-          next: (resp) => {
-            this.fetchFileInfoList();
-          },
-        });
+        this.fileService
+          .deleteFile(id)
+          .subscribe((resp) => this.fetchFileInfoList());
       }
     });
   }

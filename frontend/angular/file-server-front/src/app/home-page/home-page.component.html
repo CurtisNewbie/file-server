@@ -8,8 +8,7 @@
         </button>
     </mat-form-field>
 
-    <div class="input-group input-group-sm mb-1 " matTooltip="Multiple files are uploaded as a single zip"
-        matTooltipPosition="below">
+    <div class="input-group input-group-sm mb-1 ">
         <input type="file" class="form-control" #uploadFileInput (change)="onFileSelected($event.target.files)"
             aria-describedby="basic-addon1" multiple [disabled]="isUploading">
     </div>
@@ -28,9 +27,7 @@
                 </mat-form-field>
             </div>
             <div class="col-12">
-                <button class="ml-2 mr-2" mat-raised-button (click)="upload()" #tooltip="matTooltip"
-                    matTooltip="Multiple files are uploaded as a single zip" matTooltipPosition="right"
-                    [disabled]="isUploading">
+                <button class="ml-2 mr-2" mat-raised-button (click)="upload()" [disabled]="isUploading">
                     Upload
                 </button>
                 <button class="ml-2 mr-2" *ngIf="isUploading" mat-raised-button (click)="cancelFileUpload()">
@@ -41,7 +38,9 @@
                 <small style="color: cadetblue;" *ngIf="progress != null">Progress: {{progress}}</small>
             </div>
             <div class="col-12">
-                <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 1">
+                <section *ngIf="this.uploadParam.files && this.uploadParam.files.length > 1"
+                    [matTooltip]="isCompressed ? 'Multiple files are uploaded as a single zip' : 'Files are uploaded one by one'"
+                    matTooltipPosition="below">
                     <mat-checkbox class="m-1" [disabled]="isUploading" [(ngModel)]="isCompressed"
                         (ngModelChange)="onIsCompressedChanged()">Compressed
                     </mat-checkbox>
