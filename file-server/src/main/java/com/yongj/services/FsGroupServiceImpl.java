@@ -1,12 +1,15 @@
 package com.yongj.services;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.converters.FsGroupConverter;
 import com.yongj.dao.FsGroup;
 import com.yongj.dao.FsGroupMapper;
 import com.yongj.enums.FsGroupMode;
+import com.yongj.enums.FsGroupType;
+import com.yongj.helper.RandomPicker;
+import com.yongj.helper.ShuffleRandomPicker;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 
-import static com.curtisnewbie.common.util.PagingUtil.*;
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 
 /**
  * @author yongjie.zhuang
@@ -32,6 +36,8 @@ public class FsGroupServiceImpl implements FsGroupService {
     @Autowired
     private FsGroupConverter fsGroupConverter;
 
+    private final RandomPicker<FsGroup> randomPicker = new ShuffleRandomPicker<>();
+
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public FsGroup findFsGroupById(int id) {
@@ -40,8 +46,10 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public FsGroup findFirstFsGroupForWrite() {
-        return fsGroupMapper.findFirstForWrite();
+    public FsGroup findAnyFsGroupToWrite(FsGroupType type) {
+        return randomPicker.pickRandom(fsGroupMapper.selectList(new LambdaQueryWrapper<FsGroup>()
+                .eq(FsGroup::getMode, FsGroupMode.READ_WRITE)
+                .last("limit 100")));
     }
 
     @Override
@@ -55,13 +63,12 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Override
     public void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode, @Nullable String updatedBy) {
-        final QueryWrapper<FsGroup> condition = new QueryWrapper<FsGroup>()
-                .eq("id", fsGroupId)
-                .eq("is_del", IsDel.NORMAL.getValue());
+        final LambdaQueryWrapper<FsGroup> condition = new LambdaQueryWrapper<FsGroup>()
+                .eq(FsGroup::getId, fsGroupId)
+                .eq(FsGroup::getIsDel, IsDel.NORMAL.getValue());
 
         final FsGroup param = new FsGroup();
         param.setMode(mode.getValue());
-
         fsGroupMapper.update(param, condition);
     }
 }

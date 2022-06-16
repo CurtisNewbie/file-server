@@ -38,7 +38,7 @@ public interface FileServiceFeign {
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     Result<String> uploadAppFile(@RequestParam("fileName") String fileName, @RequestPart("file") MultipartFile multipartFile,
-                                 @RequestParam("app") String appName) throws IOException;
+                                 @RequestParam("app") String appName);
 
 
     /**
@@ -48,6 +48,6 @@ public interface FileServiceFeign {
      * @return response
      */
     @GetMapping("/download")
-    Response download(@RequestParam("fileKey") String fileKey) throws IOException;
+    Response download(@RequestParam("fileKey") String fileKey);
 
 }

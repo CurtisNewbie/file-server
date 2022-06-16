@@ -18,8 +18,6 @@ CREATE TABLE IF NOT EXISTS file_info (
     is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
     size_in_bytes BIGINT NOT NULL COMMENT "size of file in bytes",
     uploader_id INT NOT NULL DEFAULT 0 COMMENT "uploader id, i.e., user.id",
-    upload_type TINYINT NOT NULL DEFAULT 0 COMMENT 'upload type: 0-user uploaded, 1-application uploaded',
-    upload_app VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'app that uploaded this file, only used when the file is uploaded by an app',
     uploader_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'uploader name',
     upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
     logic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is logically deleted",
@@ -75,12 +73,30 @@ CREATE TABLE IF NOT EXISTS fs_group (
     name VARCHAR(255) NOT NULL COMMENT "group name",
     base_folder VARCHAR(255) NOT NULL COMMENT "base folder",
     mode INT NOT NULL DEFAULT 2 COMMENT "1-read, 2-read/write",
+    type VARCHAR(32) NOT NULL DEFAULT 'USER' COMMENT 'FsGroup Type',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
     create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
     update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
 ) COMMENT 'FileSystem group, used to differentiate which base folder or mounted folder should be used';
+
+CREATE TABLE IF NOT EXISTS app_file (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL COMMENT "name of the file",
+    ext VARCHAR(32) NOT NULL COMMENT 'file extension',
+    uuid VARCHAR(255) NOT NULL COMMENT "file's uuid",
+    size BIGINT NOT NULL COMMENT "size of file in bytes",
+    app_name VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'app name'
+    user_id INT NOT NULL DEFAULT 0 COMMENT "owner's id",
+    upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
+    fs_group_id INT NOT NULL COMMENT 'id of fs_group',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
+);
 
 -- script for inserting some default file extension, these are optional
 INSERT INTO file_extension (name,is_enabled) VALUES

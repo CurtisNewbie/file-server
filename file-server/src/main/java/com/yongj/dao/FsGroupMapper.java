@@ -16,10 +16,6 @@ public interface FsGroupMapper extends BaseMapper<FsGroup> {
 
     FsGroup selectByPrimaryKey(Integer id);
 
-    List<FsGroup> selectAll();
-
-    FsGroup findFirstForWrite();
-
     IPage<FsGroup> findByPage(Page p, @Param("p") FsGroup param);
 
     void updateFsGroupModeById(@Param("id") int fsGroupId, @Param("mode") int mode);

@@ -13,32 +13,29 @@ import javax.validation.constraints.NotEmpty;
 public interface PathResolver {
 
     /**
-     * Resolve absolute path for the given uuid and userId
-     * <p>
-     * This method calls {@link #resolveAbsolutePath(String, String, String)}
-     * </p>
+     * Resolve absolute path
      *
-     * @param uuid
-     * @param userId
-     * @param fsGroupFolder
+     * @param uuid  file uuid
+     * @param owner (uploadApp or uploaderId)
      * @return absolute path
      */
-    String resolveAbsolutePath(@NotEmpty String uuid, int userId, String fsGroupFolder);
+    String resolveAbsolutePath(@NotEmpty String uuid, @NotEmpty String owner, @NotEmpty String fsGroupFolder);
 
     /**
-     * Resolve absolute path for the given uuid and owner
+     * Resolve absolute path
      *
-     * @param uuid
-     * @param owner         (e.g., uploadApp or uploaderId)
-     * @param fsGroupFolder
+     * @param uuid       file uuid
+     * @param uploaderId uploaderId
      * @return absolute path
      */
-    String resolveAbsolutePath(@NotEmpty String uuid, String owner, String fsGroupFolder);
+    default String resolveAbsolutePath(@NotEmpty String uuid, int uploaderId, @NotEmpty String fsGroupFolder) {
+        return resolveAbsolutePath(uuid, String.valueOf(uploaderId), fsGroupFolder);
+    }
 
     /**
      * Validate the file extension of the given path
      *
-     * @param fileName
+     * @param fileName file's name
      * @throws com.yongj.exceptions.IllegalExtException if file extension is invalid
      */
     void validateFileExtension(@NotEmpty String fileName);

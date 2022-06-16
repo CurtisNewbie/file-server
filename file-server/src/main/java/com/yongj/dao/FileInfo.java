@@ -3,7 +3,6 @@ package com.yongj.dao;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
-import com.yongj.enums.UploadType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -35,14 +34,6 @@ public class FileInfo extends DaoSkeleton {
     /** uploader id, i.e., user.id */
     @TableField("uploader_id")
     private Integer uploaderId;
-
-    /** upload type: 0-user uploaded, 1-application uploaded */
-    @TableField("upload_type")
-    private UploadType uploadType;
-
-    /** app that uploaded this file, only used for type {@link UploadType#APP_UPLOADED} */
-    @TableField("upload_app")
-    private String uploadApp;
 
     /** uploader name */
     @TableField("uploader_name")

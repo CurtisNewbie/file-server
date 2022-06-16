@@ -4,6 +4,7 @@ package com.yongj.services;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.FsGroupMode;
+import com.yongj.enums.FsGroupType;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
 import org.springframework.lang.Nullable;
@@ -29,7 +30,7 @@ public interface FsGroupService {
     /**
      * Find first fs_group for writing (uploading files)
      */
-    FsGroup findFirstFsGroupForWrite();
+    FsGroup findAnyFsGroupToWrite(@NotNull FsGroupType type);
 
     /**
      * Find list of fs_group in pages

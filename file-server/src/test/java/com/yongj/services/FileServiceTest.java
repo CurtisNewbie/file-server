@@ -5,10 +5,7 @@ import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.dao.FileInfoMapper;
 import com.yongj.dao.FsGroup;
-import com.yongj.enums.FileLogicDeletedEnum;
-import com.yongj.enums.FilePhysicDeletedEnum;
-import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.enums.FsGroupMode;
+import com.yongj.enums.*;
 import com.yongj.vo.ListFileInfoReqVo;
 import com.yongj.vo.UpdateFileCmd;
 import com.yongj.vo.UploadFileVo;
@@ -218,7 +215,7 @@ public class FileServiceTest {
     }
 
     private void mockFsGroupService() {
-        Mockito.when(fsGroupService.findFirstFsGroupForWrite()).then((ivk) -> {
+        Mockito.when(fsGroupService.findAnyFsGroupToWrite(FsGroupType.USER)).then((ivk) -> {
             FsGroup fsg = new FsGroup();
             fsg.setId(1);
             fsg.setBaseFolder(basePath);

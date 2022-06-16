@@ -17,7 +17,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
+
+import static com.curtisnewbie.common.util.ExceptionUtils.throwIllegalState;
 
 /**
  * Job for 'deleting' the files
@@ -71,12 +72,15 @@ public class DeleteFileJob implements Job {
     // files that are unable to delete, won't cause a transaction roll back, we just print an error log
     private void deleteFilesPhysically(List<PhysicDeleteFileVo> list) {
         for (PhysicDeleteFileVo v : list) {
+
             // get the fs_group's folder
-            FsGroup fsg = fsGroupService.findFsGroupById(v.getFsGroupId());
-            Objects.requireNonNull(fsg, "fs_group not found, unable to delete files");
+            final int fsgId = v.getFsGroupId();
+            final FsGroup fsg = fsGroupService.findFsGroupById(fsgId);
+            if (fsg == null || fsg.isDeleted())
+                throwIllegalState("fs_group: %s not found or is deleted, unable to delete files", fsgId);
 
             // resolve absolute path
-            String absPath = pathResolver.resolveAbsolutePath(v.getUuid(), v.getUploaderId(), fsg.getBaseFolder());
+            final String absPath = pathResolver.resolveAbsolutePath(v.getUuid(), v.getUploaderId(), fsg.getBaseFolder());
             try {
                 // commit the actual deleting operation
                 ioHandler.deleteFile(absPath);

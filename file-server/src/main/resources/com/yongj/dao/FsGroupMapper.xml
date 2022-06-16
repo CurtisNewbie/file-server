@@ -7,23 +7,15 @@
     update_time = now()
     where id = #{id}
   </update>
+
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultType="com.yongj.dao.FsGroup">
-    select id, name, base_folder, mode
+    select *
     from fs_group
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectAll" resultType="com.yongj.dao.FsGroup">
-    select id, name, base_folder, mode
-    from fs_group
-  </select>
-  <select id="findFirstForWrite" resultType="com.yongj.dao.FsGroup">
-    select id, name, base_folder, mode
-    from fs_group
-    where mode = 2
-    limit 1
-  </select>
+
   <select id="findByPage" resultType="com.yongj.dao.FsGroup">
-    select id, name, base_folder, mode
+    select id, name, base_folder, mode, type
     from fs_group
     <where>
       <if test="p.id != null">

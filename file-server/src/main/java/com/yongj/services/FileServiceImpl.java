@@ -18,7 +18,7 @@ import com.yongj.dao.*;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.enums.UploadType;
+import com.yongj.enums.FsGroupType;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +49,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
+import static com.curtisnewbie.common.util.ExceptionUtils.throwIllegalState;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 
@@ -125,48 +125,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public FileInfo uploadAppFile(@NotNull UploadAppFileCmd cmd) throws IOException {
-        final String fileName = cmd.getFileName();
-        final String uploadApp = cmd.getUploadApp();
-        final InputStream inputStream = cmd.getInputStream();
-
-        hasText(fileName, "fileName is empty");
-        hasText(uploadApp, "uploadApp is empty");
-        notNull(inputStream, "inputStream == null");
-
-        // assign random uuid
-        final String uuid = UUID.randomUUID().toString();
-
-        // find the first writable fs_group to use
-        FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
-        nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
-
-        // resolve absolute path
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploadApp, fsGroup.getBaseFolder());
-
-        // create directories if not exists
-        ioHandler.createParentDirIfNotExists(absPath);
-
-        // write file to channel
-        final long sizeInBytes = ioHandler.writeFile(absPath, inputStream);
-
-        // save file info record
-        FileInfo f = new FileInfo();
-        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-        f.setName(fileName);
-        f.setUploadTime(LocalDateTime.now());
-        f.setUuid(uuid);
-        f.setUserGroup(FileUserGroupEnum.PRIVATE.getValue()); // always private, but it's not displayed anyway
-        f.setSizeInBytes(sizeInBytes);
-        f.setUploadType(UploadType.APP_UPLOADED); // uploaded by another app
-        f.setUploadApp(uploadApp); // app that uploaded this
-        f.setFsGroupId(fsGroup.getId());
-        fileInfoMapper.insert(f);
-        return f;
-    }
-
-    @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public CompletableFuture<FileInfo> uploadFile(UploadFileVo param) {
         final SingleUploadChainHelper chainHelper = new SingleUploadChainHelper();
@@ -198,8 +156,7 @@ public class FileServiceImpl implements FileService {
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
 
-        // find the first writable fs_group to use
-        FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
+        final FsGroup fsGroup = fsGroupService.findAnyFsGroupToWrite(FsGroupType.USER);
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
 
         // resolve absolute path
@@ -217,7 +174,6 @@ public class FileServiceImpl implements FileService {
                     f.setUploaderId(userId);
                     f.setUploadTime(LocalDateTime.now());
                     f.setUploaderName(param.getUsername());
-                    f.setUploadType(UploadType.USER_UPLOADED);
                     f.setUuid(uuid);
                     f.setUserGroup(userGroup.getValue());
                     f.setSizeInBytes(sizeInBytes);
@@ -300,17 +256,6 @@ public class FileServiceImpl implements FileService {
         AssertUtils.notNull(id, "File not found, key: %s", uuid);
 
         return retrieveFileInputStream(id);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public void validateAppDownload(@NotBlank String appName, int fileId) {
-        FileInfo fi = fileInfoMapper.selectById(fileId);
-        nonNull(fi, "File not found");
-
-        isFalse(fi.isDeleted(), "File is deleted");
-        isTrue(fi.getUploadType() == UploadType.APP_UPLOADED, "Incorrect UploadType, not permitted");
-        AssertUtils.equals(appName, fi.getUploadApp(), "App name does not match, not permitted");
     }
 
     @Override
@@ -578,17 +523,15 @@ public class FileServiceImpl implements FileService {
     }
 
     private Path resolveFilePath(int id) {
-        FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
+        final FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
         nonNull(fi, "Record not found");
 
-        FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
-        nonNull(fsg, "FS Group for this record is not found");
+        final FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
+        if (fsg == null || fsg.isDeleted())
+            throwIllegalState("FS Group FS Group for this record is not found");
 
-        final String absPath;
-        if (fi.getUploadType() == UploadType.APP_UPLOADED)
-            absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploadApp(), fsg.getBaseFolder());
-        else
-            absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
+        log.info("Resolved path: '{}' for file.id: {}", absPath, id);
         return Paths.get(absPath);
     }
 
@@ -605,8 +548,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private SingleUploadChainHelper resolveFsGroup(final SingleUploadChainHelper chainHelper) {
-        // find the first writable fs_group to use
-        final FsGroup fsGroup = fsGroupService.findFirstFsGroupForWrite();
+        final FsGroup fsGroup = fsGroupService.findAnyFsGroupToWrite(FsGroupType.USER);
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
         chainHelper.fsGroup = fsGroup;
         return chainHelper;
@@ -647,7 +589,6 @@ public class FileServiceImpl implements FileService {
         f.setUploaderId(chainHelper.uploaderId);
         f.setUploaderName(chainHelper.uploaderName);
         f.setUploadTime(LocalDateTime.now());
-        f.setUploadType(UploadType.USER_UPLOADED);
         f.setUuid(chainHelper.uuid);
         f.setUserGroup(chainHelper.userGroup.getValue());
         f.setSizeInBytes(chainHelper.sizeInBytes);

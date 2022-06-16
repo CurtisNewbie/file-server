@@ -7,7 +7,6 @@ import com.yongj.dao.FileInfo;
 import com.yongj.vo.*;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,11 +28,6 @@ public interface FileService {
      * @param cmd cmd
      */
     void grantFileAccess(@NotNull GrantFileAccessCmd cmd);
-
-    /**
-     * Save a single file from app
-     */
-    FileInfo uploadAppFile(@NotNull UploadAppFileCmd cmd) throws IOException;
 
     /**
      * Save a single file from user
@@ -89,14 +83,6 @@ public interface FileService {
      * @param uuid file's uuid
      */
     InputStream retrieveFileInputStream(@NotNull String uuid) throws IOException;
-
-    /**
-     * Validate whether current app can download this file
-     *
-     * @param appName app/service name
-     * @param fileId  id of file_info
-     */
-    void validateAppDownload(@NotBlank String appName, int fileId);
 
     /**
      * Validate whether current user can download this file

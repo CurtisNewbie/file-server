@@ -60,7 +60,6 @@
       </if>
       and fi.is_logic_deleted = 0
       and fi.is_del = 0
-      and fi.upload_type = 0
     </where>
     order by id desc
   </select>
@@ -83,7 +82,6 @@
       </if>
       and fi.is_logic_deleted = 0
       and fi.is_del = 0
-      and fi.upload_type = 0
     </where>
     order by id desc
   </select>
