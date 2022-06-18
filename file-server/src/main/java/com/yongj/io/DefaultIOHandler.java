@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -27,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @Component
-public class IOHandlerImpl implements IOHandler {
+public class DefaultIOHandler implements IOHandler {
 
     @Autowired
     private DeleteFileOperation deleteFileOperation;
@@ -48,6 +49,7 @@ public class IOHandlerImpl implements IOHandler {
 
     @Override
     public long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException {
+        createParentDirIfNotExists(absPath);
         return writeFileOperation.writeFile(absPath, inputStream);
     }
 
@@ -74,6 +76,7 @@ public class IOHandlerImpl implements IOHandler {
 
     @Override
     public long writeZipFile(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries) throws IOException {
+        createParentDirIfNotExists(absPath);
         return zipFileOperation.compressFile(absPath, entries);
     }
 
@@ -96,6 +99,11 @@ public class IOHandlerImpl implements IOHandler {
     @Override
     public void deleteFile(@NotEmpty String absPath) throws IOException {
         deleteFileOperation.deleteFile(absPath);
+    }
+
+    @Override
+    public InputStream obtainInputStream(@NotEmpty String absPath) throws IOException {
+        return Files.newInputStream(Paths.get(absPath), StandardOpenOption.READ);
     }
 
     @Configuration

@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.InputStream;
 
 /**
@@ -14,18 +15,20 @@ import java.io.InputStream;
 @Builder
 public class UploadAppFileCmd {
 
+    /** owner's id (nullable) */
+    @Nullable
+    private Integer userId;
+
     /** file name */
     @NotEmpty
     private String fileName;
 
-    /** upload app */
-    @NotEmpty
-    private String uploadApp;
-
-    /** user id */
-    @Nullable
-    private String userId;
-
     /** input stream */
+    @NotNull
     private InputStream inputStream;
+
+    /** app name */
+    @NotEmpty
+    private String appName;
+
 }

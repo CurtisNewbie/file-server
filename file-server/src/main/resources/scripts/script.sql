@@ -1,7 +1,7 @@
 -- script for creating the table
 CREATE TABLE IF NOT EXISTS file_extension (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(15) NOT NULL COMMENT 'name of file extension,
+    name VARCHAR(15) NOT NULL COMMENT 'name of file extension',
     is_enabled INT NOT NULL DEFAULT 0 COMMENT 'indicates whether current file extension is disabled, 0-enabled, 1-disabled',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
     create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
@@ -83,20 +83,18 @@ CREATE TABLE IF NOT EXISTS fs_group (
 
 CREATE TABLE IF NOT EXISTS app_file (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL COMMENT "name of the file",
-    ext VARCHAR(32) NOT NULL COMMENT 'file extension',
+    name VARCHAR(255) NOT NULL COMMENT 'name of the file',
     uuid VARCHAR(255) NOT NULL COMMENT "file's uuid",
     size BIGINT NOT NULL COMMENT "size of file in bytes",
-    app_name VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'app name'
+    app_name VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'app name',
     user_id INT NOT NULL DEFAULT 0 COMMENT "owner's id",
-    upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
     fs_group_id INT NOT NULL COMMENT 'id of fs_group',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
     create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
     update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
-);
+) engine=InnoDB COMMENT 'Application File';
 
 -- script for inserting some default file extension, these are optional
 INSERT INTO file_extension (name,is_enabled) VALUES

@@ -51,15 +51,18 @@ public interface IOHandler {
     /**
      * Transfer data directly from {@code absPath} to {@code outputStream}
      *
-     * @param absPath
-     * @param outputStream
+     * @param absPath      absolute path
+     * @param outputStream output stream
      */
     void readFile(@NotEmpty String absPath, @NotNull OutputStream outputStream) throws IOException;
 
     /**
      * Delete file
      *
-     * @param absPath
+     * @param absPath absolute path
      */
     void deleteFile(@NotEmpty String absPath) throws IOException;
+
+    /** Obtain an input stream to the file */
+    InputStream obtainInputStream(@NotEmpty String absPath) throws IOException;
 }

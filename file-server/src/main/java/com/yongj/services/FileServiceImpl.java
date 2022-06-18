@@ -11,7 +11,6 @@ import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
-import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
@@ -19,6 +18,8 @@ import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FilePhysicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
 import com.yongj.enums.FsGroupType;
+import com.yongj.helper.FsGroupIdResolver;
+import com.yongj.helper.WriteFsGroupSupplier;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
@@ -62,15 +63,11 @@ import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 public class FileServiceImpl implements FileService {
 
     @Autowired
-    private FileInfoConverter fileInfoConverter;
-    @Autowired
     private FileInfoMapper fileInfoMapper;
     @Autowired
     private IOHandler ioHandler;
     @Autowired
     private PathResolver pathResolver;
-    @Autowired
-    private FsGroupService fsGroupService;
     @Autowired
     private FileSharingMapper fileSharingMapper;
     @Autowired
@@ -83,6 +80,10 @@ public class FileServiceImpl implements FileService {
     private RedisController redisController;
     @Autowired
     private TagConverter tagConverter;
+    @Autowired
+    private WriteFsGroupSupplier writeFsGroupSupplier;
+    @Autowired
+    private FsGroupIdResolver fsGroupIdResolver;
 
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) {
@@ -156,13 +157,11 @@ public class FileServiceImpl implements FileService {
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
 
-        final FsGroup fsGroup = fsGroupService.findAnyFsGroupToWrite(FsGroupType.USER);
+        final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
 
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
-        // create directories if not exists
-        ioHandler.createParentDirIfNotExists(absPath);
         // write file to channel
         return ioHandler.writeZipFileAsync(absPath, prepareZipEntries(multipartFiles))
                 .thenApplyAsync(sizeInBytes -> {
@@ -196,7 +195,7 @@ public class FileServiceImpl implements FileService {
                 fileInfoMapper.selectFileListForUserAndTag(p, param.getUserId(), param.getTagName(), param.getFilename()) :
                 fileInfoMapper.selectFileListForUserSelective(p, param);
         return toPageableList(dataList, (e) -> {
-            FileInfoVo v = fileInfoConverter.toVo(e);
+            FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
             v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
             return v;
         });
@@ -206,7 +205,7 @@ public class FileServiceImpl implements FileService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public PageableList<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo) {
         IPage<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting(forPage(pagingVo));
-        return toPageableList(dataList, fileInfoConverter::toPhysicDeleteFileVo);
+        return toPageableList(dataList, v -> BeanCopyUtils.toType(v, PhysicDeleteFileVo.class));
     }
 
     @Override
@@ -526,7 +525,7 @@ public class FileServiceImpl implements FileService {
         final FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
         nonNull(fi, "Record not found");
 
-        final FsGroup fsg = fsGroupService.findFsGroupById(fi.getFsGroupId());
+        final FsGroup fsg = fsGroupIdResolver.resolve(fi.getFsGroupId());
         if (fsg == null || fsg.isDeleted())
             throwIllegalState("FS Group FS Group for this record is not found");
 
@@ -548,7 +547,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private SingleUploadChainHelper resolveFsGroup(final SingleUploadChainHelper chainHelper) {
-        final FsGroup fsGroup = fsGroupService.findAnyFsGroupToWrite(FsGroupType.USER);
+        final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
         chainHelper.fsGroup = fsGroup;
         return chainHelper;
@@ -558,13 +557,6 @@ public class FileServiceImpl implements FileService {
         final String absPath = pathResolver.resolveAbsolutePath(chainHelper.uuid, chainHelper.uploaderId,
                 chainHelper.fsGroup.getBaseFolder());
         nonNull(absPath, "Unable to resolve absolute path, unable to upload file, please contact administrator");
-
-        try {
-            ioHandler.createParentDirIfNotExists(absPath);
-        } catch (IOException e) {
-            log.error("Failed to create parent dir, {}", absPath, e);
-            throw new IllegalStateException("Failed to upload file, unknown error");
-        }
 
         chainHelper.absPath = absPath;
         return chainHelper;

@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 /**
  * File Service Feign
  *
@@ -19,11 +17,11 @@ import java.io.IOException;
  */
 @FeignClient(
         value = AppConst.FILE_SERVICE,
-        path = FileServiceFeign.PATH
+        path = AppFileServiceFeign.PATH
 )
-public interface FileServiceFeign {
+public interface AppFileServiceFeign {
 
-    String PATH = "/remote/file";
+    String PATH = "/remote/app/file";
 
     /**
      * Upload file
@@ -31,14 +29,14 @@ public interface FileServiceFeign {
      * Used by app only, not for users
      * </p>
      *
-     * @param fileName      name of the file
      * @param multipartFile multipart file
      * @param appName       app's name
      * @return file's key
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    Result<String> uploadAppFile(@RequestParam("fileName") String fileName, @RequestPart("file") MultipartFile multipartFile,
-                                 @RequestParam("app") String appName);
+    Result<String> uploadAppFile(@RequestPart("file") MultipartFile multipartFile,
+                                 @RequestParam("app") String appName,
+                                 @RequestParam(value = "userId", required = false) Integer userId);
 
 
     /**

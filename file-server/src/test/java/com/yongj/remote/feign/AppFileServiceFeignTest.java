@@ -1,15 +1,13 @@
-package com.curtisnewbie.file.remote;
+package com.yongj.remote.feign;
 
 import com.curtisnewbie.common.vo.Result;
-import com.yongj.file.remote.FileServiceFeign;
+import com.yongj.remote.AppFileServiceFeignController;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,20 +18,19 @@ import static com.curtisnewbie.common.util.MultipartUtil.toMultipartFile;
  * @author yongjie.zhuang
  */
 @Slf4j
-@SpringBootApplication
-@EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.yongj.file.remote")
+@Configuration
 @SpringBootTest
-public class FileServiceFeignTest {
+public class AppFileServiceFeignTest {
 
     @Autowired
-    private FileServiceFeign fileServiceFeign;
+    private AppFileServiceFeignController appFileServiceFeign;
 
     @Test
     public void should_upload_file_via_feign() throws IOException {
-        Result<String> result = fileServiceFeign.uploadAppFile("test-file",
+        Result<String> result = appFileServiceFeign.uploadAppFile(
                 toMultipartFile(getTestFile("test-file.txt"), "test-file"),
-                "some-server"
+                "test-app",
+                null
         );
 
         log.info("Result: {}", result);
