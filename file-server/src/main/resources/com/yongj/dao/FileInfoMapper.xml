@@ -90,7 +90,6 @@
     select fi.id
     from file_info fi
     where fi.id = #{id}
-    and fi.upload_type = 0
     and (fi.user_group = 0
       or (fi.user_group = 1 and fi.uploader_id = #{userId})
       or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{userId})
@@ -119,7 +118,7 @@
   </select>
 
   <select id="selectDownloadInfoById" resultType="com.yongj.dao.FileInfo">
-    select fs_group_id, uuid, uploader_id, upload_type
+    select fs_group_id, uuid, uploader_id
     from file_info
     where id = #{id}
     and is_logic_deleted = 0
