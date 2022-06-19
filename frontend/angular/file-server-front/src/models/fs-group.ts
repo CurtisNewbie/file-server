@@ -1,14 +1,13 @@
 import { Paging } from "./paging";
 
 export interface FsGroup {
-  /** id */
   id: number;
-  /** name */
   name: string;
-  /** baseFolder */
   baseFolder: string;
-  /** mode */
   mode: number;
+  type: string;
+  updateTime: string;
+  updateBy: string;
 }
 
 export enum FsGroupMode {
@@ -30,7 +29,15 @@ export interface FsGroupModeOption {
 }
 
 export function emptyFsGroup(): FsGroup {
-  return { id: null, name: "", baseFolder: "", mode: null };
+  return {
+    id: null,
+    name: "",
+    baseFolder: "",
+    mode: null,
+    type: null,
+    updateBy: null,
+    updateTime: null,
+  };
 }
 
 export interface ListAllFsGroupReqVo {

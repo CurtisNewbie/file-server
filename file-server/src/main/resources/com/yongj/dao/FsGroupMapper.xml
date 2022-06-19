@@ -15,7 +15,7 @@
   </select>
 
   <select id="findByPage" resultType="com.yongj.dao.FsGroup">
-    select id, name, base_folder, mode, type
+    select *
     from fs_group
     <where>
       <if test="p.id != null">

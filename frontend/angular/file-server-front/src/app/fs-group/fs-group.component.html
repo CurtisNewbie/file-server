@@ -54,6 +54,24 @@
                 <span *ngIf="u.mode=== MODE_READ_WRITE" class="status-green">read/write</span>
             </td>
         </ng-container>
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef> Type </th>
+            <td mat-cell *matCellDef="let u">
+                {{u.type}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="updateTime">
+            <th mat-header-cell *matHeaderCellDef> Update Time </th>
+            <td mat-cell *matCellDef="let u">
+                {{u.updateTime}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="updateBy">
+            <th mat-header-cell *matHeaderCellDef> Updated By </th>
+            <td mat-cell *matCellDef="let u">
+                {{u.updateBy}}
+            </td>
+        </ng-container>
 
 
         <ng-container matColumnDef="expandedElement">

@@ -31,6 +31,9 @@ export class FsGroupComponent implements OnInit {
     "name",
     "baseFolder",
     "mode",
+    "type",
+    "updateBy",
+    "updateTime",
   ];
   readonly FS_GROUP_MODE_SELECT_OPTIONS = FS_GROUP_MODE_OPTIONS;
 
