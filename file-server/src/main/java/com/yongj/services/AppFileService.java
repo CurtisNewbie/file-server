@@ -1,7 +1,7 @@
 package com.yongj.services;
 
+import com.yongj.vo.AppFileDownloadInfo;
 import com.yongj.vo.UploadAppFileCmd;
-import feign.Response;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -25,5 +25,5 @@ public interface AppFileService {
     /**
      * Download app file
      */
-    Response download(@NotEmpty String uuid) throws IOException;
+    AppFileDownloadInfo download(@NotEmpty String uuid) throws IOException;
 }

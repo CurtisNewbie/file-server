@@ -45,3 +45,5 @@ dev-nginx-build.sh
 
 ### generated ###
 *.log
+
+file-server/downloaded-test-file.txt

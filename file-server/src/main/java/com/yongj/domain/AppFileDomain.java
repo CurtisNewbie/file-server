@@ -9,6 +9,7 @@ import com.yongj.helper.FsGroupIdResolver;
 import com.yongj.helper.WriteFsGroupSupplier;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
+import com.yongj.vo.AppFileDownloadInfo;
 import com.yongj.vo.UploadAppFileCmd;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
@@ -18,7 +19,9 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 
 import static com.curtisnewbie.common.util.AssertUtils.notNull;
@@ -83,8 +86,8 @@ public class AppFileDomain {
         return uuid;
     }
 
-    /** Obtain an InputStream to the file */
-    public InputStream obtainInputStream() throws IOException {
+    /** Obtain an download info for the app file */
+    public AppFileDownloadInfo obtainDownloadInfo() throws IOException {
         Assert.notNull(appFile, "AppFile == null");
 
         final int fsgId = appFile.getFsGroupId();
@@ -92,7 +95,11 @@ public class AppFileDomain {
         notNull(fsGroup, "FsGroup of id: %s is not found", fsgId);
 
         final String absPath = pathResolver.resolveAbsolutePath(appFile.getUuid(), appFile.getAppName(), fsGroup.getBaseFolder());
-        return ioHandler.obtainInputStream(absPath);
+        return AppFileDownloadInfo.builder()
+                .fileChannel(FileChannel.open(Paths.get(absPath), StandardOpenOption.READ))
+                .name(appFile.getName())
+                .size(appFile.getSize())
+                .build();
     }
 
     // -------------------------------------- getters ----------------------------------------

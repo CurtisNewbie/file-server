@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotEmpty;
 import java.io.File;
 
 
@@ -27,7 +26,7 @@ public class PathResolverImpl implements PathResolver {
     private PathConfig pathConfig;
 
     @Override
-    public String resolveAbsolutePath(@NotEmpty String uuid, String owner, String fsGroupFolder) {
+    public String resolveAbsolutePath(String uuid, String owner, String fsGroupFolder) {
         return fsGroupFolder + File.separator +
                 owner + File.separator + uuid;
     }
@@ -50,7 +49,7 @@ public class PathResolverImpl implements PathResolver {
     }
 
     @Override
-    public String resolveFolder(@NotEmpty String folder) {
+    public String resolveFolder(String folder) {
         String absPath = pathConfig.getBasePath() + File.separator
                 + folder;
         logger.debug("Resolving path for folder: '{}', resolved absolute path: '{}'",

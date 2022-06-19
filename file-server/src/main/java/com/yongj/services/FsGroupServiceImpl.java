@@ -48,7 +48,8 @@ public class FsGroupServiceImpl implements FsGroupService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public FsGroup findAnyFsGroupToWrite(FsGroupType type) {
         return randomPicker.pickRandom(fsGroupMapper.selectList(new LambdaQueryWrapper<FsGroup>()
-                .eq(FsGroup::getMode, FsGroupMode.READ_WRITE)
+                .eq(FsGroup::getMode, FsGroupMode.READ_WRITE.getValue())
+                .eq(FsGroup::getType, type)
                 .last("limit 100")));
     }
 

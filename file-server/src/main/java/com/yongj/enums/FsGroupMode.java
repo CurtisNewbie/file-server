@@ -1,5 +1,6 @@
 package com.yongj.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.curtisnewbie.common.enums.IntEnum;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
