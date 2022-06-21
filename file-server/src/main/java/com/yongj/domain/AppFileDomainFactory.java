@@ -1,11 +1,11 @@
 package com.yongj.domain;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.curtisnewbie.common.domain.AbstractDomainFactory;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.yongj.dao.AppFile;
 import com.yongj.dao.AppFileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,15 +14,13 @@ import org.springframework.stereotype.Component;
  * @author yongj.zhuang
  */
 @Component
-public class AppFileDomainFactory {
+public class AppFileDomainFactory extends AbstractDomainFactory<AppFileDomain> {
 
-    @Autowired
-    private ApplicationContext applicationContext;
     @Autowired
     private AppFileMapper appFileMapper;
 
-    public AppFileDomain empty() {
-        return applicationContext.getBean(AppFileDomain.class);
+    public AppFileDomainFactory() {
+        super(AppFileDomain.class);
     }
 
     public AppFileDomain forUuid(String uuid) {
