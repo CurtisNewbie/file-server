@@ -210,27 +210,8 @@ public class FileController {
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ListFileInfoRespVo> listFiles(@RequestBody ListFileInfoReqVo reqVo) {
         reqVo.setUserId(tUser().getUserId());
-        PageableList<FileInfoVo> pageable = fileInfoService.findPagedFilesForUser(reqVo);
 
-        // collect list of ids to request their usernames, if uploader name is absent
-        final List<Integer> uploaderIds = pageable.getPayload().stream()
-                .filter(f -> f.getUploaderName() == null)
-                .map(FileInfoVo::getUploaderId)
-                .collect(Collectors.toList());
-
-        if (!uploaderIds.isEmpty()) {
-            final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(FetchUsernameByIdReq.builder()
-                    .userIds(uploaderIds)
-                    .build());
-            result.assertIsOk();
-            Map<Integer, String> idToName = result.getData().getIdToUsername();
-            pageable.getPayload().forEach(f -> {
-                int id = f.getUploaderId();
-                if (idToName.containsKey(id))
-                    f.setUploaderName(idToName.get(id));
-            });
-        }
-
+        final PageableList<FileInfoVo> pageable = fileInfoService.findPagedFilesForUser(reqVo);
         final ListFileInfoRespVo res = new ListFileInfoRespVo();
         res.setFileInfoList(mapTo(pageable.getPayload(), fileInfoConverter::toWebVo));
         res.setPagingVo(pageable.getPagingVo());

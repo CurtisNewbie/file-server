@@ -23,7 +23,7 @@
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
     <if test="p.filterOwnedFiles == false">
-      left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId} and fs.is_del = 0)
+      left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     </if>
     <where>
       <choose>
@@ -74,17 +74,18 @@
       (
           fi.user_group = 0
           or (fi.user_group = 1 and fi.uploader_id = #{userId})
-          or fs.id IS NOT NULL
+          or (fs.id IS NOT NULL and fs.is_del = 0)
       )
-      and t.name = #{tagName}
+      <if test="tagName != null and tagName != ''">
+        and t.name = #{tagName}
+        and ft.is_del = 0
+        and t.is_del = 0
+      </if>
       <if test="filename != null and filename != ''">
         and fi.name like "%"#{filename}"%"
       </if>
       and fi.is_logic_deleted = 0
       and fi.is_del = 0
-      and ft.is_del = 0
-      and fs.is_del = 0
-      and t.is_del = 0
     </where>
     order by id desc
   </select>

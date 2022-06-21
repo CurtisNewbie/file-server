@@ -67,6 +67,7 @@ export class HomePageComponent implements OnInit {
   pagingController: PagingController = new PagingController();
   progress: string = null;
   tags: string[];
+  filteredTags: string[] = [];
   isMobile: boolean = isMobile();
 
   /*
@@ -457,6 +458,10 @@ export class HomePageComponent implements OnInit {
     return this.isUploading || this._isBatchUpload();
   }
 
+  onTagNameChanged() {
+    this.filteredTags = this.filter(this.searchParam.tagName);
+  }
+
   // -------------------------- private helper methods ------------------------
 
   /** fetch supported file extension */
@@ -665,5 +670,13 @@ export class HomePageComponent implements OnInit {
 
   private _isMultipleUpload() {
     return this.uploadParam.files.length > 1;
+  }
+
+  private filter(value: string): string[] {
+    if (!value) return this.tags;
+
+    return this.tags.filter((option) =>
+      option.toLowerCase().includes(value.toLowerCase())
+    );
   }
 }
