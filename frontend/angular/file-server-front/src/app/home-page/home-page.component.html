@@ -64,16 +64,16 @@
                 <mat-label>Filename:</mat-label>
                 <input matInput type="text" id="searchFilenameInput" [(ngModel)]="searchParam.name"
                     (keyup)="searchNameInputKeyPressed($event)">
-                <button *ngIf="searchParam.name" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="searchParam.name=''" class="btn-close">
+                <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
+                    class="btn-close">
                 </button>
             </mat-form-field>
             <mat-form-field appearance="fill" style="width: 100%;" class="mb-1" *ngIf="!isMobile">
                 <mat-label>Tag name:</mat-label>
                 <input matInput type="text" [(ngModel)]="searchParam.tagName" (ngModelChange)="onTagNameChanged()"
                     [matAutocomplete]="auto">
-                <button *ngIf="searchParam.tagName" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="searchParam.tagName=''" class="btn-close">
+                <button *ngIf="searchParam.tagName" matSuffix aria-label="Clear" (click)="searchParam.tagName=''"
+                    class="btn-close">
                 </button>
                 <mat-autocomplete #auto="matAutocomplete">
                     <mat-option *ngFor="let option of filteredTags" [value]="option">

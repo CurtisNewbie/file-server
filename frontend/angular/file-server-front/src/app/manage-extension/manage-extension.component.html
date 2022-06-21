@@ -14,9 +14,7 @@
             <mat-label>Extension</mat-label>
             <input matInput type="text" id="usernameInput" [(ngModel)]="extToBeAdded"
                 matTooltip="File Extension should only contain alphabets and numbers, e.g., 'png' or 'jpg'">
-            <button *ngIf="extToBeAdded" class="btn-close" matSuffix mat-icon-button aria-label="Clear"
-                (click)="extToBeAdded=''">
-
+            <button *ngIf="extToBeAdded" class="btn-close" matSuffix aria-label="Clear" (click)="extToBeAdded=''">
             </button>
         </mat-form-field>
 
@@ -31,9 +29,8 @@
             <mat-form-field appearance="fill" style="width: 100%;" class="mb-2 mt-2">
                 <mat-label>Name:</mat-label>
                 <input matInput type="text" [(ngModel)]="searchParam.name" (keyup)="searchNameInputKeyPressed($event)">
-                <button *ngIf="searchParam.name" matSuffix mat-icon-button aria-label="Clear"
-                    (click)="searchParam.name=''" class="btn-close">
-
+                <button *ngIf="searchParam.name" matSuffix aria-label="Clear" (click)="searchParam.name=''"
+                    class="btn-close">
                 </button>
             </mat-form-field>
             <mat-form-field appearance="fill">
