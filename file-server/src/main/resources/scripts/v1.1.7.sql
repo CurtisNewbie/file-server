@@ -16,3 +16,6 @@ CREATE TABLE IF NOT EXISTS app_file (
     update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
 ) engine=InnoDB COMMENT 'Application File';
+
+alter table file_tag drop constraint uk_file_tag;
+alter table file_tag add index idx_user_id (user_id);
