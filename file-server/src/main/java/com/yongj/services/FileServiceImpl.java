@@ -235,6 +235,17 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
+    public FileInfo findByKey(String uuid) {
+        LambdaQueryWrapper<FileInfo> cond = new LambdaQueryWrapper<FileInfo>()
+                .eq(FileInfo::getUuid, uuid)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue());
+
+        return fileInfoMapper.selectOne(cond);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(int id) throws IOException {
         return Files.newInputStream(resolveFilePath(id));
     }
@@ -454,6 +465,16 @@ public class FileServiceImpl implements FileService {
         return fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>()
                 .select(FileInfo::getId)
                 .eq(FileInfo::getId, fileId)
+                .eq(FileInfo::getUploaderId, userId)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .last("limit 1")) != null;
+    }
+
+    @Override
+    public boolean isFileOwner(int userId, String uuid) {
+        return fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>()
+                .select(FileInfo::getId)
+                .eq(FileInfo::getUuid, uuid)
                 .eq(FileInfo::getUploaderId, userId)
                 .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
                 .last("limit 1")) != null;

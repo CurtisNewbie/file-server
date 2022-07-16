@@ -7,6 +7,7 @@ import com.yongj.dao.FileInfo;
 import com.yongj.vo.*;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +63,11 @@ public interface FileService {
      * Find by id
      */
     FileInfo findById(int id);
+
+    /**
+     * Find by key
+     */
+    FileInfo findByKey(@NotEmpty String uuid);
 
     /**
      * Retrieve file's inputStream via id
@@ -165,4 +171,9 @@ public interface FileService {
      * Check if the user if the owner of the file
      */
     boolean isFileOwner(int userId, int fileId);
+
+    /**
+     * Check if the user if the owner of the file
+     */
+    boolean isFileOwner(int userId, String uuid);
 }
