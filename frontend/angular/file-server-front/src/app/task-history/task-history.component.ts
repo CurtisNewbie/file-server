@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { PageEvent } from "@angular/material";
+import { PageEvent } from "@angular/material/paginator";
 import { ActivatedRoute } from "@angular/router";
 import { PagingController } from "src/models/paging";
 import { TaskHistory } from "src/models/task";

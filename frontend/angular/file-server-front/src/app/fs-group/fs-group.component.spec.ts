@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { FsGroupComponent } from './fs-group.component';
 
@@ -6,7 +6,7 @@ describe('FsGroupComponent', () => {
   let component: FsGroupComponent;
   let fixture: ComponentFixture<FsGroupComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ FsGroupComponent ]
     })
