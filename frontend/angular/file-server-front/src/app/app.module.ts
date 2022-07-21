@@ -40,6 +40,8 @@ import { ManageTagDialogComponent } from "./manage-tag-dialog/manage-tag-dialog.
 import { PdfViewerComponent } from "./pdf-viewer/pdf-viewer.component";
 import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { LightgalleryModule } from "lightgallery/angular/10";
+import { LightGallery } from "lightgallery/lightgallery";
 
 @NgModule({
   exports: [],
@@ -80,6 +82,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
     MatInputModule,
     MatSelectModule,
     MatDialogModule,
+    LightgalleryModule,
   ],
   entryComponents: [
     ConfirmDialogComponent,
