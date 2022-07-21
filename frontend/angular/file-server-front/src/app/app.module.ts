@@ -42,6 +42,7 @@ import { ImageViewerComponent } from "./image-viewer/image-viewer.component";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { LightgalleryModule } from "lightgallery/angular/10";
 import { LightGallery } from "lightgallery/lightgallery";
+import { MatTabsModule } from "@angular/material/tabs";
 
 @NgModule({
   exports: [],
@@ -61,6 +62,7 @@ import { LightGallery } from "lightgallery/lightgallery";
     ImageViewerComponent,
   ],
   imports: [
+    MatTabsModule,
     MatCheckboxModule,
     MatAutocompleteModule,
     PdfJsViewerModule,

@@ -3,9 +3,50 @@
     <h2>File Server</h2>
     <div>
       <app-nav></app-nav>
-      <div class="p-3">
-        <router-outlet></router-outlet>
-      </div>
+
+      <!-- todo
+      
+      <nav mat-tab-nav-bar>
+        <a mat-tab-link *ngFor="let link of links" (click)="activeLink = link" [active]="activeLink === link"> {{link}}
+        </a>
+      </nav> 
+      <router-outlet></router-outlet>
+      -->
+      <mat-tab-group mat-align-tabs="start" animationDuration="0ms" dynamicHeight>
+        <mat-tab label="Login Page" *ngIf="userInfo == null">
+          <div class="p-3">
+            <app-login></app-login>
+          </div>
+        </mat-tab>
+        <ng-container *ngIf="userInfo != null">
+          <mat-tab label="Home Page">
+            <div class="p-3">
+              <app-home-page></app-home-page>
+            </div>
+          </mat-tab>
+          <mat-tab label="Manage File Extension" *ngIf="isAdmin">
+            <div class="p-3">
+              <app-manage-extension></app-manage-extension>
+            </div>
+          </mat-tab>
+          <mat-tab label="Manage FsGroup">
+            <div class="p-3">
+              <app-fs-group></app-fs-group>
+            </div>
+          </mat-tab>
+          <mat-tab label="Manage Tasks">
+            <div class="p-3">
+              <app-manage-tasks></app-manage-tasks>
+            </div>
+          </mat-tab>
+          <mat-tab label="Task History">
+            <div class="p-3">
+              <app-task-history></app-task-history>
+            </div>
+          </mat-tab>
+        </ng-container>
+      </mat-tab-group>
+
     </div>
   </div>
 </div>
