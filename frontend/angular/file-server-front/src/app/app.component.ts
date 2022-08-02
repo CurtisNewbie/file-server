@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { links, NLink } from "src/models/link";
 import { UserInfo } from "src/models/user-info";
 import { UserService } from "./user.service";
 
@@ -10,27 +11,22 @@ import { UserService } from "./user.service";
 export class AppComponent {
   isAdmin: boolean = false;
   userInfo: UserInfo = null;
-  activeLink: string = "";
-  links: string[] = [
-    "/home-page",
-    "/manage-extension",
-    "/manage-fsgroup",
-    "/manage-tasks",
-    "/task-history",
-  ];
-  /*
+  activeRoute: string = "";
+  links: NLink[] = [];
+  base: string = "file-service"; // todo, select this in nav-app ?
 
-    <mat-menu #menu="matMenu">
-        <button mat-menu-item routerLink="/home-page" routerLinkActive="active">Home
-            Page</button>
-        <ng-container *ngIf="isAdmin">
-            <button mat-menu-item routerLink="/manage-extension" routerLinkActive="active">File
-                Extensions</button>
-            <button mat-menu-item routerLink="/manage-fsgroup" routerLinkActive="active">Manage FsGroups</button>
-            <button mat-menu-item routerLink="/manage-tasks" routerLinkActive="active">Manage Tasks</button>
-            <button mat-menu-item routerLink="/task-history" routerLinkActive="active">Task History</button>
-        </ng-container>
-  */
+  isPermitted(link: NLink): boolean {
+    if (!this.userInfo || !this.userInfo.role) return false;
+    return link.permitRoles.has(this.userInfo.role);
+  }
+
+  onNavClicked = (link: NLink): void => {
+    this.activeRoute = link.route;
+  };
+
+  isActive = (link: NLink): boolean => {
+    return this.activeRoute === link.route;
+  };
 
   constructor(private userService: UserService) {}
 
@@ -40,6 +36,9 @@ export class AppComponent {
       next: (user) => {
         this.isAdmin = user.role === "admin";
         this.userInfo = user;
+        this.links = links.filter((v, i, a) =>
+          this.isPermitted(v) ? v : null
+        );
       },
     });
     this.userService.isLoggedInObservable.subscribe({
@@ -47,6 +46,7 @@ export class AppComponent {
         if (!isLoggedIn) {
           this.isAdmin = false;
           this.userInfo = null;
+          this.links = [];
         }
       },
     });

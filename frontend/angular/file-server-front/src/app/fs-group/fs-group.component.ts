@@ -99,6 +99,7 @@ export class FsGroupComponent implements OnInit {
       })
       .subscribe({
         next: (r) => {
+          this.expandedElement = null;
           this.fetchFsGroups();
         },
       });
