@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { links, NLink } from "src/models/link";
+import { NLink, selectLinks } from "src/models/link";
 import { UserInfo } from "src/models/user-info";
 import { UserService } from "./user.service";
 
@@ -13,12 +13,7 @@ export class AppComponent {
   userInfo: UserInfo = null;
   activeRoute: string = "";
   links: NLink[] = [];
-  base: string = "file-service"; // todo, select this in nav-app ?
-
-  isPermitted(link: NLink): boolean {
-    if (!this.userInfo || !this.userInfo.role) return false;
-    return link.permitRoles.has(this.userInfo.role);
-  }
+  base: string = "file-service";
 
   onNavClicked = (link: NLink): void => {
     this.activeRoute = link.route;
@@ -36,9 +31,7 @@ export class AppComponent {
       next: (user) => {
         this.isAdmin = user.role === "admin";
         this.userInfo = user;
-        this.links = links.filter((v, i, a) =>
-          this.isPermitted(v) ? v : null
-        );
+        this.selectLinks();
       },
     });
     this.userService.isLoggedInObservable.subscribe({
@@ -50,5 +43,17 @@ export class AppComponent {
         }
       },
     });
+  }
+
+  onBaseChange(base: string): void {
+    this.base = base;
+    this.selectLinks();
+  }
+
+  selectLinks(): void {
+    this.links = selectLinks(
+      this.base,
+      this.userInfo ? this.userInfo.role : null
+    );
   }
 }

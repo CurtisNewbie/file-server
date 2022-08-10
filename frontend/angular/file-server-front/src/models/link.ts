@@ -11,7 +11,7 @@ const anyRoles: Set<string> = new Set<string>()
   .add("user");
 const adminOnly: Set<string> = new Set<string>().add("admin");
 
-export const links: NLink[] = [
+const links: NLink[] = [
   {
     base: "file-service",
     route: "/home-page",
@@ -43,3 +43,10 @@ export const links: NLink[] = [
     permitRoles: adminOnly,
   },
 ];
+
+export function selectLinks(base: string, role: string): NLink[] {
+  if (!role) return [];
+  return links.filter((v, i, a) =>
+    v.base === base && v.permitRoles.has(role) ? v : null
+  );
+}

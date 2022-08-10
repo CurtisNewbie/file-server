@@ -2,7 +2,7 @@
   <div class="container-fluid mt-4 mb-3">
     <h2>File Server</h2>
     <div>
-      <app-nav></app-nav>
+      <app-nav (baseChangeEvent)="onBaseChange($event)"></app-nav>
 
       <nav mat-tab-nav-bar *ngIf="userInfo">
         <a mat-tab-link *ngFor="let link of links" (click)="onNavClicked(link)" [active]="isActive(link)"
