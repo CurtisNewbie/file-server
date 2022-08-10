@@ -2,7 +2,7 @@ import { HttpEventType } from "@angular/common/http";
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
-import { Subscription } from "rxjs";
+import { Subscription, timer } from "rxjs";
 
 import {
   emptySearchFileInfoParam,
@@ -58,6 +58,9 @@ export class HomePageComponent implements OnInit {
   ];
   readonly MOBILE_COLUMNS = ["name", "size", "download"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
+  readonly fetchTagTimerSub = timer(5000, 10_000).subscribe((val) =>
+    this._fetchTags()
+  );
 
   expandedElement: FileInfo;
   fileExtSet: Set<string> = new Set();
