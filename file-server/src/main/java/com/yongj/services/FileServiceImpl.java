@@ -50,7 +50,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
-import static com.curtisnewbie.common.util.ExceptionUtils.throwIllegalState;
+import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 
@@ -548,7 +548,7 @@ public class FileServiceImpl implements FileService {
 
         final FsGroup fsg = fsGroupIdResolver.resolve(fi.getFsGroupId());
         if (fsg == null || fsg.isDeleted())
-            throwIllegalState("FS Group FS Group for this record is not found");
+            throw illegalState("FS Group FS Group for this record is not found");
 
         final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
         log.info("Resolved path: '{}' for file.id: {}", absPath, id);

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 
-import static com.curtisnewbie.common.util.ExceptionUtils.throwIllegalState;
+import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
 
 /**
  * Job for 'deleting' the files
@@ -77,7 +77,7 @@ public class DeleteFileJob implements Job {
             final int fsgId = v.getFsGroupId();
             final FsGroup fsg = fsGroupService.findFsGroupById(fsgId);
             if (fsg == null || fsg.isDeleted())
-                throwIllegalState("fs_group: %s not found or is deleted, unable to delete files", fsgId);
+                throw illegalState("fs_group: %s not found or is deleted, unable to delete files", fsgId);
 
             // resolve absolute path
             final String absPath = pathResolver.resolveAbsolutePath(v.getUuid(), v.getUploaderId(), fsg.getBaseFolder());
