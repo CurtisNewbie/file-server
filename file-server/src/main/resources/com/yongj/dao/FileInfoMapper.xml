@@ -19,6 +19,50 @@
     AND is_physic_deleted = 0
   </update>
 
+  <select id="countFileListForUserSelective" resultType="java.lang.Long">
+    select count(*)
+    from file_info fi
+    <if test="p.filterOwnedFiles == false">
+      left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
+    </if>
+    <where>
+      <choose>
+        <when test="p.filterOwnedFiles == true">
+          and fi.uploader_id = #{p.userId}
+          <if test="p.userGroup != null">
+            and fi.user_group = #{p.userGroup}
+          </if>
+        </when>
+        <otherwise>
+          <choose>
+            <when test="p.userGroup == 0">
+              and fi.user_group = 0
+            </when>
+            <when test="p.userGroup == 1">
+              and fi.user_group = 1
+              and (
+              fi.uploader_id = #{p.userId}
+              or (fs.id is not null and fs.is_del = 0)
+              )
+            </when>
+            <otherwise>
+              and (
+              fi.user_group = 0
+              or fi.uploader_id = #{p.userId}
+              or (fs.id is not null and fs.is_del = 0)
+              )
+            </otherwise>
+          </choose>
+        </otherwise>
+      </choose>
+      <if test="p.filename != null and p.filename != ''">
+        and name like "%"#{p.filename}"%"
+      </if>
+      and fi.is_logic_deleted = 0
+      and fi.is_del = 0
+    </where>
+  </select>
+
   <select id="selectFileListForUserSelective" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
@@ -34,25 +78,25 @@
           </if>
         </when>
         <otherwise>
-        <choose>
-          <when test="p.userGroup == 0">
-            and fi.user_group = 0
-          </when>
-          <when test="p.userGroup == 1">
-            and fi.user_group = 1
-            and (
+          <choose>
+            <when test="p.userGroup == 0">
+              and fi.user_group = 0
+            </when>
+            <when test="p.userGroup == 1">
+              and fi.user_group = 1
+              and (
               fi.uploader_id = #{p.userId}
               or (fs.id is not null and fs.is_del = 0)
-            )
-          </when>
-          <otherwise>
-            and (
+              )
+            </when>
+            <otherwise>
+              and (
               fi.user_group = 0
               or fi.uploader_id = #{p.userId}
               or (fs.id is not null and fs.is_del = 0)
-            )
-          </otherwise>
-        </choose>
+              )
+            </otherwise>
+          </choose>
         </otherwise>
       </choose>
       <if test="p.filename != null and p.filename != ''">
@@ -62,6 +106,33 @@
       and fi.is_del = 0
     </where>
     order by id desc
+  </select>
+
+  <select id="countFileListForUserAndTag" resultType="java.lang.Long">
+    select count(*)
+    from file_info fi
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
+    <if test="tagName != null and tagName != ''">
+      left join file_tag ft on (ft.user_id = #{userId} and fi.id = ft.file_id)
+      left join tag t on (ft.tag_id = t.id)
+    </if>
+    <where>
+      fi.is_del = 0
+      and fi.is_logic_deleted = 0
+      and (
+      fi.user_group = 0
+      or (fi.user_group = 1 and fi.uploader_id = #{userId})
+      or (fs.id IS NOT NULL and fs.is_del = 0)
+      )
+      <if test="tagName != null and tagName != ''">
+        and t.name = #{tagName}
+        and ft.is_del = 0
+        and t.is_del = 0
+      </if>
+      <if test="filename != null and filename != ''">
+        and fi.name like "%"#{filename}"%"
+      </if>
+    </where>
   </select>
 
   <select id="selectFileListForUserAndTag" resultType="com.yongj.dao.FileInfo">
@@ -76,9 +147,9 @@
       fi.is_del = 0
       and fi.is_logic_deleted = 0
       and (
-          fi.user_group = 0
-          or (fi.user_group = 1 and fi.uploader_id = #{userId})
-          or (fs.id IS NOT NULL and fs.is_del = 0)
+      fi.user_group = 0
+      or (fi.user_group = 1 and fi.uploader_id = #{userId})
+      or (fs.id IS NOT NULL and fs.is_del = 0)
       )
       <if test="tagName != null and tagName != ''">
         and t.name = #{tagName}
@@ -97,8 +168,8 @@
     from file_info fi
     where fi.id = #{id}
     and (fi.user_group = 0
-      or (fi.user_group = 1 and fi.uploader_id = #{userId})
-      or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{userId})
+    or (fi.user_group = 1 and fi.uploader_id = #{userId})
+    or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{userId})
     )
     and is_del = 0
   </select>

@@ -48,11 +48,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
-import static com.curtisnewbie.common.util.PagingUtil.forPage;
-import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
+import static com.curtisnewbie.common.util.PagingUtil.*;
 
 /**
  * @author yongjie.zhuang
@@ -190,15 +190,33 @@ public class FileServiceImpl implements FileService {
             param.setFilterOwnedFiles(true);
         }
         final Page<?> p = forPage(reqVo.getPagingVo());
-        // based on whether tagName is present, we use different queries
-        IPage<FileInfo> dataList = StringUtils.hasText(param.getTagName()) ?
+
+        /*
+            Based on whether tagName is present, we use different queries
+
+            Instead of using the Page<?> for pagination, we do COUNT(*) manually,
+            the paginator plugin always fails to optimise the query :D
+         */
+        final boolean qryForTag = StringUtils.hasText(param.getTagName());
+        List<FileInfo> dataList = qryForTag ?
                 fileInfoMapper.selectFileListForUserAndTag(p, param.getUserId(), param.getTagName(), param.getFilename()) :
                 fileInfoMapper.selectFileListForUserSelective(p, param);
-        return toPageableList(dataList, (e) -> {
+        final long count = qryForTag ?
+                fileInfoMapper.countFileListForUserAndTag(param.getUserId(), param.getTagName(), param.getFilename()) :
+                fileInfoMapper.countFileListForUserSelective(param);
+
+        final List<FileInfoVo> converted = dataList.stream().map(e -> {
             FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
             v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
             return v;
-        });
+        }).collect(Collectors.toList());
+
+        final PageableList<FileInfoVo> pl = new PageableList<>();
+        pl.setPayload(converted);
+        pl.setPagingVo(new PagingVo()
+                .ofPage((int) p.getCurrent())
+                .ofTotal(count));
+        return pl;
     }
 
     @Override

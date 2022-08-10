@@ -1,5 +1,11 @@
 import { HttpEventType } from "@angular/common/http";
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { MatPaginator, PageEvent } from "@angular/material/paginator";
 import { Subscription, timer } from "rxjs";
@@ -39,7 +45,7 @@ const GB_UNIT: number = 1024 * 1024 * 1024;
   styleUrls: ["./home-page.component.css"],
   animations: [animateElementExpanding()],
 })
-export class HomePageComponent implements OnInit {
+export class HomePageComponent implements OnInit, OnDestroy {
   readonly OWNERSHIP_ALL_FILES = FileOwnershipEnum.FILE_OWNERSHIP_ALL_FILES;
   readonly OWNERSHIP_MY_FILES = FileOwnershipEnum.FILE_OWNERSHIP_MY_FILES;
   readonly PRIVATE_GROUP = FileUserGroupEnum.USER_GROUP_PRIVATE;
@@ -58,7 +64,7 @@ export class HomePageComponent implements OnInit {
   ];
   readonly MOBILE_COLUMNS = ["name", "size", "download"];
   readonly IMAGE_SUFFIX = new Set(["jpeg", "jpg", "gif", "png", "svg", "bmp"]);
-  readonly fetchTagTimerSub = timer(5000, 10_000).subscribe((val) =>
+  readonly fetchTagTimerSub = timer(5000, 30_000).subscribe((val) =>
     this._fetchTags()
   );
 
@@ -103,6 +109,10 @@ export class HomePageComponent implements OnInit {
     private fileService: FileInfoService,
     private nav: NavigationService
   ) {}
+
+  ngOnDestroy(): void {
+    this.fetchTagTimerSub.unsubscribe();
+  }
 
   ngOnInit() {
     this.userService.fetchUserInfo();

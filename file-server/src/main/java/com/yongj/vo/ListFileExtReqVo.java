@@ -1,6 +1,7 @@
 package com.yongj.vo;
 
 import com.curtisnewbie.common.vo.PageableVo;
+import com.yongj.enums.FExtIsEnabled;
 import lombok.Data;
 
 /**
@@ -17,5 +18,5 @@ public class ListFileExtReqVo extends PageableVo {
     /**
      * whether this file extension is enabled, 0-enabled, 1-disabled
      */
-    private Integer isEnabled;
+    private FExtIsEnabled isEnabled;
 }

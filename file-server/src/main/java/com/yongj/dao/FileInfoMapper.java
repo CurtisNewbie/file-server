@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author yongj.zhuang
@@ -18,14 +19,24 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
      * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
      * fi.upload_time
      */
-    IPage<FileInfo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
+    List<FileInfo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
+
+    /**
+     * Count for {@link #selectFileListForUserSelective(Page, SelectFileInfoListParam)}
+     */
+    long countFileListForUserSelective(@Param("p") SelectFileInfoListParam param);
 
     /**
      * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
      * fi.upload_time
      */
-    IPage<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("userId") int userId, @Param("tagName") String tagName,
-                                                @Nullable @Param("filename") String filename);
+    List<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("userId") int userId, @Param("tagName") String tagName,
+                                               @Nullable @Param("filename") String filename);
+
+    /**
+     * Count for {@link #selectFileListForUserAndTag(Page, int, String, String)}
+     */
+    long countFileListForUserAndTag(@Param("userId") int userId, @Param("tagName") String tagName, @Nullable @Param("filename") String filename);
 
     /**
      * Select user_group, user_id, is_logic_deleted
