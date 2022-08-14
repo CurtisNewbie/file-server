@@ -6,6 +6,8 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
 
+***The frontend project has been moved to a new repository [file-service-front](https://github.com/CurtisNewbie/file-service-front), the one included here may be removed at anytime later.***
+
 ## Middleware
 
 - MySQL
