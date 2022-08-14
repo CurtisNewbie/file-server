@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * IOUtils
@@ -13,6 +15,8 @@ import java.nio.channels.WritableByteChannel;
  * @author yongj.zhuang
  */
 public final class IOUtils {
+
+    public static final ExecutorService ioThreadPool = Executors.newWorkStealingPool();
 
     private IOUtils() {
 

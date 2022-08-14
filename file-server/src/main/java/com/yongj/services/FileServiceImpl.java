@@ -7,10 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
+import com.yongj.config.FileServiceConfig;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
@@ -52,7 +52,9 @@ import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
-import static com.curtisnewbie.common.util.PagingUtil.*;
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
+import static com.yongj.util.IOUtils.ioThreadPool;
 
 /**
  * @author yongjie.zhuang
@@ -84,6 +86,8 @@ public class FileServiceImpl implements FileService {
     private WriteFsGroupSupplier writeFsGroupSupplier;
     @Autowired
     private FsGroupIdResolver fsGroupIdResolver;
+    @Autowired
+    private FileServiceConfig fileServiceConfig;
 
     @Override
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) {
@@ -136,10 +140,10 @@ public class FileServiceImpl implements FileService {
         chainHelper.uploaderName = param.getUsername();
         chainHelper.userGroup = param.getUserGroup();
 
-        return CompletableFuture.supplyAsync(() -> resolveFsGroup(chainHelper))
-                .thenApplyAsync(this::resolveAbsPath)
-                .thenApplyAsync(this::uploadSingleFile)
-                .thenApplyAsync(this::saveFileInfo);
+        return CompletableFuture.supplyAsync(() -> resolveFsGroup(chainHelper), ioThreadPool)
+                .thenApply(this::resolveAbsPath)
+                .thenApply(this::uploadSingleFile)
+                .thenApply(this::saveFileInfo);
     }
 
     @Override
@@ -154,6 +158,9 @@ public class FileServiceImpl implements FileService {
         hasText(zipFile);
         notEmpty(multipartFiles);
 
+        final int maxZipEtry = fileServiceConfig.getMaxZipEntries();
+        AssertUtils.isTrue(multipartFiles.length < maxZipEtry, "You can at most compress %s zip entries", maxZipEtry);
+
         // assign random uuid
         final String uuid = UUID.randomUUID().toString();
 
@@ -162,24 +169,29 @@ public class FileServiceImpl implements FileService {
 
         // resolve absolute path
         final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
-        // write file to channel
-        return ioHandler.writeZipFileAsync(absPath, prepareZipEntries(multipartFiles))
-                .thenApplyAsync(sizeInBytes -> {
-                    // save file info record
-                    FileInfo f = new FileInfo();
-                    f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-                    f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-                    f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
-                    f.setUploaderId(userId);
-                    f.setUploadTime(LocalDateTime.now());
-                    f.setUploaderName(param.getUsername());
-                    f.setUuid(uuid);
-                    f.setUserGroup(userGroup.getValue());
-                    f.setSizeInBytes(sizeInBytes);
-                    f.setFsGroupId(fsGroup.getId());
-                    fileInfoMapper.insert(f);
-                    return f;
-                });
+
+        // prepare zip entries
+        final List<ZipCompressEntry> entries = prepareZipEntries(multipartFiles);
+
+        // write zip file (not making it async is because sometimes the files get deleted before compression)
+        final long sizeInBytes = ioHandler.writeZipFile(absPath, entries);
+
+        return CompletableFuture.supplyAsync(() -> {
+            // save file info record
+            FileInfo f = new FileInfo();
+            f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+            f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+            f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
+            f.setUploaderId(userId);
+            f.setUploadTime(LocalDateTime.now());
+            f.setUploaderName(param.getUsername());
+            f.setUuid(uuid);
+            f.setUserGroup(userGroup.getValue());
+            f.setSizeInBytes(sizeInBytes);
+            f.setFsGroupId(fsGroup.getId());
+            fileInfoMapper.insert(f);
+            return f;
+        });
     }
 
     @Override
@@ -337,7 +349,7 @@ public class FileServiceImpl implements FileService {
                 .eq(FileSharing::getFileId, fileId)
                 .eq(FileSharing::getIsDel, IsDel.NORMAL)
                 .orderByDesc(FileSharing::getId);
-        Page page = PagingUtil.forPage(paging);
+        Page page = forPage(paging);
         return toPageableList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
     }
 

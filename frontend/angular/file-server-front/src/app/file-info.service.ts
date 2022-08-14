@@ -178,6 +178,11 @@ export class FileInfoService {
       formData.append("file", f);
     }
     formData.append("userGroup", uploadParam.userGroup.toString());
+    if (uploadParam.tags) {
+      for (let t of uploadParam.tags) {
+        formData.append("tag", t);
+      }
+    }
 
     return this.http.post<HttpEvent<any>>(
       buildApiPath("/file/upload"),

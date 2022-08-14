@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Handler of IO operation
@@ -29,19 +28,9 @@ public interface IOHandler {
     long writeZipFile(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries) throws IOException;
 
     /**
-     * Write data to a zip file of the absolute path
-     */
-    CompletableFuture<Long> writeZipFileAsync(@NotEmpty String absPath, @NotEmpty List<ZipCompressEntry> entries);
-
-    /**
      * Write data (from an InputStream) to file of absolute path
      */
     long writeFile(@NotEmpty String absPath, @NotNull InputStream inputStream) throws IOException;
-
-    /**
-     * Write data (from an InputStream) to file of absolute path
-     */
-    CompletableFuture<Long> writeFileAsync(@NotEmpty String absPath, @NotNull InputStream inputStream);
 
     /**
      * Create the parent directory for given absolute path

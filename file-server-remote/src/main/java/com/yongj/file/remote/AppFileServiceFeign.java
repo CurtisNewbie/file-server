@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * File Service Feign
+ * App File Service Feign
  *
  * @author yongjie.zhuang
  */

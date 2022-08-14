@@ -76,6 +76,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   pagingController: PagingController = new PagingController();
   progress: string = null;
   tags: string[];
+  selectedTags: string[] = [];
   filteredTags: string[] = [];
   isMobile: boolean = isMobile();
 
@@ -180,6 +181,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
     if (this.uploadParam.userGroup == null)
       this.uploadParam.userGroup = FileUserGroupEnum.USER_GROUP_PRIVATE;
+    this.uploadParam.tags = this.selectedTags ? this.selectedTags : [];
 
     /*
       if it's a single file upload, or it's zip compressed, we only validate the 
@@ -492,7 +494,10 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   private _fetchTags(): void {
     this.fileService.fetchTags().subscribe({
-      next: (resp) => (this.tags = resp.data),
+      next: (resp) => {
+        this.tags = resp.data;
+        this.selectedTags = [];
+      },
     });
   }
 
@@ -560,6 +565,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   private _resetFileUploadParam(): void {
     if (this.isUploading) return;
 
+    this.selectedTags = [];
     this.isCompressed = false;
     this.uploadParam = emptyUploadFileParam();
     this.uploadFileInput.nativeElement.value = null;
@@ -588,6 +594,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
       fileName: next.name,
       files: [next],
       userGroup: this.uploadParam.userGroup,
+      tags: this.uploadParam.tags,
     };
   }
 

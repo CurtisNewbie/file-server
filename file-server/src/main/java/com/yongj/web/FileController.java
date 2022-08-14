@@ -1,5 +1,7 @@
 package com.yongj.web;
 
+import brave.Span;
+import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
 import com.curtisnewbie.common.trace.TUser;
@@ -32,6 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,6 +85,8 @@ public class FileController {
     private FileSharingConverter fileSharingConverter;
     @Autowired
     private TagConverter tagConverter;
+    @Autowired
+    private Tracer tracer;
 
     /**
      * Upload file, only user and admin are allowed to upload file (guest is not allowed)
@@ -89,6 +95,7 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<Void> upload(@RequestParam("fileName") String fileName,
                                @RequestParam("file") MultipartFile[] multipartFiles,
+                               @RequestParam(value = "tag", required = false) @Nullable String[] tags,
                                @RequestParam("userGroup") int userGroup) throws IOException {
 
         final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
@@ -131,8 +138,28 @@ public class FileController {
                     .build());
         }
         log.info("File uploaded, processing asynchronously, file_name: {}", fileName);
-        future.whenCompleteAsync((f, e) -> log.info("File uploaded and persisted in database, file_name: {}, file_info: {}",
-                fileName, f, e));
+
+        // attempt to propagate tracing
+        final Span span = tracer.currentSpan();
+
+        future.whenCompleteAsync((f, e) -> {
+            log.info("File uploaded and persisted in database, file_name: {}, file_info: {}", fileName, f, e);
+
+            if (tags != null && tags.length > 0) {
+                log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
+
+                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                    for (String tag : tags) {
+                        if (!StringUtils.hasText(tag)) continue;
+                        fileInfoService.tagFile(TagFileCmd.builder()
+                                .fileId(f.getId())
+                                .tagName(tag)
+                                .userId(tUser.getUserId())
+                                .build());
+                    }
+                }
+            }
+        });
         return Result.ok();
     }
 
