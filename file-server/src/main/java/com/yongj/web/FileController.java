@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
@@ -105,6 +106,7 @@ public class FileController {
         final FileUserGroupEnum userGroup = FileUserGroupEnum.from(userGroupInt);
         nonNull(userGroup, "Incorrect user group");
         hasText(fileName, "File name can't be empty");
+        fileName = URLDecoder.decode(fileName, "UTF-8");
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
