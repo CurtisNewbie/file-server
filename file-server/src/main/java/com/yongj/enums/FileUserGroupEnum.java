@@ -2,7 +2,7 @@ package com.yongj.enums;
 
 import com.curtisnewbie.common.enums.IntEnum;
 import com.curtisnewbie.common.util.EnumUtils;
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.*;
 
 /**
  * enum for file_info.user_group
@@ -22,6 +22,12 @@ public enum FileUserGroupEnum implements IntEnum {
 
     FileUserGroupEnum(int v) {
         this.value = v;
+    }
+
+    @JsonCreator
+    public static FileUserGroupEnum from(Integer userGroup) {
+        if (userGroup == null) return null;
+        return parse(userGroup);
     }
 
     public static FileUserGroupEnum parse(int userGroup) {

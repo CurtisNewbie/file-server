@@ -89,6 +89,60 @@ public class FileController {
     private Tracer tracer;
 
     /**
+     * Upload file using stream
+     * <p>
+     * Only supports a single file upload, but since we are using stream, it can handle pretty large file in an efficient way
+     */
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public Result<Void> streamUpload(@RequestParam("fileName") String fileName,
+                                     @RequestParam(value = "tag", required = false) @Nullable String[] tags,
+                                     @RequestParam("userGroup") FileUserGroupEnum userGroup,
+                                     HttpServletRequest request) throws IOException {
+
+        nonNull(userGroup, "Incorrect user group");
+        hasText(fileName, "File name can't be empty");
+
+        // only validate the first fileName, if there is only one file, this will be the name of the file
+        // if there are multiple files, this will be the name of the zip file
+        pathResolver.validateFileExtension(fileName);
+        final TUser tUser = tUser();
+
+        final CompletableFuture<FileInfo> future = fileInfoService.uploadFile(UploadFileVo.builder()
+                .userId(tUser.getUserId())
+                .username(tUser.getUsername())
+                .fileName(fileName)
+                .userGroup(userGroup)
+                .inputStream(request.getInputStream())
+                .build());
+        log.info("File uploaded, processing asynchronously, file_name: {}", fileName);
+
+        // attempt to propagate tracing
+        final Span span = tracer.currentSpan();
+
+        // todo repeated code :D
+        future.whenCompleteAsync((f, e) -> {
+            log.info("File uploaded and persisted in database, file_name: {}, file_info: {}", fileName, f, e);
+
+            if (tags != null && tags.length > 0) {
+                log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
+
+                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                    for (String tag : tags) {
+                        if (!StringUtils.hasText(tag)) continue;
+                        fileInfoService.tagFile(TagFileCmd.builder()
+                                .fileId(f.getId())
+                                .tagName(tag)
+                                .userId(tUser.getUserId())
+                                .build());
+                    }
+                }
+            }
+        });
+        return Result.ok();
+    }
+
+    /**
      * Upload file, only user and admin are allowed to upload file (guest is not allowed)
      */
     @RoleControlled(rolesForbidden = "guest")
@@ -142,6 +196,7 @@ public class FileController {
         // attempt to propagate tracing
         final Span span = tracer.currentSpan();
 
+        // todo repeated code :D
         future.whenCompleteAsync((f, e) -> {
             log.info("File uploaded and persisted in database, file_name: {}, file_info: {}", fileName, f, e);
 
