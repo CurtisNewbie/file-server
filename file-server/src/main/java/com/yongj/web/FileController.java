@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
@@ -95,11 +96,12 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Result<Void> streamUpload(@RequestParam("fileName") String fileName,
-                                     @RequestParam(value = "tag", required = false) @Nullable String[] tags,
-                                     @RequestParam("userGroup") FileUserGroupEnum userGroup,
-                                     HttpServletRequest request) throws IOException {
+    public Result<Void> streamUpload(@RequestHeader("fileName") String fileName,
+                                     @RequestHeader(value = "tag", required = false) @Nullable String[] tags,
+                                     @RequestHeader(value = "userGroup") Integer userGroupInt,
+                                     HttpServletRequest request) throws IOException, ExecutionException, InterruptedException {
 
+        final FileUserGroupEnum userGroup = FileUserGroupEnum.from(userGroupInt);
         nonNull(userGroup, "Incorrect user group");
         hasText(fileName, "File name can't be empty");
 
@@ -115,14 +117,17 @@ public class FileController {
                 .userGroup(userGroup)
                 .inputStream(request.getInputStream())
                 .build());
-        log.info("File uploaded, processing asynchronously, file_name: {}", fileName);
+
+        // We are streaming the data, it must be synchronous
+        final FileInfo f = future.get();
+        log.info("File uploaded, file_name: {}", fileName);
 
         // attempt to propagate tracing
         final Span span = tracer.currentSpan();
 
         // todo repeated code :D
-        future.whenCompleteAsync((f, e) -> {
-            log.info("File uploaded and persisted in database, file_name: {}, file_info: {}", fileName, f, e);
+        CompletableFuture.runAsync(() -> {
+            log.info("File uploaded and persisted in database, file_name: {}, file_info: {}", fileName, f);
 
             if (tags != null && tags.length > 0) {
                 log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
