@@ -92,7 +92,8 @@ public class FileController {
     /**
      * Upload file using stream
      * <p>
-     * Only supports a single file upload, but since we are using stream, it can handle pretty large file in an efficient way
+     * Only supports a single file upload, but since we are using stream, it can handle pretty large file in an
+     * efficient way
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -120,18 +121,15 @@ public class FileController {
 
         // We are streaming the data, it must be synchronous
         final FileInfo f = future.get();
-        log.info("File uploaded, file_name: {}", fileName);
+        log.info("File uploaded and persisted in database, file_info: {}", f);
 
-        // attempt to propagate tracing
-        final Span span = tracer.currentSpan();
+        if (tags != null && tags.length > 0) {
+            // attempt to propagate tracing
+            final Span span = tracer.currentSpan();
 
-        // todo repeated code :D
-        CompletableFuture.runAsync(() -> {
-            log.info("File uploaded and persisted in database, file_name: {}, file_info: {}", fileName, f);
-
-            if (tags != null && tags.length > 0) {
+            // todo repeated code :D
+            CompletableFuture.runAsync(() -> {
                 log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
-
                 try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
                     for (String tag : tags) {
                         if (!StringUtils.hasText(tag)) continue;
@@ -142,8 +140,8 @@ public class FileController {
                                 .build());
                     }
                 }
-            }
-        });
+            });
+        }
         return Result.ok();
     }
 
