@@ -6,12 +6,14 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
 
-***The frontend project has been moved to a new repository [file-service-front](https://github.com/CurtisNewbie/file-service-front), the one included here may be removed at anytime later.***
+***The frontend project has been moved to a new repository [file-service-front](https://github.com/CurtisNewbie/file-service-front), the one included here is no-longer maintained, and may be removed at anytime later.***
 
-## Middleware
+## Requirements 
 
-- MySQL
-- Nacos (or others, e.g., zookeeper)
+- auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway)
+- auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service)
+- MySQL (5.7+ or 8)
+- Nacos 
 - RabbitMQ
 - Redis
 
@@ -20,6 +22,18 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 Data Type | Property Name | Description | Default Value
 ----------|---------------|-------------|---------------
 string | base.path | base path used by application, this path is not used for file storage, where the uploaded files are stored depends on the table `fs_group`. Currently, this path is only used for `TempFolderDeleteFileOperation` which is an implementation of `DeleteFileOperation`. When the application is configured to use this file operation, deleting a file means that this file is moved to the temp folder, and the location of the temp folder depends on this `base.path` configuration | none
+
+## Modules and Dependencies
+
+This project depends on the following modules that you must manually install (using `mvn clean install`).
+
+- [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
+- [common-module v2.1.5](https://github.com/CurtisNewbie/common-module/tree/v2.1.5)
+- [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
+- [distributed-task-module v2.0.9](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.0.9)
+- [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
+- [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
+
 
 ## File Operations and SPI Interfaces
 
@@ -89,28 +103,3 @@ In table `task`:
 |id |job_name      |target_bean |cron_expr    |app_group   |enabled|concurrent_enabled|
 |---|--------------|------------|-------------|------------|-------|------------------|
 |1  |delete file job |deleteFileJob|0 0 0/1 ? * *|file-server|1      |0               |
-
-## Modules and Dependencies
-
-This project depends on the following modules that you must manually install (using `mvn clean install`).
-
-- curtisnewbie-bom
-    - description: BOM file for dependency management
-    - url: https://github.com/CurtisNewbie/curtisnewbie-bom
-    - under `/microservice` folder
-
-- common-module
-    - description: for common utility classes 
-    - url: https://github.com/CurtisNewbie/common-module
-
-- redis-util-module
-    - description: Utility classes for Redis
-    - url: https://github.com/CurtisNewbie/redis-util-module
-
-- distributed-task-module
-    - description: for distributed task scheduling
-    - url: https://github.com/CurtisNewbie/distributed-task-module
-
-- messaging-module
-    - description: for RabbitMQ-based messaging 
-    - url: https://github.com/CurtisNewbie/messaging-module
