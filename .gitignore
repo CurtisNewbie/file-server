@@ -47,3 +47,4 @@ dev-nginx-build.sh
 *.log
 
 file-server/downloaded-test-file.txt
+gensql.sh
