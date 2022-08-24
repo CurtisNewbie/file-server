@@ -103,3 +103,7 @@ In table `task`:
 |id |job_name      |target_bean |cron_expr    |app_group   |enabled|concurrent_enabled|
 |---|--------------|------------|-------------|------------|-------|------------------|
 |1  |delete file job |deleteFileJob|0 0 0/1 ? * *|file-server|1      |0               |
+
+## Todos
+
+- [ ] Implement *virtual* folders
