@@ -1,11 +1,13 @@
 package com.yongj.domain;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.curtisnewbie.common.domain.Domain;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.RandomUtils;
 import com.yongj.dao.*;
 import com.yongj.enums.VFOwnership;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
@@ -20,7 +22,7 @@ import javax.validation.constraints.NotEmpty;
 @Validated
 public class VFolderDomain {
 
-    public static String FOLDER_NO_PRE = "VFLD";
+    public static final String FOLDER_NO_PRE = "VFLD";
     private String userNo;
     private VFolder folder;
 
@@ -62,10 +64,30 @@ public class VFolderDomain {
         return folderNo;
     }
 
+    /** Add file to this VFolder */
+    public void addFile(@NotEmpty String fileKey) {
+
+        // only owner of the folder can do this
+        _assertIsFolderOwner();
+
+        // make sure the file is not in current VFolder
+        _assertFileNotInFolder(fileKey);
+
+        FileVFolder ff = new FileVFolder();
+        ff.setFolderNo(this.folder.getFolderNo());
+        ff.setUuid(fileKey);
+        fileFolderMapper.insert(ff);
+    }
 
     // ------------------------------- private ---------------------------------------------
 
-    public VFolderDomain _with(String userNo, VFolder folder) {
+    public VFolderDomain _forUser(String userNo) {
+        AssertUtils.notNull(userNo, "userNo == null");
+        this.userNo = userNo;
+        return this;
+    }
+
+    public VFolderDomain _forFolder(String userNo, VFolder folder) {
         AssertUtils.notNull(userNo, "userNo == null");
         AssertUtils.notNull(folder, "VFolder == null");
         this.userNo = userNo;
@@ -73,5 +95,20 @@ public class VFolderDomain {
         return this;
     }
 
+    private void _assertIsFolderOwner() {
+        final UserVFolder uv = userVFolderMapper.selectOne(Wrappers.lambdaQuery(UserVFolder.class)
+                .eq(UserVFolder::getFolderNo, this.folder.getFolderNo())
+                .eq(UserVFolder::getUserNo, this.userNo));
+        AssertUtils.notNull(uv, "You are not allowed to access this folder");
+        AssertUtils.isTrue(uv.isOwner(), "Only owner can add files to this folder");
+    }
 
+    private void _assertFileNotInFolder(String fileKey) {
+        final FileVFolder ff = fileFolderMapper.selectOne(Wrappers.lambdaQuery(FileVFolder.class)
+                .select(FileVFolder::getId)
+                .eq(FileVFolder::getFolderNo, this.folder.getFolderNo())
+                .eq(FileVFolder::getUuid, fileKey));
+
+        Assert.isNull(ff, "File is already in the folder");
+    }
 }

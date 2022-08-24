@@ -4,6 +4,7 @@ import com.curtisnewbie.common.util.LockUtils;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.domain.VFolderDomain;
 import com.yongj.repository.VFolderRepository;
+import com.yongj.vo.AddFileToVFolderCmd;
 import com.yongj.vo.CreateVFolderCmd;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,15 @@ public class VFolderServiceImpl implements VFolderService {
         return LockUtils.lockAndCall(lock, () -> {
             final VFolderDomain domain = vFolderRepository.buildForNewVFolder(cmd.getUserNo(), cmd.getName());
             return domain.createFolder(cmd.getName(), cmd.getUsername());
+        });
+    }
+
+    @Override
+    public void addToVFolder(AddFileToVFolderCmd cmd) {
+        final Lock lock = redisctl.getLock(_lockKey(cmd.getUserNo()));
+        LockUtils.lockAndRun(lock, () -> {
+            final VFolderDomain domain = vFolderRepository.buildVFolder(cmd.getUserNo(), cmd.getFolderNo());
+            domain.addFile(cmd.getFileKey());
         });
     }
 

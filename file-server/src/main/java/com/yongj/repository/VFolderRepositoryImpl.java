@@ -29,7 +29,7 @@ public class VFolderRepositoryImpl implements VFolderRepository {
         final VFolder vfolder = vFolderMapper.findVFolderForUser(userNo, folderNo);
         AssertUtils.notNull(vfolder, "Folder not found");
 
-        return buildEmpty()._with(userNo, vfolder);
+        return buildEmpty()._forFolder(userNo, vfolder);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class VFolderRepositoryImpl implements VFolderRepository {
         final Integer id = vFolderMapper.findIdForFolderWithName(userNo, name);
         AssertUtils.isNull(id, "Found folder with the same name");
 
-        return buildEmpty();
+        return buildEmpty()._forUser(userNo);
     }
 
     private VFolderDomain buildEmpty() {

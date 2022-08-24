@@ -31,4 +31,8 @@ public class UserVFolder extends DaoSkeleton {
     @TableField("granted_by")
     private String grantedBy;
 
+    public boolean isOwner() {
+        return ownership == VFOwnership.OWNER;
+    }
+
 }

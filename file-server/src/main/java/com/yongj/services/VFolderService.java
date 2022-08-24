@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.yongj.vo.AddFileToVFolderCmd;
 import com.yongj.vo.CreateVFolderCmd;
 import org.springframework.validation.annotation.Validated;
 
@@ -21,4 +22,9 @@ public interface VFolderService {
      */
     @NotEmpty
     String createVFolder(@Valid @NotNull CreateVFolderCmd cmd);
+
+    /**
+     * Add file to folder
+     */
+    void addToVFolder(@Valid @NotNull AddFileToVFolderCmd cmd);
 }
