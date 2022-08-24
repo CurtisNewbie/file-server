@@ -11,8 +11,8 @@ import com.curtisnewbie.common.dao.DaoSkeleton;
  * @author yongj.zhuang
  */
 @Data
-@TableName(value = "file_folder")
-public class FileFolder extends DaoSkeleton {
+@TableName(value = "file_vfolder")
+public class FileVFolder extends DaoSkeleton {
 
     /** folder no */
     @TableField("folder_no")

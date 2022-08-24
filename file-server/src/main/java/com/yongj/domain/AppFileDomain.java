@@ -45,8 +45,11 @@ public class AppFileDomain {
     private final WriteFsGroupSupplier writeFsGroupSupplier;
     private final FsGroupIdResolver fsGroupIdResolver;
 
-    public AppFileDomain(AppFileMapper appFileMapper, PathResolver pathResolver, IOHandler ioHandler,
-                         WriteFsGroupSupplier writeFsGroupSupplier, FsGroupIdResolver fsGroupIdResolver) {
+    public AppFileDomain(AppFileMapper appFileMapper,
+                         PathResolver pathResolver,
+                         IOHandler ioHandler,
+                         WriteFsGroupSupplier writeFsGroupSupplier,
+                         FsGroupIdResolver fsGroupIdResolver) {
         this.appFileMapper = appFileMapper;
         this.pathResolver = pathResolver;
         this.ioHandler = ioHandler;
@@ -110,7 +113,7 @@ public class AppFileDomain {
 
     // -------------------------------------- private ----------------------------------------
 
-    protected AppFileDomain _with(AppFile ap) {
+    public AppFileDomain _with(AppFile ap) {
         Assert.notNull(ap, "AppFile == null");
         this.appFile = ap;
         return this;

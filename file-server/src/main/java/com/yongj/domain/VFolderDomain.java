@@ -2,12 +2,13 @@ package com.yongj.domain;
 
 import com.curtisnewbie.common.domain.Domain;
 import com.curtisnewbie.common.util.AssertUtils;
-import com.yongj.dao.FileFolderMapper;
-import com.yongj.dao.VFolder;
-import com.yongj.dao.VFolderMapper;
-import com.yongj.vo.CreateFolderCmd;
+import com.curtisnewbie.common.util.RandomUtils;
+import com.yongj.dao.*;
+import com.yongj.enums.VFOwnership;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotEmpty;
 
 /**
  * VFolder Domain
@@ -19,24 +20,52 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class VFolderDomain {
 
+    public static String FOLDER_NO_PRE = "VFLD";
     private String userNo;
     private VFolder folder;
 
-    private final FileFolderMapper fileFolderMapper;
-    private final VFolderMapper vfolderMapper;
 
-    public VFolderDomain(FileFolderMapper fileFolderMapper, VFolderMapper vfolderMapper) {
+    /*
+    Autowired Components
+     */
+    private final FileVFolderMapper fileFolderMapper;
+    private final VFolderMapper vfolderMapper;
+    private final UserVFolderMapper userVFolderMapper;
+
+    public VFolderDomain(FileVFolderMapper fileFolderMapper, VFolderMapper vfolderMapper, UserVFolderMapper userVFolderMapper) {
         this.fileFolderMapper = fileFolderMapper;
         this.vfolderMapper = vfolderMapper;
+        this.userVFolderMapper = userVFolderMapper;
     }
 
-    public void createFolder(CreateFolderCmd cmd) {
+    /**
+     * Create a new folder for current user
+     *
+     * @return folderNo
+     */
+    public String createFolder(@NotEmpty String name, @NotEmpty String username) {
+        final String folderNo = RandomUtils.sequence(FOLDER_NO_PRE, 15);
+
+        // for the vfolder
+        folder = new VFolder();
+        folder.setName(name);
+        folder.setFolderNo(folderNo);
+        vfolderMapper.insert(folder);
+
+        // for the user - vfolder relation
+        final UserVFolder relation = new UserVFolder();
+        relation.setFolderNo(folderNo);
+        relation.setUserNo(this.userNo);
+        relation.setOwnership(VFOwnership.OWNER);
+        relation.setGrantedBy(username);
+        userVFolderMapper.insert(relation);
+        return folderNo;
     }
 
 
     // ------------------------------- private ---------------------------------------------
 
-    private VFolderDomain _with(String userNo, VFolder folder) {
+    public VFolderDomain _with(String userNo, VFolder folder) {
         AssertUtils.notNull(userNo, "userNo == null");
         AssertUtils.notNull(folder, "VFolder == null");
         this.userNo = userNo;

@@ -2,6 +2,7 @@ package com.yongj.dao;
 
 import com.baomidou.mybatisplus.annotation.*;
 
+import com.yongj.enums.VFOwnership;
 import lombok.*;
 import com.curtisnewbie.common.dao.DaoSkeleton;
 
@@ -24,7 +25,7 @@ public class UserVFolder extends DaoSkeleton {
 
     /** ownership */
     @TableField("ownership")
-    private String ownership;
+    private VFOwnership ownership;
 
     /** granted by (user_no) */
     @TableField("granted_by")
