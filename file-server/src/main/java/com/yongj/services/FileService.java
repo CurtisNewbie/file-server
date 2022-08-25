@@ -176,4 +176,9 @@ public interface FileService {
      * Check if the user if the owner of the file
      */
     boolean isFileOwner(int userId, String uuid);
+
+    /**
+     * List files in folder
+     */
+    PageableList<ListFileInfoRespVo> listFilesInFolder(ListVFolderFilesReq req);
 }

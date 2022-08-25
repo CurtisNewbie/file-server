@@ -18,4 +18,14 @@
     limit 1
   </select>
 
+  <select id="listVFolders" resultType="com.yongj.vo.VFolderListResp">
+    select f.id, f.create_time, f.create_by, f.update_time, f.update_by, f.folder_no, f.name, uv.ownership
+    from vfolder f
+    left join user_vfolder uv on f.folder_no = uv.folder_no
+    where uv.user_no = #{r.userNo}
+    <if test="r.folderNo != null and r.folderNo != ''">
+      and uv.folder_no = #{r.folderNo}
+    </if>
+  </select>
+
 </mapper>

@@ -85,15 +85,15 @@
             <when test="p.userGroup == 1">
               and fi.user_group = 1
               and (
-              fi.uploader_id = #{p.userId}
-              or (fs.id is not null and fs.is_del = 0)
+                fi.uploader_id = #{p.userId}
+                or (fs.id is not null and fs.is_del = 0)
               )
             </when>
             <otherwise>
               and (
-              fi.user_group = 0
-              or fi.uploader_id = #{p.userId}
-              or (fs.id is not null and fs.is_del = 0)
+                fi.user_group = 0
+                or fi.uploader_id = #{p.userId}
+                or (fs.id is not null and fs.is_del = 0)
               )
             </otherwise>
           </choose>
@@ -139,27 +139,22 @@
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
-    <if test="tagName != null and tagName != ''">
-      left join file_tag ft on (ft.user_id = #{userId} and fi.id = ft.file_id)
-      left join tag t on (ft.tag_id = t.id)
-    </if>
-    <where>
-      fi.is_del = 0
-      and fi.is_logic_deleted = 0
-      and (
-      fi.user_group = 0
-      or (fi.user_group = 1 and fi.uploader_id = #{userId})
-      or (fs.id IS NOT NULL and fs.is_del = 0)
+    left join file_tag ft on (ft.user_id = #{userId} and fi.id = ft.file_id)
+    left join tag t on (ft.tag_id = t.id)
+    where
+      (
+        fi.user_group = 0
+        or (fi.user_group = 1 and fi.uploader_id = #{userId})
+        or (fs.id IS NOT NULL and fs.is_del = 0)
       )
-      <if test="tagName != null and tagName != ''">
-        and t.name = #{tagName}
-        and ft.is_del = 0
-        and t.is_del = 0
-      </if>
+      and t.name = #{tagName}
       <if test="filename != null and filename != ''">
         and fi.name like "%"#{filename}"%"
       </if>
-    </where>
+      and fi.is_del = 0
+      and ft.is_del = 0
+      and t.is_del = 0
+      and fi.is_logic_deleted = 0
     order by id desc
   </select>
 

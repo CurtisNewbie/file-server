@@ -510,6 +510,12 @@ public class FileServiceImpl implements FileService {
                 .last("limit 1")) != null;
     }
 
+    @Override
+    public PageableList<ListFileInfoRespVo> listFilesInFolder(ListVFolderFilesReq req) {
+        // todo
+        return null;
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
