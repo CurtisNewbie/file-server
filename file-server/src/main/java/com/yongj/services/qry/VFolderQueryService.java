@@ -2,6 +2,7 @@ package com.yongj.services.qry;
 
 import com.curtisnewbie.common.vo.*;
 import com.yongj.vo.*;
+import org.springframework.validation.annotation.*;
 
 import javax.validation.constraints.*;
 
@@ -10,6 +11,7 @@ import javax.validation.constraints.*;
  *
  * @author yongj.zhuang
  */
+@Validated
 public interface VFolderQueryService {
 
     /**
@@ -17,4 +19,8 @@ public interface VFolderQueryService {
      */
     PageableList<VFolderListResp> listVFolders(@NotNull ListVFolderReq req);
 
+    /**
+     * List files in folder
+     */
+    PageableList<ListFileInfoRespVo> listFilesInFolder(@NotNull ListVFolderFilesReq req);
 }

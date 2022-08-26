@@ -28,4 +28,13 @@
     </if>
   </select>
 
+  <select id="listFilesInVFolders" resultType="com.yongj.vo.ListFileInfoRespVo">
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
+    from file_info fi
+    left join file_vfolder fv on (fi.uuid = fv.uuid)
+    left join user_vfolder uv on (fv.folder_no = uv.folder_no)
+    where uv.user_no = #{r.userNo}
+    and uv.folder_no = #{r.folderNo}
+  </select>
+
 </mapper>

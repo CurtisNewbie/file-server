@@ -16,4 +16,5 @@ public interface VFolderMapper extends BaseMapper<VFolder> {
 
     Page<VFolderListResp> listVFolders(Page page, @Param("r") ListVFolderReq req);
 
+    Page<ListFileInfoRespVo> listFilesInVFolders(Page forPage, @Param("r") ListVFolderFilesReq req);
 }

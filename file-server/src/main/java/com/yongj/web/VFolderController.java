@@ -1,5 +1,6 @@
 package com.yongj.web;
 
+import com.curtisnewbie.common.advice.*;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.vo.*;
@@ -37,12 +38,13 @@ public class VFolderController {
     @PostMapping("/file/list")
     public Result<PageableList<ListFileInfoRespVo>> listFilesInFolder(@RequestBody ListVFolderFilesReq req) {
         final String userNo = TraceUtils.requireUserNo();
-        log.info("List VFolders, req: {}, user: {}", req, userNo);
+        log.info("List files in VFolders, req: {}, user: {}", req, userNo);
 
         req.setUserNo(userNo);
-        return Result.of(fileService.listFilesInFolder(req));
+        return Result.of(vFolderQueryService.listFilesInFolder(req));
     }
 
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/create")
     public Result<String> createVFolder(@RequestBody CreateVFolderReq req) {
         final TUser user = TraceUtils.tUser();
@@ -55,6 +57,7 @@ public class VFolderController {
                 .build()));
     }
 
+    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/file/add")
     public Result<Void> addFileToVFolder(@RequestBody AddFileToVFolderReq req) {
         final TUser user = TraceUtils.tUser();

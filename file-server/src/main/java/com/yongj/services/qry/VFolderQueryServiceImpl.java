@@ -24,4 +24,11 @@ public class VFolderQueryServiceImpl implements VFolderQueryService {
         final Page<VFolderListResp> page = vFolderMapper.listVFolders(forPage(req.getPagingVo()), req);
         return PageableList.from(page);
     }
+
+    @Override
+    public PageableList<ListFileInfoRespVo> listFilesInFolder(ListVFolderFilesReq req) {
+        final Page<ListFileInfoRespVo> page = vFolderMapper.listFilesInVFolders(forPage(req.getPagingVo()), req);
+        return PageableList.from(page);
+    }
+
 }

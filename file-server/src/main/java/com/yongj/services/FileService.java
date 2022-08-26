@@ -177,8 +177,4 @@ public interface FileService {
      */
     boolean isFileOwner(int userId, String uuid);
 
-    /**
-     * List files in folder
-     */
-    PageableList<ListFileInfoRespVo> listFilesInFolder(ListVFolderFilesReq req);
 }
