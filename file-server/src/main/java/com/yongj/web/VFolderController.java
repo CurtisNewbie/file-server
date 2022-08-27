@@ -10,6 +10,9 @@ import com.yongj.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.*;
+
+import static com.curtisnewbie.common.util.AsyncUtils.*;
 
 /**
  * @author yongj.zhuang
@@ -25,30 +28,30 @@ public class VFolderController {
     private VFolderQueryService vFolderQueryService;
 
     @PostMapping("/list")
-    public Result<PageableList<VFolderListResp>> listVFolders(@RequestBody ListVFolderReq req) {
+    public DeferredResult<Result<PageableList<VFolderListResp>>> listVFolders(@RequestBody ListVFolderReq req) {
         final String userNo = TraceUtils.requireUserNo();
         log.info("List VFolders, req: {}, user: {}", req, userNo);
 
         req.setUserNo(userNo);
-        return Result.of(vFolderQueryService.listVFolders(req));
+        return runAsyncResult(() -> vFolderQueryService.listVFolders(req));
     }
 
     @PostMapping("/file/list")
-    public Result<PageableList<ListFileInfoRespVo>> listFilesInFolder(@RequestBody ListVFolderFilesReq req) {
+    public DeferredResult<Result<PageableList<ListFileInfoRespVo>>> listFilesInFolder(@RequestBody ListVFolderFilesReq req) {
         final String userNo = TraceUtils.requireUserNo();
         log.info("List files in VFolders, req: {}, user: {}", req, userNo);
 
         req.setUserNo(userNo);
-        return Result.of(vFolderQueryService.listFilesInFolder(req));
+        return runAsyncResult(() -> vFolderQueryService.listFilesInFolder(req));
     }
 
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/create")
-    public Result<String> createVFolder(@RequestBody CreateVFolderReq req) {
+    public DeferredResult<Result<String>> createVFolder(@RequestBody CreateVFolderReq req) {
         final TUser user = TraceUtils.tUser();
         log.info("Creating VFolder, req: {}, user: {}", req, user.getUsername());
 
-        return Result.ofSupplied(() -> vFolderService.createVFolder(CreateVFolderCmd.builder()
+        return runAsyncResult(() -> vFolderService.createVFolder(CreateVFolderCmd.builder()
                 .name(req.getName())
                 .username(user.getUsername())
                 .userNo(user.getUserNo())
@@ -57,11 +60,11 @@ public class VFolderController {
 
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/file/add")
-    public Result<Void> addFileToVFolder(@RequestBody AddFileToVFolderReq req) {
+    public DeferredResult<Result<Void>> addFileToVFolder(@RequestBody AddFileToVFolderReq req) {
         final TUser user = TraceUtils.tUser();
         log.info("Adding file to VFolder, req: {}, user: {}", req, user.getUsername());
 
-        return Result.runThenOk(() -> vFolderService.addFileToVFolder(AddFileToVFolderCmd.builder()
+        return runAsync(() -> vFolderService.addFileToVFolder(AddFileToVFolderCmd.builder()
                 .userNo(user.getUserNo())
                 .folderNo(req.getFolderNo())
                 .fileKeys(req.getFileKeys())

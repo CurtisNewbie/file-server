@@ -1,8 +1,7 @@
 package com.yongj.vo;
 
 import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
-import com.curtisnewbie.common.util.EnumUtils;
-import com.curtisnewbie.common.util.ValidUtils;
+import com.curtisnewbie.common.util.*;
 import com.yongj.enums.FileUserGroupEnum;
 import lombok.Data;
 
@@ -24,10 +23,10 @@ public class UpdateFileReqVo {
     private String name;
 
 
-    public void validate() throws MsgEmbeddedException {
-        ValidUtils.requireNonNull(id, "id can't be null");
-        ValidUtils.assertTrue(userGroup != null || name != null, "Illegal Arguments, must have values to update");
+    public void validate() {
+        AssertUtils.notNull(id, "id can't be null");
+        AssertUtils.isTrue(userGroup != null || name != null, "Illegal Arguments, must have values to update");
         FileUserGroupEnum fug = EnumUtils.parse(userGroup, FileUserGroupEnum.class);
-        ValidUtils.requireNonNull(fug, "Illegal UserGroup value");
+        AssertUtils.notNull(fug, "Illegal UserGroup value");
     }
 }

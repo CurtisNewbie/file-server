@@ -2,6 +2,7 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.trace.TraceUtils;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.*;
+
+import static com.curtisnewbie.common.util.AsyncUtils.*;
 
 /**
  * @author yongjie.zhuang
@@ -28,13 +32,12 @@ public class FsGroupController {
 
     @LogOperation(name = "updateFsGroupMode", description = "Update FsGroup Mode (READ/READ_WRITE)")
     @PostMapping("/mode/update")
-    public Result<Void> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) {
-        fsGroupService.updateFsGroupMode(reqVo.getId(), reqVo.getMode(), TraceUtils.tUser().getUsername());
-        return Result.ok();
+    public DeferredResult<Result<Void>> updateFsGroupMode(@RequestBody UpdateFsGroupModeReqVo reqVo) {
+        return runAsync(() -> fsGroupService.updateFsGroupMode(reqVo.getId(), reqVo.getMode(), TraceUtils.tUser().getUsername()));
     }
 
     @PostMapping("/list")
-    public Result<PageableList<FsGroupVo>> listAll(@RequestBody ListAllFsGroupReqVo reqVo) {
-        return Result.of(fsGroupService.findByPage(reqVo));
+    public DeferredResult<Result<PageableList<FsGroupVo>>> listAll(@RequestBody ListAllFsGroupReqVo reqVo) {
+        return runAsyncResult(() -> fsGroupService.findByPage(reqVo));
     }
 }

@@ -3,11 +3,9 @@ package com.yongj.web;
 import brave.Span;
 import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
-import com.curtisnewbie.common.exceptions.MsgEmbeddedException;
+import com.curtisnewbie.common.exceptions.*;
 import com.curtisnewbie.common.trace.TUser;
-import com.curtisnewbie.common.util.AssertUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.EnumUtils;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -38,6 +36,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -59,6 +58,7 @@ import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
 import static com.curtisnewbie.common.util.AssertUtils.*;
+import static com.curtisnewbie.common.util.AsyncUtils.*;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
@@ -229,23 +229,23 @@ public class FileController {
     @LogOperation(name = "grantAccessToUser", description = "Grant file access")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/grant-access")
-    public Result<Void> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
-        final TUser tUser = tUser();
+    public DeferredResult<Result<Void>> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
+        return runAsync(() -> {
+            final TUser tUser = tUser();
+            v.validate();
+            final String grantedToUsername = v.getGrantedTo();
+            final Result<Integer> result = userServiceFeign.findIdByUsername(grantedToUsername);
+            result.assertIsOk();
 
-        v.validate();
-        final String grantedToUsername = v.getGrantedTo();
-        final Result<Integer> result = userServiceFeign.findIdByUsername(grantedToUsername);
-        result.assertIsOk();
+            Integer grantedToId = result.getData();
+            AssertUtils.nonNull(grantedToId, "User '" + grantedToUsername + "' doesn't exist");
 
-        Integer grantedToId = result.getData();
-        AssertUtils.nonNull(grantedToId, "User '" + grantedToUsername + "' doesn't exist");
-
-        fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
-                .fileId(v.getFileId())
-                .grantedByUserId(tUser.getUserId())
-                .grantedTo(grantedToId)
-                .build());
-        return Result.ok();
+            fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
+                    .fileId(v.getFileId())
+                    .grantedByUserId(tUser.getUserId())
+                    .grantedTo(grantedToId)
+                    .build());
+        });
     }
 
     /**
@@ -253,31 +253,30 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/list-granted-access")
-    public Result<ListGrantedAccessRespVo> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
-
-        final PageableList<FileSharingVo> pps = fileInfoService.listGrantedAccess(v.getFileId(),
-                tUser().getUserId(), v.getPagingVo());
-
-        final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
-        // collect list of userIds
-        List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
-        if (!idList.isEmpty()) {
-            // get usernames of these userIds
-            final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(
-                    FetchUsernameByIdReq.builder()
-                            .userIds(idList)
-                            .build());
-            result.assertIsOk();
-            Map<Integer, String> idToName = result.getData().getIdToUsername();
-            resp.setList(BeanCopyUtils.mapTo(pps.getPayload(), vo -> {
-                // convert to FileSharingWebVo
-                FileSharingWebVo wv = fileSharingConverter.toWebVo(vo);
-                wv.setUsername(idToName.get(wv.getUserId()));
-                return wv;
-            }));
-        }
-        resp.setPagingVo(pps.getPagingVo());
-        return Result.of(resp);
+    public DeferredResult<Result<ListGrantedAccessRespVo>> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
+        return AsyncUtils.runAsyncResult(() -> {
+            final PageableList<FileSharingVo> pps = fileInfoService.listGrantedAccess(v.getFileId(), tUser().getUserId(), v.getPagingVo());
+            final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
+            // collect list of userIds
+            List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
+            if (!idList.isEmpty()) {
+                // get usernames of these userIds
+                final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(
+                        FetchUsernameByIdReq.builder()
+                                .userIds(idList)
+                                .build());
+                result.assertIsOk();
+                Map<Integer, String> idToName = result.getData().getIdToUsername();
+                resp.setList(BeanCopyUtils.mapTo(pps.getPayload(), vo -> {
+                    // convert to FileSharingWebVo
+                    FileSharingWebVo wv = fileSharingConverter.toWebVo(vo);
+                    wv.setUsername(idToName.get(wv.getUserId()));
+                    return wv;
+                }));
+            }
+            resp.setPagingVo(pps.getPagingVo());
+            return resp;
+        });
     }
 
     /**
@@ -286,23 +285,25 @@ public class FileController {
     @LogOperation(name = "removeGrantedFileAccess", description = "Remove granted file access")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/remove-granted-access")
-    public Result<Void> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
-        fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), tUser().getUserId());
-        return Result.ok();
+    public DeferredResult<Result<Void>> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
+        return runAsync(() -> {
+            fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), tUser().getUserId());
+        });
     }
 
     /**
      * List accessible files for current user
      */
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<ListFileInfoRespVo> listFiles(@RequestBody ListFileInfoReqVo reqVo) {
-        reqVo.setUserId(tUser().getUserId());
-
-        final PageableList<FileInfoVo> pageable = fileInfoService.findPagedFilesForUser(reqVo);
-        final ListFileInfoRespVo res = new ListFileInfoRespVo();
-        res.setFileInfoList(mapTo(pageable.getPayload(), fileInfoConverter::toWebVo));
-        res.setPagingVo(pageable.getPagingVo());
-        return Result.of(res);
+    public DeferredResult<Result<ListFileInfoRespVo>> listFiles(@RequestBody ListFileInfoReqVo reqVo) {
+        return runAsyncResult(() -> {
+            reqVo.setUserId(tUser().getUserId());
+            final PageableList<FileInfoVo> pageable = fileInfoService.findPagedFilesForUser(reqVo);
+            final ListFileInfoRespVo res = new ListFileInfoRespVo();
+            res.setFileInfoList(mapTo(pageable.getPayload(), fileInfoConverter::toWebVo));
+            res.setPagingVo(pageable.getPagingVo());
+            return res;
+        });
     }
 
     /**
@@ -311,20 +312,19 @@ public class FileController {
     @LogOperation(name = "deleteFile", description = "Delete a file logically")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/delete")
-    public Result<Void> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
-        AssertUtils.nonNull(reqVo.getId());
-        fileInfoService.deleteFileLogically(tUser().getUserId(), reqVo.getId());
-        return Result.ok();
+    public DeferredResult<Result<Void>> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
+        return runAsync(() -> {
+            AssertUtils.nonNull(reqVo.getId());
+            fileInfoService.deleteFileLogically(tUser().getUserId(), reqVo.getId());
+        });
     }
 
     /**
      * List supported file extension names
      */
     @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<List<String>> listSupportedFileExtensionNames() {
-        return Result.of(
-                fileExtensionService.getNamesOfAllEnabled()
-        );
+    public DeferredResult<Result<List<String>>> listSupportedFileExtensionNames() {
+        return runAsyncResult(() -> fileExtensionService.getNamesOfAllEnabled());
     }
 
     /**
@@ -333,14 +333,15 @@ public class FileController {
     @LogOperation(name = "addFileExtension", description = "Add file extension")
     @RoleControlled(rolesRequired = "admin")
     @PostMapping("/extension/add")
-    public Result<Void> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
+    public DeferredResult<Result<Void>> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
         hasText(reqVo.getName(), "extension name must not be empty");
-        FileExtension ext = new FileExtension();
-        // by default disabled
-        ext.setIsEnabled(FExtIsEnabled.DISABLED);
-        ext.setName(reqVo.getName());
-        fileExtensionService.addFileExt(ext);
-        return Result.ok();
+
+        return runAsync(() -> {
+            FileExtension ext = new FileExtension();
+            ext.setIsEnabled(FExtIsEnabled.DISABLED); // by default disabled
+            ext.setName(reqVo.getName());
+            fileExtensionService.addFileExt(ext);
+        });
     }
 
     /**
@@ -348,8 +349,8 @@ public class FileController {
      */
     @RoleControlled(rolesRequired = "admin")
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result<PageableList<FileExtVo>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
-        return Result.of(fileExtensionService.getDetailsOfAllByPageSelective(vo));
+    public DeferredResult<Result<PageableList<FileExtVo>>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
+        return runAsyncResult(() -> fileExtensionService.getDetailsOfAllByPageSelective(vo));
     }
 
     /**
@@ -358,12 +359,11 @@ public class FileController {
     @RoleControlled(rolesRequired = "admin")
     @LogOperation(name = "updateFileExtension", description = "Update file extension")
     @PostMapping(path = "/extension/update")
-    public Result<Void> updateFileExtension(@RequestBody UpdateFileExtReq req) {
+    public DeferredResult<Result<Void>> updateFileExtension(@RequestBody UpdateFileExtReq req) {
         nonNull(req.getId());
         notNull(req.getIsEnabled());
 
-        fileExtensionService.updateFileExtension(req);
-        return Result.ok();
+        return runAsync(() -> fileExtensionService.updateFileExtension(req));
     }
 
     /**
@@ -371,35 +371,37 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/info/update")
-    public Result<Void> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) throws MsgEmbeddedException,
-            InvalidAuthenticationException {
+    public DeferredResult<Result<Void>> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) {
 
         // validate param
         reqVo.validate();
-        TUser tUser = tUser();
 
-        fileInfoService.updateFile(UpdateFileCmd.builder()
-                .id(reqVo.getId())
-                .fileName(reqVo.getName())
-                .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
-                .updatedById(tUser.getUserId())
-                .build());
-        return Result.ok();
+        return runAsync(() -> {
+            TUser tUser = tUser();
+            fileInfoService.updateFile(UpdateFileCmd.builder()
+                    .id(reqVo.getId())
+                    .fileName(reqVo.getName())
+                    .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
+                    .updatedById(tUser.getUserId())
+                    .build());
+        });
     }
 
     /**
      * Generate temporary token to download the file
      */
     @PostMapping("/token/generate")
-    public Result<String> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) {
+    public DeferredResult<Result<String>> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) {
 
-        final TUser tUser = tUser();
+        return runAsyncResult(() -> {
+            final TUser tUser = tUser();
 
-        // validate user authority
-        final Integer fileId = reqVo.getId();
-        fileInfoService.validateUserDownload(tUser.getUserId(), fileId, tUser.getUserNo());
+            // validate user authority
+            final Integer fileId = reqVo.getId();
+            fileInfoService.validateUserDownload(tUser.getUserId(), fileId, tUser.getUserNo());
 
-        return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15));
+            return tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15);
+        });
     }
 
     /**
@@ -407,8 +409,7 @@ public class FileController {
      */
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
-                                                 @RequestParam("token") String token) throws IOException,
-            MsgEmbeddedException {
+                                                 @RequestParam("token") String token) throws IOException {
 
         hasText(token, "Token can't be empty");
         final Integer id = tempTokenFileDownloadService.getIdByToken(token);
@@ -416,10 +417,11 @@ public class FileController {
 
         FileInfo fi = fileInfoService.findById(id);
         notNull(fi, "File not found");
+
         if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
             // remove the token
             tempTokenFileDownloadService.removeToken(token);
-            throw new MsgEmbeddedException("File is deleted already");
+            throw new UnrecoverableException("File is deleted already");
         }
 
         return download(req, resp, fi);
@@ -429,47 +431,49 @@ public class FileController {
      * List all tags for current user
      */
     @GetMapping("/tag/list/all")
-    public Result<List<String>> listAllTags() throws InvalidAuthenticationException {
-        return Result.of(fileInfoService.listFileTags(tUser().getUserId()));
+    public DeferredResult<Result<List<String>>> listAllTags() throws InvalidAuthenticationException {
+        return runAsyncResult(() -> fileInfoService.listFileTags(tUser().getUserId()));
     }
 
     /**
      * List all tags for the current user and the selected file
      */
     @PostMapping("/tag/list-for-file")
-    public Result<PageableList<TagWebVo>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) {
-        PageableList<TagVo> pv = fileInfoService.listFileTags(tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
-        return Result.of(convertPayload(pv, tagConverter::toWebVo));
+    public DeferredResult<Result<PageableList<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) {
+        return runAsyncResult(() -> {
+            PageableList<TagVo> pv = fileInfoService.listFileTags(tUser().getUserId(), req.getFileId(), forPage(req.getPagingVo()));
+            return convertPayload(pv, tagConverter::toWebVo);
+        });
     }
 
     /**
      * Tag the file (only for current user)
      */
     @PostMapping("/tag")
-    public Result<Void> tagFile(@Validated @RequestBody TagFileWebReqVo req) {
-        final TUser tUser = tUser();
-        fileInfoService.tagFile(TagFileCmd.builder()
-                .fileId(req.getFileId())
-                .tagName(req.getTagName())
-                .userId(tUser.getUserId())
-                .build());
-
-        return Result.ok();
+    public DeferredResult<Result<Void>> tagFile(@Validated @RequestBody TagFileWebReqVo req) {
+        return runAsync(() -> {
+            final TUser tUser = tUser();
+            fileInfoService.tagFile(TagFileCmd.builder()
+                    .fileId(req.getFileId())
+                    .tagName(req.getTagName())
+                    .userId(tUser.getUserId())
+                    .build());
+        });
     }
 
     /**
      * Remove the tag for the file (only for current user)
      */
     @PostMapping("/untag")
-    public Result<Void> untagFile(@Validated @RequestBody UntagFileWebReqVo req) {
-        final TUser tUser = tUser();
-        fileInfoService.untagFile(UntagFileCmd.builder()
-                .fileId(req.getFileId())
-                .tagName(req.getTagName())
-                .userId(tUser.getUserId())
-                .build());
-
-        return Result.ok();
+    public DeferredResult<Result<Void>> untagFile(@Validated @RequestBody UntagFileWebReqVo req) {
+        return runAsync(() -> {
+            final TUser tUser = tUser();
+            fileInfoService.untagFile(UntagFileCmd.builder()
+                    .fileId(req.getFileId())
+                    .tagName(req.getTagName())
+                    .userId(tUser.getUserId())
+                    .build());
+        });
     }
 
     // ----------------------------------------- private helper methods -----------------------------------
