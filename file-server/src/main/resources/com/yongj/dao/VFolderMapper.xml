@@ -4,16 +4,18 @@
 
   <select id="findVFolderForUser" resultType="com.yongj.dao.VFolder">
     select vf.* from vfolder vf
-    left join user_vfolder uv on vf.folder_no = uv.folder_no
-    where uv.user_no = #{userNo}
+    left join user_vfolder uv on (vf.folder_no = uv.folder_no and uv.is_del = 0)
+    where vf.is_del = 0
+    and uv.user_no = #{userNo}
     and uv.folder_no = #{folderNo}
     limit 1
   </select>
 
   <select id="findIdForFolderWithName" resultType="java.lang.Integer">
     select vf.id from vfolder vf
-    left join user_vfolder uv on vf.folder_no = uv.folder_no
-    where uv.user_no = #{userNo}
+    left join user_vfolder uv on (vf.folder_no = uv.folder_no and uv.is_del = 0)
+    where vf.is_del = 0
+    and uv.user_no = #{userNo}
     and vf.name = #{name}
     limit 1
   </select>
@@ -21,8 +23,9 @@
   <select id="listVFolders" resultType="com.yongj.vo.VFolderListResp">
     select f.id, f.create_time, f.create_by, f.update_time, f.update_by, f.folder_no, f.name, uv.ownership
     from vfolder f
-    left join user_vfolder uv on f.folder_no = uv.folder_no
-    where uv.user_no = #{r.userNo}
+    left join user_vfolder uv on (f.folder_no = uv.folder_no and uv.is_del = 0)
+    where f.is_del = 0
+    and uv.user_no = #{r.userNo}
     <if test="r.folderNo != null and r.folderNo != ''">
       and uv.folder_no = #{r.folderNo}
     </if>
@@ -31,9 +34,10 @@
   <select id="listFilesInVFolders" resultType="com.yongj.vo.ListFileInfoRespVo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
     from file_info fi
-    left join file_vfolder fv on (fi.uuid = fv.uuid)
-    left join user_vfolder uv on (fv.folder_no = uv.folder_no)
-    where uv.user_no = #{r.userNo}
+    left join file_vfolder fv on (fi.uuid = fv.uuid and fv.is_del = 0)
+    left join user_vfolder uv on (fv.folder_no = uv.folder_no and uv.is_del = 0)
+    where fi.is_del = 0
+    and uv.user_no = #{r.userNo}
     and uv.folder_no = #{r.folderNo}
   </select>
 
