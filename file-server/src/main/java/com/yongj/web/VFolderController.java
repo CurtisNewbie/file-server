@@ -23,8 +23,6 @@ public class VFolderController {
     private VFolderService vFolderService;
     @Autowired
     private VFolderQueryService vFolderQueryService;
-    @Autowired
-    private FileService fileService;
 
     @PostMapping("/list")
     public Result<PageableList<VFolderListResp>> listVFolders(@RequestBody ListVFolderReq req) {

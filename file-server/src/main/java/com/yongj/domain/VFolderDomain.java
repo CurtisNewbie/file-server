@@ -71,7 +71,10 @@ public class VFolderDomain {
         _assertIsFolderOwner();
 
         // make sure the file is not in current VFolder
-        _assertFileNotInFolder(fileKey);
+        if (isFileNotInFolder(fileKey)) {
+            log.info("File '{}' is already in folder", fileKey);
+            return;
+        }
 
         FileVFolder ff = new FileVFolder();
         ff.setFolderNo(this.folder.getFolderNo());
@@ -103,12 +106,12 @@ public class VFolderDomain {
         AssertUtils.isTrue(uv.isOwner(), "Only owner can add files to this folder");
     }
 
-    private void _assertFileNotInFolder(String fileKey) {
+    private boolean isFileNotInFolder(String fileKey) {
         final FileVFolder ff = fileFolderMapper.selectOne(Wrappers.lambdaQuery(FileVFolder.class)
                 .select(FileVFolder::getId)
                 .eq(FileVFolder::getFolderNo, this.folder.getFolderNo())
                 .eq(FileVFolder::getUuid, fileKey));
 
-        Assert.isNull(ff, "File is already in the folder");
+        return ff == null;
     }
 }
