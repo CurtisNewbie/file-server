@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.*;
+
 /**
  * @author yongj.zhuang
  */
@@ -17,5 +19,5 @@ public class AddFileToVFolderReq {
     private String folderNo;
 
     /** file key (uuid) */
-    private String fileKey;
+    private List<String> fileKeys;
 }

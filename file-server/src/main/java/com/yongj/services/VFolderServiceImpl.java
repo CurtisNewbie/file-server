@@ -40,7 +40,9 @@ public class VFolderServiceImpl implements VFolderService {
         final Lock lock = redisctl.getLock(_lockKey(cmd.getUserNo()));
         LockUtils.lockAndRun(lock, () -> {
             final VFolderDomain domain = vFolderRepository.buildVFolder(cmd.getUserNo(), cmd.getFolderNo());
-            domain.addFile(cmd.getFileKey());
+            cmd.getFileKeys().forEach(fileKey -> {
+                domain.addFile(fileKey);
+            });
         });
     }
 

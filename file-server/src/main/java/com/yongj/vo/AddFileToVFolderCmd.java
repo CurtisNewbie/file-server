@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.*;
 
 /**
  * @author yongj.zhuang
@@ -24,5 +25,5 @@ public class AddFileToVFolderCmd {
 
     /** file key (uuid) */
     @NotEmpty
-    private String fileKey;
+    private List<String> fileKeys;
 }

@@ -64,7 +64,7 @@ public class VFolderController {
         return Result.runThenOk(() -> vFolderService.addFileToVFolder(AddFileToVFolderCmd.builder()
                 .userNo(user.getUserNo())
                 .folderNo(req.getFolderNo())
-                .fileKey(req.getFileKey())
+                .fileKeys(req.getFileKeys())
                 .build()));
     }
 }
