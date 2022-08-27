@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
+import com.curtisnewbie.common.exceptions.*;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.vo.PageableList;
@@ -300,10 +301,21 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public void validateUserDownload(int userId, int id) {
-        // validate whether this file can be downloaded by current user
-        FileInfo f = fileInfoMapper.selectValidateInfoById(id, userId);
-        nonNull(f, "File is not found or you are not allowed to download this file");
+    public void validateUserDownload(int userId, int fileId, String userNo) {
+        final FileDownloadValidInfo f = fileInfoMapper.selectValidateInfoById(fileId, userId, userNo);
+        nonNull(f, "File is not found");
+        isFalse(f.isDeleted(), "File is deleted");
+
+        // current user is the uploader
+        if (Objects.equals(f.getUploaderId(), userId)) return;
+
+        // file shared by the uploader
+        if (f.getFileSharingId() != null && f.getFileSharingId() > 0) return;
+
+        // file belongs to a folder that current user has access to
+        if (f.getUserFolderId() != null && f.getUserFolderId() > 0) return;
+
+        throw new UnrecoverableException("You are not allowed to download this file");
     }
 
     @Override

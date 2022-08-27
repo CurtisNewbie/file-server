@@ -158,15 +158,13 @@
     order by id desc
   </select>
 
-  <select id="selectValidateInfoById" resultType="com.yongj.dao.FileInfo">
-    select fi.id
+  <select id="selectValidateInfoById" resultType="com.yongj.vo.FileDownloadValidInfo">
+    select fi.id 'file_id', fi.user_group, fi.uploader_id, fs.id 'file_sharing_id', uv.id 'user_folder_id', fi.is_logic_deleted
     from file_info fi
-    where fi.id = #{id}
-    and (fi.user_group = 0
-    or (fi.user_group = 1 and fi.uploader_id = #{userId})
-    or exists (select * from file_sharing fs where fs.file_id = fi.id and fs.user_id = #{userId})
-    )
-    and is_del = 0
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId} and fs.is_del = 0)
+    left join file_vfolder ff on (fi.uuid = ff.uuid and ff.is_del = 0)
+    left join user_vfolder uv on (uv.folder_no = ff.folder_no and uv.user_no = #{userNo} and uv.is_del = 0)
+    where fi.id = #{id} and fi.is_del = 0
   </select>
 
   <select id="selectNameById" resultType="java.lang.String">

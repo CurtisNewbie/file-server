@@ -397,7 +397,7 @@ public class FileController {
 
         // validate user authority
         final Integer fileId = reqVo.getId();
-        fileInfoService.validateUserDownload(tUser.getUserId(), fileId);
+        fileInfoService.validateUserDownload(tUser.getUserId(), fileId, tUser.getUserNo());
 
         return Result.of(tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15));
     }

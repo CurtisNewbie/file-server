@@ -95,7 +95,7 @@ public interface FileService {
      *
      * @param userId user.id
      */
-    void validateUserDownload(int userId, int fileId);
+    void validateUserDownload(int userId, int fileId, @NotEmpty String userNo);
 
     /**
      * Logically delete the file

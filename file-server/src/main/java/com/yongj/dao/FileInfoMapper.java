@@ -3,7 +3,7 @@ package com.yongj.dao;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.util.EnhancedMapper;
-import com.yongj.vo.SelectFileInfoListParam;
+import com.yongj.vo.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.lang.Nullable;
 
@@ -39,9 +39,9 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
     long countFileListForUserAndTag(@Param("userId") int userId, @Param("tagName") String tagName, @Nullable @Param("filename") String filename);
 
     /**
-     * Select user_group, user_id, is_logic_deleted
+     * Select user_group, uploaderId, fileSharingId, fileFolderId, isLogicDeleted
      */
-    FileInfo selectValidateInfoById(@Param("id") int id, @Param("userId") int userId);
+    FileDownloadValidInfo selectValidateInfoById(@Param("id") int fileId, @Param("userId") int userId, @Param("userNo") String userNo);
 
     /**
      * Select name

@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS user_vfolder (
     UNIQUE user_folder_uk (user_no, folder_no)
 ) engine=innodb comment="User and Virtual folder join table";
 
-CREATE TABLE IF NOT EXISTS file_folder (
+CREATE TABLE IF NOT EXISTS file_vfolder (
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     folder_no VARCHAR(64) NOT NULL COMMENT 'folder no',
     uuid VARCHAR(64) NOT NULL COMMENT "file's uuid",
