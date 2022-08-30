@@ -26,8 +26,8 @@
     left join user_vfolder uv on (f.folder_no = uv.folder_no and uv.is_del = 0)
     where f.is_del = 0
     and uv.user_no = #{r.userNo}
-    <if test="r.folderNo != null and r.folderNo != ''">
-      and uv.folder_no = #{r.folderNo}
+    <if test="r.name != null and r.name != ''">
+      and f.name like "%"#{r.name}"%"
     </if>
   </select>
 

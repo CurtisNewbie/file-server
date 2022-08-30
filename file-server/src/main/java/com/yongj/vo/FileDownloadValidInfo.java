@@ -33,6 +33,6 @@ public class FileDownloadValidInfo {
         if (isLogicDeleted == null)
             return false;
 
-        return Objects.equals(FileLogicDeletedEnum.NORMAL.getValue(), isLogicDeleted);
+        return Objects.equals(FileLogicDeletedEnum.LOGICALLY_DELETED.getValue(), isLogicDeleted);
     }
 }
