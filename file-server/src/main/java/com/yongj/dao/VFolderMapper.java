@@ -10,11 +10,13 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface VFolderMapper extends BaseMapper<VFolder> {
 
+    VFolderWithOwnership findVFolderWithOwnership(@Param("userNo") String userNo, @Param("folderNo") String folderNo);
+
     VFolder findVFolderForUser(@Param("userNo") String userNo, @Param("folderNo") String folderNo);
 
     Integer findIdForFolderWithName(@Param("userNo") String userNo, @Param("name") String name);
 
     Page<VFolderListResp> listVFolders(Page page, @Param("r") ListVFolderReq req);
 
-    Page<ListFileInfoRespVo> listFilesInVFolders(Page forPage, @Param("r") ListVFolderFilesReq req);
+    Page<FileInfoVo> listFilesInVFolders(Page forPage, @Param("r") ListVFolderFilesReq req);
 }

@@ -30,8 +30,15 @@ public class ListFileInfoReqVo extends PageableVo {
     @JsonIgnore
     private Integer userId;
 
+    /** user no */
+    @JsonIgnore
+    private String userNo;
+
     /** tag name */
     private String tagName;
+
+    /** folder no */
+    private String folderNo;
 
     /**
      * Check whether we are only requesting files that we own

@@ -22,5 +22,5 @@ public interface VFolderQueryService {
     /**
      * List files in folder
      */
-    PageableList<ListFileInfoRespVo> listFilesInFolder(@NotNull ListVFolderFilesReq req);
+    PageableList<FileInfoVo> listFilesInFolder(@NotNull ListVFolderFilesReq req);
 }

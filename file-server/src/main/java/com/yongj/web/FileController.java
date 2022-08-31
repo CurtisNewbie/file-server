@@ -3,9 +3,12 @@ package com.yongj.web;
 import brave.Span;
 import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
-import com.curtisnewbie.common.exceptions.*;
+import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.TUser;
-import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.util.AssertUtils;
+import com.curtisnewbie.common.util.AsyncUtils;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -25,6 +28,7 @@ import com.yongj.io.PathResolver;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileService;
 import com.yongj.services.TempTokenFileDownloadService;
+import com.yongj.services.qry.VFolderQueryService;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
 import com.yongj.web.streaming.ChannelStreamingResponseBody;
@@ -36,7 +40,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.*;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -58,7 +62,8 @@ import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
 import static com.curtisnewbie.common.util.AssertUtils.*;
-import static com.curtisnewbie.common.util.AsyncUtils.*;
+import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
+import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
@@ -71,6 +76,8 @@ import static com.curtisnewbie.common.util.PagingUtil.forPage;
 @RequestMapping("${web.base-path}/file")
 public class FileController {
 
+    @Autowired
+    private VFolderQueryService vFolderQueryService;
     @Autowired
     private UserServiceFeign userServiceFeign;
     @Autowired
@@ -293,16 +300,34 @@ public class FileController {
 
     /**
      * List accessible files for current user
+     * <p>
+     * There two modes: file mode and folder mode
+     * <p>
+     * When the folderNo is specified, it's the folder mode; depends on which mode is used, different sql queries are
+     * also used
      */
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public DeferredResult<Result<ListFileInfoRespVo>> listFiles(@RequestBody ListFileInfoReqVo reqVo) {
+    public DeferredResult<Result<PageableList<FileInfoWebVo>>> listFiles(@RequestBody ListFileInfoReqVo req) {
+        final TUser user = tUser();
+        log.info("List files, req: {}, user: {}", req, user.getUserNo());
+
         return runAsyncResult(() -> {
-            reqVo.setUserId(tUser().getUserId());
-            final PageableList<FileInfoVo> pageable = fileInfoService.findPagedFilesForUser(reqVo);
-            final ListFileInfoRespVo res = new ListFileInfoRespVo();
-            res.setFileInfoList(mapTo(pageable.getPayload(), fileInfoConverter::toWebVo));
-            res.setPagingVo(pageable.getPagingVo());
-            return res;
+
+            final PageableList<FileInfoVo> pl;
+            // folder mode
+            if (StringUtils.hasText(req.getFolderNo())) {
+                ListVFolderFilesReq fr = new ListVFolderFilesReq();
+                fr.setUserId(user.getUserId());
+                fr.setUserNo(user.getUserNo());
+                fr.setFolderNo(req.getFolderNo());
+                fr.setPagingVo(req.getPagingVo());
+                pl = vFolderQueryService.listFilesInFolder(fr);
+            } else {
+                // file mode
+                req.setUserId(user.getUserId());
+                pl = fileInfoService.findPagedFilesForUser(req);
+            }
+            return PageableList.from(mapTo(pl.getPayload(), fileInfoConverter::toWebVo), pl.getPagingVo());
         });
     }
 

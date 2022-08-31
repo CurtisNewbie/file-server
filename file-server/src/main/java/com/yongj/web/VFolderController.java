@@ -36,15 +36,6 @@ public class VFolderController {
         return runAsyncResult(() -> vFolderQueryService.listVFolders(req));
     }
 
-    @PostMapping("/file/list")
-    public DeferredResult<Result<PageableList<ListFileInfoRespVo>>> listFilesInFolder(@RequestBody ListVFolderFilesReq req) {
-        final String userNo = TraceUtils.requireUserNo();
-        log.info("List files in VFolders, req: {}, user: {}", req, userNo);
-
-        req.setUserNo(userNo);
-        return runAsyncResult(() -> vFolderQueryService.listFilesInFolder(req));
-    }
-
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/create")
     public DeferredResult<Result<String>> createVFolder(@RequestBody CreateVFolderReq req) {

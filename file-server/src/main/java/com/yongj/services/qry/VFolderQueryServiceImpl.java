@@ -1,14 +1,18 @@
 package com.yongj.services.qry;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.*;
-import com.curtisnewbie.common.util.*;
-import com.curtisnewbie.common.vo.*;
-import com.yongj.dao.*;
-import com.yongj.vo.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.stereotype.*;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.curtisnewbie.common.vo.PageableList;
+import com.yongj.dao.VFolderMapper;
+import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.ListVFolderFilesReq;
+import com.yongj.vo.ListVFolderReq;
+import com.yongj.vo.VFolderListResp;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import static com.curtisnewbie.common.util.PagingUtil.*;
+import java.util.Objects;
+
+import static com.curtisnewbie.common.util.PagingUtil.forPage;
 
 /**
  * @author yongj.zhuang
@@ -26,8 +30,9 @@ public class VFolderQueryServiceImpl implements VFolderQueryService {
     }
 
     @Override
-    public PageableList<ListFileInfoRespVo> listFilesInFolder(ListVFolderFilesReq req) {
-        final Page<ListFileInfoRespVo> page = vFolderMapper.listFilesInVFolders(forPage(req.getPagingVo()), req);
+    public PageableList<FileInfoVo> listFilesInFolder(ListVFolderFilesReq req) {
+        final Page<FileInfoVo> page = vFolderMapper.listFilesInVFolders(forPage(req.getPagingVo()), req);
+        page.getRecords().forEach(v -> v.setIsOwner(Objects.equals(v.getUploaderId(), req.getUserId())));
         return PageableList.from(page);
     }
 

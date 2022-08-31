@@ -15,5 +15,8 @@ public class ListVFolderFilesReq extends PageableVo<Void> {
     @JsonIgnore
     private String userNo;
 
+    @JsonIgnore
+    private Integer userId;
+
     private String folderNo;
 }

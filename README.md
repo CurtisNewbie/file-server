@@ -106,4 +106,5 @@ In table `task`:
 
 ## Todos
 
-- [ ] Implement *virtual* folders
+- [x] Implement *virtual* folders 
+- [ ] Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders.

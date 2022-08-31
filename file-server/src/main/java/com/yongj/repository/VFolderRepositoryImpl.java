@@ -2,9 +2,9 @@ package com.yongj.repository;
 
 import com.curtisnewbie.common.util.AssertUtils;
 import com.yongj.dao.UserVFolderMapper;
-import com.yongj.dao.VFolder;
 import com.yongj.dao.VFolderMapper;
 import com.yongj.domain.VFolderDomain;
+import com.yongj.vo.VFolderWithOwnership;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -26,10 +26,10 @@ public class VFolderRepositoryImpl implements VFolderRepository {
 
     @Override
     public VFolderDomain buildVFolder(String userNo, String folderNo) {
-        final VFolder vfolder = vFolderMapper.findVFolderForUser(userNo, folderNo);
-        AssertUtils.notNull(vfolder, "Folder not found");
+        final VFolderWithOwnership vf = vFolderMapper.findVFolderWithOwnership(userNo, folderNo);
+        AssertUtils.notNull(vf, "Folder not found");
 
-        return buildEmpty()._forFolder(userNo, vfolder);
+        return buildEmpty()._forFolder(userNo, vf);
     }
 
     @Override
