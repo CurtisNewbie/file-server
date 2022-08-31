@@ -31,3 +31,5 @@ if [ ! $mvnpkg -eq 0 ]; then
 fi
 
 scp "$fs/target/${jarname}" "${remote}:${remote_path}"
+
+ssh  "${remote}" "cd services; docker-compose up -d --build file-service"
