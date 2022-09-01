@@ -106,9 +106,11 @@ In table `task`:
 
 ## Todos
 
-- [x] Implement *virtual* folders.  
+- [x] Implement *virtual* folders.
 - [ ] Host files on fantahsea by specifying a folder rather than files.
-- [ ] Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders.
+- [ ] Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders. Implements folder in file_info, then the virtual folder is just a fancier variation of tags ? 
+- [ ] Supports adding FsGroup on Webpage.
+    
 
 
 
