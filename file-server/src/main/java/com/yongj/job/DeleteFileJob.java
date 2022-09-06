@@ -48,30 +48,26 @@ public class DeleteFileJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         log.info("Physical file deleting job started...");
-        PagingVo paging = new PagingVo();
-        paging.setLimit(LIMIT);
-        paging.setPage(1);
 
-        // first page
-        PageableList<PhysicDeleteFileVo> idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
-        // while there are items in page
-        while (!idsInPage.getPayload().isEmpty()) {
+        final List<PhysicDeleteFileVo> files = fileInfoService.findPagedFileIdsForPhysicalDeleting();
+        log.info("Found {} files, preparing to delete them", files.size());
 
-            log.info("Found {} files, preparing to delete them", idsInPage.getPayload().size());
+        // delete the file physically
+        deleteFilesPhysically(files);
 
-            // delete the file physically
-            deleteFilesPhysically(idsInPage.getPayload());
-
-            // next page
-            paging.setPage(paging.getPage() + 1);
-            idsInPage = fileInfoService.findPagedFileIdsForPhysicalDeleting(paging);
-        }
         log.info("Physical file deleting job finished...");
     }
 
     // files that are unable to delete, won't cause a transaction roll back, we just print an error log
     private void deleteFilesPhysically(List<PhysicDeleteFileVo> list) {
         for (PhysicDeleteFileVo v : list) {
+
+            // if it's directory, just mark it as deleted
+            if (v.isDir()) {
+                // mark as deleted
+                fileInfoService.markFileDeletedPhysically(v.getId());
+                continue;
+            }
 
             // get the fs_group's folder
             final int fsgId = v.getFsGroupId();

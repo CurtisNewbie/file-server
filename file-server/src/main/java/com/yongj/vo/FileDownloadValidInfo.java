@@ -29,6 +29,14 @@ public class FileDownloadValidInfo {
     /** whether the file is logically deleted, 0-normal, 1-deleted */
     private Integer isLogicDeleted;
 
+    /** File type */
+    private FileType fileType;
+
+    /** Is not a directory */
+    public boolean isNotDir() {
+        return fileType != FileType.DIR;
+    }
+
     public boolean isDeleted() {
         if (isLogicDeleted == null)
             return false;

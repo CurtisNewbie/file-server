@@ -48,11 +48,9 @@ public interface FileService {
     PageableList<FileInfoVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
 
     /**
-     * Find logically deleted, but not physically deleted files' id (with pagination)
-     *
-     * @param pagingVo paging parameter
+     * Find logically deleted, but not physically deleted files
      */
-    PageableList<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo);
+    List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting();
 
     /**
      * File uploader id of files that doesn't contain uploader name
@@ -98,12 +96,21 @@ public interface FileService {
     void validateUserDownload(int userId, int fileId, @NotEmpty String userNo);
 
     /**
+     * Move current file into another folder
+     *
+     * @param userid         userId
+     * @param uuid           current file uuid
+     * @param parentFileUuid parent file uuid
+     */
+    void moveFileInto(int userid, String uuid, String parentFileUuid);
+
+    /**
      * Logically delete the file
      *
      * @param userId id of the user
-     * @param fileId file's id
+     * @param uuid   uuid
      */
-    void deleteFileLogically(int userId, int fileId);
+    void deleteFileLogically(int userId, String uuid);
 
     /**
      * Physically delete the file (this method should be invoked by the scheduler

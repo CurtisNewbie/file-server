@@ -68,6 +68,8 @@ import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 
+// todo impl endpoint for moveFileInto
+
 /**
  * @author yongjie.zhuang
  */
@@ -337,10 +339,9 @@ public class FileController {
     @LogOperation(name = "deleteFile", description = "Delete a file logically")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/delete")
-    public DeferredResult<Result<Void>> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
+    public DeferredResult<Result<Void>> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) {
         return runAsync(() -> {
-            AssertUtils.nonNull(reqVo.getId());
-            fileInfoService.deleteFileLogically(tUser().getUserId(), reqVo.getId());
+            fileInfoService.deleteFileLogically(tUser().getUserId(), reqVo.getUuid());
         });
     }
 

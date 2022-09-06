@@ -61,7 +61,7 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
     /**
      * Select id of files that are logically deleted but not physically deleted
      */
-    IPage<FileInfo> findInfoForPhysicalDeleting(Page p);
+    List<FileInfo> findInfoForPhysicalDeleting();
 
     /**
      * Mark file being physically deleted
@@ -75,4 +75,5 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
      * Select fs_group_id, uuid, uploader_id, upload_type
      */
     FileInfo selectDownloadInfoById(int id);
+
 }

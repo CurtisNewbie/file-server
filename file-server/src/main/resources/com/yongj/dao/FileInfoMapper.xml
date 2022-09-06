@@ -160,6 +160,7 @@
 
   <select id="selectValidateInfoById" resultType="com.yongj.vo.FileDownloadValidInfo">
     select fi.id 'file_id', fi.user_group, fi.uploader_id, fs.id 'file_sharing_id', uv.id 'user_folder_id', fi.is_logic_deleted
+      fi.file_type
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId} and fs.is_del = 0)
     left join file_vfolder ff on (fi.uuid = ff.uuid and ff.is_del = 0)
@@ -181,7 +182,7 @@
   </select>
 
   <select id="findInfoForPhysicalDeleting" resultType="com.yongj.dao.FileInfo">
-    select id, uuid, uploader_id, fs_group_id
+    select id, uuid, uploader_id, fs_group_id, file_type
     from file_info
     where is_logic_deleted = 1
     and is_physic_deleted = 0

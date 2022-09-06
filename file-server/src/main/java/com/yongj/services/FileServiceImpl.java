@@ -3,11 +3,12 @@ package com.yongj.services;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.exceptions.*;
-import com.curtisnewbie.common.util.AssertUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.util.ExceptionUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
@@ -64,6 +65,8 @@ import static com.yongj.util.IOUtils.ioThreadPool;
 @Service
 @Transactional
 public class FileServiceImpl implements FileService {
+
+    public static final String FILE_LOCK_PREFIX = "file:uuid:";
 
     @Autowired
     private FileInfoMapper fileInfoMapper;
@@ -234,9 +237,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageableList<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo) {
-        IPage<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting(forPage(pagingVo));
-        return toPageableList(dataList, v -> BeanCopyUtils.toType(v, PhysicDeleteFileVo.class));
+    public List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting() {
+        List<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting();
+        return BeanCopyUtils.toTypeList(dataList, PhysicDeleteFileVo.class);
     }
 
     @Override
@@ -305,6 +308,7 @@ public class FileServiceImpl implements FileService {
         final FileDownloadValidInfo f = fileInfoMapper.selectValidateInfoById(fileId, userId, userNo);
         nonNull(f, "File is not found");
         isFalse(f.isDeleted(), "File is deleted");
+        isTrue(f.isNotDir(), "Downloading a directory is not supported");
 
         // current user is the uploader
         if (Objects.equals(f.getUploaderId(), userId)) return;
@@ -319,12 +323,58 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void deleteFileLogically(int userId, int id) {
-        // check if the file is owned by this user
-        Integer uploaderId = fileInfoMapper.selectUploaderIdById(id);
-        nonNull(uploaderId, "Record not found");
-        AssertUtils.equals(userId, (int) uploaderId, "You can only delete file that you uploaded");
-        fileInfoMapper.logicDelete(id);
+    public void moveFileInto(int userId, String uuid, String parentFileUuid) {
+        LockUtils.lockAndRun(getFileLock(uuid), () -> {
+            LockUtils.lockAndRun(getFileLock(parentFileUuid), () -> {
+
+                final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
+                        .eq(FileInfo::getUuid, uuid)
+                        .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+                nonNull(f, "Record not found");
+                isFalse(f.isDir(), "Directory can't be moved into another directory");
+                AssertUtils.equals(userId, (int) f.getUploaderId(), "Only the uploader can move files");
+
+                final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
+                        .eq(FileInfo::getUuid, parentFileUuid)
+                        .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+                nonNull(dir, "Directory not found");
+                isTrue(dir.isDir(), "Target file is not a directory");
+                AssertUtils.equals(userId, (int) dir.getUploaderId(), "You are not the owner of this directory");
+
+                fileInfoMapper.update(null, Wrappers.lambdaUpdate(FileInfo.class)
+                        .set(FileInfo::getParentFile, parentFileUuid)
+                        .eq(FileInfo::getUuid, uuid));
+            });
+        });
+    }
+
+    @Override
+    public void deleteFileLogically(int userId, String uuid) {
+        LockUtils.lockAndRun(getFileLock(uuid), () -> {
+
+            final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
+                    .select(FileInfo::getId, FileInfo::getUploaderId, FileInfo::getFileType)
+                    .eq(FileInfo::getUuid, uuid)
+                    .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+
+            nonNull(f, "Record not found");
+            AssertUtils.equals(userId, (int) f.getUploaderId(), "You can only delete files that you uploaded");
+
+            // check file type
+            if (f.isDir()) {
+                // if it's dir make sure it's empty
+                final boolean isEmpty = fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>()
+                        .select(FileInfo::getId)
+                        .eq(FileInfo::getParentFile, uuid)
+                        .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                        .last("limit 1")) == null;
+
+                AssertUtils.isTrue(isEmpty, "Directory is not empty, unable to delete it");
+            }
+
+            // mark logically deleted
+            fileInfoMapper.logicDelete(f.getId());
+        });
     }
 
     @Override
@@ -650,6 +700,11 @@ public class FileServiceImpl implements FileService {
         f.setFsGroupId(chainHelper.fsGroup.getId());
         fileInfoMapper.insert(f);
         return f;
+    }
+
+    /** Get Lock for fileInfo */
+    private Lock getFileLock(String uuid) {
+        return redisController.getLock(FILE_LOCK_PREFIX + uuid);
     }
 
 }

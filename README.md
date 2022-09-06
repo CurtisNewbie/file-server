@@ -10,6 +10,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ## Requirements 
 
+- file-service-front (Angular Project) (>= 1.1.11) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front)
 - auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway)
 - auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service)
 - MySQL (5.7+ or 8)
@@ -110,6 +111,7 @@ In table `task`:
 - [ ] Host files on fantahsea by specifying a folder rather than files.
 - [ ] Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders. Implements folder in file_info, then the virtual folder is just a fancier variation of tags ? 
 - [ ] Supports adding FsGroup on Webpage.
+- [ ] Supports some sort of sharding ability, allowing the copy of a file distributed in different shards (physical disk) ?
     
 
 

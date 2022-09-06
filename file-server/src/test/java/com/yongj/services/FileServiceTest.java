@@ -130,13 +130,10 @@ public class FileServiceTest {
         Assertions.assertNotNull(fileInfoService.findPagedFilesForUser(reqVo));
     }
 
-    /** Test {@link FileService#findPagedFileIdsForPhysicalDeleting(PagingVo)} */
+    /** Test {@link FileService#findPagedFileIdsForPhysicalDeleting()} */
     @Test
     void shouldFindPagedFilesForPhysicalDeleting() {
-        PagingVo pv = new PagingVo();
-        pv.setLimit(10);
-        pv.setPage(1);
-        Assertions.assertNotNull(fileInfoService.findPagedFileIdsForPhysicalDeleting(pv));
+        Assertions.assertNotNull(fileInfoService.findPagedFileIdsForPhysicalDeleting());
     }
 
     private void doCleanUp(Path fp) {
@@ -173,7 +170,7 @@ public class FileServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertThrows(Exception.class, () -> {
-            fileInfoService.validateUserDownload(TEST_USER_ID_2, fi.getId());
+            fileInfoService.validateUserDownload(TEST_USER_ID_2, fi.getId(), "USERNO123123");
         });
 
         doCleanUp(fi);
@@ -187,7 +184,7 @@ public class FileServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
-            fileInfoService.deleteFileLogically(TEST_USER_ID, fi.getId());
+            fileInfoService.deleteFileLogically(TEST_USER_ID, fi.getUuid());
             FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsLogicDeleted(), FileLogicDeletedEnum.LOGICALLY_DELETED.getValue());
