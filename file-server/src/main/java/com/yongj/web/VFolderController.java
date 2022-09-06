@@ -4,6 +4,7 @@ import com.curtisnewbie.common.advice.*;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.vo.*;
+import com.yongj.helper.*;
 import com.yongj.services.*;
 import com.yongj.services.qry.*;
 import com.yongj.vo.*;

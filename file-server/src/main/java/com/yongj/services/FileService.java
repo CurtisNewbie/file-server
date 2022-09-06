@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
+import com.yongj.enums.*;
 import com.yongj.vo.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -182,6 +183,10 @@ public interface FileService {
     /**
      * Check if the user if the owner of the file
      */
-    boolean isFileOwner(int userId, String uuid);
+    boolean isFileOwner(int userId, @NotEmpty String uuid);
 
+    /**
+     * Find FileType by key
+     */
+    FileType findFileTypeByKey(@NotEmpty String uuid);
 }

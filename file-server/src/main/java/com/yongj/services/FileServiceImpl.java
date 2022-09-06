@@ -16,10 +16,7 @@ import com.yongj.config.FileServiceConfig;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
-import com.yongj.enums.FileLogicDeletedEnum;
-import com.yongj.enums.FilePhysicDeletedEnum;
-import com.yongj.enums.FileUserGroupEnum;
-import com.yongj.enums.FsGroupType;
+import com.yongj.enums.*;
 import com.yongj.helper.FsGroupIdResolver;
 import com.yongj.helper.WriteFsGroupSupplier;
 import com.yongj.io.IOHandler;
@@ -570,6 +567,15 @@ public class FileServiceImpl implements FileService {
                 .eq(FileInfo::getUploaderId, userId)
                 .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
                 .last("limit 1")) != null;
+    }
+
+    @Override
+    public FileType findFileTypeByKey(String uuid) {
+        final FileInfo f = fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>()
+                .select(FileInfo::getFileType)
+                .eq(FileInfo::getUuid, uuid));
+        if (f == null) return null;
+        return f.getFileType();
     }
 
     // ------------------------------------- private helper methods ------------------------------------

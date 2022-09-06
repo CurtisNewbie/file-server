@@ -34,8 +34,6 @@ import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
 @Component
 public class DeleteFileJob implements Job {
 
-    private static final Integer LIMIT = 100;
-
     @Autowired
     private FileService fileInfoService;
     @Autowired

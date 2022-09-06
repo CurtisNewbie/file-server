@@ -3,6 +3,7 @@ package com.yongj.services;
 import com.curtisnewbie.common.util.LockUtils;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.domain.VFolderDomain;
+import com.yongj.helper.*;
 import com.yongj.repository.VFolderRepository;
 import com.yongj.vo.AddFileToVFolderCmd;
 import com.yongj.vo.CreateVFolderCmd;
@@ -24,6 +25,8 @@ public class VFolderServiceImpl implements VFolderService {
     private VFolderRepository vFolderRepository;
     @Autowired
     private RedisController redisctl;
+    @Autowired
+    private FileTypeResolver fileTypeResolver;
 
     @Override
     @Transactional
@@ -40,7 +43,9 @@ public class VFolderServiceImpl implements VFolderService {
         final Lock lock = redisctl.getLock(_lockKey(cmd.getUserNo()));
         LockUtils.lockAndRun(lock, () -> {
             final VFolderDomain domain = vFolderRepository.buildVFolder(cmd.getUserNo(), cmd.getFolderNo());
-            cmd.getFileKeys().forEach(domain::addFile);
+            cmd.getFileKeys().stream()
+                    .filter(fileTypeResolver::isFile)
+                    .forEach(domain::addFile);
         });
     }
 
