@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.yongj.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,10 @@ public class SelectFileInfoListParam {
 
     /** tag name */
     private String tagName;
+
+    /** File type */
+    private FileType fileType;
+
+    /** Parent file uuid */
+    private String parentFile;
 }
