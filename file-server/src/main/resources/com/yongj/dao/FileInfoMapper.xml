@@ -62,7 +62,7 @@
       <if test="p.filename != null and p.filename != ''">
         and fi.name like "%"#{p.filename}"%"
       </if>
-      <if test="p.parentFile != null and p.parentFile != ''">
+      <if test="p.parentFile != null">
         and fi.parent_file = #{p.parentFile}
       </if>
       <if test="p.fileType != null">
@@ -85,12 +85,18 @@
     where
     (
     fi.user_group = 0
-    or (fi.user_group = 1 and fi.uploader_id = #{userId})
+    or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
     or (fs.id IS NOT NULL and fs.is_del = 0)
     )
-    and t.name = #{tagName}
-    <if test="filename != null and filename != ''">
-      and fi.name like "%"#{filename}"%"
+    and t.name = #{p.tagName}
+    <if test="p.filename != null and p.filename != ''">
+      and fi.name like "%"#{p.filename}"%"
+    </if>
+    <if test="p.parentFile != null">
+      and fi.parent_file = #{p.parentFile}
+    </if>
+    <if test="p.fileType != null">
+      and fi.file_type = #{p.fileType}
     </if>
     and fi.is_del = 0
     and ft.is_del = 0
@@ -101,8 +107,8 @@
   <select id="countFileListForUserAndTag" resultType="java.lang.Long">
     select count(*)
     from file_info fi
-    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
-    left join file_tag ft on (ft.user_id = #{userId} and fi.id = ft.file_id)
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
+    left join file_tag ft on (ft.user_id = #{p.userId} and fi.id = ft.file_id)
     left join tag t on (ft.tag_id = t.id)
     <include refid="selectListForTagCond"/>
   </select>
@@ -111,8 +117,8 @@
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
       fi.file_type
     from file_info fi
-    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
-    left join file_tag ft on (ft.user_id = #{userId} and fi.id = ft.file_id)
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
+    left join file_tag ft on (ft.user_id = #{p.userId} and fi.id = ft.file_id)
     left join tag t on (ft.tag_id = t.id)
     <include refid="selectListForTagCond"/>
     order by id desc

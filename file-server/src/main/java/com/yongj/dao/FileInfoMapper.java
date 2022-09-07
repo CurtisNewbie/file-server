@@ -21,13 +21,12 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
      */
     long countFileListForUserSelective(@Param("p") SelectFileInfoListParam param);
 
-    List<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("userId") int userId, @Param("tagName") String tagName,
-                                               @Nullable @Param("filename") String filename);
+    List<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("p") SelectFileInfoListParam param);
 
     /**
-     * Count for {@link #selectFileListForUserAndTag(Page, int, String, String)}
+     * Count for {@link #selectFileListForUserAndTag(Page, SelectFileInfoListParam)}
      */
-    long countFileListForUserAndTag(@Param("userId") int userId, @Param("tagName") String tagName, @Nullable @Param("filename") String filename);
+    long countFileListForUserAndTag(@Param("p") SelectFileInfoListParam param);
 
     FileDownloadValidInfo selectValidateInfoById(@Param("id") int fileId, @Param("userId") int userId, @Param("userNo") String userNo);
 

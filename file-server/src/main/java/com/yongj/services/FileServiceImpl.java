@@ -203,6 +203,10 @@ public class FileServiceImpl implements FileService {
         }
         final Page<?> p = forPage(reqVo.getPagingVo());
 
+        // Only select the top level file or dir
+        if (!StringUtils.hasText(param.getParentFile()))
+            param.setParentFile("");
+
         /*
             Based on whether tagName is present, we use different queries
 
@@ -211,10 +215,10 @@ public class FileServiceImpl implements FileService {
          */
         final boolean qryForTag = StringUtils.hasText(param.getTagName());
         List<FileInfo> dataList = qryForTag ?
-                fileInfoMapper.selectFileListForUserAndTag(p, param.getUserId(), param.getTagName(), param.getFilename()) :
+                fileInfoMapper.selectFileListForUserAndTag(p, param) :
                 fileInfoMapper.selectFileListForUserSelective(p, param);
         final long count = qryForTag ?
-                fileInfoMapper.countFileListForUserAndTag(param.getUserId(), param.getTagName(), param.getFilename()) :
+                fileInfoMapper.countFileListForUserAndTag(param) :
                 fileInfoMapper.countFileListForUserSelective(param);
 
         final List<FileInfoVo> converted = dataList.stream().map(e -> {
