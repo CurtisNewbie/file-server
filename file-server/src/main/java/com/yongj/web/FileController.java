@@ -4,7 +4,7 @@ import brave.Span;
 import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
-import com.curtisnewbie.common.trace.TUser;
+import com.curtisnewbie.common.trace.*;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.AsyncUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
@@ -230,6 +230,35 @@ public class FileController {
             }
         });
         return Result.ok();
+    }
+
+    /**
+     * Move file into directory
+     */
+    @LogOperation(name = "moveIntoDir", description = "Move into directory")
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping(path = "/move-to-dir")
+    public DeferredResult<Result<Void>> moveFileIntoDir(@RequestBody MoveFileIntoDirReqVo r) {
+        return runAsync(() -> {
+            final TUser user = tUser();
+            fileInfoService.moveFileInto(user.getUserId(), r.getUuid(), r.getParentFileUuid());
+        });
+    }
+
+    /**
+     * Make Directory for current user
+     */
+    @LogOperation(name = "makeDir", description = "Make directory")
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping(path = "/make-dir")
+    public DeferredResult<Result<String>> makeDir(@RequestBody MakeDirReqVo r) {
+        return runAsyncResult(() -> {
+            final TUser user = tUser();
+            r.setUploaderId(user.getUserId());
+            r.setUploaderName(user.getUsername());
+            final FileInfo dir = fileInfoService.mkdir(r);
+            return dir.getUuid();
+        });
     }
 
     /**

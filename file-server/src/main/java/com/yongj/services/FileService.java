@@ -8,6 +8,7 @@ import com.yongj.enums.*;
 import com.yongj.vo.*;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -103,7 +104,7 @@ public interface FileService {
      * @param uuid           current file uuid
      * @param parentFileUuid parent file uuid
      */
-    void moveFileInto(int userid, String uuid, String parentFileUuid);
+    void moveFileInto(int userid, @NotEmpty String uuid, @NotEmpty String parentFileUuid);
 
     /**
      * Logically delete the file
@@ -189,4 +190,9 @@ public interface FileService {
      * Find FileType by key
      */
     FileType findFileTypeByKey(@NotEmpty String uuid);
+
+    /**
+     * Make Directory
+     */
+    FileInfo mkdir(@NotNull @Valid MakeDirReqVo req);
 }

@@ -578,6 +578,31 @@ public class FileServiceImpl implements FileService {
         return f.getFileType();
     }
 
+    @Override
+    public FileInfo mkdir(MakeDirReqVo r) {
+        final String uuid = UUID.randomUUID().toString();
+
+        FileInfo dir = new FileInfo();
+        dir.setName(r.getName());
+        dir.setUuid(uuid);
+        dir.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+        dir.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        dir.setSizeInBytes(0L);
+        dir.setUploaderId(r.getUploaderId());
+        dir.setUploaderName(r.getUploaderName());
+        dir.setUploadTime(LocalDateTime.now());
+
+        if (r.getUserGroup() == null) r.setUserGroup(FileUserGroupEnum.PRIVATE.getValue());
+        else AssertUtils.notNull(FileUserGroupEnum.parse(r.getUserGroup()));
+
+        dir.setUserGroup(r.getUserGroup());
+        dir.setFileType(FileType.DIR);
+
+        fileInfoMapper.insert(dir);
+
+        return dir;
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
