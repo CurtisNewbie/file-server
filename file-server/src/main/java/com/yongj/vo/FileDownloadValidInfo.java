@@ -23,9 +23,6 @@ public class FileDownloadValidInfo {
     /** file_sharing.id */
     private Integer fileSharingId;
 
-    /** user_folder.id */
-    private Integer userFolderId;
-
     /** whether the file is logically deleted, 0-normal, 1-deleted */
     private Integer isLogicDeleted;
 

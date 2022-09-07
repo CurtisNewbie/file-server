@@ -1,6 +1,5 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.util.EnhancedMapper;
 import com.yongj.vo.*;
@@ -15,10 +14,6 @@ import java.util.List;
  */
 public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
 
-    /**
-     * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
-     * fi.upload_time
-     */
     List<FileInfo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
 
     /**
@@ -26,10 +21,6 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
      */
     long countFileListForUserSelective(@Param("p") SelectFileInfoListParam param);
 
-    /**
-     * Select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name,
-     * fi.upload_time
-     */
     List<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("userId") int userId, @Param("tagName") String tagName,
                                                @Nullable @Param("filename") String filename);
 
@@ -38,10 +29,9 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
      */
     long countFileListForUserAndTag(@Param("userId") int userId, @Param("tagName") String tagName, @Nullable @Param("filename") String filename);
 
-    /**
-     * Select user_group, uploaderId, fileSharingId, fileFolderId, isLogicDeleted
-     */
     FileDownloadValidInfo selectValidateInfoById(@Param("id") int fileId, @Param("userId") int userId, @Param("userNo") String userNo);
+
+    Integer selectUserFolderIdForFile(@Param("id") int fileId, @Param("userNo") String userNo);
 
     /**
      * Select name

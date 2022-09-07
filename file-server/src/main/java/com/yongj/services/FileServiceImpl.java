@@ -226,9 +226,7 @@ public class FileServiceImpl implements FileService {
 
         final PageableList<FileInfoVo> pl = new PageableList<>();
         pl.setPayload(converted);
-        pl.setPagingVo(new PagingVo()
-                .ofPage((int) p.getCurrent())
-                .ofTotal(count));
+        pl.setPagingVo(PagingUtil.ofPageAndTotal((int) p.getCurrent(), count));
         return pl;
     }
 
@@ -314,7 +312,7 @@ public class FileServiceImpl implements FileService {
         if (f.getFileSharingId() != null && f.getFileSharingId() > 0) return;
 
         // file belongs to a folder that current user has access to
-        if (f.getUserFolderId() != null && f.getUserFolderId() > 0) return;
+        if (fileInfoMapper.selectUserFolderIdForFile(fileId, userNo) != null) return;
 
         throw new UnrecoverableException("You are not allowed to download this file");
     }
