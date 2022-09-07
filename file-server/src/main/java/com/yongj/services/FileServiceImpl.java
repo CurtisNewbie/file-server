@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.exceptions.*;
 import com.curtisnewbie.common.util.*;
-import com.curtisnewbie.common.util.ExceptionUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
@@ -312,7 +311,7 @@ public class FileServiceImpl implements FileService {
         if (f.getFileSharingId() != null && f.getFileSharingId() > 0) return;
 
         // file belongs to a folder that current user has access to
-        if (fileInfoMapper.selectUserFolderIdForFile(fileId, userNo) != null) return;
+        if (fileInfoMapper.selectAnyUserFolderIdForFile(fileId, userNo) != null) return;
 
         throw new UnrecoverableException("You are not allowed to download this file");
     }

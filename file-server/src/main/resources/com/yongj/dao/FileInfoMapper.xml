@@ -153,7 +153,7 @@
     and is_logic_deleted = 0
   </select>
 
-  <select id="selectUserFolderIdForFile" resultType="java.lang.Integer">
+  <select id="selectAnyUserFolderIdForFile" resultType="java.lang.Integer">
     select uv.id
     from file_info fi
     left join file_vfolder fv on (fi.uuid = fv.uuid and fv.is_del = 0)

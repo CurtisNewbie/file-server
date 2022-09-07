@@ -31,7 +31,7 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
 
     FileDownloadValidInfo selectValidateInfoById(@Param("id") int fileId, @Param("userId") int userId, @Param("userNo") String userNo);
 
-    Integer selectUserFolderIdForFile(@Param("id") int fileId, @Param("userNo") String userNo);
+    Integer selectAnyUserFolderIdForFile(@Param("id") int fileId, @Param("userNo") String userNo);
 
     /**
      * Select name
