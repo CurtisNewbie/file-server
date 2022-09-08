@@ -2,6 +2,8 @@ package com.yongj.job;
 
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.module.task.scheduling.*;
+import com.curtisnewbie.module.task.vo.*;
 import com.yongj.dao.FsGroup;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
@@ -32,7 +34,7 @@ import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
  */
 @Slf4j
 @Component
-public class DeleteFileJob implements Job {
+public class DeleteFileJob extends AbstractJob {
 
     @Autowired
     private FileService fileInfoService;
@@ -44,20 +46,22 @@ public class DeleteFileJob implements Job {
     private FsGroupService fsGroupService;
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void executeInternal(TaskVo task) throws JobExecutionException {
         log.info("Physical file deleting job started...");
 
         final List<PhysicDeleteFileVo> files = fileInfoService.findPagedFileIdsForPhysicalDeleting();
         log.info("Found {} files, preparing to delete them", files.size());
 
         // delete the file physically
-        deleteFilesPhysically(files);
+        final long count = deleteFilesPhysically(files);
+        task.setLastRunResult(String.format("Deleted %s files", count));
 
         log.info("Physical file deleting job finished...");
     }
 
     // files that are unable to delete, won't cause a transaction roll back, we just print an error log
-    private void deleteFilesPhysically(List<PhysicDeleteFileVo> list) {
+    private long deleteFilesPhysically(List<PhysicDeleteFileVo> list) {
+        long count = 0;
         for (PhysicDeleteFileVo v : list) {
 
             // if it's directory, just mark it as deleted
@@ -80,10 +84,12 @@ public class DeleteFileJob implements Job {
                 ioHandler.deleteFile(absPath);
                 // mark as deleted
                 fileInfoService.markFileDeletedPhysically(v.getId());
+                ++count;
             } catch (IOException e) {
                 log.error("Unable to delete file, uuid: " + String.valueOf(v.getUuid()) + ", please try again later", e);
             }
         }
+        return count;
     }
 
 }
