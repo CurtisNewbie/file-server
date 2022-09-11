@@ -16,8 +16,6 @@ public class ObjectMapperConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = JsonUtils.constructsJsonMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
+        return JsonUtils.constructsJsonMapper();
     }
 }
