@@ -19,7 +19,10 @@ spring:
         server-addr: localhost:8848
 
 distributed-task-module:
-  scheduling.disabled: true
+  scheduling.disabled: false
+  plugin:
+    dtask-go:
+      base-url: http://localhost:8083/dtask/remote/
 
 server:
   port: 8080
