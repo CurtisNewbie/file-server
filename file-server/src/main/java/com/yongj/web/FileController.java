@@ -68,8 +68,6 @@ import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 
-// todo impl endpoint for moveFileInto
-
 /**
  * @author yongjie.zhuang
  */
@@ -327,6 +325,14 @@ public class FileController {
         return runAsync(() -> {
             fileInfoService.removeGrantedAccess(v.getFileId(), v.getUserId(), tUser().getUserId());
         });
+    }
+
+    /**
+     * List accessible DIRs for current user
+     */
+    @GetMapping(path = "/dir/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DeferredResult<Result<List<ListDirVo>>> listDirs() {
+        return runAsyncResult(() -> fileInfoService.listDirs(tUser().getUserId()));
     }
 
     /**

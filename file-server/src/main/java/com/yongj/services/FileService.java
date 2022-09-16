@@ -195,4 +195,9 @@ public interface FileService {
      * Make Directory
      */
     FileInfo mkdir(@NotNull @Valid MakeDirReqVo req);
+
+    /**
+     * List DIR type files
+     */
+    List<ListDirVo> listDirs(int userId);
 }

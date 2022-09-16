@@ -114,7 +114,7 @@
   </select>
 
   <select id="selectFileListForUserAndTag" resultType="com.yongj.dao.FileInfo">
-    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
       fi.file_type
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
@@ -125,7 +125,7 @@
   </select>
 
   <select id="selectValidateInfoById" resultType="com.yongj.vo.FileDownloadValidInfo">
-    select fi.id 'file_id', fi.user_group, fi.uploader_id, fs.id 'file_sharing_id', fi.is_logic_deleted
+    select fi.id 'file_id', fi.user_group, fi.uploader_id, fs.id 'file_sharing_id', fi.is_logic_deleted,
       fi.file_type
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId} and fs.is_del = 0)

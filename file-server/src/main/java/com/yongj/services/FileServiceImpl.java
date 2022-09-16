@@ -96,7 +96,7 @@ public class FileServiceImpl implements FileService {
 
         // make sure the file exists
         final LambdaQueryWrapper<FileInfo> fQry = new LambdaQueryWrapper<>();
-        fQry.select(FileInfo::getId, FileInfo::getUploaderId)
+        fQry.select(FileInfo::getId, FileInfo::getUploaderId, FileInfo::getFileType)
                 .eq(FileInfo::getId, cmd.getFileId())
                 .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue());
         final FileInfo file = fileInfoMapper.selectOne(fQry);
@@ -104,6 +104,9 @@ public class FileServiceImpl implements FileService {
 
         // only uploader can grant access to the file
         AssertUtils.equals((int) file.getUploaderId(), cmd.getGrantedByUserId(), "Only uploader can grant access to the file");
+
+        // can only grant access to FILE not DIR
+        AssertUtils.isTrue(!file.isDir(), "You can't not grant access to DIR (Directory) type files");
 
         // check if the user already had access to the file
         final LambdaQueryWrapper<FileSharing> fsQry = new LambdaQueryWrapper<>();
@@ -602,6 +605,17 @@ public class FileServiceImpl implements FileService {
         fileInfoMapper.insert(dir);
 
         return dir;
+    }
+
+    @Override
+    public List<ListDirVo> listDirs(int userId) {
+        final List<FileInfo> fileInfos = fileInfoMapper.selectList(Wrappers.lambdaQuery(FileInfo.class)
+                .select(FileInfo::getId, FileInfo::getUuid, FileInfo::getName)
+                .eq(FileInfo::getUploaderId, userId)
+                .eq(FileInfo::getFileType, FileType.DIR)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsDel, IsDel.NORMAL));
+        return BeanCopyUtils.toTypeList(fileInfos, ListDirVo.class);
     }
 
     // ------------------------------------- private helper methods ------------------------------------
