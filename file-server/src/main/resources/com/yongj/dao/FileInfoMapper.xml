@@ -74,7 +74,7 @@
   </sql>
 
   <select id="selectFileListForUserSelective" resultType="com.yongj.dao.FileInfo">
-    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
       fi.file_type
     from file_info fi
     <include refid="selectListCond"/>

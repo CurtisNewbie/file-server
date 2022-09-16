@@ -32,7 +32,7 @@
   </select>
 
   <select id="listFilesInVFolders" resultType="com.yongj.vo.FileInfoVo">
-    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
       fi.file_type
     from file_info fi
     left join file_vfolder fv on (fi.uuid = fv.uuid and fv.is_del = 0)
