@@ -201,4 +201,12 @@ public interface FileService {
      * List DIR type files
      */
     List<ListDirVo> listDirs(int userId);
+
+    /**
+     * List file keys in dir
+     *
+     * @param uuid uuid of dir
+     * @return list of uuid of files in dir
+     */
+    List<String> listFilesInDir(String uuid, long limit, long offset);
 }

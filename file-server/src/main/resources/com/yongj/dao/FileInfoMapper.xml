@@ -30,78 +30,59 @@
       left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     </if>
     <where>
+      <if test="p.parentFile != null"> and fi.parent_file = #{p.parentFile} </if>
       <choose>
         <when test="p.filterOwnedFiles == true">
           and fi.uploader_id = #{p.userId}
-          <if test="p.userGroup != null">
-            and fi.user_group = #{p.userGroup}
-          </if>
+          <if test="p.userGroup != null"> and fi.user_group = #{p.userGroup} </if>
         </when>
         <otherwise>
           <choose>
-            <when test="p.userGroup == 0">
-              and fi.user_group = 0
-            </when>
+            <when test="p.userGroup == 0"> and fi.user_group = 0 </when>
             <when test="p.userGroup == 1">
               and fi.user_group = 1
               and (
-              fi.uploader_id = #{p.userId}
-              or (fs.id is not null and fs.is_del = 0)
+                fi.uploader_id = #{p.userId}
+                or (fs.id is not null and fs.is_del = 0)
               )
             </when>
             <otherwise>
               and (
-              fi.user_group = 0
-              or fi.uploader_id = #{p.userId}
-              or (fs.id is not null and fs.is_del = 0)
+                fi.user_group = 0
+                or fi.uploader_id = #{p.userId}
+                or (fs.id is not null and fs.is_del = 0)
               )
             </otherwise>
           </choose>
         </otherwise>
       </choose>
-      <if test="p.filename != null and p.filename != ''">
-        and fi.name like "%"#{p.filename}"%"
-      </if>
-      <if test="p.parentFile != null">
-        and fi.parent_file = #{p.parentFile}
-      </if>
-      <if test="p.fileType != null">
-        and fi.file_type = #{p.fileType}
-      </if>
-      and fi.is_logic_deleted = 0
-      and fi.is_del = 0
+      <if test="p.filename != null and p.filename != ''"> and fi.name like "%"#{p.filename}"%" </if>
+      <if test="p.fileType != null"> and fi.file_type = #{p.fileType} </if>
+      and fi.is_logic_deleted = 0 and fi.is_del = 0
     </where>
   </sql>
 
   <select id="selectFileListForUserSelective" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
-      fi.file_type
+    fi.file_type
     from file_info fi
     <include refid="selectListCond"/>
     order by id desc
   </select>
 
   <sql id="selectListForTagCond">
-    where
-    (
-    fi.user_group = 0
-    or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
-    or (fs.id IS NOT NULL and fs.is_del = 0)
-    )
-    and t.name = #{p.tagName}
-    <if test="p.filename != null and p.filename != ''">
-      and fi.name like "%"#{p.filename}"%"
-    </if>
-    <if test="p.parentFile != null">
-      and fi.parent_file = #{p.parentFile}
-    </if>
-    <if test="p.fileType != null">
-      and fi.file_type = #{p.fileType}
-    </if>
-    and fi.is_del = 0
-    and ft.is_del = 0
-    and t.is_del = 0
-    and fi.is_logic_deleted = 0
+    <where>
+      <if test="p.parentFile != null"> and fi.parent_file = #{p.parentFile} </if>
+      and (
+        fi.user_group = 0
+        or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
+        or (fs.id IS NOT NULL and fs.is_del = 0)
+      )
+      and t.name = #{p.tagName}
+      <if test="p.filename != null and p.filename != ''"> and fi.name like "%"#{p.filename}"%" </if>
+      <if test="p.fileType != null"> and fi.file_type = #{p.fileType} </if>
+      and fi.is_del = 0 and ft.is_del = 0 and t.is_del = 0 and fi.is_logic_deleted = 0
+    </where>
   </sql>
 
   <select id="countFileListForUserAndTag" resultType="java.lang.Long">
@@ -115,7 +96,7 @@
 
   <select id="selectFileListForUserAndTag" resultType="com.yongj.dao.FileInfo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
-      fi.file_type
+    fi.file_type
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     left join file_tag ft on (ft.user_id = #{p.userId} and fi.id = ft.file_id)
@@ -126,7 +107,7 @@
 
   <select id="selectValidateInfoById" resultType="com.yongj.vo.FileDownloadValidInfo">
     select fi.id 'file_id', fi.user_group, fi.uploader_id, fs.id 'file_sharing_id', fi.is_logic_deleted,
-      fi.file_type
+    fi.file_type
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId} and fs.is_del = 0)
     where fi.id = #{id} and fi.is_del = 0

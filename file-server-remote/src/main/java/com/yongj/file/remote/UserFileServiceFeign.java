@@ -1,10 +1,13 @@
 package com.yongj.file.remote;
 
 import com.curtisnewbie.common.vo.Result;
+import com.yongj.file.remote.vo.FileInfoResp;
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
  * File Service Feign (for user file)
@@ -18,6 +21,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UserFileServiceFeign {
 
     String PATH = "/remote/user/file";
+
+    /**
+     * List file keys in dir
+     *
+     * @param fileKey fileKey (i.e., the uuid)
+     * @param limit limit (max: 100)
+     * @param page page (1-based index)
+     */
+    @GetMapping("/indir/list")
+    Result<List<String>> listFilesInDir(@RequestParam("fileKey") String fileKey,
+                                        @RequestParam("limit") long limit,
+                                        @RequestParam("page") long page);
+
+    /**
+     * Get File info
+     *
+     * @param fileKey fileKey (i.e., the uuid)
+     */
+    @GetMapping("/info")
+    Result<FileInfoResp> getFileInfo(@RequestParam("fileKey") String fileKey);
 
     /**
      * Check whether the user is actually the file's owner

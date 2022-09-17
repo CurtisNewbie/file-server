@@ -3,11 +3,15 @@ package com.yongj.services;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.*;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
-import com.curtisnewbie.common.exceptions.*;
-import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.exceptions.UnrecoverableException;
+import com.curtisnewbie.common.util.AssertUtils;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.LockUtils;
+import com.curtisnewbie.common.util.PagingUtil;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
@@ -628,6 +632,18 @@ public class FileServiceImpl implements FileService {
                 .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
                 .eq(FileInfo::getIsDel, IsDel.NORMAL));
         return BeanCopyUtils.toTypeList(fileInfos, ListDirVo.class);
+    }
+
+    @Override
+    public List<String> listFilesInDir(String fileKey, long limit, long offset) {
+        final SFunction<FileInfo, String> select = FileInfo::getUuid;
+        return fileInfoMapper.selectListAndConvert(Wrappers.lambdaQuery(FileInfo.class)
+                .select(select)
+                .eq(FileInfo::getParentFile, fileKey)
+                .eq(FileInfo::getFileType, FileType.FILE)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsDel, IsDel.NORMAL)
+                .last(PagingUtil.limit(offset, limit)), select);
     }
 
     // ------------------------------------- private helper methods ------------------------------------
