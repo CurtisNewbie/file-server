@@ -326,15 +326,27 @@ public class FileServiceImpl implements FileService {
     @Override
     public void moveFileInto(int userId, String uuid, String parentFileUuid) {
         LockUtils.lockAndRun(getFileLock(uuid), () -> {
+
+            final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
+                    .eq(FileInfo::getUuid, uuid)
+                    .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+            nonNull(f, "Record not found");
+            isFalse(f.isDir(), "Directory can't be moved into another directory");
+            AssertUtils.equals(userId, (int) f.getUploaderId(), "Only the uploader can move files");
+
+            // if parentFileUuid is empty, we just try to move it out of the directory
+            if (!StringUtils.hasText(parentFileUuid)) {
+                if (StringUtils.hasText(f.getParentFile())) {
+                    FileInfo update = new FileInfo();
+                    update.setId(f.getId());
+                    update.setParentFile("");
+                    fileInfoMapper.updateById(update);
+                }
+                return;
+            }
+
+            // move into directory
             LockUtils.lockAndRun(getFileLock(parentFileUuid), () -> {
-
-                final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
-                        .eq(FileInfo::getUuid, uuid)
-                        .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
-                nonNull(f, "Record not found");
-                isFalse(f.isDir(), "Directory can't be moved into another directory");
-                AssertUtils.equals(userId, (int) f.getUploaderId(), "Only the uploader can move files");
-
                 final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                         .eq(FileInfo::getUuid, parentFileUuid)
                         .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
