@@ -158,12 +158,11 @@ public class FileController {
             final Span span = tracer.currentSpan();
 
             log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
-            try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-                MoveFileIntoDirReqVo moveReq = new MoveFileIntoDirReqVo();
-                moveReq.setUuid(f.getUuid());
-                moveReq.setParentFileUuid(parentFile);
-                moveFileIntoDir(moveReq);
-            }
+            CompletableFuture.runAsync(() -> {
+                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                    fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
+                }
+            });
         }
         return Result.ok();
     }
