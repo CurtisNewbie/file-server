@@ -726,6 +726,7 @@ public class FileServiceImpl implements FileService {
         private String uploaderName;
         private String fileName;
         private String uuid;
+        private String parentFile;
         private int uploaderId;
         private FsGroup fsGroup;
         private String absPath;

@@ -107,6 +107,7 @@ public class FileController {
     @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Result<Void> streamUpload(@RequestHeader("fileName") String fileName,
                                      @RequestHeader(value = "tag", required = false) @Nullable String[] tags,
+                                     @RequestHeader(value = "parentFile", required = false) @Nullable String parentFile,
                                      @RequestHeader(value = "userGroup") Integer userGroupInt,
                                      HttpServletRequest request) throws IOException, ExecutionException, InterruptedException {
 
@@ -150,6 +151,19 @@ public class FileController {
                     }
                 }
             });
+        }
+
+        if (StringUtils.hasText(parentFile)) {
+            // attempt to propagate tracing
+            final Span span = tracer.currentSpan();
+
+            log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
+            try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                MoveFileIntoDirReqVo moveReq = new MoveFileIntoDirReqVo();
+                moveReq.setUuid(f.getUuid());
+                moveReq.setParentFileUuid(parentFile);
+                moveFileIntoDir(moveReq);
+            }
         }
         return Result.ok();
     }
