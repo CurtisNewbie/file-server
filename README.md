@@ -109,7 +109,7 @@ In table `task`:
 
 - [x] Implement *virtual* folders.
 - [ ] Host files on fantahsea by specifying a folder rather than files.
-- [ ] Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders. Implements folder in file_info, then the virtual folder is just a fancier variation of tags ? 
+- [x] ~~Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders.~~ Implements folder in file_info, then the virtual folder is just a fancier variation of tags ? 
 - [ ] Supports adding FsGroup on Webpage.
 - [ ] Supports some sort of sharding ability, allowing the copy of a file distributed in different shards (physical disk) ?
     
