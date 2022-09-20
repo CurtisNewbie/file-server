@@ -29,11 +29,11 @@ string | base.path | base path used by application, this path is not used for fi
 This project depends on the following modules that you must manually install (using `mvn clean install`).
 
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
-- [common-module v2.1.6](https://github.com/CurtisNewbie/common-module/tree/v2.1.6)
-- [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
-- [distributed-task-module v2.0.9](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.0.9)
+- [distributed-task-module v2.1.0](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.0.9)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
 - [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
+- [common-module v2.1.7](https://github.com/CurtisNewbie/common-module/tree/v2.1.6)
+- [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
 
 
 ## File Operations and SPI Interfaces
@@ -98,20 +98,16 @@ Task scheduling in this app is supported by `Quartz` and `distributed-task-modul
 The task implementation bean: 
 
 - com.yongj.job.DeleteFileJob
+- com.yongj.job.FetchFileUploaderNameJob
 
-In table `task`:
+For example:
 
-|id |job_name      |target_bean |cron_expr    |app_group   |enabled|concurrent_enabled|
-|---|--------------|------------|-------------|------------|-------|------------------|
-|1  |delete file job |deleteFileJob|0 0 0/1 ? * *|file-server|1      |0               |
-
-## Todos
-
-- [x] Implement *virtual* folders.
-- [ ] Host files on fantahsea by specifying a folder rather than files.
-- [x] ~~Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders.~~ Implements folder in file_info, then the virtual folder is just a fancier variation of tags ? 
-- [ ] Supports adding FsGroup on Webpage.
-- [ ] Supports some sort of sharding ability, allowing the copy of a file distributed in different shards (physical disk) ?
+```sql
+INSERT INTO `task` (`job_name`, `target_bean`, `cron_expr`, `app_group`, `last_run_start_time`, `last_run_end_time`, `last_run_by`, `last_run_result`, `enabled`, `concurrent_enabled`, `update_date`, `update_by`) 
+VALUES 
+    ('DeleteFileJob','deleteFileJob','0 0 0 ? * *','file-server','2022-09-20 16:00:00','2022-09-20 16:00:00','scheduler','Deleted 0 files',1,0,'2022-05-22 08:41:48','zhuangyongj'),
+    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 /6 ? * *','file-server','2022-09-17 18:10:32','2022-09-17 18:10:33','zhuangyongj','Fetched 0 uploader names',0,0,'2022-09-17 18:11:56','zhuangyongj');
+```
     
 
 
