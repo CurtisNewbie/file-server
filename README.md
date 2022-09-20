@@ -93,9 +93,9 @@ com.yongj.io.operation.PhysicallyDeleteFileOperation
 
 ## Task Scheduling  
 
-Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A task implementation bean is already written for this application, you may create a record in table `task` as follows to use it: 
+Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A few task implementation beans are already written for this application, you may create a record in table `task` as follows to use them: 
 
-The task implementation bean: 
+The task implementation beans: 
 
 - com.yongj.job.DeleteFileJob
 - com.yongj.job.FetchFileUploaderNameJob
@@ -105,8 +105,8 @@ For example:
 ```sql
 INSERT INTO `task` (`job_name`, `target_bean`, `cron_expr`, `app_group`, `last_run_start_time`, `last_run_end_time`, `last_run_by`, `last_run_result`, `enabled`, `concurrent_enabled`, `update_date`, `update_by`) 
 VALUES 
-    ('DeleteFileJob','deleteFileJob','0 0 0 ? * *','file-server','2022-09-20 16:00:00','2022-09-20 16:00:00','scheduler','Deleted 0 files',1,0,'2022-05-22 08:41:48','zhuangyongj'),
-    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 /6 ? * *','file-server','2022-09-17 18:10:32','2022-09-17 18:10:33','zhuangyongj','Fetched 0 uploader names',0,0,'2022-09-17 18:11:56','zhuangyongj');
+    ('DeleteFileJob','deleteFileJob','0 0 0 ? * *','file-server',NULL,NULL,'','',1,0,CURRENT_TIMESTAMP,''),
+    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 /6 ? * *','file-server',NULL,NULL,'','',0,0,CURRENT_TIMESTAMP,'');
 ```
     
 
