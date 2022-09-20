@@ -72,15 +72,14 @@
 
   <sql id="selectListForTagCond">
     <where>
-      <if test="p.parentFile != null"> and fi.parent_file = #{p.parentFile} </if>
-      and (
+      (
         fi.user_group = 0
         or (fi.user_group = 1 and fi.uploader_id = #{p.userId})
         or (fs.id IS NOT NULL and fs.is_del = 0)
       )
       and t.name = #{p.tagName}
       <if test="p.filename != null and p.filename != ''"> and fi.name like "%"#{p.filename}"%" </if>
-      <if test="p.fileType != null"> and fi.file_type = #{p.fileType} </if>
+      and fi.file_type = 'FILE'
       and fi.is_del = 0 and ft.is_del = 0 and t.is_del = 0 and fi.is_logic_deleted = 0
     </where>
   </sql>
