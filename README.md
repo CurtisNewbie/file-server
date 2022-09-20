@@ -29,10 +29,10 @@ string | base.path | base path used by application, this path is not used for fi
 This project depends on the following modules that you must manually install (using `mvn clean install`).
 
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
-- [distributed-task-module v2.1.0](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.0.9)
+- [distributed-task-module v2.1.0](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.0)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
 - [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
-- [common-module v2.1.7](https://github.com/CurtisNewbie/common-module/tree/v2.1.6)
+- [common-module v2.1.7](https://github.com/CurtisNewbie/common-module/tree/v2.1.7)
 - [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
 
 
