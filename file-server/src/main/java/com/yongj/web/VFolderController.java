@@ -1,19 +1,22 @@
 package com.yongj.web;
 
-import com.curtisnewbie.common.advice.*;
+import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.trace.TraceUtils;
-import com.curtisnewbie.common.vo.*;
-import com.yongj.helper.*;
-import com.yongj.services.*;
-import com.yongj.services.qry.*;
+import com.curtisnewbie.common.vo.PageableList;
+import com.curtisnewbie.common.vo.Result;
+import com.yongj.services.VFolderService;
+import com.yongj.services.qry.VFolderQueryService;
 import com.yongj.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
-import static com.curtisnewbie.common.util.AsyncUtils.*;
+import java.util.List;
+
+import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
+import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
 
 /**
  * @author yongj.zhuang
@@ -27,6 +30,11 @@ public class VFolderController {
     private VFolderService vFolderService;
     @Autowired
     private VFolderQueryService vFolderQueryService;
+
+    @GetMapping("/brief/owned")
+    public DeferredResult<Result<List<VFolderBrief>>> listOwnedVFolderBriefs() {
+        return runAsyncResult(() -> vFolderQueryService.listOwnedVFolderBriefs(TraceUtils.requireUserNo()));
+    }
 
     @PostMapping("/list")
     public DeferredResult<Result<PageableList<VFolderListResp>>> listVFolders(@RequestBody ListVFolderReq req) {

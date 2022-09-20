@@ -51,4 +51,13 @@
     limit 1
   </select>
 
+  <select id="listOwnedVFolderBrief" resultType="com.yongj.vo.VFolderBrief">
+    select f.folder_no, f.name
+    from vfolder f
+    left join user_vfolder uv on (f.folder_no = uv.folder_no and uv.is_del = 0)
+    where f.is_del = 0
+    and uv.user_no = #{userNo}
+    and uv.ownership = 'OWNER'
+  </select>
+
 </mapper>

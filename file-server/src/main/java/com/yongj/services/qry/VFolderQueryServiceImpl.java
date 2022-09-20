@@ -3,13 +3,11 @@ package com.yongj.services.qry;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.VFolderMapper;
-import com.yongj.vo.FileInfoVo;
-import com.yongj.vo.ListVFolderFilesReq;
-import com.yongj.vo.ListVFolderReq;
-import com.yongj.vo.VFolderListResp;
+import com.yongj.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
@@ -34,6 +32,11 @@ public class VFolderQueryServiceImpl implements VFolderQueryService {
         final Page<FileInfoVo> page = vFolderMapper.listFilesInVFolders(forPage(req.getPagingVo()), req);
         page.getRecords().forEach(v -> v.setIsOwner(Objects.equals(v.getUploaderId(), req.getUserId())));
         return PageableList.from(page);
+    }
+
+    @Override
+    public List<VFolderBrief> listOwnedVFolderBriefs(String userNo) {
+        return vFolderMapper.listOwnedVFolderBrief(userNo);
     }
 
 }
