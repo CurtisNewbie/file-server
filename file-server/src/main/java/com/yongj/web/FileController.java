@@ -4,7 +4,7 @@ import brave.Span;
 import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
-import com.curtisnewbie.common.trace.TUser;
+import com.curtisnewbie.common.trace.*;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.AsyncUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
@@ -107,6 +107,7 @@ public class FileController {
     @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Result<Void> streamUpload(@RequestHeader("fileName") String fileName,
                                      @RequestHeader(value = "tag", required = false) @Nullable String[] tags,
+                                     @RequestHeader(value = "parentFile", required = false) @Nullable String parentFile,
                                      @RequestHeader(value = "userGroup") Integer userGroupInt,
                                      HttpServletRequest request) throws IOException, ExecutionException, InterruptedException {
 
@@ -148,6 +149,18 @@ public class FileController {
                                 .userId(tUser.getUserId())
                                 .build());
                     }
+                }
+            });
+        }
+
+        if (StringUtils.hasText(parentFile)) {
+            // attempt to propagate tracing
+            final Span span = tracer.currentSpan();
+
+            log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
+            CompletableFuture.runAsync(() -> {
+                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                    fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
                 }
             });
         }
@@ -231,6 +244,35 @@ public class FileController {
     }
 
     /**
+     * Move file into directory
+     */
+    @LogOperation(name = "moveIntoDir", description = "Move into directory")
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping(path = "/move-to-dir")
+    public DeferredResult<Result<Void>> moveFileIntoDir(@RequestBody MoveFileIntoDirReqVo r) {
+        return runAsync(() -> {
+            final TUser user = tUser();
+            fileInfoService.moveFileInto(user.getUserId(), r.getUuid(), r.getParentFileUuid());
+        });
+    }
+
+    /**
+     * Make Directory for current user
+     */
+    @LogOperation(name = "makeDir", description = "Make directory")
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping(path = "/make-dir")
+    public DeferredResult<Result<String>> makeDir(@RequestBody MakeDirReqVo r) {
+        return runAsyncResult(() -> {
+            final TUser user = tUser();
+            r.setUploaderId(user.getUserId());
+            r.setUploaderName(user.getUsername());
+            final FileInfo dir = fileInfoService.mkdir(r);
+            return dir.getUuid();
+        });
+    }
+
+    /**
      * Grant access to the file to another user (only file uploader can do so)
      */
     @LogOperation(name = "grantAccessToUser", description = "Grant file access")
@@ -299,6 +341,14 @@ public class FileController {
     }
 
     /**
+     * List accessible DIRs for current user
+     */
+    @GetMapping(path = "/dir/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DeferredResult<Result<List<ListDirVo>>> listDirs() {
+        return runAsyncResult(() -> fileInfoService.listDirs(tUser().getUserId()));
+    }
+
+    /**
      * List accessible files for current user
      * <p>
      * There two modes: file mode and folder mode
@@ -337,10 +387,9 @@ public class FileController {
     @LogOperation(name = "deleteFile", description = "Delete a file logically")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/delete")
-    public DeferredResult<Result<Void>> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) throws InvalidAuthenticationException {
+    public DeferredResult<Result<Void>> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) {
         return runAsync(() -> {
-            AssertUtils.nonNull(reqVo.getId());
-            fileInfoService.deleteFileLogically(tUser().getUserId(), reqVo.getId());
+            fileInfoService.deleteFileLogically(tUser().getUserId(), reqVo.getUuid());
         });
     }
 

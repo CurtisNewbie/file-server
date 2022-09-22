@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.yongj.enums.*;
 import lombok.Data;
 
 /**
@@ -18,5 +19,12 @@ public class PhysicDeleteFileVo {
 
     /** fs_group's Id */
     private Integer fsGroupId;
+
+    /** file type: FILE, DIR */
+    private FileType fileType;
+
+    public boolean isDir() {
+        return this.fileType == FileType.DIR;
+    }
 
 }

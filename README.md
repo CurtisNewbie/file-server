@@ -6,10 +6,11 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
 
-***The frontend project has been moved to a new repository [file-service-front](https://github.com/CurtisNewbie/file-service-front), the one included here is no-longer maintained, and may be removed at anytime later.***
+***The frontend project has been moved to a new repository [file-service-front](https://github.com/CurtisNewbie/file-service-front)***
 
 ## Requirements 
 
+- file-service-front (Angular Project) (>= 1.1.11) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front)
 - auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway)
 - auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service)
 - MySQL (5.7+ or 8)
@@ -28,11 +29,11 @@ string | base.path | base path used by application, this path is not used for fi
 This project depends on the following modules that you must manually install (using `mvn clean install`).
 
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
-- [common-module v2.1.6](https://github.com/CurtisNewbie/common-module/tree/v2.1.6)
-- [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
-- [distributed-task-module v2.0.9](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.0.9)
+- [distributed-task-module v2.1.0](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.0)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
 - [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
+- [common-module v2.1.7](https://github.com/CurtisNewbie/common-module/tree/v2.1.7)
+- [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
 
 
 ## File Operations and SPI Interfaces
@@ -92,23 +93,22 @@ com.yongj.io.operation.PhysicallyDeleteFileOperation
 
 ## Task Scheduling  
 
-Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A task implementation bean is already written for this application, you may create a record in table `task` as follows to use it: 
+Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A few task implementation beans are already written for this application, you may create a record in table `task` as follows to use them: 
 
-The task implementation bean: 
+The task implementation beans: 
 
 - com.yongj.job.DeleteFileJob
+- com.yongj.job.FetchFileUploaderNameJob
 
-In table `task`:
+For example:
 
-|id |job_name      |target_bean |cron_expr    |app_group   |enabled|concurrent_enabled|
-|---|--------------|------------|-------------|------------|-------|------------------|
-|1  |delete file job |deleteFileJob|0 0 0/1 ? * *|file-server|1      |0               |
-
-## Todos
-
-- [x] Implement *virtual* folders.  
-- [ ] Host files on fantahsea by specifying a folder rather than files.
-- [ ] Put *virtual* folder and files together? It seems very useful :D, at least better than the pure list of *virtual* folders.
+```sql
+INSERT INTO `task` (`job_name`, `target_bean`, `cron_expr`, `app_group`, `last_run_start_time`, `last_run_end_time`, `last_run_by`, `last_run_result`, `enabled`, `concurrent_enabled`, `update_date`, `update_by`) 
+VALUES 
+    ('DeleteFileJob','deleteFileJob','0 0 0 ? * *','file-server',NULL,NULL,'','',1,0,CURRENT_TIMESTAMP,''),
+    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 /6 ? * *','file-server',NULL,NULL,'','',0,0,CURRENT_TIMESTAMP,'');
+```
+    
 
 
 

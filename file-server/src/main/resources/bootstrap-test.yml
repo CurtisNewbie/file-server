@@ -43,4 +43,4 @@ namingPollingThreadCount: 2
 org.quartz.threadPool.threadCount: 2
 
 file-service:
-  max-zip-entries: 500
+  max-zip-entries: 200

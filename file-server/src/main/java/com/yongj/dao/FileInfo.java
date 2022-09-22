@@ -3,6 +3,7 @@ package com.yongj.dao;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
+import com.yongj.enums.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -58,4 +59,16 @@ public class FileInfo extends DaoSkeleton {
     /** id of fs_group */
     @TableField("fs_group_id")
     private Integer fsGroupId;
+
+    /** file type: FILE, DIR */
+    @TableField("file_type")
+    private FileType fileType;
+
+    /** parent file's uuid */
+    @TableField("parent_file")
+    private String parentFile;
+
+    public boolean isDir() {
+        return fileType == FileType.DIR;
+    }
 }

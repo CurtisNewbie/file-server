@@ -2,6 +2,7 @@ package com.yongj.vo;
 
 import com.curtisnewbie.common.util.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yongj.enums.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -36,4 +37,8 @@ public class FileInfoWebVo {
 
     /** Whether current user is the owner of this file */
     private Boolean isOwner;
+
+    /** file type: FILE, DIR */
+    private FileType fileType;
+
 }

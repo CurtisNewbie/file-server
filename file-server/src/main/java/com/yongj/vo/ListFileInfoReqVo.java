@@ -2,7 +2,7 @@ package com.yongj.vo;
 
 import com.curtisnewbie.common.vo.PageableVo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.yongj.enums.FileOwnership;
+import com.yongj.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,6 +39,12 @@ public class ListFileInfoReqVo extends PageableVo {
 
     /** folder no */
     private String folderNo;
+
+    /** File type */
+    private FileType fileType;
+
+    /** Parent file uuid */
+    private String parentFile;
 
     /**
      * Check whether we are only requesting files that we own

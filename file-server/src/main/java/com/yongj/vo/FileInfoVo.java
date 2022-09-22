@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.yongj.enums.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -36,4 +37,7 @@ public class FileInfoVo {
 
     /** Whether current user is the owner of this file */
     private Boolean isOwner;
+
+    /** file type */
+    private FileType fileType;
 }

@@ -32,7 +32,8 @@
   </select>
 
   <select id="listFilesInVFolders" resultType="com.yongj.vo.FileInfoVo">
-    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time
+    select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
+      fi.file_type
     from file_info fi
     left join file_vfolder fv on (fi.uuid = fv.uuid and fv.is_del = 0)
     left join user_vfolder uv on (fv.folder_no = uv.folder_no and uv.is_del = 0)
@@ -48,6 +49,15 @@
     and uv.user_no = #{userNo}
     and uv.folder_no = #{folderNo}
     limit 1
+  </select>
+
+  <select id="listOwnedVFolderBrief" resultType="com.yongj.vo.VFolderBrief">
+    select f.folder_no, f.name
+    from vfolder f
+    left join user_vfolder uv on (f.folder_no = uv.folder_no and uv.is_del = 0)
+    where f.is_del = 0
+    and uv.user_no = #{userNo}
+    and uv.ownership = 'OWNER'
   </select>
 
 </mapper>

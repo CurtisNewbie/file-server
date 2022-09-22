@@ -4,9 +4,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
+import com.yongj.enums.*;
 import com.yongj.vo.*;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -48,11 +51,9 @@ public interface FileService {
     PageableList<FileInfoVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
 
     /**
-     * Find logically deleted, but not physically deleted files' id (with pagination)
-     *
-     * @param pagingVo paging parameter
+     * Find logically deleted, but not physically deleted files
      */
-    PageableList<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull PagingVo pagingVo);
+    List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting();
 
     /**
      * File uploader id of files that doesn't contain uploader name
@@ -98,12 +99,21 @@ public interface FileService {
     void validateUserDownload(int userId, int fileId, @NotEmpty String userNo);
 
     /**
+     * Move current file into another folder
+     *
+     * @param userid         userId
+     * @param uuid           current file uuid
+     * @param parentFileUuid parent file uuid
+     */
+    void moveFileInto(int userid, @NotEmpty String uuid, @Nullable String parentFileUuid);
+
+    /**
      * Logically delete the file
      *
      * @param userId id of the user
-     * @param fileId file's id
+     * @param uuid   uuid
      */
-    void deleteFileLogically(int userId, int fileId);
+    void deleteFileLogically(int userId, String uuid);
 
     /**
      * Physically delete the file (this method should be invoked by the scheduler
@@ -175,6 +185,28 @@ public interface FileService {
     /**
      * Check if the user if the owner of the file
      */
-    boolean isFileOwner(int userId, String uuid);
+    boolean isFileOwner(int userId, @NotEmpty String uuid);
 
+    /**
+     * Find FileType by key
+     */
+    FileType findFileTypeByKey(@NotEmpty String uuid);
+
+    /**
+     * Make Directory
+     */
+    FileInfo mkdir(@NotNull @Valid MakeDirReqVo req);
+
+    /**
+     * List DIR type files
+     */
+    List<ListDirVo> listDirs(int userId);
+
+    /**
+     * List file keys in dir
+     *
+     * @param uuid uuid of dir
+     * @return list of uuid of files in dir
+     */
+    List<String> listFilesInDir(String uuid, long limit, long offset);
 }

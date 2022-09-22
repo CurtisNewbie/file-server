@@ -23,13 +23,16 @@ CREATE TABLE IF NOT EXISTS file_info (
     logic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is logically deleted",
     physic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is physically deleted",
     user_group INT NOT NULL COMMENT "the group that the file belongs to, 0-public, 1-private",
-    fs_group_id INT NOT NULL COMMENT 'id of fs_group',
+    file_type varchar(6) not null default 'FILE' comment 'file type: FILE, DIR',
+    fs_group_id INT NOT NULL DEFAULT 0 COMMENT 'id of fs_group',
+    parent_file VARCHAR(64) NOT NULL default '' COMMENT "parent file uuid",
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
     create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
     update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    UNIQUE uuid_uk (uuid)
+    UNIQUE uuid_uk (uuid),
+    INDEX parent_file_idx (parent_file)
 );
 
 CREATE TABLE IF NOT EXISTS file_tag (

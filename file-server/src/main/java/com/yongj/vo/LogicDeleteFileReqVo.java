@@ -2,7 +2,7 @@ package com.yongj.vo;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 /**
  * @author yongjie.zhuang
@@ -10,7 +10,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class LogicDeleteFileReqVo {
 
-    /** id of the file */
-    private Integer id;
+    /** file key */
+    @NotEmpty
+    private String uuid;
 
 }

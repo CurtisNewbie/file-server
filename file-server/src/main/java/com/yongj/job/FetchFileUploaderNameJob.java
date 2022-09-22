@@ -1,6 +1,6 @@
 package com.yongj.job;
 
-import com.curtisnewbie.common.util.Runner;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
@@ -46,29 +46,33 @@ public class FetchFileUploaderNameJob extends AbstractJob {
         paging.setLimit(LIMIT);
         paging.setPage(1);
 
+        long total = 0;
         PageableList<FileUploaderInfoVo> pps = fileInfoService.findPagedFilesWithoutUploaderName(paging);
         while (!pps.getPayload().isEmpty()) {
 
             log.info("Found {} files, preparing to fetch uploaderNames for them", pps.getPayload().size());
 
             // fetch uploader names
-            fetchUploaderName(pps.getPayload());
+            total += fetchUploaderName(pps.getPayload());
 
             // next page
             paging.setPage(paging.getPage() + 1);
             pps = fileInfoService.findPagedFilesWithoutUploaderName(paging);
         }
+
+        task.setLastRunResult(String.format("Fetched %s uploader names", total));
         log.info("FetchFileUploaderNameJob finished ...");
     }
 
     /**
      * fetch uploaderName for each file
      */
-    private void fetchUploaderName(final List<FileUploaderInfoVo> list) {
+    private long fetchUploaderName(final List<FileUploaderInfoVo> list) {
         List<Integer> uploaderIds = list.stream()
                 .map(FileUploaderInfoVo::getUploaderId)
                 .collect(Collectors.toList());
 
+        ValueWrapper<Integer> count = new ValueWrapper<>(0);
         Runner.runSafely(() -> {
                     final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(FetchUsernameByIdReq.builder()
                             .userIds(uploaderIds)
@@ -81,12 +85,17 @@ public class FetchFileUploaderNameJob extends AbstractJob {
                     // update uploaderName to database
                     Map<Integer, String> idToUsername = result.getData().getIdToUsername();
 
-                    list.stream().forEach(file -> {
+                    list.forEach(file -> {
                         Optional.ofNullable(idToUsername.get(file.getUploaderId()))
-                                .ifPresent(name -> fileInfoService.fillBlankUploaderName(file.getId(), name));
+                                .ifPresent(name -> {
+                                    fileInfoService.fillBlankUploaderName(file.getId(), name);
+                                    count.setValue(count.getValue() + 1);
+                                });
                     });
                 },
                 e -> log.error("Failed to fetch uploaderNames", e));
+
+        return count.getValue();
     }
 
 }
