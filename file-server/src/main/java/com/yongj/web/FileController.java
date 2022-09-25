@@ -373,7 +373,7 @@ public class FileController {
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<Result<PageableList<FileInfoWebVo>>> listFiles(@RequestBody ListFileInfoReqVo req) {
         final TUser user = tUser();
-        log.info("List files, req: {}, user: {}", req, user.getUserNo());
+        if (log.isDebugEnabled()) log.debug("List files, req: {}, user: {}", req, user.getUserNo());
 
         return runAsyncResult(() -> {
 

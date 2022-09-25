@@ -1,8 +1,9 @@
 package com.yongj.dao;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.util.EnhancedMapper;
-import com.yongj.vo.*;
+import com.yongj.vo.FileDownloadValidInfo;
+import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.SelectFileInfoListParam;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
@@ -13,17 +14,17 @@ import java.util.List;
  */
 public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
 
-    List<FileInfoVo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
+    List<FileInfoVo> selectFileListForUserSelective(@Param("offset") long offset, @Param("limit") long limit, @Param("p") SelectFileInfoListParam param);
 
     /**
-     * Count for {@link #selectFileListForUserSelective(Page, SelectFileInfoListParam)}
+     * Count for {@link #selectFileListForUserSelective(long, long, SelectFileInfoListParam)}
      */
     long countFileListForUserSelective(@Param("p") SelectFileInfoListParam param);
 
-    List<FileInfoVo> selectFileListForUserAndTag(Page<?> page, @Param("p") SelectFileInfoListParam param);
+    List<FileInfoVo> selectFileListForUserAndTag(@Param("offset") long offset, @Param("limit") long limit, @Param("p") SelectFileInfoListParam param);
 
     /**
-     * Count for {@link #selectFileListForUserAndTag(Page, SelectFileInfoListParam)}
+     * Count for {@link #selectFileListForUserAndTag(long, long, SelectFileInfoListParam)} 
      */
     long countFileListForUserAndTag(@Param("p") SelectFileInfoListParam param);
 

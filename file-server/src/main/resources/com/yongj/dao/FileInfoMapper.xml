@@ -68,6 +68,7 @@
     from file_info fi
     <include refid="selectListCond"/>
     order by id desc
+    limit #{offset}, #{limit}
   </select>
 
   <sql id="selectListForTagCond">
@@ -102,6 +103,7 @@
     left join tag t on (ft.tag_id = t.id)
     <include refid="selectListForTagCond"/>
     order by id desc
+    limit #{offset}, #{limit}
   </select>
 
   <select id="selectValidateInfoById" resultType="com.yongj.vo.FileDownloadValidInfo">

@@ -217,9 +217,11 @@ public class FileServiceImpl implements FileService {
             Instead of using the Page<?> for pagination, we do COUNT(*) manually,
             the paginator plugin always fails to optimise the query :D
          */
+        final long offset = p.getSize() * (p.getCurrent() - 1);
+        final long limit = p.getSize();
         final boolean qryForTag = StringUtils.hasText(param.getTagName());
         if (qryForTag) {
-            dataList = fileInfoMapper.selectFileListForUserAndTag(p, param);
+            dataList = fileInfoMapper.selectFileListForUserAndTag(offset, limit, param);
             count = fileInfoMapper.countFileListForUserAndTag(param);
         } else {
             /*
@@ -234,7 +236,7 @@ public class FileServiceImpl implements FileService {
                 param.setParentFile(""); // top-level file/dir
             }
 
-            dataList = fileInfoMapper.selectFileListForUserSelective(p, param);
+            dataList = fileInfoMapper.selectFileListForUserSelective(offset, limit, param);
             count = fileInfoMapper.countFileListForUserSelective(param);
         }
 
