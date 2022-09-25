@@ -40,4 +40,8 @@ public class FileDownloadValidInfo {
 
         return Objects.equals(FileLogicDeletedEnum.LOGICALLY_DELETED.getValue(), isLogicDeleted);
     }
+
+    public boolean isPublicGroup() {
+        return Objects.equals(userGroup, FileUserGroupEnum.PUBLIC.getValue());
+    }
 }

@@ -324,6 +324,8 @@ public class FileServiceImpl implements FileService {
         isFalse(f.isDeleted(), "File is deleted");
         isTrue(f.isNotDir(), "Downloading a directory is not supported");
 
+        if (f.isPublicGroup()) return;
+
         // current user is the uploader
         if (Objects.equals(f.getUploaderId(), userId)) return;
 
