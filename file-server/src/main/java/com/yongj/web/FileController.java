@@ -146,9 +146,21 @@ public class FileController {
         final FileInfo f = future.get();
         log.info("File uploaded and persisted in database, file_info: {}", f);
 
+        if (StringUtils.hasText(parentFile)) {
+            // attempt to propagate tracing
+            final Span span = tracer.nextSpan();
+
+            log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
+            CompletableFuture.runAsync(() -> {
+                try (Tracer.SpanInScope ws = tracer.withSpanInScope(tracer.nextSpan())) {
+                    fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
+                }
+            });
+        }
+
         if (tags != null && tags.length > 0) {
             // attempt to propagate tracing
-            final Span span = tracer.currentSpan();
+            final Span span = tracer.nextSpan();
 
             // todo repeated code :D
             CompletableFuture.runAsync(() -> {
@@ -166,17 +178,6 @@ public class FileController {
             });
         }
 
-        if (StringUtils.hasText(parentFile)) {
-            // attempt to propagate tracing
-            final Span span = tracer.currentSpan();
-
-            log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
-            CompletableFuture.runAsync(() -> {
-                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-                    fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
-                }
-            });
-        }
         return Result.ok();
     }
 

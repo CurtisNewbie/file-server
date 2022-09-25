@@ -41,4 +41,7 @@ public class FileInfoWebVo {
     /** file type: FILE, DIR */
     private FileType fileType;
 
+    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
+    private LocalDateTime updateTime;
+
 }

@@ -64,7 +64,7 @@
 
   <select id="selectFileListForUserSelective" resultType="com.yongj.vo.FileInfoVo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
-    fi.file_type
+    fi.file_type, fi.update_time
     from file_info fi
     <include refid="selectListCond"/>
     order by id desc
@@ -95,7 +95,7 @@
 
   <select id="selectFileListForUserAndTag" resultType="com.yongj.vo.FileInfoVo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
-    fi.file_type
+    fi.file_type, fi.update_time
     from file_info fi
     left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     left join file_tag ft on (ft.user_id = #{p.userId} and fi.id = ft.file_id)

@@ -42,6 +42,8 @@ public class FileInfoVo {
     /** file type */
     private FileType fileType;
 
+    private LocalDateTime updateTime;
+
     public void checkAndSetIsOwner(int currentUserId) {
         this.isOwner = Objects.equals(uploaderId, currentUserId);
     }
