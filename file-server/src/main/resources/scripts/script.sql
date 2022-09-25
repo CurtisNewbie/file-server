@@ -1,156 +1,177 @@
 -- script for creating the table
-CREATE TABLE IF NOT EXISTS file_extension (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(15) NOT NULL COMMENT 'name of file extension',
-    is_enabled INT NOT NULL DEFAULT 0 COMMENT 'indicates whether current file extension is disabled, 0-enabled, 1-disabled',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
-);
+CREATE TABLE `file_extension` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(15) NOT NULL COMMENT 'name of file extension, e.g., txt',
+  `is_enabled` int NOT NULL DEFAULT '0' COMMENT 'indicates whether current file extension is disabled, 0-enabled, 1-disabled',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS file_info (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL COMMENT "name of the file",
-    uuid VARCHAR(64) NOT NULL COMMENT "file's uuid",
-    is_logic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is logically deleted, 0-normal, 1-deleted",
-    is_physic_deleted INT NOT NULL DEFAULT 0 COMMENT "whether the file is physically deleted, 0-normal, 1-deleted",
-    size_in_bytes BIGINT NOT NULL COMMENT "size of file in bytes",
-    uploader_id INT NOT NULL DEFAULT 0 COMMENT "uploader id, i.e., user.id",
-    uploader_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'uploader name',
-    upload_time DATETIME NOT NULL DEFAULT NOW() COMMENT "upload time",
-    logic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is logically deleted",
-    physic_delete_time DATETIME NULL DEFAULT NULL COMMENT "when the file is physically deleted",
-    user_group INT NOT NULL COMMENT "the group that the file belongs to, 0-public, 1-private",
-    file_type varchar(6) not null default 'FILE' comment 'file type: FILE, DIR',
-    fs_group_id INT NOT NULL DEFAULT 0 COMMENT 'id of fs_group',
-    parent_file VARCHAR(64) NOT NULL default '' COMMENT "parent file uuid",
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    UNIQUE uuid_uk (uuid),
-    INDEX parent_file_idx (parent_file)
-);
+CREATE TABLE `file_info` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL COMMENT 'name of the file',
+  `uuid` varchar(64) NOT NULL COMMENT 'file''s uuid',
+  `is_logic_deleted` int NOT NULL DEFAULT '0' COMMENT 'whether the file is logically deleted, 0-normal, 1-deleted',
+  `is_physic_deleted` int NOT NULL DEFAULT '0' COMMENT 'whether the file is physically deleted, 0-normal, 1-deleted',
+  `size_in_bytes` bigint NOT NULL COMMENT 'size of file in bytes',
+  `uploader_id` int NOT NULL DEFAULT '0' COMMENT 'uploader id, i.e., user.id',
+  `uploader_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'uploader name',
+  `upload_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'upload time',
+  `logic_delete_time` datetime DEFAULT NULL COMMENT 'when the file is logically deleted',
+  `physic_delete_time` datetime DEFAULT NULL COMMENT 'when the file is physically deleted',
+  `user_group` int NOT NULL COMMENT 'the group that the file belongs to, 0-public, 1-private',
+  `fs_group_id` int NOT NULL DEFAULT '0' COMMENT 'id of fs_group',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  `file_type` varchar(6) NOT NULL DEFAULT 'FILE' COMMENT 'file type: FILE, DIR',
+  `parent_file` varchar(64) NOT NULL DEFAULT '' COMMENT 'parent file uuid',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid_uk` (`uuid`),
+  KEY `parent_file_idx` (`parent_file`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS file_tag (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
-    file_id INT UNSIGNED NOT NULL COMMENT "id of file_info",
-    tag_id INT UNSIGNED NOT NULL COMMENT "id of tag",
-    user_id INT UNSIGNED NOT NULL COMMENT 'id of user who created this file_tag relation',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    CONSTRAINT uk_file_tag UNIQUE (file_id, tag_id)
-) ENGINE=InnoDB comment 'join table between file_info and tag';
+CREATE TABLE `file_tag` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  `file_id` int unsigned NOT NULL COMMENT 'id of file_info',
+  `tag_id` int unsigned NOT NULL COMMENT 'id of tag',
+  `user_id` int unsigned NOT NULL COMMENT 'id of user who created this file_tag relation',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='join table between file_info and tag';
 
-CREATE TABLE IF NOT EXISTS tag (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
-    name VARCHAR(50) NOT NULL COMMENT 'name of tag',
-    user_id INT UNSIGNED NOT NULL COMMENT 'user who owns this tag (tags are isolated between different users)',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    CONSTRAINT uk_user_tag UNIQUE (user_id, name)
-) ENGINE=InnoDB comment 'tag';
+CREATE TABLE `tag` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  `name` varchar(50) NOT NULL COMMENT 'name of tag',
+  `user_id` int unsigned NOT NULL COMMENT 'user who owns this tag (tags are isolated between different users)',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_tag` (`user_id`,`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='tag';
 
-CREATE TABLE IF NOT EXISTS file_sharing (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    file_id INT NOT NULL COMMENT "id of file_info",
-    user_id INT NOT NULL COMMENT "user who now have access to the file",
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT 0 COMMENT "is deleted, 0: normal, 1: deleted",
-    UNIQUE(file_id, user_id)
-) COMMENT "file's sharing information";
+CREATE TABLE `file_sharing` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `file_id` int NOT NULL COMMENT 'id of file_info',
+  `user_id` int NOT NULL COMMENT 'user who now have access to the file',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT 'is deleted, 0: normal, 1: deleted',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `file_id` (`file_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='file''s sharing information';
 
-CREATE TABLE IF NOT EXISTS fs_group (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL COMMENT "group name",
-    base_folder VARCHAR(255) NOT NULL COMMENT "base folder",
-    mode INT NOT NULL DEFAULT 2 COMMENT "1-read, 2-read/write",
-    type VARCHAR(32) NOT NULL DEFAULT 'USER' COMMENT 'FsGroup Type',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
-) COMMENT 'FileSystem group, used to differentiate which base folder or mounted folder should be used';
+CREATE TABLE `fs_group` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL COMMENT 'group name',
+  `base_folder` varchar(255) NOT NULL COMMENT 'base folder',
+  `mode` int NOT NULL DEFAULT '2' COMMENT '1-read, 2-read/write',
+  `type` varchar(32) NOT NULL DEFAULT 'USER' COMMENT 'FsGroup Type',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='FileSystem group, used to differentiate which base folder or mounted folder should be used';
 
-CREATE TABLE IF NOT EXISTS app_file (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL COMMENT 'name of the file',
-    uuid VARCHAR(255) NOT NULL COMMENT "file's uuid",
-    size BIGINT NOT NULL COMMENT "size of file in bytes",
-    app_name VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'app name',
-    user_id INT NOT NULL DEFAULT 0 COMMENT "owner's id",
-    fs_group_id INT NOT NULL COMMENT 'id of fs_group',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted'
-) engine=InnoDB COMMENT 'Application File';
+CREATE TABLE `app_file` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL COMMENT 'name of the file',
+  `uuid` varchar(255) NOT NULL COMMENT 'file''s uuid',
+  `size` bigint NOT NULL COMMENT 'size of file in bytes',
+  `app_name` varchar(64) NOT NULL DEFAULT '' COMMENT 'app name',
+  `user_id` int NOT NULL DEFAULT '0' COMMENT 'owner''s id',
+  `fs_group_id` int NOT NULL COMMENT 'id of fs_group',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Application File';
 
--- script for inserting some default file extension, these are optional
-INSERT INTO file_extension (name,is_enabled) VALUES
-	 ('png',0),
-	 ('jpg',0),
-	 ('jpeg',0),
-	 ('pdf',0),
-	 ('mp4',0),
-	 ('txt',0),
-	 ('zip',0),
-	 ('7z',0),
-	 ('gz',0),
-	 ('rar',0),
-	 ('docx',0),
-	 ('xlsx',0);
+CREATE TABLE `vfolder` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `folder_no` varchar(64) NOT NULL COMMENT 'folder no',
+  `name` varchar(255) NOT NULL COMMENT 'name of the folder',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `folder_no_uk` (`folder_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Virtual folder';
 
--- since v1.2.0
+CREATE TABLE `user_vfolder` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_no` varchar(64) NOT NULL COMMENT 'user no',
+  `folder_no` varchar(64) NOT NULL COMMENT 'folder no',
+  `ownership` varchar(15) NOT NULL DEFAULT 'OWNER' COMMENT 'ownership',
+  `granted_by` varchar(64) NOT NULL COMMENT 'granted by (user_no)',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_folder_uk` (`user_no`,`folder_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='User and Virtual folder join table';
 
-CREATE TABLE IF NOT EXISTS vfolder (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    folder_no VARCHAR(64) NOT NULL COMMENT 'folder no',
-    name VARCHAR(255) NOT NULL COMMENT "name of the folder",
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    UNIQUE folder_no_uk (folder_no)
-) engine=innodb comment="Virtual folder";
+CREATE TABLE `file_vfolder` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `folder_no` varchar(64) NOT NULL COMMENT 'folder no',
+  `uuid` varchar(64) NOT NULL COMMENT 'file''s uuid',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
+  `create_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
+  `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
+  `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `folder_file_uk` (`folder_no`,`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='File and vfolder join table';
 
-CREATE TABLE IF NOT EXISTS user_vfolder (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    user_no VARCHAR(64) NOT NULL COMMENT 'user no',
-    folder_no VARCHAR(64) NOT NULL COMMENT 'folder no',
-    ownership VARCHAR(15) NOT NULL DEFAULT 'OWNER' COMMENT "ownership",
-    granted_by VARCHAR(64) NOT NULL COMMENT "granted by (user_no)",
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    UNIQUE user_folder_uk (user_no, folder_no)
-) engine=innodb comment="User and Virtual folder join table";
+CREATE TABLE `task` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `job_name` varchar(255) NOT NULL COMMENT 'job''s name',
+  `target_bean` varchar(255) NOT NULL COMMENT 'name of bean that will be executed',
+  `cron_expr` varchar(255) NOT NULL COMMENT 'cron expression',
+  `app_group` varchar(255) NOT NULL COMMENT 'app group that runs this task',
+  `last_run_start_time` timestamp NULL DEFAULT NULL COMMENT 'the last time this task was executed',
+  `last_run_end_time` timestamp NULL DEFAULT NULL COMMENT 'the last time this task was finished',
+  `last_run_by` varchar(255) DEFAULT NULL COMMENT 'app that previously ran this task',
+  `last_run_result` varchar(255) DEFAULT NULL COMMENT 'result of last execution',
+  `enabled` int NOT NULL DEFAULT '0' COMMENT 'whether the task is enabled: 0-disabled, 1-enabled',
+  `concurrent_enabled` int DEFAULT '0' COMMENT 'whether the task can be executed concurrently: 0-disabled, 1-enabled',
+  `update_date` timestamp NOT NULL COMMENT 'update time',
+  `update_by` varchar(255) DEFAULT NULL COMMENT 'updated by',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='task';
 
-CREATE TABLE IF NOT EXISTS file_vfolder (
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    folder_no VARCHAR(64) NOT NULL COMMENT 'folder no',
-    uuid VARCHAR(64) NOT NULL COMMENT "file's uuid",
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    UNIQUE folder_file_uk (folder_no, uuid)
-) engine=innodb comment="File and vfolder join table";
+CREATE TABLE `task_history` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `task_id` int DEFAULT NULL COMMENT 'task id',
+  `start_time` timestamp NULL DEFAULT NULL COMMENT 'start time',
+  `end_time` timestamp NULL DEFAULT NULL COMMENT 'end time',
+  `run_by` varchar(255) DEFAULT NULL COMMENT 'task triggered by',
+  `run_result` varchar(255) DEFAULT NULL COMMENT 'result of last execution',
+  `create_time` datetime DEFAULT NULL COMMENT 'create time',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='task history';
