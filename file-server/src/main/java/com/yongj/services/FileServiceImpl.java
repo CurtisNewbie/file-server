@@ -50,7 +50,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
@@ -209,10 +208,8 @@ public class FileServiceImpl implements FileService {
             param.setFilterOwnedFiles(true);
         }
         final Page<?> p = forPage(reqVo.getPagingVo());
-
-        // Only select the top level file or dir
-        if (!StringUtils.hasText(param.getParentFile()))
-            param.setParentFile("");
+        final List<FileInfoVo> dataList;
+        final long count;
 
         /*
             Based on whether tagName is present, we use different queries
@@ -221,21 +218,29 @@ public class FileServiceImpl implements FileService {
             the paginator plugin always fails to optimise the query :D
          */
         final boolean qryForTag = StringUtils.hasText(param.getTagName());
-        List<FileInfo> dataList = qryForTag ?
-                fileInfoMapper.selectFileListForUserAndTag(p, param) :
-                fileInfoMapper.selectFileListForUserSelective(p, param);
-        final long count = qryForTag ?
-                fileInfoMapper.countFileListForUserAndTag(param) :
-                fileInfoMapper.countFileListForUserSelective(param);
+        if (qryForTag) {
+            dataList = fileInfoMapper.selectFileListForUserAndTag(p, param);
+            count = fileInfoMapper.countFileListForUserAndTag(param);
+        } else {
+            /*
+                Only select the top level file or dir if file name is not searched
+                The query for tags will ignore parent_file param, so it's fine
+             */
+            if (!StringUtils.hasText(param.getFilename()) && !StringUtils.hasText(param.getParentFile())) {
+                // filename is empty, and we make sure that it's null such that the query works
+                if (param.getFilename() != null) param.setFilename(null);
+                param.setParentFile("");
+            }
 
-        final List<FileInfoVo> converted = dataList.stream().map(e -> {
-            FileInfoVo v = BeanCopyUtils.toType(e, FileInfoVo.class);
-            v.setIsOwner(Objects.equals(e.getUploaderId(), reqVo.getUserId()));
-            return v;
-        }).collect(Collectors.toList());
+            dataList = fileInfoMapper.selectFileListForUserSelective(p, param);
+            count = fileInfoMapper.countFileListForUserSelective(param);
+        }
+
+        // set is_owner
+        dataList.forEach(v -> v.checkAndSetIsOwner(reqVo.getUserId()));
 
         final PageableList<FileInfoVo> pl = new PageableList<>();
-        pl.setPayload(converted);
+        pl.setPayload(dataList);
         pl.setPagingVo(PagingUtil.ofPageAndTotal((int) p.getCurrent(), count));
         return pl;
     }

@@ -13,14 +13,14 @@ import java.util.List;
  */
 public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
 
-    List<FileInfo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
+    List<FileInfoVo> selectFileListForUserSelective(Page<?> page, @Param("p") SelectFileInfoListParam param);
 
     /**
      * Count for {@link #selectFileListForUserSelective(Page, SelectFileInfoListParam)}
      */
     long countFileListForUserSelective(@Param("p") SelectFileInfoListParam param);
 
-    List<FileInfo> selectFileListForUserAndTag(Page<?> page, @Param("p") SelectFileInfoListParam param);
+    List<FileInfoVo> selectFileListForUserAndTag(Page<?> page, @Param("p") SelectFileInfoListParam param);
 
     /**
      * Count for {@link #selectFileListForUserAndTag(Page, SelectFileInfoListParam)}

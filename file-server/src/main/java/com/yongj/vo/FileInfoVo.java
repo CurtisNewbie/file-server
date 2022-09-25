@@ -1,9 +1,10 @@
 package com.yongj.vo;
 
-import com.yongj.enums.*;
+import com.yongj.enums.FileType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @author yongjie.zhuang
@@ -40,4 +41,8 @@ public class FileInfoVo {
 
     /** file type */
     private FileType fileType;
+
+    public void checkAndSetIsOwner(int currentUserId) {
+        this.isOwner = Objects.equals(uploaderId, currentUserId);
+    }
 }

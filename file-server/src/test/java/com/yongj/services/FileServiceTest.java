@@ -123,6 +123,7 @@ public class FileServiceTest {
     @Test
     void shouldFindPagedFilesForUser() {
         ListFileInfoReqVo reqVo = new ListFileInfoReqVo();
+        reqVo.setUserId(3);
         PagingVo pv = new PagingVo();
         pv.setLimit(10);
         pv.setPage(1);
