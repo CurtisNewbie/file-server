@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:17-jdk-alpine
 LABEL author="yongjie.zhuang"
 LABEL descrption="File Service"
 COPY . /usr/src/file-service
