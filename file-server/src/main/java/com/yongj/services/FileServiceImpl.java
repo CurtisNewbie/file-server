@@ -223,13 +223,15 @@ public class FileServiceImpl implements FileService {
             count = fileInfoMapper.countFileListForUserAndTag(param);
         } else {
             /*
-                Only select the top level file or dir if file name is not searched
-                The query for tags will ignore parent_file param, so it's fine
+                If parentFile is empty, and filename/userGroup are not searched, then we only return the top level file or dir.
+                The query for tags will ignore parent_file param, so it's working fine
              */
-            if (!StringUtils.hasText(param.getFilename()) && !StringUtils.hasText(param.getParentFile())) {
-                // filename is empty, and we make sure that it's null such that the query works
+            if (!StringUtils.hasText(param.getParentFile())
+                    && !StringUtils.hasText(param.getFilename())
+                    && param.getUserGroup() == null) {
+
                 if (param.getFilename() != null) param.setFilename(null);
-                param.setParentFile("");
+                param.setParentFile(""); // top-level file/dir
             }
 
             dataList = fileInfoMapper.selectFileListForUserSelective(p, param);
