@@ -10,7 +10,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ## Requirements 
 
-- file-service-front (Angular Project) (>= 1.1.11) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front)
+- file-service-front (Angular Project) (>= 1.1.12) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front)
 - auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway)
 - auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service)
 - MySQL (5.7+ or 8)
