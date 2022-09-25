@@ -209,4 +209,13 @@ public interface FileService {
      * @return list of uuid of files in dir
      */
     List<String> listFilesInDir(String uuid, long limit, long offset);
+
+    /**
+     * Check if a file with same exists for current user
+     *
+     * @param fileName file's name
+     * @param userId   user's id
+     * @return exists
+     */
+    boolean filenameExists(@NotEmpty String fileName, int userId);
 }

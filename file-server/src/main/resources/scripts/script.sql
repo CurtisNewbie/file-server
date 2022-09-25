@@ -34,7 +34,8 @@ CREATE TABLE `file_info` (
   `parent_file` varchar(64) NOT NULL DEFAULT '' COMMENT 'parent file uuid',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid_uk` (`uuid`),
-  KEY `parent_file_idx` (`parent_file`)
+  KEY `parent_file_idx` (`parent_file`),
+  KEY `name_idx` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `file_tag` (

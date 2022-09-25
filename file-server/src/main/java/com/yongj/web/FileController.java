@@ -106,9 +106,10 @@ public class FileController {
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Result<Void> streamUpload(@RequestHeader("fileName") String fileName,
+                                     @RequestHeader(value = "userGroup") Integer userGroupInt,
                                      @RequestHeader(value = "tag", required = false) @Nullable String[] tags,
                                      @RequestHeader(value = "parentFile", required = false) @Nullable String parentFile,
-                                     @RequestHeader(value = "userGroup") Integer userGroupInt,
+                                     @RequestHeader(value = "ignoreOnDupName", required = false, defaultValue = "true") boolean ignoreOnDupName,
                                      HttpServletRequest request) throws IOException, ExecutionException, InterruptedException {
 
         final FileUserGroupEnum userGroup = FileUserGroupEnum.from(userGroupInt);
@@ -120,6 +121,18 @@ public class FileController {
         // if there are multiple files, this will be the name of the zip file
         pathResolver.validateFileExtension(fileName);
         final TUser tUser = tUser();
+
+        /*
+        check whether the file name is used by current user, we don't add lock here because it's not really a strong requirement,
+        uploading a file usually takes quite a long time, so for sure, a lock will block for a quite a while,
+        but it's useful when the user is uploading multiple files and he/she doesn't known which were uploaded already before
+         */
+        if (ignoreOnDupName) {
+            if (fileInfoService.filenameExists(fileName, tUser.getUserId())) {
+                log.info("File '{}' uploading ignored because of 'ignoreOnDupName'", fileName);
+                return Result.ok();
+            }
+        }
 
         final CompletableFuture<FileInfo> future = fileInfoService.uploadFile(UploadFileVo.builder()
                 .userId(tUser.getUserId())

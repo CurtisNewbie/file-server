@@ -1,0 +1,1 @@
+alter table file_info add index name_idx (name);

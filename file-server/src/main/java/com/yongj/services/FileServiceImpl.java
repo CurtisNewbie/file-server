@@ -651,6 +651,18 @@ public class FileServiceImpl implements FileService {
                 .last(PagingUtil.limit(offset, limit)), select);
     }
 
+    @Override
+    public boolean filenameExists(String filename, int userId) {
+        return fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
+                .select(FileInfo::getId)
+                .eq(FileInfo::getName, filename)
+                .eq(FileInfo::getUploaderId, userId)
+                .eq(FileInfo::getFileType, FileType.FILE)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsDel, IsDel.NORMAL)
+                .last("limit 1")) != null;
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
