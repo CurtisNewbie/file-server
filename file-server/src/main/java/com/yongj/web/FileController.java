@@ -5,10 +5,7 @@ import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.*;
-import com.curtisnewbie.common.util.AssertUtils;
-import com.curtisnewbie.common.util.AsyncUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.EnumUtils;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -67,6 +64,7 @@ import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
 import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
+import static com.curtisnewbie.common.util.Runner.runSafely;
 
 /**
  * @author yongjie.zhuang
@@ -146,26 +144,22 @@ public class FileController {
         final FileInfo f = future.get();
         log.info("File uploaded and persisted in database, file_info: {}", f);
 
-        if (StringUtils.hasText(parentFile)) {
-            // attempt to propagate tracing
-            final Span span = tracer.nextSpan();
+        // attempt to propagate tracing
+        final Span span = tracer.nextSpan();
+        CompletableFuture.runAsync(() -> {
+            try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                // move file to dir
+                runSafely(() -> {
+                    if (StringUtils.hasText(parentFile)) {
+                        log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
+                        fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
+                    }
+                }, e -> log.error("Failed to move file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile, e));
 
-            log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
-            CompletableFuture.runAsync(() -> {
-                try (Tracer.SpanInScope ws = tracer.withSpanInScope(tracer.nextSpan())) {
-                    fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
-                }
-            });
-        }
-
-        if (tags != null && tags.length > 0) {
-            // attempt to propagate tracing
-            final Span span = tracer.nextSpan();
-
-            // todo repeated code :D
-            CompletableFuture.runAsync(() -> {
-                log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
-                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
+                // add tags
+                if (tags != null && tags.length > 0) {
+                    // todo repeated code :D
+                    log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
                     for (String tag : tags) {
                         if (!StringUtils.hasText(tag)) continue;
                         fileInfoService.tagFile(TagFileCmd.builder()
@@ -175,8 +169,11 @@ public class FileController {
                                 .build());
                     }
                 }
-            });
-        }
+            }
+        }).whenComplete((v, e) -> {
+            if (e != null)
+                log.error("Exception occurred while moving files to dir or adding tags, uuid: {}", f.getUuid(), e);
+        });
 
         return Result.ok();
     }
