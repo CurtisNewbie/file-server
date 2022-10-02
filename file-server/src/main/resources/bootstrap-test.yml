@@ -24,6 +24,10 @@ spring:
 
 distributed-task-module:
   scheduling.disabled: false
+  plugin:
+    dtask-go:
+      enabled: true
+      base-url: http://dtaskgo:8083/remote/
 
 server:
   port: 8443
