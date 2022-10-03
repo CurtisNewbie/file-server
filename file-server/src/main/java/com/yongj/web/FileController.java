@@ -262,15 +262,16 @@ public class FileController {
      */
     @LogOperation(name = "exportAsZip", description = "Export As Zip")
     @PostMapping(path = "/export-as-zip")
-    public DeferredResult<Result<Void>> exportAsZip(@RequestBody ExportAsZipReq r) {
+    public Result<Void> exportAsZip(@RequestBody ExportAsZipReq r) {
         final TUser user = tUser();
         final List<Integer> fileIds = r.getFileIds()
                 .stream()
                 .filter(Objects::nonNull).collect(Collectors.toList());
         AssertUtils.isTrue(!fileIds.isEmpty(), "Please select files first");
 
+        CompletableFuture.runAsync(() -> fileInfoService.exportAsZip(r, user));
 
-        return runAsync(() -> fileInfoService.exportAsZip(r, user));
+        return Result.ok();
     }
 
     /**
