@@ -2,15 +2,15 @@
 
 Upload file, list files, and download file.
 
-This app is ***not a standalone server***, you must have `auth-service`, `auth-gateway` and other middlewares setup. To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
+This app is ***not a standalone server***, you must have `auth-service`, `auth-gateway` and other relevant services setup (the so called microservices :D). To compile this app, you will also need to manually install the following modules & dependencies, these are all my repositories.
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
 
 ## Requirements 
 
-- file-service-front (Angular frontend) (>= 1.1.13) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front/releases/tag/v1.1.13)
-- auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway/releases/tag/v1.0.4)
-- auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service/releases/tag/v1.1.3.1)
+- file-service-front (Angular frontend) (>= 1.1.13) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.13)
+- auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway/tree/v1.0.4)
+- auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service/tree/v1.1.3.1)
 - MySQL (5.7+ or 8)
 - Nacos 
 - RabbitMQ
