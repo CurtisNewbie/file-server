@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -40,5 +42,26 @@ public class SimpleZipFileOperation implements ZipFileOperation {
             }
         }
         return file.length();
+    }
+
+    @Override
+    public long compressLocalFile(String absPath, List<File> entries) throws IOException {
+        final File file = new File(absPath);
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(8192 * 2);
+
+        try (final ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(file.toPath()));
+             final WritableByteChannel wc = Channels.newChannel(zipOut)) {
+
+            for (File entry : entries) {
+                final ZipEntry ze = new ZipEntry(entry.getName());
+                zipOut.putNextEntry(ze);
+                try (final ReadableByteChannel rc = Channels.newChannel(Files.newInputStream(entry.toPath(), StandardOpenOption.READ))) {
+                    copy(rc, wc, buffer);
+                }
+                zipOut.closeEntry();
+            }
+        }
+        return file.length();
+
     }
 }

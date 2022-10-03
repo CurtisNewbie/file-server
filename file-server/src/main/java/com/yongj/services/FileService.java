@@ -1,6 +1,7 @@
 package com.yongj.services;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
@@ -218,4 +219,9 @@ public interface FileService {
      * @return exists
      */
     boolean filenameExists(@NotEmpty String fileName, int userId);
+
+    /**
+     * Export file as a zip
+     */
+    void exportAsZip(@NotNull ExportAsZipReq r, @NotNull TUser user);
 }

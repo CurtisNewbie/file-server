@@ -4,8 +4,11 @@ import brave.Span;
 import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
-import com.curtisnewbie.common.trace.*;
-import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.trace.TUser;
+import com.curtisnewbie.common.util.AssertUtils;
+import com.curtisnewbie.common.util.AsyncUtils;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.EnumUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -252,6 +255,22 @@ public class FileController {
             }
         });
         return Result.ok();
+    }
+
+    /**
+     * Export selected files as zip
+     */
+    @LogOperation(name = "exportAsZip", description = "Export As Zip")
+    @PostMapping(path = "/export-as-zip")
+    public DeferredResult<Result<Void>> exportAsZip(@RequestBody ExportAsZipReq r) {
+        final TUser user = tUser();
+        final List<Integer> fileIds = r.getFileIds()
+                .stream()
+                .filter(Objects::nonNull).collect(Collectors.toList());
+        AssertUtils.isTrue(!fileIds.isEmpty(), "Please select files first");
+
+
+        return runAsync(() -> fileInfoService.exportAsZip(r, user));
     }
 
     /**

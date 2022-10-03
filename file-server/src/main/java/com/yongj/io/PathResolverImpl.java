@@ -18,7 +18,6 @@ import java.io.File;
 public class PathResolverImpl implements PathResolver {
 
     private static final Logger logger = LoggerFactory.getLogger(PathResolverImpl.class);
-    private static final String FILE_EXT_DELIMITER = ".";
 
     @Autowired
     private FileExtensionService fileExtensionService;
@@ -34,15 +33,7 @@ public class PathResolverImpl implements PathResolver {
     @Override
     public void validateFileExtension(String name) {
         logger.info("Validating file extension: {}", name);
-        name = name.trim();
-        if (name.isEmpty() || name.endsWith(FILE_EXT_DELIMITER))
-            throw new IllegalExtException("File name is empty or it ends with '.'");
-
-        final int i = name.lastIndexOf('.');
-        if (i == -1)
-            throw new IllegalExtException("File extension not found");
-
-        final String fe = name.substring(i + 1);
+        final String fe = PathResolver.extractFileExt(name);
         if (!fileExtensionService.isEnabled(fe)) {
             throw new IllegalExtException(String.format("File extension '%s' is not allowed", fe));
         }

@@ -1,5 +1,7 @@
 package com.yongj.io;
 
+import com.yongj.exceptions.IllegalExtException;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
@@ -11,6 +13,8 @@ import javax.validation.constraints.NotEmpty;
  */
 @Validated
 public interface PathResolver {
+
+    String FILE_EXT_DELIMITER = ".";
 
     /**
      * Resolve absolute path
@@ -47,4 +51,18 @@ public interface PathResolver {
      * @return absolute path
      */
     String resolveFolder(@NotEmpty String folder);
+
+    /** Extract file extension */
+    static String extractFileExt(String name) {
+        Assert.notNull(name, "name is empty");
+        name = name.trim();
+        if (name.isEmpty() || name.endsWith(FILE_EXT_DELIMITER))
+            throw new IllegalExtException("File name is empty or it ends with '.'");
+
+        final int i = name.lastIndexOf('.');
+        if (i == -1)
+            throw new IllegalExtException("File extension not found");
+
+        return name.substring(i + 1);
+    }
 }

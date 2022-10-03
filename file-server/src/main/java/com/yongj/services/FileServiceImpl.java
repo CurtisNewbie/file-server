@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
+import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.LockUtils;
@@ -27,6 +28,7 @@ import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
 import com.yongj.vo.*;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,6 +38,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
@@ -44,12 +48,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
@@ -669,6 +674,126 @@ public class FileServiceImpl implements FileService {
                 .last("limit 1")) != null;
     }
 
+    // TODO needs refactoring
+    @Override
+    public void exportAsZip(ExportAsZipReq r, TUser user) {
+        // lock is to prevent multiple export
+        final RLock lock = (RLock) redisController.getLock("fs:export:zip:" + user.getUserNo());
+        boolean isLocked = false;
+        try {
+            isLocked = lock.tryLock(1, -1, TimeUnit.MILLISECONDS);
+            if (!isLocked)
+                return;
+            final String filePre = "export_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            final String folderName = user.getUserId() + "_" + filePre;
+            final String zipFileName = filePre + ".zip";
+
+            // temp dir
+            final String tmpPre = "/tmp/";
+            final String tmpDirPath = tmpPre + folderName;
+            final File tmpDir = new File(tmpDirPath);
+            tmpDir.mkdir();
+
+            // pattern to escape filename
+            final Pattern escapePat = Pattern.compile("[ ()（）\\[\\]【】]");
+
+            // fsgroup
+            final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
+            nonNull(fsGroup, "No writable fs_group found, unable to upload file");
+
+            // copy all these files to temp dir
+            final Set<String> fnames = new HashSet<>(); // to avoid name collision
+            final List<File> entries = r.getFileIds().stream()
+                    .map(fid -> {
+                        try {
+                            validateUserDownload(user.getUserId(), fid, user.getUserNo());
+                            final FileInfo finfo = findById(fid);
+
+                            // file suffix
+                            final String suffix = PathResolver.extractFileExt(finfo.getName());
+
+                            // escaped
+                            String escaped = escapePat.matcher(finfo.getName()).replaceAll("_");
+
+                            // to avoid name collision, if we found a file with the same name, we add suffix to it
+                            int bsIdx = escaped.lastIndexOf(PathResolver.FILE_EXT_DELIMITER);
+                            while (!fnames.add(escaped)) {
+                                final String beforeSuffix = escaped.substring(0, bsIdx);
+                                final char last = beforeSuffix.charAt(beforeSuffix.length() - 1);
+
+                                // the first one being file_1.txt, the next being file_2.txt
+                                // the 'pre' is 'file_1.' and the 'suffix' is 'txt'
+                                String pre = beforeSuffix + "_1.";
+                                if (last >= '0' && last <= '9') {
+                                    final int j = beforeSuffix.lastIndexOf("_");
+                                    if (j > -1) { // won't happen if there is no bug :D
+                                        int num = Integer.parseInt(beforeSuffix.substring(j + 1)) + 1;
+
+                                        // e.g., if beforeSuffix is 'file_1'
+                                        // then we have:
+                                        // j -> 4
+                                        // beforeSuffix.substring(0, j+1) -> 'file_'
+                                        pre = beforeSuffix.substring(0, j + 1) + num + ".";
+                                    }
+                                }
+
+                                // 'pre' is the part before file suffix including '.', 'suffix' is just the file suffix without '.'
+                                // 'bsIdx' is the last index of '.', so it's pre.length-1 (0-based)
+                                bsIdx = pre.length() - 1;
+                                escaped = pre + suffix;
+                            }
+                            final File toFile = new File(tmpDirPath + "/" + escaped);
+
+                            try (FileChannel from = retrieveFileChannel(fid);
+                                 FileOutputStream fout = new FileOutputStream(toFile);
+                                 FileChannel to = fout.getChannel()) {
+                                from.transferTo(0, Long.MAX_VALUE, to);
+                            }
+                            return toFile;
+                        } catch (Exception e) {
+                            log.warn("Failed to copy file to temp dir for exporting, id: {}, tmpDirPath: {}", fid, tmpDirPath, e);
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .peek(f -> log.info("entry: {}", f.getName()))
+                    .collect(Collectors.toList());
+
+            // resolve a abs path for the zip file
+            final String uuid = UUID.randomUUID().toString();
+            final String absPath = pathResolver.resolveAbsolutePath(uuid, user.getUserId(), fsGroup.getBaseFolder());
+            nonNull(absPath, "Unable to resolve absolute path, unable to upload file");
+
+            // do compression
+            long size = -1;
+            try {
+                size = ioHandler.writeLocalZipFile(absPath, entries);
+            } catch (IOException e) {
+                log.error("Failed to compress zip files", e);
+            }
+
+            // if compression was successful
+            if (size > -1) {
+                FileInfo f = new FileInfo();
+                f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+                f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+                f.setName(zipFileName);
+                f.setUploaderId(user.getUserId());
+                f.setUploaderName(user.getUsername());
+                f.setUploadTime(LocalDateTime.now());
+                f.setUuid(uuid);
+                f.setUserGroup(FileUserGroupEnum.PRIVATE.getValue());
+                f.setSizeInBytes(size);
+                f.setFsGroupId(fsGroup.getId());
+                fileInfoMapper.insert(f);
+            }
+        } catch (Exception e) {
+            log.info("exportAsZip threw exception", e);
+        } finally {
+            if (isLocked) lock.unlock();
+        }
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
@@ -784,6 +909,7 @@ public class FileServiceImpl implements FileService {
         return chainHelper;
     }
 
+    // TODO refactor this, use DDD maybe? this is ugly
     private FileInfo saveFileInfo(SingleUploadChainHelper chainHelper) {
         FileInfo f = new FileInfo();
         f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
