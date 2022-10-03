@@ -2,7 +2,6 @@ package com.yongj.services;
 
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FileExtension;
-import com.yongj.exceptions.IllegalExtException;
 import com.yongj.vo.FileExtVo;
 import com.yongj.vo.ListFileExtReqVo;
 import com.yongj.vo.UpdateFileExtReq;
@@ -36,8 +35,6 @@ public interface FileExtensionService {
 
     /**
      * Add new file extension
-     *
-     * @throws IllegalExtException if the name of the file extension is illegal
      */
     void addFileExt(@NotNull FileExtension fileExtension);
 

@@ -1,5 +1,7 @@
 package com.yongj.util;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -45,5 +47,16 @@ public final class IOUtils {
             ((Buffer) buffer).clear();
         }
         return p;
+    }
+
+    /**
+     * Copy data from FileChannel to another local file
+     */
+    public static void copy(FileChannel fromChannel, File toFile) throws IOException {
+        try (FileChannel from = fromChannel;
+             FileOutputStream fout = new FileOutputStream(toFile);
+             FileChannel to = fout.getChannel()) {
+            from.transferTo(0, Long.MAX_VALUE, to);
+        }
     }
 }
