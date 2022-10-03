@@ -1,4 +1,4 @@
-# File-Service V1.2.2
+# File-Service V1.2.3
 
 Upload file, list files, and download file.
 
@@ -6,13 +6,11 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
 
-***The frontend project has been moved to a new repository [file-service-front](https://github.com/CurtisNewbie/file-service-front)***
-
 ## Requirements 
 
-- file-service-front (Angular Project) (>= 1.1.12) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front)
-- auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway)
-- auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service)
+- file-service-front (Angular frontend) (>= 1.1.13) [link to repo for file-service-front](https://github.com/CurtisNewbie/file-service-front/releases/tag/v1.1.13)
+- auth-gateway (>= v1.0.4) [link to repo for auth-gateway](https://github.com/CurtisNewbie/auth-gateway/releases/tag/v1.0.4)
+- auth-service (>= v1.1.3.1) [link to repo for auth-service](https://github.com/CurtisNewbie/auth-service/releases/tag/v1.1.3.1)
 - MySQL (5.7+ or 8)
 - Nacos 
 - RabbitMQ
