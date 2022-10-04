@@ -52,8 +52,7 @@ public class ScanFsGroupSizeJob extends AbstractJob {
                     .build());
         });
 
-        final String time = paginator.getTimer().printDuration();
-        task.setLastRunResult(String.format("Finished, took %s", time));
-        log.info("ScanFsGroupSizeJob end, time: {}", time);
+        task.setLastRunResult(String.format("Finished, scanned %s FsGroups", paginator.getCount()));
+        log.info("ScanFsGroupSizeJob end, time: {}", paginator.getTimer().printDuration());
     }
 }
