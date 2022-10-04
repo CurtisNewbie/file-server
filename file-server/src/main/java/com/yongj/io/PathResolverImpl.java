@@ -37,7 +37,7 @@ public class PathResolverImpl implements PathResolver {
     }
 
     @Override
-    public String resolveFolder(String folder) {
+    public String resolveBaseFolder(String folder) {
         String absPath = pathConfig.getBasePath() + File.separator + folder;
         log.debug("Resolving path for folder: '{}', resolved absolute path: '{}'", folder, absPath);
         return absPath;

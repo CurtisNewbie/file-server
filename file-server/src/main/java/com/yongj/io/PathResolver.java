@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
 public interface PathResolver {
 
     /**
-     * Resolve absolute path
+     * Resolve absolute path to a file in fsGroup
      *
      * @param uuid  file uuid
      * @param owner (uploadApp or uploaderId)
@@ -22,7 +22,7 @@ public interface PathResolver {
     String resolveAbsolutePath(@NotEmpty String uuid, @NotEmpty String owner, @NotEmpty String fsGroupFolder);
 
     /**
-     * Resolve absolute path
+     * Resolve absolute path to a file in fsGroup
      *
      * @param uuid       file uuid
      * @param uploaderId uploaderId
@@ -40,11 +40,12 @@ public interface PathResolver {
     void validateFileExtension(@NotEmpty String fileName);
 
     /**
-     * Resolve absolute path for the folder
+     * Resolve absolute path to the special base folder, this isn't used for uploading/saving files, this is used for
+     * all sorts of temp stuff used by the app
      *
      * @param folder folder name
      * @return absolute path
      */
-    String resolveFolder(@NotEmpty String folder);
+    String resolveBaseFolder(@NotEmpty String folder);
 
 }

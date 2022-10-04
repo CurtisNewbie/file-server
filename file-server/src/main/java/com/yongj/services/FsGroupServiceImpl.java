@@ -2,6 +2,8 @@ package com.yongj.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.curtisnewbie.common.dao.IsDel;
+import com.curtisnewbie.common.util.MapperUtils;
+import com.curtisnewbie.common.util.Paginator;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.converters.FsGroupConverter;
 import com.yongj.dao.FsGroup;
@@ -12,13 +14,14 @@ import com.yongj.helper.RandomPicker;
 import com.yongj.helper.ShuffleRandomPicker;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
+import com.yongj.vo.ScanFsGroupResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
@@ -26,7 +29,7 @@ import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 /**
  * @author yongjie.zhuang
  */
-@Transactional
+@Slf4j
 @Service
 public class FsGroupServiceImpl implements FsGroupService {
 
@@ -39,13 +42,11 @@ public class FsGroupServiceImpl implements FsGroupService {
     private final RandomPicker<FsGroup> randomPicker = new ShuffleRandomPicker<>();
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public FsGroup findFsGroupById(int id) {
         return fsGroupMapper.selectByPrimaryKey(id);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public FsGroup findAnyFsGroupToWrite(FsGroupType type) {
         return randomPicker.pickRandom(fsGroupMapper.selectList(new LambdaQueryWrapper<FsGroup>()
                 .eq(FsGroup::getMode, FsGroupMode.READ_WRITE.getValue())
@@ -54,7 +55,6 @@ public class FsGroupServiceImpl implements FsGroupService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public PageableList<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param) {
         return toPageableList(
                 fsGroupMapper.findByPage(forPage(param.getPagingVo()), fsGroupConverter.toDo(param.getFsGroup())),
@@ -71,5 +71,18 @@ public class FsGroupServiceImpl implements FsGroupService {
         final FsGroup param = new FsGroup();
         param.setMode(mode.getValue());
         fsGroupMapper.update(param, condition);
+    }
+
+    @Override
+    public List<FsGroup> listFsGroups(Paginator.PagingParam p) {
+        return fsGroupMapper.selectList(MapperUtils.limit(p.getOffset(), p.getLimit()));
+    }
+
+    @Override
+    public void saveScanResult(ScanFsGroupResult result) {
+        fsGroupMapper.update(null,
+                MapperUtils.set(FsGroup::getScanTime, result.getScanTime())
+                        .set(FsGroup::getSize, result.getSize())
+                        .eq(FsGroup::getId, result.getId()));
     }
 }

@@ -6,6 +6,8 @@ import com.curtisnewbie.common.dao.DaoSkeleton;
 import com.yongj.enums.FsGroupType;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * FileSystem group, used to differentiate which base folder or mounted folder should be used
  *
@@ -30,5 +32,13 @@ public class FsGroup extends DaoSkeleton {
     /** Type of a fs_group */
     @TableField("type")
     private FsGroupType type;
+
+    /** size in bytes */
+    @TableField("size")
+    private Long size;
+
+    /** previous scan time */
+    @TableField("scan_time")
+    private LocalDateTime scanTime;
 
 }

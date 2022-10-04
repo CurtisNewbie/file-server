@@ -1,16 +1,19 @@
 package com.yongj.services;
 
 
+import com.curtisnewbie.common.util.Paginator;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.enums.FsGroupType;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
+import com.yongj.vo.ScanFsGroupResult;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Service for fs_group
@@ -41,4 +44,14 @@ public interface FsGroupService {
      * Update fs_group's mode
      */
     void updateFsGroupMode(int fsGroupId, @NotNull FsGroupMode mode, @Nullable String updatedBy);
+
+    /**
+     * List fsGroups
+     */
+    List<FsGroup> listFsGroups(@NotNull Paginator.PagingParam p);
+
+    /**
+     * Save scan result
+     */
+    void saveScanResult(@NotNull ScanFsGroupResult result);
 }

@@ -89,6 +89,8 @@ CREATE TABLE `fs_group` (
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when the record is updated',
   `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
   `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
+  `size` bigint NOT NULL DEFAULT '0' COMMENT 'size in bytes',
+  `scan_time` timestamp NULL DEFAULT NULL COMMENT 'previous scan time',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='FileSystem group, used to differentiate which base folder or mounted folder should be used';
 
@@ -176,3 +178,11 @@ CREATE TABLE `task_history` (
   `create_time` datetime DEFAULT NULL COMMENT 'create time',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='task history';
+
+-- tasks
+INSERT INTO `task`
+    (job_name, target_bean, cron_expr, app_group, enabled, concurrent_enabled, update_date)
+VALUES
+    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 0/6 ? * *','file-server',0,0,CURRENT_TIMESTAMP),
+    ('DeleteFileJob','deleteFileJob','0 0 0/6 ? * *','file-server',1,0,CURRENT_TIMESTAMP),
+    ("ScanFsGroupSizeJob", "scanFsGroupSizeJob", "0 0 0/1 ? * *", "file-server",1,0,CURRENT_TIMESTAMP);

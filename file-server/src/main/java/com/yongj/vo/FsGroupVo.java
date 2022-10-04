@@ -30,9 +30,16 @@ public class FsGroupVo {
     private FsGroupType type;
 
     /** when the record is updated */
-    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
+    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM_SS)
     private LocalDateTime updateTime;
 
     /** who updated this record */
     private String updateBy;
+
+    /** size in bytes */
+    private Long size;
+
+    /** previous scan time */
+    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM_SS)
+    private LocalDateTime scanTime;
 }

@@ -1,0 +1,3 @@
+alter table fs_group add column size bigint NOT NULL DEFAULT 0 COMMENT 'size in bytes';
+alter table fs_group add column scan_time TIMESTAMP DEFAULT NULL COMMENT 'previous scan time';
+insert into task (job_name, target_bean, cron_expr, app_group, enabled, concurrent_enabled, update_date) values ("ScanFsGroupSizeJob", "scanFsGroupSizeJob", "0 0 0/1 ? * *", "file-server", "1", "0", CURRENT_TIMESTAMP);

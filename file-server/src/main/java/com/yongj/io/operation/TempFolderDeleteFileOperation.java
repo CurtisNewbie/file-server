@@ -43,7 +43,7 @@ public class TempFolderDeleteFileOperation implements DeleteFileOperation {
         if (file.isDirectory())
             throw new IOException("Not support moving directory: " + absPath);
 
-        Path folderPath = Paths.get(pathResolver.resolveFolder(TEMP_FOLDER_NAME));
+        Path folderPath = Paths.get(pathResolver.resolveBaseFolder(TEMP_FOLDER_NAME));
         // create folder if not exists
         if (!Files.exists(folderPath)) {
             Files.createDirectory(folderPath);
