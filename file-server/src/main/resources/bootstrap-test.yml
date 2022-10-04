@@ -36,7 +36,7 @@ server:
 base:
   path: ${fsbasepath}
 
-fs-group.base.prefix: "/home/zhuangyongj/file/fileserver/"
+fs-group.base.prefix: ${fsgroupbasepath}
 
 redisson-config: redisson-test.yaml
 
