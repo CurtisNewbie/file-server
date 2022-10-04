@@ -18,9 +18,9 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ## Configuration
 
-Data Type | Property Name | Description | Default Value
-----------|---------------|-------------|---------------
-string | base.path | base path used by application, this path is not used for file storage, where the uploaded files are stored depends on the table `fs_group`. Currently, this path is only used for `TempFolderDeleteFileOperation` which is an implementation of `DeleteFileOperation`. When the application is configured to use this file operation, deleting a file means that this file is moved to the temp folder, and the location of the temp folder depends on this `base.path` configuration | none
+| Data Type | Property Name | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Default Value |
+|-----------|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| string    | base.path     | base path used by application, this path is not used for file storage, where the uploaded files are stored depends on the table `fs_group`. Currently, this path is only used for `TempFolderDeleteFileOperation` which is an implementation of `DeleteFileOperation`. When the application is configured to use this file operation, deleting a file means that this file is moved to the temp folder, and the location of the temp folder depends on this `base.path` configuration | none          |
 
 ## Modules and Dependencies
 
@@ -30,7 +30,7 @@ This project depends on the following modules that you must manually install (us
 - [distributed-task-module v2.1.0](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.0)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
 - [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
-- [common-module v2.1.7](https://github.com/CurtisNewbie/common-module/tree/v2.1.7)
+- [common-module v2.1.8](https://github.com/CurtisNewbie/common-module/tree/v2.1.8)
 - [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
 
 
