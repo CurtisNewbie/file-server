@@ -25,8 +25,8 @@ public class PathResolverImpl implements PathResolver {
 
     @Override
     public String resolveAbsolutePath(String uuid, String owner, String fsGroupFolder) {
-        return fsGroupFolder + File.separator +
-                owner + File.separator + uuid;
+        fsGroupFolder = (fsGroupFolder.endsWith(File.separator) ? fsGroupFolder : fsGroupFolder + File.separator);
+        return fsGroupFolder + owner + File.separator + uuid;
     }
 
     @Override

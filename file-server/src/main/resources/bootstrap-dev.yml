@@ -31,6 +31,8 @@ server:
 base:
   path: "/home/zhuangyongj/file/indb"
 
+fs-group.base.prefix: "/home/zhuangyongj/file/"
+
 redisson-config: redisson-dev.yaml
 
 # nacos heartbeat thread count

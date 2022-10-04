@@ -6,12 +6,14 @@ import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.FsGroupMode;
 import com.yongj.enums.FsGroupType;
+import com.yongj.vo.AddFsGroupReq;
 import com.yongj.vo.FsGroupVo;
 import com.yongj.vo.ListAllFsGroupReqVo;
 import com.yongj.vo.ScanFsGroupResult;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -54,4 +56,10 @@ public interface FsGroupService {
      * Save scan result
      */
     void saveScanResult(@NotNull ScanFsGroupResult result);
+
+    /**
+     * Add FsGroup
+     */
+    void addFsGroup(@NotNull @Valid AddFsGroupReq req);
+
 }

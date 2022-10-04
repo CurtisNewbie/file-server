@@ -36,6 +36,8 @@ server:
 base:
   path: ${fsbasepath}
 
+fs-group.base.prefix: "/home/zhuangyongj/file/fileserver/"
+
 redisson-config: redisson-test.yaml
 
 # nacos heartbeat thread count
