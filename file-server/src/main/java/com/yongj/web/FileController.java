@@ -260,6 +260,7 @@ public class FileController {
     /**
      * Export selected files as zip
      */
+    @RoleControlled(rolesForbidden = "guest")
     @LogOperation(name = "exportAsZip", description = "Export As Zip")
     @PostMapping(path = "/export-as-zip")
     public Result<Void> exportAsZip(@RequestBody ExportAsZipReq r) {

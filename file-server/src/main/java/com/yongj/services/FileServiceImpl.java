@@ -417,9 +417,16 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void updateFile(@NotNull UpdateFileCmd cmd) {
-        Integer uploaderId = fileInfoMapper.selectUploaderIdById(cmd.getId());
-        nonNull(uploaderId, "Record not found");
-        AssertUtils.equals((int) uploaderId, cmd.getUpdatedById(), "You are not allowed to update this file");
+        final FileInfo fileInfo = fileInfoMapper.selectById(cmd.getId());
+        nonNull(fileInfo, "Record not found");
+        AssertUtils.equals((int) fileInfo.getUploaderId(), cmd.getUpdatedById(), "You are not allowed to update this file");
+
+        // Directory is by default private, and it's not allowed to update it
+        if (fileInfo.isDir()
+                && cmd.getUserGroup() != null
+                && cmd.getUserGroup().getValue() != (int) fileInfo.getUserGroup()) {
+            throw new UnrecoverableException("Updating directory's UserGroup is not allowed");
+        }
 
         FileInfo fi = new FileInfo();
         fi.setId(cmd.getId());
@@ -754,7 +761,7 @@ public class FileServiceImpl implements FileService {
                 fileInfoMapper.insert(f);
             }
         } catch (Exception e) {
-            log.info("exportAsZip threw exception, userNo: {}",  user.getUserNo(), e);
+            log.info("exportAsZip threw exception, userNo: {}", user.getUserNo(), e);
         } finally {
             if (isLocked) lock.unlock();
         }
