@@ -19,7 +19,7 @@ spring:
         server-addr: localhost:8848
 
 distributed-task-module:
-  scheduling.disabled: false
+  enabled: false
   plugin:
     dtask-go:
       enabled: false

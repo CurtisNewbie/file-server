@@ -27,7 +27,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 This project depends on the following modules that you must manually install (using `mvn clean install`).
 
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
-- [distributed-task-module v2.1.1](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1)
+- [distributed-task-module v2.1.1.1](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.1)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
 - [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
 - [common-module v2.1.8](https://github.com/CurtisNewbie/common-module/tree/v2.1.8)

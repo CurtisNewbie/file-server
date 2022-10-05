@@ -23,7 +23,7 @@ spring:
         password: ${nacospassword}
 
 distributed-task-module:
-  scheduling.disabled: false
+  enabled: true
   plugin:
     dtask-go:
       enabled: true
