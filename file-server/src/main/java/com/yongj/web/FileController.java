@@ -336,7 +336,7 @@ public class FileController {
     @PostMapping(path = "/list-granted-access")
     public DeferredResult<Result<ListGrantedAccessRespVo>> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
         return AsyncUtils.runAsyncResult(() -> {
-            final PageableList<FileSharingVo> pps = fileInfoService.listGrantedAccess(v.getFileId(), tUser().getUserId(), v.getPagingVo());
+            final PageableList<FileSharingVo> pps = fileInfoService.listGrantedAccess(v.getFileId(), tUser().getUserId(), v.page());
             final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
             // collect list of userIds
             List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());

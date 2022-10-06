@@ -1,8 +1,7 @@
 package com.yongj.job;
 
+import com.curtisnewbie.common.data.*;
 import com.curtisnewbie.common.util.*;
-import com.curtisnewbie.common.vo.PageableList;
-import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.task.scheduling.AbstractJob;
 import com.curtisnewbie.module.task.vo.TaskVo;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 @Component
 public class FetchFileUploaderNameJob extends AbstractJob {
 
-    private static final Integer LIMIT = 30;
+    private static final Integer LIMIT = 100;
 
     @Autowired
     private FileService fileInfoService;
@@ -39,26 +38,16 @@ public class FetchFileUploaderNameJob extends AbstractJob {
 
     @Override
     public void executeInternal(TaskVo task) throws JobExecutionException {
-
         log.info("FetchFileUploaderNameJob started ...");
 
-        final PagingVo paging = new PagingVo();
-        paging.setLimit(LIMIT);
-        paging.setPage(1);
+        LongWrapper total = new LongWrapper(0);
+        Paginator<FileUploaderInfoVo> paginator = new Paginator<FileUploaderInfoVo>()
+                .nextPageSupplier(p -> fileInfoService.findFilesWithoutUploaderName(LIMIT));
 
-        long total = 0;
-        PageableList<FileUploaderInfoVo> pps = fileInfoService.findPagedFilesWithoutUploaderName(paging);
-        while (!pps.getPayload().isEmpty()) {
-
-            log.info("Found {} files, preparing to fetch uploaderNames for them", pps.getPayload().size());
-
+        paginator.loopPageTilEnd(page -> {
             // fetch uploader names
-            total += fetchUploaderName(pps.getPayload());
-
-            // next page
-            paging.setPage(paging.getPage() + 1);
-            pps = fileInfoService.findPagedFilesWithoutUploaderName(paging);
-        }
+            total.incrBy(fetchUploaderName(page));
+        });
 
         task.setLastRunResult(String.format("Fetched %s uploader names", total));
         log.info("FetchFileUploaderNameJob finished ...");
@@ -72,7 +61,7 @@ public class FetchFileUploaderNameJob extends AbstractJob {
                 .map(FileUploaderInfoVo::getUploaderId)
                 .collect(Collectors.toList());
 
-        ValueWrapper<Integer> count = new ValueWrapper<>(0);
+        IntWrapper count = new IntWrapper(0);
         Runner.runSafely(() -> {
                     final Result<FetchUsernameByIdResp> result = userServiceFeign.fetchUsernameById(FetchUsernameByIdReq.builder()
                             .userIds(uploaderIds)
@@ -84,12 +73,11 @@ public class FetchFileUploaderNameJob extends AbstractJob {
 
                     // update uploaderName to database
                     Map<Integer, String> idToUsername = result.getData().getIdToUsername();
-
                     list.forEach(file -> {
                         Optional.ofNullable(idToUsername.get(file.getUploaderId()))
                                 .ifPresent(name -> {
                                     fileInfoService.fillBlankUploaderName(file.getId(), name);
-                                    count.setValue(count.getValue() + 1);
+                                    count.incr();
                                 });
                     });
                 },

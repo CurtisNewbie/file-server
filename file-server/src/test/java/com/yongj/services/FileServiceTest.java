@@ -1,15 +1,12 @@
 package com.yongj.services;
 
 import com.curtisnewbie.common.util.MultipartUtil;
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.*;
 import com.yongj.dao.FileInfo;
 import com.yongj.dao.FileInfoMapper;
 import com.yongj.dao.FsGroup;
 import com.yongj.enums.*;
-import com.yongj.vo.ListFileInfoReqVo;
-import com.yongj.vo.UpdateFileCmd;
-import com.yongj.vo.UploadFileVo;
-import com.yongj.vo.UploadZipFileVo;
+import com.yongj.vo.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +26,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
 import java.util.zip.ZipFile;
 
 //todo Fix the test cases, these doesn't work for FsGroup, basePath is deprecated already
@@ -62,6 +60,12 @@ public class FileServiceTest {
     @MockBean
     FsGroupService fsGroupService;
 
+    @Test
+    void should_find_paged_files_without_uploader_name(){
+        final List<FileUploaderInfoVo> p = fileInfoService.findFilesWithoutUploaderName(10);
+        Assertions.assertNotNull(p);
+        log.info("p: {}", p);
+    }
 
     /** Test {@link FileService#updateFile(UpdateFileCmd)} */
     @Test

@@ -1,0 +1,52 @@
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/fileServer?serverTimezone=Asia/Shanghai
+    username: root
+#    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtualHost: /
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+
+distributed-task-module:
+  enabled: false
+  plugin:
+    dtask-go:
+      enabled: false
+      base-url: http://localhost:8083/remote/
+
+server:
+  port: 8080
+
+base:
+  path: "/tmp/file-server/tmp"
+
+fs-group.base.prefix: "/home/zhuangyongj/file/"
+
+redisson-config: redisson-dev.yaml
+
+# nacos heartbeat thread count
+namingClientBeatThreadCount: 1
+
+# nacos naming polling thread count
+namingPollingThreadCount: 1
+
+# quartz thread pool size
+org.quartz.threadPool.threadCount: 1
+
+# console log sql execution
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+auth-service.mock.is-active: false

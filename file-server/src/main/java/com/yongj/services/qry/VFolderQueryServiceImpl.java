@@ -23,13 +23,13 @@ public class VFolderQueryServiceImpl implements VFolderQueryService {
 
     @Override
     public PageableList<VFolderListResp> listVFolders(ListVFolderReq req) {
-        final Page<VFolderListResp> page = vFolderMapper.listVFolders(forPage(req.getPagingVo()), req);
+        final Page<VFolderListResp> page = vFolderMapper.listVFolders(req.page(), req);
         return PageableList.from(page);
     }
 
     @Override
     public PageableList<FileInfoVo> listFilesInFolder(ListVFolderFilesReq req) {
-        final Page<FileInfoVo> page = vFolderMapper.listFilesInVFolders(forPage(req.getPagingVo()), req);
+        final Page<FileInfoVo> page = vFolderMapper.listFilesInVFolders(req.page(), req);
         page.getRecords().forEach(v -> v.setIsOwner(Objects.equals(v.getUploaderId(), req.getUserId())));
         return PageableList.from(page);
     }

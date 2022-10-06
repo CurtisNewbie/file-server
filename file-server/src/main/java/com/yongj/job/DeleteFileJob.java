@@ -1,7 +1,5 @@
 package com.yongj.job;
 
-import com.curtisnewbie.common.vo.PageableList;
-import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.task.scheduling.*;
 import com.curtisnewbie.module.task.vo.*;
 import com.yongj.dao.FsGroup;
@@ -11,8 +9,6 @@ import com.yongj.services.FileService;
 import com.yongj.services.FsGroupService;
 import com.yongj.vo.PhysicDeleteFileVo;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

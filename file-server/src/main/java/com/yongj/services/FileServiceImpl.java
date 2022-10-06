@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.baomidou.mybatisplus.core.conditions.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -9,10 +10,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.dao.IsDel;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.TUser;
-import com.curtisnewbie.common.util.AssertUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.LockUtils;
-import com.curtisnewbie.common.util.PagingUtil;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.PagingVo;
 import com.curtisnewbie.module.redisutil.RedisController;
@@ -262,17 +260,15 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public PageableList<FileUploaderInfoVo> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo) {
-        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
-                .select("id", "uploader_id")
-                .eq("uploader_name", "");
+    public List<FileUploaderInfoVo> findFilesWithoutUploaderName(int limit) {
+        final Wrapper<FileInfo> cond = MapperUtils.select(FileInfo::getId, FileInfo::getUploaderId)
+                .eq(FileInfo::getUploaderName, "")
+                .last("limit " + limit);
 
-        final IPage<FileInfo> dataList = fileInfoMapper.selectPage(forPage(pagingVo), cond);
-        return toPageableList(dataList, (f) ->
-                FileUploaderInfoVo.builder()
-                        .id(f.getId())
-                        .uploaderId(f.getUploaderId())
-                        .build());
+        return fileInfoMapper.selectListAndConvert(cond, (f) -> FileUploaderInfoVo.builder()
+                .id(f.getId())
+                .uploaderId(f.getUploaderId())
+                .build());
     }
 
     @Override
@@ -443,16 +439,14 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageableList<FileSharingVo> listGrantedAccess(int fileId, int requestUserId, @NotNull PagingVo paging) {
+    public PageableList<FileSharingVo> listGrantedAccess(int fileId, int requestUserId, @NotNull Page page) {
         Assert.isTrue(isFileOwner(requestUserId, fileId), "Only uploader can list granted access");
 
-        LambdaQueryWrapper<FileSharing> condition = new LambdaQueryWrapper<>();
-        condition.select(FileSharing::getId, FileSharing::getUserId, FileSharing::getCreateTime, FileSharing::getCreateBy)
-                .eq(FileSharing::getFileId, fileId)
-                .eq(FileSharing::getIsDel, IsDel.NORMAL)
-                .orderByDesc(FileSharing::getId);
-        Page page = forPage(paging);
-        return toPageableList(fileSharingMapper.selectPage(page, condition), fileSharingConverter::toVo);
+        return fileSharingMapper.selectPageAndConvert(
+                MapperUtils.select(FileSharing::getId, FileSharing::getUserId, FileSharing::getCreateTime, FileSharing::getCreateBy)
+                        .eq(FileSharing::getFileId, fileId)
+                        .eq(FileSharing::getIsDel, IsDel.NORMAL)
+                        .orderByDesc(FileSharing::getId), page, fileSharingConverter::toVo);
     }
 
     @Override

@@ -65,7 +65,7 @@ public class FsGroupServiceImpl implements FsGroupService {
     @Override
     public PageableList<FsGroupVo> findByPage(@NotNull ListAllFsGroupReqVo param) {
         return toPageableList(
-                fsGroupMapper.findByPage(forPage(param.getPagingVo()), fsGroupConverter.toDo(param.getFsGroup())),
+                fsGroupMapper.findByPage(param.page(), fsGroupConverter.toDo(param.getFsGroup())),
                 fsGroupConverter::toVo
         );
     }

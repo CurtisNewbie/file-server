@@ -3,7 +3,6 @@ package com.yongj.services;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.vo.PageableList;
-import com.curtisnewbie.common.vo.PagingVo;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.*;
 import com.yongj.vo.*;
@@ -59,7 +58,7 @@ public interface FileService {
     /**
      * File uploader id of files that doesn't contain uploader name
      */
-    PageableList<FileUploaderInfoVo> findPagedFilesWithoutUploaderName(@NotNull PagingVo pagingVo);
+    List<FileUploaderInfoVo> findFilesWithoutUploaderName(int limit);
 
     /**
      * Find by id
@@ -133,9 +132,9 @@ public interface FileService {
      *
      * @param fileId file_info.id
      * @param userId id of user
-     * @param paging info
+     * @param page page
      */
-    PageableList<FileSharingVo> listGrantedAccess(int fileId, int userId, @NotNull PagingVo paging);
+    PageableList<FileSharingVo> listGrantedAccess(int fileId, int userId, @NotNull Page page);
 
     /**
      * Remove granted file access
