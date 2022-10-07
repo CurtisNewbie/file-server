@@ -12,11 +12,14 @@ spring:
     password: guest
     virtualHost: /
   cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
+    consul:
+      host: localhost
+      port: 8500
+#    nacos:
+#      discovery:
+#        server-addr: localhost:8848
+#      config:
+#        server-addr: localhost:8848
 
 distributed-task-module:
   enabled: false
@@ -29,7 +32,7 @@ server:
   port: 8080
 
 base:
-  path: "/home/zhuangyongj/file/indb"
+  path: "/tmp/file-server/base"
 
 fs-group.base.prefix: "/home/zhuangyongj/file/"
 

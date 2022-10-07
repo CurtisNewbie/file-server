@@ -31,3 +31,6 @@ mybatis-plus:
 # name of the application group (same cluster should share the same name)
 distributed-task-module:
   application-group: file-server
+
+# for /health endpoint used by consul
+management.endpoints.web.exposure.include: '*'
