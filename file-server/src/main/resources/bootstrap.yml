@@ -32,5 +32,5 @@ mybatis-plus:
 distributed-task-module:
   application-group: file-server
 
-# for /health endpoint used by consul
+# for the '/actuator/health' endpoint used by consul
 management.endpoints.web.exposure.include: '*'

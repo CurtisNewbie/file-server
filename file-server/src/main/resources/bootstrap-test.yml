@@ -5,23 +5,22 @@ spring:
     username: ${mysqlusername}
     password: ${mysqlpassword}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    consul:
+      host: ${consulhost}
+      port: ${consulport}
+
+# ----- messaging-module
+messaging:
   rabbitmq:
     host: ${rabbitmqaddr}
     port: 5672
     username: ${rabbitmqusername}
     password: ${rabbitmqpassword}
-    virtualHost: /
-  cloud:
-    nacos:
-      discovery:
-        server-addr: ${nacosaddr}:8848
-        username: ${nacosusername}
-        password: ${nacospassword}
-      config:
-        server-addr: ${nacosaddr}:8848
-        username: ${nacosusername}
-        password: ${nacospassword}
+    virtualHost: "/"
+    publisherConfirmType: SIMPLE
 
+# ----- distributed-task-module
 distributed-task-module:
   enabled: true
   plugin:
@@ -32,21 +31,15 @@ distributed-task-module:
 server:
   port: 8443
 
-# "/home/zhuangyongj/file/fileserver"
+# temp base file for file-server
 base:
   path: ${fsbasepath}
 
+# required prefix for new fsGroup folder path
 fs-group.base.prefix: ${fsgroupbasepath}
 
+# redisson config file
 redisson-config: redisson-test.yaml
-
-# nacos heartbeat thread count
-namingClientBeatThreadCount: 2
-# nacos naming polling thread count
-namingPollingThreadCount: 2
-
-# quartz thread pool size
-org.quartz.threadPool.threadCount: 2
 
 file-service:
   max-zip-entries: 200

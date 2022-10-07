@@ -5,22 +5,25 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+
+server:
+  port: 8080
+
+# ----- messaging-module
+messaging:
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
-    virtualHost: /
-  cloud:
-    consul:
-      host: localhost
-      port: 8500
-#    nacos:
-#      discovery:
-#        server-addr: localhost:8848
-#      config:
-#        server-addr: localhost:8848
+    virtualHost: "/"
+    publisherConfirmType: SIMPLE
 
+# ----- distributed-task-module
 distributed-task-module:
   enabled: false
   plugin:
@@ -28,28 +31,17 @@ distributed-task-module:
       enabled: false
       base-url: http://localhost:8083/remote/
 
-server:
-  port: 8080
-
+# temp base file for file-server
 base:
   path: "/tmp/file-server/base"
 
+# required prefix for new fsGroup folder path
 fs-group.base.prefix: "/home/zhuangyongj/file/"
 
+# redisson config file
 redisson-config: redisson-dev.yaml
-
-# nacos heartbeat thread count
-namingClientBeatThreadCount: 1
-
-# nacos naming polling thread count
-namingPollingThreadCount: 1
-
-# quartz thread pool size
-org.quartz.threadPool.threadCount: 1
 
 # console log sql execution
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-auth-service.mock.is-active: false
