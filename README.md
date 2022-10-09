@@ -97,14 +97,18 @@ The task implementation beans:
 
 - com.yongj.job.DeleteFileJob
 - com.yongj.job.FetchFileUploaderNameJob
+- com.yongj.job.ScanFsGroupSizeJob 
 
 For example:
 
 ```sql
-INSERT INTO `task` (`job_name`, `target_bean`, `cron_expr`, `app_group`, `last_run_start_time`, `last_run_end_time`, `last_run_by`, `last_run_result`, `enabled`, `concurrent_enabled`, `update_date`, `update_by`) 
-VALUES 
-    ('DeleteFileJob','deleteFileJob','0 0 0 ? * *','file-server',NULL,NULL,'','',1,0,CURRENT_TIMESTAMP,''),
-    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 /6 ? * *','file-server',NULL,NULL,'','',0,0,CURRENT_TIMESTAMP,'');
+INSERT INTO `task`
+    (job_name, target_bean, cron_expr, app_group, enabled, concurrent_enabled, update_date)
+VALUES
+    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 0/6 ? * *','file-server',0,0,CURRENT_TIMESTAMP),
+    ('DeleteFileJob','deleteFileJob','0 0 0/6 ? * *','file-server',1,0,CURRENT_TIMESTAMP),
+    ("ScanFsGroupSizeJob", "scanFsGroupSizeJob", "0 0 0/1 ? * *", "file-server",1,0,CURRENT_TIMESTAMP);
+
 ```
     
 
