@@ -5,10 +5,7 @@ import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.TUser;
-import com.curtisnewbie.common.util.AssertUtils;
-import com.curtisnewbie.common.util.AsyncUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.EnumUtils;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -145,16 +142,15 @@ public class FileController {
             }
         }
 
-        final CompletableFuture<FileInfo> future = fileInfoService.uploadFile(UploadFileVo.builder()
+        // We are streaming the data, it must be synchronous
+        final FileInfo f = fileInfoService.uploadFile(UploadFileVo.builder()
+                .userNo(tUser.getUserNo())
                 .userId(tUser.getUserId())
                 .username(tUser.getUsername())
                 .fileName(fileName)
                 .userGroup(userGroup)
                 .inputStream(request.getInputStream())
                 .build());
-
-        // We are streaming the data, it must be synchronous
-        final FileInfo f = future.get();
         log.info("File uploaded and persisted in database, file_info: {}", f);
 
         // attempt to propagate tracing
@@ -218,28 +214,31 @@ public class FileController {
         may fail while we are 'copying', it doesn't matter, cas we don't want the clients to stay idle while they
         have done their part.
          */
-        CompletableFuture<FileInfo> future;
-        if (multipartFiles.length == 1) {
-            future = fileInfoService.uploadFile(UploadFileVo.builder()
-                    .userId(tUser.getUserId())
-                    .username(tUser.getUsername())
-                    .fileName(fileName)
-                    .userGroup(userGroupEnum)
-                    .inputStream(multipartFiles[0].getInputStream())
-                    .build());
-        } else {
-            /*
-                upload multiple files, compress them into a single file zip file
-                the first one is the zipFile's name, and the rest are the entries
-             */
-            future = fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
-                    .userId(tUser.getUserId())
-                    .username(tUser.getUsername())
-                    .zipFile(fileName)
-                    .userGroup(userGroupEnum)
-                    .multipartFiles(multipartFiles)
-                    .build());
-        }
+        CompletableFuture<FileInfo> future = CompletableFuture.supplyAsync(() ->
+                Runner.tryCall(() -> {
+                    if (multipartFiles.length == 1) {
+                        return fileInfoService.uploadFile(UploadFileVo.builder()
+                                .userId(tUser.getUserId())
+                                .username(tUser.getUsername())
+                                .fileName(fileName)
+                                .userGroup(userGroupEnum)
+                                .inputStream(multipartFiles[0].getInputStream())
+                                .build());
+                    } else {
+                        /*
+                            upload multiple files, compress them into a single file zip file
+                            the first one is the zipFile's name, and the rest are the entries
+                        */
+                        return fileInfoService.uploadFilesAsZip(UploadZipFileVo.builder()
+                                .userNo(tUser.getUserNo())
+                                .userId(tUser.getUserId())
+                                .username(tUser.getUsername())
+                                .zipFile(fileName)
+                                .userGroup(userGroupEnum)
+                                .multipartFiles(multipartFiles)
+                                .build());
+                    }
+                }));
         log.info("File uploaded, processing asynchronously, file_name: {}", fileName);
 
         // attempt to propagate tracing

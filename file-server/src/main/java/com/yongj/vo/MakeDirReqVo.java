@@ -21,6 +21,11 @@ public class MakeDirReqVo {
     @NotNull
     private Integer uploaderId;
 
+    /** userNo of uploader */
+    @JsonIgnore
+    @NotNull
+    private String userNo;
+
     /** uploader name */
     @JsonIgnore
     @NotEmpty

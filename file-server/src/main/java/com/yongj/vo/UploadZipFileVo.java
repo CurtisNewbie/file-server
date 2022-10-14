@@ -15,6 +15,9 @@ public class UploadZipFileVo {
     /** uploader id */
     private int userId;
 
+    /** userNo of uploader */
+    private String userNo;
+
     /** uploader name */
     private String username;
 

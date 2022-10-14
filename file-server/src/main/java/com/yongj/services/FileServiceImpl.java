@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,7 +51,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
@@ -60,7 +60,6 @@ import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 import static com.yongj.enums.LockKeys.fileAccessKeySup;
-import static com.yongj.util.IOUtils.ioThreadPool;
 
 /**
  * @author yongjie.zhuang
@@ -69,8 +68,6 @@ import static com.yongj.util.IOUtils.ioThreadPool;
 @Service
 @Transactional
 public class FileServiceImpl implements FileService {
-
-    public static final String FILE_LOCK_PREFIX = "file:uuid:";
 
     @Autowired
     private FileInfoMapper fileInfoMapper;
@@ -100,6 +97,8 @@ public class FileServiceImpl implements FileService {
     private UserServiceFeign userServiceFeign;
     @Autowired
     private UserFileAccessMapper userFileAccessMapper;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     @Override
     @Transactional
@@ -150,25 +149,41 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public CompletableFuture<FileInfo> uploadFile(UploadFileVo param) {
-        final SingleUploadChainHelper chainHelper = new SingleUploadChainHelper();
-        chainHelper.uuid = UUID.randomUUID().toString();
-        chainHelper.uploaderId = param.getUserId();
-        chainHelper.inputStream = param.getInputStream();
-        chainHelper.fileName = param.getFileName();
-        chainHelper.uploaderName = param.getUsername();
-        chainHelper.userGroup = param.getUserGroup();
+    public FileInfo uploadFile(UploadFileVo param) {
+        final String uuid = UUID.randomUUID().toString();
+        final int uploaderId = param.getUserId();
 
-        return CompletableFuture.supplyAsync(() -> resolveFsGroup(chainHelper), ioThreadPool)
-                .thenApply(this::resolveAbsPath)
-                .thenApply(this::uploadSingleFile)
-                .thenApply(this::saveFileInfo);
+        final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
+        nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
+
+        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId, fsGroup.getBaseFolder());
+        nonNull(absPath, "Unable to resolve absolute path, unable to upload file, please contact administrator");
+
+        long sizeInBytes;
+        try {
+            sizeInBytes = ioHandler.writeFile(absPath, param.getInputStream());
+        } catch (IOException e) {
+            log.error("Failed to write file, {}", absPath, e);
+            throw new IllegalStateException("Failed to upload file, unknown error");
+        }
+
+        FileInfo f = new FileInfo();
+        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        f.setName(param.getFileName());
+        f.setUploaderId(uploaderId);
+        f.setUploaderName(param.getUsername());
+        f.setUploadTime(LocalDateTime.now());
+        f.setUuid(uuid);
+        f.setUserGroup(param.getUserGroup().getValue());
+        f.setSizeInBytes(sizeInBytes);
+        f.setFsGroupId(fsGroup.getId());
+        _doInsertFileInfo(f, param.getUserNo());
+        return f;
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public CompletableFuture<FileInfo> uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
+    public FileInfo uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
         final int userId = param.getUserId();
         final String zipFile = param.getZipFile();
         final FileUserGroupEnum userGroup = param.getUserGroup();
@@ -196,22 +211,20 @@ public class FileServiceImpl implements FileService {
         // write zip file (not making it async is because sometimes the files get deleted before compression)
         final long sizeInBytes = ioHandler.writeZipFile(absPath, entries);
 
-        return CompletableFuture.supplyAsync(() -> {
-            // save file info record
-            FileInfo f = new FileInfo();
-            f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-            f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-            f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
-            f.setUploaderId(userId);
-            f.setUploadTime(LocalDateTime.now());
-            f.setUploaderName(param.getUsername());
-            f.setUuid(uuid);
-            f.setUserGroup(userGroup.getValue());
-            f.setSizeInBytes(sizeInBytes);
-            f.setFsGroupId(fsGroup.getId());
-            fileInfoMapper.insert(f);
-            return f;
-        });
+        // save file info record
+        FileInfo f = new FileInfo();
+        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
+        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
+        f.setUploaderId(userId);
+        f.setUploadTime(LocalDateTime.now());
+        f.setUploaderName(param.getUsername());
+        f.setUuid(uuid);
+        f.setUserGroup(userGroup.getValue());
+        f.setSizeInBytes(sizeInBytes);
+        f.setFsGroupId(fsGroup.getId());
+        _doInsertFileInfo(f, param.getUserNo());
+        return f;
     }
 
     @Override
@@ -705,9 +718,7 @@ public class FileServiceImpl implements FileService {
 
         dir.setUserGroup(r.getUserGroup());
         dir.setFileType(FileType.DIR);
-
-        fileInfoMapper.insert(dir);
-
+        _doInsertFileInfo(dir, r.getUserNo());
         return dir;
     }
 
@@ -823,7 +834,7 @@ public class FileServiceImpl implements FileService {
                 f.setUserGroup(FileUserGroupEnum.PRIVATE.getValue());
                 f.setSizeInBytes(size);
                 f.setFsGroupId(fsGroup.getId());
-                fileInfoMapper.insert(f);
+                _doInsertFileInfo(f, user.getUserNo());
             }
         } catch (Exception e) {
             log.info("exportAsZip threw exception, userNo: {}", user.getUserNo(), e);
@@ -863,6 +874,15 @@ public class FileServiceImpl implements FileService {
     }
 
     // ------------------------------------- private helper methods ------------------------------------
+
+    /** Insert FileInfo and create UserFileAccess */
+    private void _doInsertFileInfo(FileInfo f, String userNo) {
+        transactionTemplate.execute((tx) -> {
+            fileInfoMapper.insert(f);
+            _tryGenerateUserFileAccess(userNo, f.getUuid(), FileAccessType.OWNER);
+            return null;
+        });
+    }
 
     private String fetchUserNo(int userId) {
         final UserInfoVo user = Result.tryGetData(userServiceFeign.fetchUserInfo(userId),
@@ -971,66 +991,9 @@ public class FileServiceImpl implements FileService {
         return Paths.get(absPath);
     }
 
-    private static class SingleUploadChainHelper {
-        private FileUserGroupEnum userGroup;
-        private String uploaderName;
-        private String fileName;
-        private String uuid;
-        private String parentFile;
-        private int uploaderId;
-        private FsGroup fsGroup;
-        private String absPath;
-        private InputStream inputStream;
-        private Long sizeInBytes;
-    }
-
-    private SingleUploadChainHelper resolveFsGroup(final SingleUploadChainHelper chainHelper) {
-        final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
-        nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
-        chainHelper.fsGroup = fsGroup;
-        return chainHelper;
-    }
-
-    private SingleUploadChainHelper resolveAbsPath(SingleUploadChainHelper chainHelper) {
-        final String absPath = pathResolver.resolveAbsolutePath(chainHelper.uuid, chainHelper.uploaderId,
-                chainHelper.fsGroup.getBaseFolder());
-        nonNull(absPath, "Unable to resolve absolute path, unable to upload file, please contact administrator");
-
-        chainHelper.absPath = absPath;
-        return chainHelper;
-    }
-
-    private SingleUploadChainHelper uploadSingleFile(SingleUploadChainHelper chainHelper) {
-        final String absPath = chainHelper.absPath;
-        try {
-            chainHelper.sizeInBytes = ioHandler.writeFile(absPath, chainHelper.inputStream);
-        } catch (IOException e) {
-            log.error("Failed to write file, {}", absPath, e);
-            throw new IllegalStateException("Failed to upload file, unknown error");
-        }
-        return chainHelper;
-    }
-
-    // TODO refactor this, use DDD maybe? this is ugly
-    private FileInfo saveFileInfo(SingleUploadChainHelper chainHelper) {
-        FileInfo f = new FileInfo();
-        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-        f.setName(chainHelper.fileName);
-        f.setUploaderId(chainHelper.uploaderId);
-        f.setUploaderName(chainHelper.uploaderName);
-        f.setUploadTime(LocalDateTime.now());
-        f.setUuid(chainHelper.uuid);
-        f.setUserGroup(chainHelper.userGroup.getValue());
-        f.setSizeInBytes(chainHelper.sizeInBytes);
-        f.setFsGroupId(chainHelper.fsGroup.getId());
-        fileInfoMapper.insert(f);
-        return f;
-    }
-
     /** Get Lock for fileInfo */
     private Lock getFileLock(String uuid) {
-        return redisController.getLock(FILE_LOCK_PREFIX + uuid);
+        return redisController.getLock(LockKeys.fileKeySup.apply(uuid));
     }
 
 }

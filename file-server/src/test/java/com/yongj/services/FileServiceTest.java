@@ -101,7 +101,7 @@ public class FileServiceTest {
                     .zipFile(UPLOADED_TEST_FILE_ZIP)
                     .userGroup(FileUserGroupEnum.PRIVATE)
                     .multipartFiles(new MultipartFile[]{mf, mf1})
-                    .build()).get();
+                    .build());
             Assertions.assertNotNull(fi, "No FileInfo returned");
             Path fp = Paths.get(
                     basePath.concat(File.separator)
@@ -247,6 +247,6 @@ public class FileServiceTest {
                 .username("zhuangyongj")
                 .userGroup(FileUserGroupEnum.PRIVATE)
                 .inputStream(inputStream)
-                .build()).get();
+                .build());
     }
 }

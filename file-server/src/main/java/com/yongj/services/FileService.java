@@ -4,19 +4,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FileInfo;
-import com.yongj.enums.*;
+import com.yongj.enums.FileType;
 import com.yongj.vo.*;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.*;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Service for files
@@ -36,13 +35,12 @@ public interface FileService {
     /**
      * Save a single file from user
      */
-    CompletableFuture<FileInfo> uploadFile(@Validated @NotNull UploadFileVo param)
-            throws IOException;
+    FileInfo uploadFile(@Validated @NotNull UploadFileVo param) throws IOException;
 
     /**
      * Save multiple files as a single zip
      */
-    CompletableFuture<FileInfo> uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
+    FileInfo uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
 
     /**
      * List files for user purely based on user_file_access

@@ -3,7 +3,6 @@ package com.yongj.vo;
 import com.yongj.enums.FileUserGroupEnum;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -18,6 +17,9 @@ public class UploadFileVo {
 
     /** uploader id */
     private int userId;
+
+    /** userNo of uploader */
+    private String userNo;
 
     /** uploader name */
     private String username;
