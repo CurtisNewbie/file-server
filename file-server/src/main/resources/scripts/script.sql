@@ -49,8 +49,8 @@ CREATE TABLE `file_tag` (
   `update_by` varchar(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
   `is_del` tinyint NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
   PRIMARY KEY (`id`),
-  KEY `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='join table between file_info and tag';
+  KEY `user_id_file_id_idx` (`user_id`,`file_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='join table between file_info and tag'
 
 CREATE TABLE `tag` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
