@@ -335,8 +335,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<FileUploaderInfoVo> findFilesWithoutUploaderName(int limit) {
         final Wrapper<FileInfo> cond = MapperUtils.select(FileInfo::getId, FileInfo::getUploaderId)
-                .eq(FileInfo::getUploaderName, "")
-                .last("limit " + limit);
+                .eq(FileInfo::getUploaderName, "");
 
         return fileInfoMapper.selectListAndConvert(cond, (f) -> FileUploaderInfoVo.builder()
                 .id(f.getId())

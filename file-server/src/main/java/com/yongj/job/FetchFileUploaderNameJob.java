@@ -40,16 +40,11 @@ public class FetchFileUploaderNameJob extends AbstractJob {
     public void executeInternal(TaskVo task) throws JobExecutionException {
         log.info("FetchFileUploaderNameJob started ...");
 
-        LongWrapper total = new LongWrapper(0);
-        Paginator<FileUploaderInfoVo> paginator = new Paginator<FileUploaderInfoVo>()
-                .nextPageSupplier(p -> fileInfoService.findFilesWithoutUploaderName(LIMIT));
+        LDTTimer.timedAndLogged(() -> {
+            final long total = fetchUploaderName(fileInfoService.findFilesWithoutUploaderName(LIMIT));
+            task.setLastRunResult(String.format("Fetched %s uploader names", total));
+        }, "FetchFileUploaderNameJob");
 
-        paginator.loopPageTilEnd(page -> {
-            // fetch uploader names
-            total.incrBy(fetchUploaderName(page));
-        });
-
-        task.setLastRunResult(String.format("Fetched %s uploader names", total));
         log.info("FetchFileUploaderNameJob finished ...");
     }
 
