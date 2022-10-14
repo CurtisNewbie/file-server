@@ -33,4 +33,7 @@ public class SelectFileInfoListParam {
 
     /** Parent file uuid */
     private String parentFile;
+
+    /** userNo */
+    private String userNo;
 }

@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.curtisnewbie.common.trace.TUser;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,9 +14,9 @@ import lombok.Data;
 public class GrantFileAccessCmd {
 
      /**
-     * id of user who granted the access
+     * user who granted the access
      */
-    private final int grantedByUserId;
+    private final TUser grantedBy;
 
     /**
      * id of the file

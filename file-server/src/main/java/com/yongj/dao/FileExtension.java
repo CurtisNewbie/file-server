@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
 import com.yongj.enums.FExtIsEnabled;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author yongjie.zhuang
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("file_extension")
 public class FileExtension extends DaoSkeleton {

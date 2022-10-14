@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
 import com.yongj.enums.*;
 import lombok.Data;
-
+import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("file_info")
 public class FileInfo extends DaoSkeleton {
 

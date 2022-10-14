@@ -11,6 +11,7 @@ import com.curtisnewbie.common.dao.DaoSkeleton;
  * @author yongj.zhuang
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName(value = "vfolder")
 public class VFolder extends DaoSkeleton {
 

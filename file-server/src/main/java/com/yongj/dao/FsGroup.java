@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
 import com.yongj.enums.FsGroupType;
 import lombok.Data;
-
+import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * @author yongjie.zhuang
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("fs_group")
 public class FsGroup extends DaoSkeleton {
 

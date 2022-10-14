@@ -36,12 +36,20 @@ public interface FileService {
     /**
      * Save a single file from user
      */
-    CompletableFuture<FileInfo> uploadFile(@Validated @NotNull UploadFileVo param) throws IOException;
+    CompletableFuture<FileInfo> uploadFile(@Validated @NotNull UploadFileVo param)
+            throws IOException;
 
     /**
      * Save multiple files as a single zip
      */
     CompletableFuture<FileInfo> uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
+
+    /**
+     * List files for user purely based on user_file_access
+     *
+     * @param reqVo filter and paging parameter
+     */
+    PageableList<FileInfoVo> listFilesByAccess(@NotNull ListFileInfoReqVo reqVo);
 
     /**
      * Find file info for user (with pagination)
@@ -132,7 +140,7 @@ public interface FileService {
      *
      * @param fileId file_info.id
      * @param userId id of user
-     * @param page page
+     * @param page   page
      */
     PageableList<FileSharingVo> listGrantedAccess(int fileId, int userId, @NotNull Page page);
 
@@ -223,4 +231,12 @@ public interface FileService {
      * Export file as a zip
      */
     void exportAsZip(@NotNull ExportAsZipReq r, @NotNull TUser user);
+
+
+    /**
+     * Refresh user's file access
+     * <p>
+     * This is primarily used to generate the access records for the first time
+     */
+    void loadUserFileAccess();
 }

@@ -14,8 +14,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface FileInfoConverter {
 
-    FileInfoVo toVo(FileInfo fi);
-
     FileInfoWebVo toWebVo(FileInfoVo fi);
 
     PhysicDeleteFileVo toPhysicDeleteFileVo(FileInfo fi);

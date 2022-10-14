@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author yongjie.zhuang
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("tag")
 public class Tag extends DaoSkeleton {
 

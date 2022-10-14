@@ -12,9 +12,8 @@ import java.util.List;
  */
 public interface VFolderMapper extends BaseMapper<VFolder> {
 
-    VFolderWithOwnership findVFolderWithOwnership(@Param("userNo") String userNo, @Param("folderNo") String folderNo);
-
-    VFolder findVFolderForUser(@Param("userNo") String userNo, @Param("folderNo") String folderNo);
+    VFolderWithOwnership findVFolderWithOwnership(@Param("userNo") String userNo,
+            @Param("folderNo") String folderNo);
 
     Integer findIdForFolderWithName(@Param("userNo") String userNo, @Param("name") String name);
 

@@ -8,9 +8,9 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ## Requirements 
 
-- file-service-front (Angular frontend) >= [v1.1.13](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.13))
-- auth-gateway >= [v1.0.4](https://github.com/CurtisNewbie/auth-gateway/tree/v1.0.4))
-- auth-service >= [v1.1.4.2](https://github.com/CurtisNewbie/auth-service/tree/v1.1.4.2))
+- file-service-front (Angular frontend) >= [v1.1.13](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.13)
+- auth-gateway >= [v1.0.4](https://github.com/CurtisNewbie/auth-gateway/tree/v1.0.4)
+- auth-service >= [v1.1.4.3](https://github.com/CurtisNewbie/auth-service/tree/v1.1.4.3)
 - MySQL 5.7 or 8
 - consul
 - RabbitMQ
@@ -29,8 +29,8 @@ This project depends on the following modules that you must manually install (us
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
 - [distributed-task-module v2.1.1.1](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.1)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
-- [auth-service v1.1.3.1](https://github.com/curtisnewbie/auth-service/tree/v1.1.3.1)
-- [common-module v2.1.8](https://github.com/CurtisNewbie/common-module/tree/v2.1.8)
+- [auth-service-remote v1.1.4.3](https://github.com/curtisnewbie/auth-service/tree/v1.1.4.3)
+- [common-module v2.1.9](https://github.com/CurtisNewbie/common-module/tree/v2.1.9)
 - [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
 
 
@@ -107,10 +107,13 @@ INSERT INTO `task`
 VALUES
     ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 0/6 ? * *','file-server',0,0,CURRENT_TIMESTAMP),
     ('DeleteFileJob','deleteFileJob','0 0 0/6 ? * *','file-server',1,0,CURRENT_TIMESTAMP),
-    ("ScanFsGroupSizeJob", "scanFsGroupSizeJob", "0 0 0/1 ? * *", "file-server",1,0,CURRENT_TIMESTAMP);
-
+    ("ScanFsGroupSizeJob", "scanFsGroupSizeJob", "0 0 0/1 ? * *", "file-server",1,0,CURRENT_TIMESTAMP),
+    ("GenerateUserFileAccessJob", "generateUserFileAccessJob", "0 0 0 ? * *", "file-server",1,0,CURRENT_TIMESTAMP);
 ```
     
+## Updates
+
+For release v1.2.5, the job `GenerateUserFileAccessJob` should be added into the `task` table and triggered immediately when it's first time deployed. It scans the `file_info` table and generates the data in `user_file_access`, it controls what files users can see on thier webpage. 
 
 
 

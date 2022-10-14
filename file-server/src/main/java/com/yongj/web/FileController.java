@@ -333,7 +333,7 @@ public class FileController {
 
             fileInfoService.grantFileAccess(GrantFileAccessCmd.builder()
                     .fileId(v.getFileId())
-                    .grantedByUserId(tUser.getUserId())
+                    .grantedBy(tUser)
                     .grantedTo(grantedToId)
                     .build());
         });
@@ -417,6 +417,7 @@ public class FileController {
             } else {
                 // file mode
                 req.setUserId(user.getUserId());
+                req.setUserNo(user.getUserNo());
                 pl = fileInfoService.findPagedFilesForUser(req);
             }
             return PageableList.from(mapTo(pl.getPayload(), fileInfoConverter::toWebVo), pl.getPagingVo());

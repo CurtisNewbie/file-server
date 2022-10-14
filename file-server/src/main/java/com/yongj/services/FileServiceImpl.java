@@ -1,9 +1,8 @@
 package com.yongj.services;
 
-import com.baomidou.mybatisplus.core.conditions.*;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -12,8 +11,10 @@ import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
-import com.curtisnewbie.common.vo.PagingVo;
+import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.module.redisutil.RedisController;
+import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
+import com.curtisnewbie.service.auth.remote.vo.UserInfoVo;
 import com.yongj.config.FileServiceConfig;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
@@ -58,6 +59,7 @@ import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
+import static com.yongj.enums.LockKeys.fileAccessKeySup;
 import static com.yongj.util.IOUtils.ioThreadPool;
 
 /**
@@ -94,48 +96,57 @@ public class FileServiceImpl implements FileService {
     private FsGroupIdResolver fsGroupIdResolver;
     @Autowired
     private FileServiceConfig fileServiceConfig;
+    @Autowired
+    private UserServiceFeign userServiceFeign;
+    @Autowired
+    private UserFileAccessMapper userFileAccessMapper;
 
     @Override
+    @Transactional
     public void grantFileAccess(@NotNull GrantFileAccessCmd cmd) {
-        // check if the grantedTo is the uploader
-        AssertUtils.notEquals(cmd.getGrantedTo(), cmd.getGrantedByUserId(), "You can't grant file access to yourself");
+        final TUser tuser = cmd.getGrantedBy();
 
-        // make sure the file exists
-        final LambdaQueryWrapper<FileInfo> fQry = new LambdaQueryWrapper<>();
-        fQry.select(FileInfo::getId, FileInfo::getUploaderId, FileInfo::getFileType)
+        // check if the grantedTo is the uploader
+        AssertUtils.notEquals(cmd.getGrantedTo(), tuser.getUserId(), "You can't grant file access to yourself");
+
+        final FileInfo file = fileInfoMapper.selectOne(MapperUtils.select(FileInfo::getId, FileInfo::getUploaderId, FileInfo::getFileType, FileInfo::getUuid)
                 .eq(FileInfo::getId, cmd.getFileId())
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue());
-        final FileInfo file = fileInfoMapper.selectOne(fQry);
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue()));
         nonNull(file, "File not found");
 
         // only uploader can grant access to the file
-        AssertUtils.equals((int) file.getUploaderId(), cmd.getGrantedByUserId(), "Only uploader can grant access to the file");
-
+        AssertUtils.equals((int) file.getUploaderId(), tuser.getUserId(), "Only uploader can grant access to the file");
         // can only grant access to FILE not DIR
         AssertUtils.isTrue(!file.isDir(), "You can't not grant access to DIR (Directory) type files");
 
-        // check if the user already had access to the file
-        final LambdaQueryWrapper<FileSharing> fsQry = new LambdaQueryWrapper<>();
-        fsQry.select(FileSharing::getId, FileSharing::getIsDel)
-                .eq(FileSharing::getFileId, cmd.getFileId())
-                .eq(FileSharing::getUserId, cmd.getGrantedTo());
-        final FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
-        isTrue(fileSharing == null || fileSharing.getIsDel() == IsDel.DELETED,
-                "User already had access to this file");
+        LockUtils.lockAndRun(redisController.getLock(fileAccessKeySup.apply(file.getUuid())), () -> {
 
-        if (fileSharing == null) {
-            // insert file_sharing record
-            FileSharing fs = new FileSharing();
-            fs.setUserId(cmd.getGrantedTo());
-            fs.setFileId(cmd.getFileId());
-            fileSharingMapper.insert(fs);
-        } else {
-            // update is_del to false
-            FileSharing updateParam = new FileSharing();
-            updateParam.setId(fileSharing.getId());
-            updateParam.setIsDel(IsDel.NORMAL);
-            fileSharingMapper.updateById(updateParam);
-        }
+            // check if the user already had access to the file
+            final LambdaQueryWrapper<FileSharing> fsQry = new LambdaQueryWrapper<>();
+            fsQry.select(FileSharing::getId, FileSharing::getIsDel)
+                    .eq(FileSharing::getFileId, cmd.getFileId())
+                    .eq(FileSharing::getUserId, cmd.getGrantedTo());
+            final FileSharing fileSharing = fileSharingMapper.selectOne(fsQry);
+            isTrue(fileSharing == null || fileSharing.getIsDel() == IsDel.DELETED,
+                    "User already had access to this file");
+
+            if (fileSharing == null) {
+                // insert file_sharing record
+                FileSharing fs = new FileSharing();
+                fs.setUserId(cmd.getGrantedTo());
+                fs.setFileId(cmd.getFileId());
+                fileSharingMapper.insert(fs);
+            } else {
+                // update is_del to false
+                FileSharing updateParam = new FileSharing();
+                updateParam.setId(fileSharing.getId());
+                updateParam.setIsDel(IsDel.NORMAL);
+                fileSharingMapper.updateById(updateParam);
+            }
+
+            // generate UserFileAccess to the file with GRANTED type
+            _tryGenerateUserFileAccess(tuser.getUserNo(), file.getUuid(), FileAccessType.GRANTED);
+        });
     }
 
     @Override
@@ -201,6 +212,55 @@ public class FileServiceImpl implements FileService {
             fileInfoMapper.insert(f);
             return f;
         });
+    }
+
+    @Override
+    public PageableList<FileInfoVo> listFilesByAccess(ListFileInfoReqVo reqVo) {
+        SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
+        if (reqVo.filterForOwnedFilesOnly()) {
+            param.setFilterOwnedFiles(true);
+        }
+        final Page<?> p = forPage(reqVo.getPagingVo());
+        final List<FileInfoVo> dataList;
+        final long count;
+
+        /*
+            Based on whether tagName is present, we use different queries
+
+            Instead of using the Page<?> for pagination, we do COUNT(*) manually,
+            the paginator plugin always fails to optimise the query :D
+         */
+        final long offset = p.getSize() * (p.getCurrent() - 1);
+        final long limit = p.getSize();
+        final boolean qryForTag = StringUtils.hasText(param.getTagName());
+        if (qryForTag) {
+            dataList = fileInfoMapper.selectFileListForUserAndTag(offset, limit, param);
+            count = fileInfoMapper.countFileListForUserAndTag(param);
+        } else {
+            /*
+                If parentFile is empty, and filename/userGroup are not searched, then we only return the top level file or dir.
+                The query for tags will ignore parent_file param, so it's working fine
+             */
+            if (!StringUtils.hasText(param.getParentFile())
+                    && !StringUtils.hasText(param.getFilename())
+                    && param.getUserGroup() == null) {
+
+                if (param.getFilename() != null) param.setFilename(null);
+                param.setParentFile(""); // top-level file/dir
+            }
+
+            dataList = fileInfoMapper.selectFileListForUserSelective(offset, limit, param);
+            count = fileInfoMapper.countFileListForUserSelective(param);
+        }
+
+        // set is_owner
+        dataList.forEach(v -> v.checkAndSetIsOwner(reqVo.getUserId()));
+
+        final PageableList<FileInfoVo> pl = new PageableList<>();
+        pl.setPayload(dataList);
+        pl.setPagingVo(PagingUtil.ofPageAndTotal((int) p.getCurrent(), count));
+        return pl;
+
     }
 
     @Override
@@ -320,7 +380,7 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public void validateUserDownload(int userId, int fileId, String userNo) {
-        final FileDownloadValidInfo f = fileInfoMapper.selectValidateInfoById(fileId, userId, userNo);
+        final FileDownloadValidInfo f = fileInfoMapper.selectValidateInfoById(fileId, userNo);
         nonNull(f, "File is not found");
         isFalse(f.isDeleted(), "File is deleted");
         isTrue(f.isNotDir(), "Downloading a directory is not supported");
@@ -331,7 +391,7 @@ public class FileServiceImpl implements FileService {
         if (Objects.equals(f.getUploaderId(), userId)) return;
 
         // file shared by the uploader
-        if (f.getFileSharingId() != null && f.getFileSharingId() > 0) return;
+        if (f.getAccessType() != null) return;
 
         // file belongs to a folder that current user has access to
         if (fileInfoMapper.selectAnyUserFolderIdForFile(fileId, userNo) != null) return;
@@ -451,17 +511,28 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void removeGrantedAccess(int fileId, int userId, int removedByUserId) {
-        Assert.isTrue(isFileOwner(removedByUserId, fileId), "Only uploader can remove granted access");
 
-        FileSharing updateParam = new FileSharing();
-        updateParam.setIsDel(IsDel.DELETED);
+        // we don't use FileInfo inside the lock, so it's fine to fetch it beforehand
+        final FileInfo f = fileInfoMapper.selectOne(MapperUtils.select(FileInfo::getId, FileInfo::getUuid)
+                .eq(FileInfo::getId, fileId)
+                .eq(FileInfo::getUploaderId, removedByUserId)
+                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue()));
+        Assert.isTrue(f != null, "Only uploader can remove granted access");
+        final String fileKey = f.getUuid();
 
-        QueryWrapper<FileSharing> whereCondition = new QueryWrapper<>();
-        whereCondition
-                .eq("file_id", fileId)
-                .eq("user_id", userId)
-                .eq("is_del", IsDel.NORMAL);
-        fileSharingMapper.update(updateParam, whereCondition);
+        // TODO optimise this?
+        final String userNo = Objects.requireNonNull(fetchUserNo(userId));
+
+        LockUtils.lockAndRun(redisController.getLock(fileAccessKeySup.apply(fileKey)), () -> {
+            // delete fileSharing logically
+            fileSharingMapper.update(MapperUtils.set(FileSharing::getIsDel, IsDel.DELETED)
+                    .eq(FileSharing::getFileId, fileId)
+                    .eq(FileSharing::getUserId, userId)
+                    .eq(FileSharing::getIsDel, IsDel.NORMAL));
+
+            // delete fileAccess physically
+            _delUserFileAccess(userNo, fileKey);
+        });
     }
 
     @Override
@@ -761,7 +832,71 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Override
+    public void loadUserFileAccess() {
+        final Lock lock = redisController.getLock("file:user:access:refresh:global");
+        LockUtils.lockAndRun(lock, () -> {
+
+            Paginator<FileInfo> paginator = new Paginator<>(p ->
+                    fileInfoMapper.selectList(
+                            MapperUtils.select(FileInfo::getId, FileInfo::getUuid, FileInfo::getUploaderId)
+                                    .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                                    .orderByAsc(FileInfo::getId) // make the old ones are generated first
+                                    .last(PagingUtil.limit(p.getOffset(), p.getLimit()))))
+                    .pageSize(100);
+
+            paginator.loopEachTilEnd(fi -> {
+                final String fileKey = fi.getUuid();
+                Runner.runSafely(() -> {
+                    LockUtils.lockAndRun(redisController.getLock(fileAccessKeySup.apply(fileKey)), () -> {
+                        // create access for the uploader of the user
+                        _tryGenerateUserFileAccess(fetchUserNo(fi.getUploaderId()), fileKey, FileAccessType.OWNER);
+
+                        // create access for the shared access
+                        fileSharingMapper.selectList(MapperUtils.eq(FileSharing::getFileId, fi.getId()))
+                                .forEach(fs -> _tryGenerateUserFileAccess(fetchUserNo(fs.getUserId()), fileKey, FileAccessType.GRANTED));
+                    });
+                }, (e) -> log.error("Failed to load user file access, fileKey: {}", fileKey));
+            });
+        });
+
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
+
+    private String fetchUserNo(int userId) {
+        final UserInfoVo user = Result.tryGetData(userServiceFeign.fetchUserInfo(userId),
+                () -> String.format("UserServiceFeign#fetchUserInfo, userId: %d", userId));
+        Assert.notNull(user, "userInfoVo == null");
+        return user.getUserNo();
+    }
+
+    /**
+     * delete userFileAccess, this method doesn't have lock internally, but it needs one
+     * <p>
+     * see {@link LockKeys#fileAccessKeySup}
+     */
+    private void _delUserFileAccess(String userNo, String fileKey) {
+        userFileAccessMapper.delete(MapperUtils.eq(UserFileAccess::getUserNo, userNo)
+                .eq(UserFileAccess::getFileUuid, fileKey));
+    }
+
+    /**
+     * try generate userFileAccess, this method doesn't have lock internally, but it needs one
+     * <p>
+     * see {@link LockKeys#fileAccessKeySup}
+     */
+    private void _tryGenerateUserFileAccess(String userNo, String fileKey, FileAccessType fat) {
+        UserFileAccess ufa = userFileAccessMapper.selectOne(MapperUtils.eq(UserFileAccess::getUserNo, userNo)
+                .eq(UserFileAccess::getFileUuid, fileKey));
+        if (ufa != null) return;
+
+        ufa = new UserFileAccess();
+        ufa.setUserNo(userNo);
+        ufa.setFileUuid(fileKey);
+        ufa.setAccessType(fat);
+        userFileAccessMapper.insert(ufa);
+    }
 
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
         List<ZipCompressEntry> l = new ArrayList<>(multipartFiles.length);

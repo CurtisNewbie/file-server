@@ -48,3 +48,4 @@ dev-nginx-build.sh
 
 file-server/downloaded-test-file.txt
 gensql.sh
+tmpddl.sql

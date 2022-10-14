@@ -20,14 +20,14 @@ public class FileDownloadValidInfo {
     /** uploader id, i.e., user.id */
     private Integer uploaderId;
 
-    /** file_sharing.id */
-    private Integer fileSharingId;
-
     /** whether the file is logically deleted, 0-normal, 1-deleted */
     private Integer isLogicDeleted;
 
     /** File type */
     private FileType fileType;
+
+    /** User file access type */
+    private FileAccessType accessType;
 
     /** Is not a directory */
     public boolean isNotDir() {
