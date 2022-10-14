@@ -99,6 +99,16 @@ public class FileController {
     private Tracer tracer;
 
     /**
+     * Preflight check on whether the filename exists already
+     */
+    @RoleControlled(rolesForbidden = "guest")
+    @GetMapping("/upload/duplication/preflight")
+    public Result<Boolean> handleDuplicateOnNamePreflightCheck(@RequestParam("fileName") String fileName) {
+        return Result.of(fileInfoService.filenameExists(fileName, tUser().getUserId()));
+    }
+
+
+    /**
      * Upload file using stream
      * <p>
      * Only supports a single file upload, but since we are using stream, it can handle pretty large file in an
