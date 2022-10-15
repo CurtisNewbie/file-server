@@ -78,7 +78,7 @@ import static com.curtisnewbie.common.util.Runner.runSafely;
 @RequestMapping("${web.base-path}/file")
 public class FileController {
 
-    public static final long SIZE_MB_30 = 30 * 1024 * 1024;
+    public static final long SIZE_MB_10 = 10 * 1024 * 1024;
 
     @Autowired
     private VFolderQueryService vFolderQueryService;
@@ -664,11 +664,11 @@ public class FileController {
         final Enumeration<String> re = req.getHeaders(HttpHeaders.RANGE);
         MediaStreamingUtils.Segment segment = MediaStreamingUtils.parseRangeRequest(re.hasMoreElements() ? re.nextElement().trim() : null, fi.getSizeInBytes());
         /*
-            at most 30mb, some browser like Chrome, always include range header 'range=0-' for the first request,
+            at most 10mb, some browser like Chrome, always include range header 'range=0-' for the first request,
             which essentially request the whole file, it just doesn't make sense
          */
-        if (segment.length() > SIZE_MB_30) {
-            segment = new MediaStreamingUtils.Segment(segment.start, segment.start + (SIZE_MB_30) - 1);
+        if (segment.length() > SIZE_MB_10) {
+            segment = new MediaStreamingUtils.Segment(segment.start, segment.start + (SIZE_MB_10) - 1);
         }
 
         // headers for range-request

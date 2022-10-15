@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
 
-import static com.yongj.util.IOSpeedLogUtils.*;
+import static com.yongj.util.IOSpeedLogUtils.mbps;
 
 /**
  * A Timed StreamingResponseBody
@@ -37,19 +37,17 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
     @Override
     public void writeTo(OutputStream outputStream) throws IOException {
         StopWatch sw = new StopWatch();
-        long len = 0L;
-        try {
-            log.info("Start downloading file: '{}', pos: {}, length: {}", fileName, pos, len);
-            sw.start();
-            len = timedWriteTo(outputStream, pos, length);
-        } finally {
-            sw.stop();
-            final long totalMillisec = sw.getTotalTimeMillis();
-            final String mbps = mbps(len, totalMillisec);
-            final NumberFormat nf = NumberFormat.getInstance();
-            log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s, pos: {}, length: {}", fileName,
-                    nf.format(totalMillisec), nf.format(len), mbps, pos, len);
-        }
+
+        log.info("Start downloading file: '{}', pos: {}, length: {}", fileName, pos, length);
+        sw.start();
+        final long transferred = timedWriteTo(outputStream, pos, length);
+        sw.stop();
+
+        final long totalMillisec = sw.getTotalTimeMillis();
+        final String mbps = mbps(transferred, totalMillisec);
+        final NumberFormat nf = NumberFormat.getInstance();
+        log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s, pos: {}, length: {}", fileName,
+                nf.format(totalMillisec), nf.format(transferred), mbps, pos, transferred);
     }
 
     /**

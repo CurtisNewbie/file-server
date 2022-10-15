@@ -18,8 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * IOUtils
@@ -27,8 +25,6 @@ import java.util.concurrent.Executors;
  * @author yongj.zhuang
  */
 public final class IOUtils {
-
-    public static final ExecutorService ioThreadPool = Executors.newWorkStealingPool();
 
     private IOUtils() {
 
@@ -84,13 +80,22 @@ public final class IOUtils {
      * @return number of bytes transferred
      */
     public static long copy(FileChannel fileChannel, OutputStream outputStream, long pos, long length) throws IOException {
-        long transferred = 0L;
         try (final WritableByteChannel wbc = Channels.newChannel(outputStream)) {
-            while (transferred < length) {
-                final long t = fileChannel.transferTo(pos, length, wbc);
-                transferred += t;
-                pos += t;
-            }
+            return copy(fileChannel, wbc, pos, length);
+        }
+    }
+
+    /**
+     * Copy data from FileChannel to the given WritableByteChannel
+     *
+     * @return number of bytes transferred
+     */
+    public static long copy(FileChannel fileChannel, WritableByteChannel wbc, long pos, long length) throws IOException {
+        long transferred = 0L;
+        while (transferred < length) {
+            final long t = fileChannel.transferTo(pos, length, wbc);
+            transferred += t;
+            pos += t;
         }
         return transferred;
     }

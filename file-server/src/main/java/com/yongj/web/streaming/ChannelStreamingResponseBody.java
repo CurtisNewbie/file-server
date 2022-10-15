@@ -32,7 +32,10 @@ public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
     @Override
     long timedWriteTo(OutputStream outputStream, long pos, long length) throws IOException {
         long transferred = 0L;
-        try (final WritableByteChannel wbc = Channels.newChannel(outputStream)) {
+
+        try (final WritableByteChannel wbc = Channels.newChannel(outputStream);
+             FileChannel fc = fileChannel;) {
+
             while (transferred < length) {
                 if (Thread.interrupted()) {
                     Thread.currentThread().interrupt();
@@ -40,7 +43,7 @@ public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
                     return transferred;
                 }
 
-                final long t = fileChannel.transferTo(pos, length, wbc);
+                final long t = fc.transferTo(pos, length, wbc);
                 transferred += t;
                 pos += t;
                 log.info("Transferred {} bytes to '{}', curr_pos: {}, target_length: {}", t, fileName, pos, length);
