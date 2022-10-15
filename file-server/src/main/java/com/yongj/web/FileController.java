@@ -312,6 +312,7 @@ public class FileController {
     public DeferredResult<Result<String>> makeDir(@RequestBody MakeDirReqVo r) {
         return runAsyncResult(() -> {
             final TUser user = tUser();
+            r.setUserNo(user.getUserNo());
             r.setUploaderId(user.getUserId());
             r.setUploaderName(user.getUsername());
             final FileInfo dir = fileInfoService.mkdir(r);
