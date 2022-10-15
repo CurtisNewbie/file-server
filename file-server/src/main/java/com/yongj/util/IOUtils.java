@@ -2,6 +2,7 @@ package com.yongj.util;
 
 import com.curtisnewbie.common.data.LongWrapper;
 import com.curtisnewbie.common.util.Runner;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,6 +25,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  *
  * @author yongj.zhuang
  */
+@Slf4j
 public final class IOUtils {
 
     private IOUtils() {
@@ -39,7 +41,7 @@ public final class IOUtils {
      * @return number of bytes copied
      */
     public static long copy(ReadableByteChannel from, WritableByteChannel to, ByteBuffer buffer) throws IOException {
-        int p = 0;
+        long p = 0;
         final boolean isFileChannel = to instanceof FileChannel;
 
         while (from.read(buffer) != -1) {
