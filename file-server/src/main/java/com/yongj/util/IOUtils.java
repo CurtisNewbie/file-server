@@ -6,8 +6,10 @@ import com.curtisnewbie.common.util.Runner;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -61,11 +63,36 @@ public final class IOUtils {
      * Copy data from FileChannel to another local file
      */
     public static void copy(FileChannel fromChannel, File toFile) throws IOException {
+        final long size = fromChannel.size();
+        long transferred = 0L;
+        long pos = 0L;
+
         try (FileChannel from = fromChannel;
              FileOutputStream fout = new FileOutputStream(toFile);
              FileChannel to = fout.getChannel()) {
-            from.transferTo(0, Long.MAX_VALUE, to);
+            while (transferred < size) {
+                long t = from.transferTo(pos, Long.MAX_VALUE, to);
+                transferred += t;
+                pos += t;
+            }
         }
+    }
+
+    /**
+     * Copy data from FileChannel to the given OutputStream
+     *
+     * @return number of bytes transferred
+     */
+    public static long copy(FileChannel fileChannel, OutputStream outputStream, long pos, long length) throws IOException {
+        long transferred = 0L;
+        try (final WritableByteChannel wbc = Channels.newChannel(outputStream)) {
+            while (transferred < length) {
+                final long t = fileChannel.transferTo(pos, length, wbc);
+                transferred += t;
+                pos += t;
+            }
+        }
+        return transferred;
     }
 
     /**

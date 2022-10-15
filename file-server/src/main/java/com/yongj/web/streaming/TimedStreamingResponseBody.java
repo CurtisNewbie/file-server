@@ -20,14 +20,18 @@ import static com.yongj.util.IOSpeedLogUtils.*;
 public abstract class TimedStreamingResponseBody implements StreamingResponseBody {
 
     @Nullable
-    private final String fileName;
+    protected final String fileName;
+    protected final long pos;
+    protected final long length;
 
-    public TimedStreamingResponseBody() {
-        this(null);
+    public TimedStreamingResponseBody(long pos, long length) {
+        this(null, pos, length);
     }
 
-    public TimedStreamingResponseBody(@Nullable String fileName) {
+    public TimedStreamingResponseBody(@Nullable String fileName, long pos, long length) {
         this.fileName = fileName != null ? fileName : "unknown";
+        this.pos = pos;
+        this.length = length;
     }
 
     @Override
@@ -35,14 +39,16 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
         StopWatch sw = new StopWatch();
         long len = 0L;
         try {
+            log.info("Start downloading file: '{}', pos: {}, length: {}", fileName, pos, len);
             sw.start();
-            len = timedWriteTo(outputStream);
+            len = timedWriteTo(outputStream, pos, length);
         } finally {
             sw.stop();
             final long totalMillisec = sw.getTotalTimeMillis();
             final String mbps = mbps(len, totalMillisec);
             final NumberFormat nf = NumberFormat.getInstance();
-            log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s", fileName, nf.format(totalMillisec), nf.format(len), mbps);
+            log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s, pos: {}, length: {}", fileName,
+                    nf.format(totalMillisec), nf.format(len), mbps, pos, len);
         }
     }
 
@@ -51,6 +57,6 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
      *
      * @return number of bytes actually transferred
      */
-    abstract long timedWriteTo(OutputStream outputStream) throws IOException;
+    abstract long timedWriteTo(OutputStream outputStream, long pos, long length) throws IOException;
 
 }

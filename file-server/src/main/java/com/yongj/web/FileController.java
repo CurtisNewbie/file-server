@@ -21,7 +21,9 @@ import com.yongj.dao.FileInfo;
 import com.yongj.enums.FExtIsEnabled;
 import com.yongj.enums.FileLogicDeletedEnum;
 import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.TokenType;
 import com.yongj.io.PathResolver;
+import com.yongj.io.operation.MediaStreamingUtils;
 import com.yongj.services.FileExtensionService;
 import com.yongj.services.FileService;
 import com.yongj.services.TempTokenFileDownloadService;
@@ -32,7 +34,9 @@ import com.yongj.web.streaming.ChannelStreamingResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -73,6 +77,8 @@ import static com.curtisnewbie.common.util.Runner.runSafely;
 @RestController
 @RequestMapping("${web.base-path}/file")
 public class FileController {
+
+    public static final long SIZE_MB_30 = 30 * 1024 * 1024;
 
     @Autowired
     private VFolderQueryService vFolderQueryService;
@@ -504,7 +510,16 @@ public class FileController {
     }
 
     /**
-     * Generate temporary token to download the file
+     * Extends temp token expiration
+     */
+    @PostMapping("/token/renew")
+    public DeferredResult<Result<Void>> extendsTempTokenExp(@Valid @RequestBody ExtendsTokenExpReqVo req) {
+        return runAsync(() -> tempTokenFileDownloadService.extendsStreamingTokenExp(req.getToken(), 15));
+    }
+
+
+    /**
+     * Generate temporary token to download/stream (media) the file
      */
     @PostMapping("/token/generate")
     public DeferredResult<Result<String>> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) {
@@ -516,9 +531,60 @@ public class FileController {
             final Integer fileId = reqVo.getId();
             fileInfoService.validateUserDownload(tUser.getUserId(), fileId, tUser.getUserNo());
 
-            return tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15);
+            return tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15,
+                    reqVo.getTokenType() != null ? reqVo.getTokenType() : TokenType.DOWNLOAD);
         });
     }
+
+    /**
+     * Handle HEAD request for media streaming
+     */
+    @RequestMapping(value = "/token/media/streaming", method = RequestMethod.HEAD)
+    public ResponseEntity<Void> handleStreamingHeadRequest(@RequestParam("token") String token) {
+
+        hasText(token, "Token can't be empty");
+        final Integer id = tempTokenFileDownloadService.getIdByToken(token);
+        notNull(id, "Token is invalid or expired");
+
+        FileInfo fi = fileInfoService.findById(id);
+        notNull(fi, "File not found");
+
+        if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
+            // remove the token
+            tempTokenFileDownloadService.removeToken(token);
+            throw new UnrecoverableException("File is deleted already");
+        }
+
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                .header(HttpHeaders.CONTENT_LENGTH, fi.getSizeInBytes() + "")
+                .header(HttpHeaders.CONTENT_TYPE, "video/mp4")
+                .build();
+    }
+
+    /**
+     * Media streaming by a generated token
+     */
+    @GetMapping(value = "/token/media/streaming")
+    public StreamingResponseBody streamMediaByToken(HttpServletRequest req, HttpServletResponse resp,
+                                                    @RequestParam("token") String token) throws IOException {
+
+        hasText(token, "Token can't be empty");
+        final Integer id = tempTokenFileDownloadService.getIdByToken(token);
+        notNull(id, "Token is invalid or expired");
+
+        FileInfo fi = fileInfoService.findById(id);
+        notNull(fi, "File not found");
+
+        if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
+            // remove the token
+            tempTokenFileDownloadService.removeToken(token);
+            throw new UnrecoverableException("File is deleted already");
+        }
+
+        return streamMedia(req, resp, fi);
+    }
+
 
     /**
      * Download file by a generated token
@@ -593,6 +659,33 @@ public class FileController {
     }
 
     // ----------------------------------------- private helper methods -----------------------------------
+
+    private StreamingResponseBody streamMedia(HttpServletRequest req, HttpServletResponse resp, FileInfo fi) throws IOException {
+        final Enumeration<String> re = req.getHeaders(HttpHeaders.RANGE);
+        MediaStreamingUtils.Segment segment = MediaStreamingUtils.parseRangeRequest(re.hasMoreElements() ? re.nextElement().trim() : null, fi.getSizeInBytes());
+        /*
+            at most 30mb, some browser like Chrome, always include range header 'range=0-' for the first request,
+            which essentially request the whole file, it just doesn't make sense
+         */
+        if (segment.length() > SIZE_MB_30) {
+            segment = new MediaStreamingUtils.Segment(segment.start, segment.start + (SIZE_MB_30) - 1);
+        }
+
+        // headers for range-request
+        resp.setHeader(HttpHeaders.CONTENT_RANGE, String.format("bytes %d-%d/%d", segment.start, segment.end, fi.getSizeInBytes()));
+        resp.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        // resp.setHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        resp.setHeader(HttpHeaders.CONTENT_TYPE, "video/mp4");
+
+        final long len = segment.length();
+        resp.setHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(len));
+
+        // partial content 206
+        resp.setStatus(HttpStatus.PARTIAL_CONTENT.value());
+
+        // use FileChannel#transferTo to transfer the file
+        return new ChannelStreamingResponseBody(fileInfoService.retrieveFileChannel(fi.getId()), fi.getName(), segment.start, len);
+    }
 
     private StreamingResponseBody download(HttpServletRequest req, HttpServletResponse resp, FileInfo fi) throws IOException {
         // set header for the downloaded file

@@ -16,8 +16,8 @@ public class ChannelReadFileOperation implements ReadFileOperation {
 
     @Override
     public void readFile(String absPath, OutputStream outputStream) throws IOException {
-        RandomAccessFile file = new RandomAccessFile(absPath, "r");
-        try (FileChannel fChannel = file.getChannel();
+        try (RandomAccessFile file = new RandomAccessFile(absPath, "r");
+             FileChannel fChannel = file.getChannel();
              WritableByteChannel outChannel = Channels.newChannel(outputStream);) {
             fChannel.transferTo(0, Long.MAX_VALUE, outChannel);
         }

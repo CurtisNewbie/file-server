@@ -373,7 +373,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public FileChannel retrieveFileChannel(int id) throws IOException {
-        return FileChannel.open(resolveFilePath(id), StandardOpenOption.READ);
+        FileChannel f = FileChannel.open(resolveFilePath(id), StandardOpenOption.READ);
+        log.info("Opened FileChannel to file.id: {}", id);
+        return f;
     }
 
     @Override

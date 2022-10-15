@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.curtisnewbie.common.domain.Domain;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.RandomUtils;
+import com.curtisnewbie.common.util.IdUtils;
 import com.yongj.dao.*;
 import com.yongj.enums.VFOwnership;
 import com.yongj.vo.VFolderWithOwnership;
@@ -48,7 +48,7 @@ public class VFolderDomain {
      * @return folderNo
      */
     public String createFolder(@NotEmpty String name, @NotEmpty String username) {
-        final String folderNo = RandomUtils.sequence(FOLDER_NO_PRE, 15);
+        final String folderNo = IdUtils.gen(FOLDER_NO_PRE);
 
         // for the vfolder
         folder = new VFolder();
