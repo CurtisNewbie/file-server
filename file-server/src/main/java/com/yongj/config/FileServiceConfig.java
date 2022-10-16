@@ -13,4 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class FileServiceConfig {
 
     private int maxZipEntries = Integer.MAX_VALUE;
+
+    /** uploading speed in mb/s */
+    private int uploadSpeedLimit = -1;
 }
