@@ -20,10 +20,9 @@ public abstract class TimedWriteFileOperation implements WriteFileOperation {
     @Override
     public long writeFile(String absPath, InputStream inputStream) throws IOException {
         StopWatch sw = new StopWatch();
-        long len = 0L;
         sw.start();
         log.info("Writing file to '{}'", absPath);
-        len = timedWriteFile(absPath, inputStream);
+        final long len = timedWriteFile(absPath, inputStream);
         sw.stop();
         final long totalMillisec = sw.getTotalTimeMillis();
         final String mbps = mbps(len, totalMillisec);

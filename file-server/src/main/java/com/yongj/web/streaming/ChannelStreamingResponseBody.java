@@ -17,6 +17,7 @@ import java.nio.channels.WritableByteChannel;
 @Slf4j
 public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
 
+    private static final long CHUNK_SIZE = 16384L; //16kb
     private final FileChannel fileChannel;
 
     public ChannelStreamingResponseBody(FileChannel fileChannel, String fileName) throws IOException {
@@ -31,25 +32,26 @@ public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
 
     @Override
     long timedWriteTo(OutputStream outputStream, long pos, long length) throws IOException {
-        long transferred = 0L;
+        long remaining = length;
 
         try (final WritableByteChannel wbc = Channels.newChannel(outputStream);
              FileChannel fc = fileChannel;) {
 
-            while (transferred < length) {
+            while (remaining > 0) {
                 if (Thread.interrupted()) {
                     Thread.currentThread().interrupt();
                     log.info("ChannelStreamingResponseBody thread interrupted, aborting, filename: '{}', pos: {}", fileName, pos);
-                    return transferred;
+                    return length - remaining;
                 }
 
-                final long t = fc.transferTo(pos, length, wbc);
-                transferred += t;
+                // chunkSize is for better responsiveness for thread interruption
+                final long t = fc.transferTo(pos, Math.min(remaining, CHUNK_SIZE), wbc);
                 pos += t;
+                remaining -= t;
                 log.info("Transferred {} bytes to '{}', curr_pos: {}, target_length: {}", t, fileName, pos, length);
             }
         }
-        return transferred;
+        return length;
     }
 
 }

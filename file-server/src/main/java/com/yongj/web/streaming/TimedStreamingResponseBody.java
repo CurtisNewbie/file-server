@@ -43,11 +43,11 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
         final long transferred = timedWriteTo(outputStream, pos, length);
         sw.stop();
 
-        final long totalMillisec = sw.getTotalTimeMillis();
-        final String mbps = mbps(transferred, totalMillisec);
+        final long totalTime = sw.getTotalTimeMillis();
+        final String mbps = mbps(transferred, totalTime);
         final NumberFormat nf = NumberFormat.getInstance();
-        log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s, pos: {}, length: {}", fileName,
-                nf.format(totalMillisec), nf.format(transferred), mbps, pos, transferred);
+        log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s, pos: {}", fileName, nf.format(totalTime),
+                nf.format(transferred), mbps, pos);
     }
 
     /**
