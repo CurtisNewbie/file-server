@@ -40,7 +40,7 @@ public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
             while (remaining > 0) {
                 if (Thread.interrupted()) {
                     Thread.currentThread().interrupt();
-                    log.info("ChannelStreamingResponseBody thread interrupted, aborting, filename: '{}', pos: {}", fileName, pos);
+                    log.warn("ChannelStreamingResponseBody thread interrupted, aborting, filename: '{}', pos: {}", fileName, pos);
                     return length - remaining;
                 }
 
@@ -48,7 +48,7 @@ public class ChannelStreamingResponseBody extends TimedStreamingResponseBody {
                 final long t = fc.transferTo(pos, Math.min(remaining, CHUNK_SIZE), wbc);
                 pos += t;
                 remaining -= t;
-                log.info("Transferred {} bytes to '{}', curr_pos: {}, target_length: {}", t, fileName, pos, length);
+                log.debug("Transferred {} bytes to '{}', curr_pos: {}, target_length: {}", t, fileName, pos, length);
             }
         }
         return length;

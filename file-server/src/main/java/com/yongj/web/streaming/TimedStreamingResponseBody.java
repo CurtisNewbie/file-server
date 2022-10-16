@@ -36,16 +36,14 @@ public abstract class TimedStreamingResponseBody implements StreamingResponseBod
 
     @Override
     public void writeTo(OutputStream outputStream) throws IOException {
+        final NumberFormat nf = NumberFormat.getInstance();
         StopWatch sw = new StopWatch();
-
-        log.info("Start downloading file: '{}', pos: {}, length: {}", fileName, pos, length);
+        log.info("Start downloading file: '{}', pos: {}, length: {}", fileName, pos, nf.format(length));
         sw.start();
         final long transferred = timedWriteTo(outputStream, pos, length);
         sw.stop();
-
         final long totalTime = sw.getTotalTimeMillis();
         final String mbps = mbps(transferred, totalTime);
-        final NumberFormat nf = NumberFormat.getInstance();
         log.info("Downloaded file: '{}', took {} ms, size: {} bytes, speed: {} mb/s, pos: {}", fileName, nf.format(totalTime),
                 nf.format(transferred), mbps, pos);
     }
