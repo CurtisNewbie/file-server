@@ -1,4 +1,4 @@
-# File-Service V1.2.4
+# File-Service V1.2.5
 
 Upload file, list files, and download file.
 
@@ -8,11 +8,11 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ## Requirements 
 
-- file-service-front (Angular frontend) >= [v1.1.13](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.13)
+- file-service-front (Angular frontend) >= [v1.1.15](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.15)
 - auth-gateway >= [v1.0.4](https://github.com/CurtisNewbie/auth-gateway/tree/v1.0.4)
 - auth-service >= [v1.1.4.3](https://github.com/CurtisNewbie/auth-service/tree/v1.1.4.3)
 - MySQL 5.7 or 8
-- consul
+- Consul
 - RabbitMQ
 - Redis
 
@@ -22,7 +22,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 |-----------|---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
 | string    | base.path                       | base path used by application, this path is not used for file storage, where the uploaded files are stored depends on the table `fs_group`. Currently, this path is only used for `TempFolderDeleteFileOperation` which is an implementation of `DeleteFileOperation`. When the application is configured to use this file operation, deleting a file means that this file is moved to the temp folder, and the location of the temp folder depends on this `base.path` configuration | none           |
 | int       | file-service.max-zip-entries    | maximum number of zip entries                                                                                                                                                                                                                                                                                                                                                                                                                                                         | unlimited      |
-| int       | file-service.upload-speed-limit | uploading speed limit in megabytes per seconds, e.g., value of `10` will be interpreted as '10mb/s', and `-1` means unlimited speed. It's not a 100% accurate control of speed, it's roughly consistent with the one you specified. E.g., 50mb/s (if your device handle it) will get speed around 46mb/s ~ 56mb/s, it depends.                                                                                                                                                        | -1 (unlimited) |
+| int       | file-service.upload-speed-limit | uploading speed limit in megabytes per seconds, e.g., value of `10` will be interpreted as '10mb/s', and `-1` means unlimited speed. It's not a 100% accurate control of speed, it's roughly consistent with the one you specified. E.g., 50mb/s (if your device can handle it) will get speed around 46mb/s ~ 56mb/s, it depends.                                                                                                                                                        | -1 (unlimited) |
 
 ## Modules and Dependencies
 
@@ -115,7 +115,7 @@ VALUES
     
 ## Updates
 
-For release v1.2.5, the job `GenerateUserFileAccessJob` should be added into the `task` table and triggered immediately when it's first time deployed. It scans the `file_info` table and generates the data in `user_file_access`, it controls what files users can see on thier webpage. 
+For release v1.2.5, the job `GenerateUserFileAccessJob` should be added into the `task` table and triggered immediately when it's first time deployed. It scans the `file_info` table and generates the data in `user_file_access`, which controls what files users can see on thier webpage. 
 
 
 
