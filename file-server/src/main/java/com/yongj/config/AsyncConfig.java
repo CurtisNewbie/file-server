@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.context.request.async.CallableProcessingInterceptor;
 import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
@@ -60,7 +61,7 @@ public class AsyncConfig implements AsyncConfigurer {
         return new TimeoutCallableProcessingInterceptor() {
             @Override
             public <T> Object handleTimeout(NativeWebRequest request, Callable<T> task) throws Exception {
-                log.error("Async request timeout");
+                log.error("Async request timeout, request: {}", ((ServletWebRequest) request.getNativeRequest()).getRequest().getRequestURI());
                 return new AsyncRequestTimeoutException();
             }
         };
