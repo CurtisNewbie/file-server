@@ -26,7 +26,7 @@ distributed-task-module:
   plugin:
     dtask-go:
       enabled: true
-      base-url: http://dtaskgo:8083/remote/
+      base-url: http://dtaskgo:8083/remote
 
 server:
   port: 8443

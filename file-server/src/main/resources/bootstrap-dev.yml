@@ -29,7 +29,7 @@ distributed-task-module:
   plugin:
     dtask-go:
       enabled: false
-      base-url: http://localhost:8083/remote/
+      base-url: http://localhost:8083/remote
 
 # temp base file for file-server
 base:
