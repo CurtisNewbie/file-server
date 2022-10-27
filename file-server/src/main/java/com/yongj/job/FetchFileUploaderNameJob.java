@@ -1,8 +1,10 @@
 package com.yongj.job;
 
-import com.curtisnewbie.common.data.*;
-import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.data.IntWrapper;
+import com.curtisnewbie.common.util.LDTTimer;
+import com.curtisnewbie.common.util.Runner;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.task.annotation.JobDeclaration;
 import com.curtisnewbie.module.task.scheduling.AbstractJob;
 import com.curtisnewbie.module.task.vo.TaskVo;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
+@JobDeclaration(name = "Job for fetching the missing uploader name", cron = "0 0 0 ? * *")
 public class FetchFileUploaderNameJob extends AbstractJob {
 
     private static final Integer LIMIT = 100;

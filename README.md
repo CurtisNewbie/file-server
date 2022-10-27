@@ -1,4 +1,4 @@
-# File-Service V1.2.5
+# File-Service V1.2.5.1
 
 Upload file, list files, and download file.
 
@@ -29,7 +29,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 This project depends on the following modules that you must manually install (using `mvn clean install`).
 
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
-- [distributed-task-module v2.1.1.2](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.2)
+- [distributed-task-module v2.1.1.3](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.3)
 - [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
 - [auth-service-remote v1.1.4.3](https://github.com/curtisnewbie/auth-service/tree/v1.1.4.3)
 - [common-module v2.1.9](https://github.com/CurtisNewbie/common-module/tree/v2.1.9)
@@ -93,9 +93,9 @@ com.yongj.io.operation.PhysicallyDeleteFileOperation
 
 ## Task Scheduling  
 
-Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A few task implementation beans are already written for this application, you may create a record in table `task` as follows to use them: 
+Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A few task implementation beans are already written for this application, these tasks are automatically registered and will run on application startup: 
 
-The task implementation beans: 
+The task implementation beans:
 
 - com.yongj.job.DeleteFileJob
 - com.yongj.job.FetchFileUploaderNameJob

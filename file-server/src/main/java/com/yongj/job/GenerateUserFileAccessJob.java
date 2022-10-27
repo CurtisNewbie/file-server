@@ -1,8 +1,9 @@
 package com.yongj.job;
 
 import com.curtisnewbie.common.util.LDTTimer;
-import com.curtisnewbie.module.task.scheduling.*;
-import com.curtisnewbie.module.task.vo.*;
+import com.curtisnewbie.module.task.annotation.JobDeclaration;
+import com.curtisnewbie.module.task.scheduling.AbstractJob;
+import com.curtisnewbie.module.task.vo.TaskVo;
 import com.yongj.services.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
+@JobDeclaration(name = "Job that generates user access to the files", cron = "0 0 0 ? * *")
 public class GenerateUserFileAccessJob extends AbstractJob {
 
     @Autowired

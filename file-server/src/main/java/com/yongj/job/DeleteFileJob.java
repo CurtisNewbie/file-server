@@ -1,5 +1,6 @@
 package com.yongj.job;
 
+import com.curtisnewbie.module.task.annotation.JobDeclaration;
 import com.curtisnewbie.module.task.scheduling.*;
 import com.curtisnewbie.module.task.vo.*;
 import com.yongj.dao.FsGroup;
@@ -30,6 +31,7 @@ import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
  */
 @Slf4j
 @Component
+@JobDeclaration(name = "Job that handle the deleted files", cron = "0 0 0 ? * *")
 public class DeleteFileJob extends AbstractJob {
 
     @Autowired

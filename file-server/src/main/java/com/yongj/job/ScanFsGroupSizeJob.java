@@ -1,6 +1,7 @@
 package com.yongj.job;
 
 import com.curtisnewbie.common.util.Paginator;
+import com.curtisnewbie.module.task.annotation.JobDeclaration;
 import com.curtisnewbie.module.task.scheduling.AbstractJob;
 import com.curtisnewbie.module.task.vo.TaskVo;
 import com.yongj.dao.FsGroup;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
  */
 @Slf4j
 @Component
+@JobDeclaration(name = "Job that scans fs_group size", cron = "0 0/30 * ? * *")
 public class ScanFsGroupSizeJob extends AbstractJob {
 
     @Autowired
