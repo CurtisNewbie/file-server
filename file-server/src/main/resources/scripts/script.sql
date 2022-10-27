@@ -191,12 +191,3 @@ CREATE TABLE IF NOT EXISTS user_file_access (
     is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
     KEY user_no_file_uuid_idx (user_no, file_uuid)
 ) ENGINE=InnoDB COMMENT 'User file access';
-
--- tasks
-INSERT INTO `task`
-    (job_name, target_bean, cron_expr, app_group, enabled, concurrent_enabled, update_date)
-VALUES
-    ('FetchFileUploaderNameJob','fetchFileUploaderNameJob','0 0 0/6 ? * *','file-server',0,0,CURRENT_TIMESTAMP),
-    ('DeleteFileJob','deleteFileJob','0 0 0/6 ? * *','file-server',1,0,CURRENT_TIMESTAMP),
-    ("ScanFsGroupSizeJob", "scanFsGroupSizeJob", "0 0 0/1 ? * *", "file-server",1,0,CURRENT_TIMESTAMP),
-    ("GenerateUserFileAccessJob", "generateUserFileAccessJob", "0 0 0 ? * *", "file-server",1,0,CURRENT_TIMESTAMP);
