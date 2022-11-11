@@ -20,6 +20,7 @@ import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.*;
+import com.yongj.helper.FileKeyGenerator;
 import com.yongj.helper.FsGroupIdResolver;
 import com.yongj.helper.WriteFsGroupSupplier;
 import com.yongj.io.IOHandler;
@@ -69,6 +70,8 @@ import static com.yongj.enums.LockKeys.fileAccessKeySup;
 @Transactional
 public class FileServiceImpl implements FileService {
 
+    @Autowired
+    private FileKeyGenerator fileKeyGenerator;
     @Autowired
     private FileInfoMapper fileInfoMapper;
     @Autowired
@@ -150,13 +153,13 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public FileInfo uploadFile(UploadFileVo param) {
-        final String uuid = UUID.randomUUID().toString();
+        final String fileKey = fileKeyGenerator.generate();
         final int uploaderId = param.getUserId();
 
         final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
 
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, uploaderId, fsGroup.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(fileKey, uploaderId, fsGroup.getBaseFolder());
         nonNull(absPath, "Unable to resolve absolute path, unable to upload file, please contact administrator");
 
         long sizeInBytes;
@@ -174,7 +177,7 @@ public class FileServiceImpl implements FileService {
         f.setUploaderId(uploaderId);
         f.setUploaderName(param.getUsername());
         f.setUploadTime(LocalDateTime.now());
-        f.setUuid(uuid);
+        f.setUuid(fileKey);
         f.setUserGroup(param.getUserGroup().getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
@@ -196,14 +199,14 @@ public class FileServiceImpl implements FileService {
         final int maxZipEtry = fileServiceConfig.getMaxZipEntries();
         AssertUtils.isTrue(multipartFiles.length < maxZipEtry, "You can at most compress %s zip entries", maxZipEtry);
 
-        // assign random uuid
-        final String uuid = UUID.randomUUID().toString();
+        // assign random fileKey
+        final String fileKey = fileKeyGenerator.generate();
 
         final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
         nonNull(fsGroup, "No writable fs_group found, unable to upload file, please contact administrator");
 
         // resolve absolute path
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, userId, fsGroup.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(fileKey, userId, fsGroup.getBaseFolder());
 
         // prepare zip entries
         final List<ZipCompressEntry> entries = prepareZipEntries(multipartFiles);
@@ -219,7 +222,7 @@ public class FileServiceImpl implements FileService {
         f.setUploaderId(userId);
         f.setUploadTime(LocalDateTime.now());
         f.setUploaderName(param.getUsername());
-        f.setUuid(uuid);
+        f.setUuid(fileKey);
         f.setUserGroup(userGroup.getValue());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
@@ -702,11 +705,11 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public FileInfo mkdir(MakeDirReqVo r) {
-        final String uuid = UUID.randomUUID().toString();
+        final String fileKey = fileKeyGenerator.generate();
 
         FileInfo dir = new FileInfo();
         dir.setName(r.getName());
-        dir.setUuid(uuid);
+        dir.setUuid(fileKey);
         dir.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
         dir.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
         dir.setSizeInBytes(0L);
@@ -809,8 +812,8 @@ public class FileServiceImpl implements FileService {
                     .collect(Collectors.toList());
 
             // resolve a abs path for the zip file
-            final String uuid = UUID.randomUUID().toString();
-            final String absPath = pathResolver.resolveAbsolutePath(uuid, user.getUserId(), fsGroup.getBaseFolder());
+            final String fileKey = fileKeyGenerator.generate();
+            final String absPath = pathResolver.resolveAbsolutePath(fileKey, user.getUserId(), fsGroup.getBaseFolder());
             nonNull(absPath, "Unable to resolve absolute path, unable to upload file");
 
             // do compression
@@ -831,7 +834,7 @@ public class FileServiceImpl implements FileService {
                 f.setUploaderId(user.getUserId());
                 f.setUploaderName(user.getUsername());
                 f.setUploadTime(LocalDateTime.now());
-                f.setUuid(uuid);
+                f.setUuid(fileKey);
                 f.setUserGroup(FileUserGroupEnum.PRIVATE.getValue());
                 f.setSizeInBytes(size);
                 f.setFsGroupId(fsGroup.getId());
