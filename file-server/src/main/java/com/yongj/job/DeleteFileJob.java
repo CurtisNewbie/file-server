@@ -65,7 +65,7 @@ public class DeleteFileJob extends AbstractJob {
             // if it's directory, just mark it as deleted
             if (v.isDir()) {
                 // mark as deleted
-                fileInfoService.markFileDeletedPhysically(v.getId());
+                fileInfoService.markFileDeletedPhysically(v.getId(), v.getUuid());
                 continue;
             }
 
@@ -81,7 +81,7 @@ public class DeleteFileJob extends AbstractJob {
                 // commit the actual deleting operation
                 ioHandler.deleteFile(absPath);
                 // mark as deleted
-                fileInfoService.markFileDeletedPhysically(v.getId());
+                fileInfoService.markFileDeletedPhysically(v.getId(), v.getUuid());
                 ++count;
             } catch (IOException e) {
                 log.error("Unable to delete file, uuid: " + String.valueOf(v.getUuid()) + ", please try again later", e);

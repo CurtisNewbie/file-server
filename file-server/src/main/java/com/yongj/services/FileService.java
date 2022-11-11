@@ -126,7 +126,7 @@ public interface FileService {
      *
      * @param id id of the file
      */
-    void markFileDeletedPhysically(int id);
+    void markFileDeletedPhysically(int id, String fileKey);
 
     /**
      * Update file's info
@@ -237,4 +237,9 @@ public interface FileService {
      * This is primarily used to generate the access records for the first time
      */
     void loadUserFileAccess();
+
+    /**
+     * Fetch events after the eventId (exclusive)
+     */
+    List<FileEventVo> fetchEventsAfter(long eventId, int limit);
 }

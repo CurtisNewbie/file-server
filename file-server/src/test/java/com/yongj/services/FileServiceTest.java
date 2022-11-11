@@ -198,7 +198,7 @@ public class FileServiceTest {
         doCleanUp(fi);
     }
 
-    /** Test {@link FileService#markFileDeletedPhysically(int)} */
+    /** Test {@link FileService#markFileDeletedPhysically(int, String)} */
     @Test
     @Rollback
     void shouldMarkFileDeletedPhysically() throws IOException {
@@ -207,7 +207,7 @@ public class FileServiceTest {
         Assertions.assertNotNull(fi);
 
         Assertions.assertDoesNotThrow(() -> {
-            fileInfoService.markFileDeletedPhysically(fi.getId());
+            fileInfoService.markFileDeletedPhysically(fi.getId(), fi.getUuid());
             FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
             Assertions.assertEquals(sfi.getIsPhysicDeleted(), FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
@@ -244,6 +244,7 @@ public class FileServiceTest {
         return fileInfoService.uploadFile(UploadFileVo.builder()
                 .userId(userId)
                 .fileName(fileName)
+                .userNo("userno")
                 .username("zhuangyongj")
                 .userGroup(FileUserGroupEnum.PRIVATE)
                 .inputStream(inputStream)

@@ -71,6 +71,8 @@ import static com.yongj.enums.LockKeys.fileAccessKeySup;
 public class FileServiceImpl implements FileService {
 
     @Autowired
+    private FileEventMapper fileEventMapper;
+    @Autowired
     private FileKeyGenerator fileKeyGenerator;
     @Autowired
     private FileInfoMapper fileInfoMapper;
@@ -484,8 +486,10 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void markFileDeletedPhysically(int id) {
+    @Transactional
+    public void markFileDeletedPhysically(int id, String fileKey) {
         fileInfoMapper.markFilePhysicDeleted(id, LocalDateTime.now());
+        _recordFileEvent(fileKey, FEventType.DELETED);
     }
 
     @Override
@@ -877,15 +881,34 @@ public class FileServiceImpl implements FileService {
 
     }
 
+    @Override
+    public List<FileEventVo> fetchEventsAfter(long eventId, int limit) {
+        return BeanCopyUtils.toTypeList(
+                fileEventMapper.selectList(Wrappers.lambdaQuery(FileEvent.class)
+                        .gt(FileEvent::getId, eventId)
+                        .orderByAsc(FileEvent::getId)
+                        .last("limit " + limit)),
+                FileEventVo.class
+        );
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     /** Insert FileInfo and create UserFileAccess */
     private void _doInsertFileInfo(FileInfo f, String userNo) {
         transactionTemplate.execute((tx) -> {
             fileInfoMapper.insert(f);
+            _recordFileEvent(f.getUuid(), FEventType.UPLOADED);
             _tryGenerateUserFileAccess(userNo, f.getUuid(), FileAccessType.OWNER);
             return null;
         });
+    }
+
+    private void _recordFileEvent(String fileKey, FEventType type) {
+        FileEvent fe = new FileEvent();
+        fe.setFileKey(fileKey);
+        fe.setType(type);
+        fileEventMapper.insert(fe);
     }
 
     private String fetchUserNo(int userId) {

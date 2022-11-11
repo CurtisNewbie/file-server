@@ -45,3 +45,5 @@ redisson-config: redisson-dev.yaml
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+event.sync.secret: '123456'
