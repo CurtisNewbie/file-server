@@ -883,12 +883,11 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<FileEventVo> fetchEventsAfter(long eventId, int limit) {
-        return BeanCopyUtils.toTypeList(
-                fileEventMapper.selectList(Wrappers.lambdaQuery(FileEvent.class)
+        return BeanCopyUtils.mapTo(fileEventMapper.selectList(MapperUtils.select(FileEvent::getId, FileEvent::getType, FileEvent::getFileKey)
                         .gt(FileEvent::getId, eventId)
                         .orderByAsc(FileEvent::getId)
                         .last("limit " + limit)),
-                FileEventVo.class
+                e -> new FileEventVo(e.getId(), e.getType(), e.getFileKey())
         );
     }
 

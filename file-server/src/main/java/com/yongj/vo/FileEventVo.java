@@ -1,8 +1,9 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.dao.DaoSkeleton;
 import com.yongj.enums.FEventType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * File Events
@@ -10,7 +11,12 @@ import lombok.Data;
  * @author yongj.zhuang
  */
 @Data
-public class FileEventVo extends DaoSkeleton {
+@NoArgsConstructor
+@AllArgsConstructor
+public class FileEventVo {
+
+    /** event id */
+    private Integer eventId;
 
     /** event type */
     private FEventType type;

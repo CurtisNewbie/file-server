@@ -44,3 +44,8 @@ redisson-config: redisson-test.yaml
 file-service:
   max-zip-entries: 200
   upload-speed-limit: 50 # 50mb/s
+
+event.sync:
+  enabled: false
+#  ip-address: localhost,127.0.0.1
+#  secret: '123456'
