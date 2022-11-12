@@ -46,4 +46,7 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-event.sync.secret: '123456'
+event.sync:
+  ip-address: localhost,127.0.0.1
+  enabled: true
+  secret: '123456'
