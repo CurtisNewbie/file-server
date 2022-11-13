@@ -3,7 +3,6 @@ package com.yongj.remote;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.AsyncUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.ValueUtils;
 import com.curtisnewbie.common.vo.Result;
 import com.yongj.dao.FileInfo;
@@ -47,8 +46,8 @@ public class UserFileServiceFeignController {
     // curl "http://localhost:8080/remote/user/file/indir/list?fileKey=5ddf49ca-dec9-4ecf-962d-47b0f3eab90c&limit=10&page=1"
     @GetMapping("/indir/list")
     public DeferredResult<Result<List<String>>> listFilesInDir(@RequestParam("fileKey") String fileKey,
-                                               @RequestParam("limit") long limit,
-                                               @RequestParam("page") long page) {
+                                                               @RequestParam("limit") long limit,
+                                                               @RequestParam("page") long page) {
         // 1~100
         if (!ValueUtils.inBetween(limit, 1, 100)) {
             limit = 100;
@@ -70,11 +69,9 @@ public class UserFileServiceFeignController {
     @GetMapping("/info")
     public DeferredResult<Result<FileInfoResp>> getFileInfo(@RequestParam("fileKey") String fileKey) {
         return AsyncUtils.runAsyncResult(() -> {
-            final FileInfo f = fileService.findByKey(fileKey);
+            final FileInfoResp f = fileService.findRespByKey(fileKey);
             AssertUtils.notNull(f, "File not found");
-            final FileInfoResp resp = BeanCopyUtils.toType(f, FileInfoResp.class);
-            resp.setFileType(f.getFileType().name());
-            return resp;
+            return f;
         });
     }
 

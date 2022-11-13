@@ -23,8 +23,11 @@ public class FileInfoResp {
     /** uploader name */
     private String uploaderName;
 
+    /** the group that the file belongs to, 0-public, 1-private */
+    private Integer userGroup;
+
     /** when the file is deleted */
-    private boolean isDeleted;
+    private Boolean isDeleted;
 
     /** file type: FILE, DIR */
     private String fileType;

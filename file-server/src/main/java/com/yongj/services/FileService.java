@@ -5,6 +5,7 @@ import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.vo.PageableList;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FileType;
+import com.yongj.file.remote.vo.FileInfoResp;
 import com.yongj.vo.*;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
@@ -75,6 +76,11 @@ public interface FileService {
      * Find by key
      */
     FileInfo findByKey(@NotEmpty String uuid);
+
+    /**
+     * Find resp by key
+     */
+    FileInfoResp findRespByKey(@NotEmpty String fileKey);
 
     /**
      * Retrieve file's inputStream via id

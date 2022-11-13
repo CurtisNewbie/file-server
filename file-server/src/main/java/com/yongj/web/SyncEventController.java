@@ -2,7 +2,6 @@ package com.yongj.web;
 
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.util.AsyncUtils;
-import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.vo.Result;
 import com.yongj.config.EventSyncConfig;
 import com.yongj.dao.FileInfo;
@@ -14,14 +13,16 @@ import com.yongj.vo.FileEventVo;
 import com.yongj.vo.sync.EventSyncReq;
 import com.yongj.vo.sync.PollFileEventReq;
 import com.yongj.vo.sync.SyncFileInfoReq;
-import com.yongj.vo.sync.SyncFileInfoResp;
 import com.yongj.web.streaming.ChannelStreamingResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -76,20 +77,15 @@ public class SyncEventController {
         curl -X POST http://localhost:8080/open/api/sync/file/info -H 'content-type: application/json' -d '{ "secret" : "123456", "fileKey": "e2e63cfd-a7fa-4b8a-9cb4-3a6f85991e3b" }'
      */
     @PostMapping("/file/info")
-    public DeferredResult<Result<SyncFileInfoResp>> getSyncFileInfo(@RequestBody SyncFileInfoReq r, @Header("x-forwarded-for") String[] xForwardedFor,
+    public DeferredResult<Result<FileInfoResp>> getSyncFileInfo(@RequestBody SyncFileInfoReq r, @Header("x-forwarded-for") String[] xForwardedFor,
                                                                     HttpServletRequest hsr) {
         log.info("Received getSyncFileInfo request, req: {}", r);
         return AsyncUtils.runAsync(() -> {
             // validation
             final Result<?> err = preRequest(r, xForwardedFor, hsr.getRemoteAddr());
-            if (err != null) return (Result<SyncFileInfoResp>) err;
+            if (err != null) return (Result<FileInfoResp>) err;
 
-            final FileInfo f = fileService.findByKey(r.getFileKey());
-            if (f == null) return Result.of(new SyncFileInfoResp());
-
-            final FileInfoResp fir = BeanCopyUtils.toType(f, FileInfoResp.class);
-            fir.setFileType(f.getFileType().name());
-            return Result.of(new SyncFileInfoResp(fir));
+            return Result.of(fileService.findRespByKey(r.getFileKey()));
         });
     }
 

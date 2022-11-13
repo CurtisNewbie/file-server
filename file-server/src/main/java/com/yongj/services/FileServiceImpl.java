@@ -20,6 +20,7 @@ import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
 import com.yongj.enums.*;
+import com.yongj.file.remote.vo.FileInfoResp;
 import com.yongj.helper.FileKeyGenerator;
 import com.yongj.helper.FsGroupIdResolver;
 import com.yongj.helper.WriteFsGroupSupplier;
@@ -368,6 +369,17 @@ public class FileServiceImpl implements FileService {
                 .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue());
 
         return fileInfoMapper.selectOne(cond);
+    }
+
+    @Override
+    public FileInfoResp findRespByKey(String fileKey) {
+        final FileInfo f = fileInfoMapper.selectOne(MapperUtils.eq(FileInfo::getUuid, fileKey)
+                .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue()));
+        final FileInfoResp fir = BeanCopyUtils.toType(f, FileInfoResp.class);
+        fir.setIsDeleted(f.getIsLogicDeleted() == FileLogicDeletedEnum.LOGICALLY_DELETED.getValue()
+                || f.getIsPhysicDeleted() == FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
+        fir.setFileType(f.getFileType().name());
+        return fir;
     }
 
     @Override
