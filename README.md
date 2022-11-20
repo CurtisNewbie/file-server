@@ -103,7 +103,7 @@ The task implementation beans:
     
 ## Updates
 
-For release v1.2.5, the job `GenerateUserFileAccessJob` should be added into the `task` table and triggered immediately when it's first time deployed. It scans the `file_info` table and generates the data in `user_file_access`, which controls what files users can see on thier webpage. 
+For release v1.2.5, the job `GenerateUserFileAccessJob` implementation is added and should be triggered immediately when it's first time deployed. It scans the `file_info` table and generates records in `user_file_access`, which essentially controls what files users can access. 
 
 
 
