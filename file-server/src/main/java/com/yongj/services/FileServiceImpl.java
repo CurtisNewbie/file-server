@@ -221,7 +221,7 @@ public class FileServiceImpl implements FileService {
         FileInfo f = new FileInfo();
         f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
         f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
-        f.setName(zipFile.endsWith(".zip") ? zipFile : zipFile + ".zip");
+        f.setName(zipFile.toLowerCase().endsWith(".zip") ? zipFile : zipFile + ".zip");
         f.setUploaderId(userId);
         f.setUploadTime(LocalDateTime.now());
         f.setUploaderName(param.getUsername());
@@ -432,13 +432,13 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void moveFileInto(int userId, String uuid, String parentFileUuid) {
+        // lock the current file/dir
         LockUtils.lockAndRun(getFileLock(uuid), () -> {
 
             final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                     .eq(FileInfo::getUuid, uuid)
                     .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
             nonNull(f, "Record not found");
-            isFalse(f.isDir(), "Directory can't be moved into another directory");
             AssertUtils.equals(userId, (int) f.getUploaderId(), "Only the uploader can move files");
 
             // if parentFileUuid is empty, we just try to move it out of the directory
@@ -452,7 +452,7 @@ public class FileServiceImpl implements FileService {
                 return;
             }
 
-            // move into directory
+            // lock the parent dir, and move current file/dir into the parent dir
             LockUtils.lockAndRun(getFileLock(parentFileUuid), () -> {
                 final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                         .eq(FileInfo::getUuid, parentFileUuid)

@@ -1,4 +1,4 @@
-# File-Service V1.2.5.2
+# File-Service V1.2.5.3
 
 Upload file, list files, and download file.
 
@@ -103,6 +103,7 @@ The task implementation beans:
 - com.yongj.job.DeleteFileJob
 - com.yongj.job.FetchFileUploaderNameJob
 - com.yongj.job.ScanFsGroupSizeJob 
+- com.yongj.job.GenerateUserFileAccessJob
     
 ## Updates
 
