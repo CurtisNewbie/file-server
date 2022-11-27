@@ -163,7 +163,6 @@ public class FileController {
                 // move file to dir
                 runSafely(() -> {
                     if (StringUtils.hasText(parentFile)) {
-                        log.info("Moving file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile);
                         fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
                     }
                 }, e -> log.error("Failed to move file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile, e));

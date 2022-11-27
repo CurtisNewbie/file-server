@@ -9,7 +9,7 @@ import org.springframework.stereotype.*;
  * @author yongj.zhuang
  */
 @Component
-public class DefaultFileTypeResolver implements FileTypeResolver{
+public class DefaultFileTypeResolver implements FileTypeResolver {
 
     @Autowired
     private FileService fileService;

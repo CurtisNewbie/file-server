@@ -28,7 +28,6 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.PagingUtil.toPageableList;
 
 /**
@@ -56,10 +55,7 @@ public class FsGroupServiceImpl implements FsGroupService {
 
     @Override
     public FsGroup findAnyFsGroupToWrite(FsGroupType type) {
-        return randomPicker.pickRandom(fsGroupMapper.selectList(new LambdaQueryWrapper<FsGroup>()
-                .eq(FsGroup::getMode, FsGroupMode.READ_WRITE.getValue())
-                .eq(FsGroup::getType, type)
-                .last("limit 100")));
+        return fsGroupMapper.pickRandom(FsGroupMode.READ_WRITE, type);
     }
 
     @Override
@@ -77,7 +73,7 @@ public class FsGroupServiceImpl implements FsGroupService {
                 .eq(FsGroup::getIsDel, IsDel.NORMAL.getValue());
 
         final FsGroup param = new FsGroup();
-        param.setMode(mode.getValue());
+        param.setMode(mode);
         fsGroupMapper.update(param, condition);
     }
 
@@ -125,7 +121,7 @@ public class FsGroupServiceImpl implements FsGroupService {
             }
 
             FsGroup fsGroup = BeanCopyUtils.toType(req, FsGroup.class);
-            fsGroup.setMode(FsGroupMode.READ.getValue());
+            fsGroup.setMode(FsGroupMode.READ);
             fsGroupMapper.insert(fsGroup);
         });
     }

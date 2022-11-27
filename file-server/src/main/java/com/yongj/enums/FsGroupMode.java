@@ -19,6 +19,7 @@ public enum FsGroupMode implements IntEnum {
     /** 2 read/write */
     READ_WRITE(2);
 
+    @EnumValue
     @JsonValue
     private final int v;
 

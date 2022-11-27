@@ -30,4 +30,12 @@
     </where>
     order by id desc
   </select>
+
+  <select id="pickRandom" resultType="com.yongj.dao.FsGroup">
+    select * from fs_group
+    where mode = #{mode}
+    and type = #{type}
+    order by rand()
+    limit 1
+  </select>
 </mapper>

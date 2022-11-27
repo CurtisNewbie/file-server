@@ -3,6 +3,7 @@ package com.yongj.dao;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.curtisnewbie.common.dao.DaoSkeleton;
+import com.yongj.enums.FsGroupMode;
 import com.yongj.enums.FsGroupType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,7 +29,7 @@ public class FsGroup extends DaoSkeleton {
 
     /** mode: 1-read, 2-read/write */
     @TableField("mode")
-    private Integer mode;
+    private FsGroupMode mode;
 
     /** Type of a fs_group */
     @TableField("type")

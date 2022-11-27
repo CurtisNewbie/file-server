@@ -221,7 +221,7 @@ public class FileServiceTest {
             FsGroup fsg = new FsGroup();
             fsg.setId(1);
             fsg.setBaseFolder(basePath);
-            fsg.setMode(FsGroupMode.READ_WRITE.getValue());
+            fsg.setMode(FsGroupMode.READ_WRITE);
             fsg.setName("default");
             return fsg;
         });
@@ -230,7 +230,7 @@ public class FileServiceTest {
             FsGroup fsg = new FsGroup();
             fsg.setId(1);
             fsg.setBaseFolder(basePath);
-            fsg.setMode(FsGroupMode.READ_WRITE.getValue());
+            fsg.setMode(FsGroupMode.READ_WRITE);
             fsg.setName("default");
             return fsg;
         });

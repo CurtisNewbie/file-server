@@ -1,5 +1,6 @@
 package com.yongj.vo;
 
+import com.yongj.enums.FsGroupMode;
 import com.yongj.enums.FsGroupType;
 import lombok.Data;
 
@@ -22,7 +23,7 @@ public class FsGroupVo {
     private String baseFolder;
 
     /** mode: 1-read, 2-read/write */
-    private Integer mode;
+    private FsGroupMode mode;
 
     /** Type of a fs_group */
     private FsGroupType type;

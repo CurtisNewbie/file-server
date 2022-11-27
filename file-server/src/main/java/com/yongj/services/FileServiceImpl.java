@@ -379,6 +379,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void moveFileInto(int userId, String uuid, String parentFileUuid) {
+        log.info("Moving file '{}' to '{}', userId: '{}'", uuid, parentFileUuid, userId);
         // lock the current file/dir
         LockUtils.lockAndRun(getFileLock(uuid), () -> {
 
