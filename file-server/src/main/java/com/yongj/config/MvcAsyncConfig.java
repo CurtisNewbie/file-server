@@ -1,5 +1,6 @@
 package com.yongj.config;
 
+import com.curtisnewbie.common.formatters.DateEpochFormatter;
 import com.curtisnewbie.common.formatters.LocalDateTimeEpochFormatter;
 import com.curtisnewbie.common.util.AsyncUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ import java.util.concurrent.Callable;
 @Slf4j
 @EnableAsync
 @Configuration
-public class AsyncConfig implements AsyncConfigurer {
+public class MvcAsyncConfig implements AsyncConfigurer {
 
     @Override
     @Bean(name = "taskExecutor")
@@ -58,6 +59,7 @@ public class AsyncConfig implements AsyncConfigurer {
 
             @Override
             public void addFormatters(FormatterRegistry registry) {
+                registry.addFormatter(new DateEpochFormatter());
                 registry.addFormatter(new LocalDateTimeEpochFormatter());
             }
         };

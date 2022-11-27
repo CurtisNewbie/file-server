@@ -108,7 +108,8 @@ The task implementation beans:
     
 ## Updates
 
-For release v1.2.5, the job `GenerateUserFileAccessJob` implementation is added and should be triggered immediately when it's first time deployed. It scans the `file_info` table and generates records in `user_file_access`, which essentially controls what files users can access. 
+- Since release v1.2.5.3, LocalDateTime / Date are serialized and deserialized in the form of epoch time (milliseconds), this is not backward compatible, some MQ messages may also be affected as well.
+- Since release v1.2.5, the job `GenerateUserFileAccessJob` implementation is added and should be triggered immediately when it's first time deployed. It scans the `file_info` table and generates records in `user_file_access`, which essentially controls what files users can access. 
 
 
 
