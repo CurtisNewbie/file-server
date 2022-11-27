@@ -23,11 +23,11 @@ public class FileInfo extends DaoSkeleton {
 
     /** whether the file is logically deleted, 0-normal, 1-deleted */
     @TableField("is_logic_deleted")
-    private Integer isLogicDeleted;
+    private FLogicDelete isLogicDeleted;
 
     /** whether the file is physically deleted, 0-normal, 1-deleted */
     @TableField("is_physic_deleted")
-    private Integer isPhysicDeleted;
+    private FPhysicDelete isPhysicDeleted;
 
     /** size of file in bytes */
     @TableField("size_in_bytes")
@@ -55,7 +55,7 @@ public class FileInfo extends DaoSkeleton {
 
     /** the group that the file belongs to, 0-public, 1-private */
     @TableField("user_group")
-    private Integer userGroup;
+    private FUserGroup userGroup;
 
     /** id of fs_group */
     @TableField("fs_group_id")

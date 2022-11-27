@@ -1,6 +1,7 @@
 package com.yongj.vo;
 
 import com.fasterxml.jackson.annotation.*;
+import com.yongj.enums.FUserGroup;
 import lombok.*;
 import org.springframework.lang.*;
 
@@ -33,5 +34,5 @@ public class MakeDirReqVo {
 
     /** User Group */
     @Nullable
-    private Integer userGroup;
+    private FUserGroup userGroup;
 }

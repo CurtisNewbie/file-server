@@ -19,7 +19,7 @@ public interface VFolderMapper extends BaseMapper<VFolder> {
 
     Page<VFolderListResp> listVFolders(Page page, @Param("r") ListVFolderReq req);
 
-    Page<FileInfoVo> listFilesInVFolders(Page forPage, @Param("r") ListVFolderFilesReq req);
+    Page<FileInfoWebVo> listFilesInVFolders(Page forPage, @Param("r") ListVFolderFilesReq req);
 
     List<VFolderBrief> listOwnedVFolderBrief(@Param("userNo") String userNo);
 }

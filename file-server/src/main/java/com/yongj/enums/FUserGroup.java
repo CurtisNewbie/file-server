@@ -1,5 +1,6 @@
 package com.yongj.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.curtisnewbie.common.enums.IntEnum;
 import com.curtisnewbie.common.util.EnumUtils;
 import com.fasterxml.jackson.annotation.*;
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.annotation.*;
  *
  * @author yongjie.zhuang
  */
-public enum FileUserGroupEnum implements IntEnum {
+public enum FUserGroup implements IntEnum {
 
     /** public group */
     PUBLIC(0),
@@ -17,21 +18,22 @@ public enum FileUserGroupEnum implements IntEnum {
     /** private group */
     PRIVATE(1);
 
+    @EnumValue
     @JsonValue
     private final int value;
 
-    FileUserGroupEnum(int v) {
+    FUserGroup(int v) {
         this.value = v;
     }
 
     @JsonCreator
-    public static FileUserGroupEnum from(Integer userGroup) {
+    public static FUserGroup from(Integer userGroup) {
         if (userGroup == null) return null;
         return parse(userGroup);
     }
 
-    public static FileUserGroupEnum parse(int userGroup) {
-        return EnumUtils.parse(userGroup, FileUserGroupEnum.class);
+    public static FUserGroup parse(int userGroup) {
+        return EnumUtils.parse(userGroup, FUserGroup.class);
     }
 
     @Override

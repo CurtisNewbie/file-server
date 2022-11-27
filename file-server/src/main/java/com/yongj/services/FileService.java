@@ -44,18 +44,11 @@ public interface FileService {
     FileInfo uploadFilesAsZip(@NotNull UploadZipFileVo param) throws IOException;
 
     /**
-     * List files for user purely based on user_file_access
-     *
-     * @param reqVo filter and paging parameter
-     */
-    PageableList<FileInfoVo> listFilesByAccess(@NotNull ListFileInfoReqVo reqVo);
-
-    /**
      * Find file info for user (with pagination)
      *
      * @param reqVo filter and paging parameter
      */
-    PageableList<FileInfoVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
+    PageableList<FileInfoWebVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo);
 
     /**
      * Find logically deleted, but not physically deleted files

@@ -41,7 +41,7 @@
     </where>
   </sql>
 
-  <select id="selectFileListForUserSelective" resultType="com.yongj.vo.FileInfoVo">
+  <select id="selectFileListForUserSelective" resultType="com.yongj.vo.FileInfoWebVo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
     fi.file_type, fi.update_time
     from file_info fi
@@ -75,7 +75,7 @@
     <include refid="selectListForTagCond"/>
   </select>
 
-  <select id="selectFileListForUserAndTag" resultType="com.yongj.vo.FileInfoVo">
+  <select id="selectFileListForUserAndTag" resultType="com.yongj.vo.FileInfoWebVo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
     fi.file_type, fi.update_time
     from file_info fi

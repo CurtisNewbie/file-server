@@ -15,13 +15,13 @@ public class FileDownloadValidInfo {
     private Integer fileId;
 
     /** the group that the file belongs to, 0-public, 1-private */
-    private Integer userGroup;
+    private FUserGroup userGroup;
 
     /** uploader id, i.e., user.id */
     private Integer uploaderId;
 
     /** whether the file is logically deleted, 0-normal, 1-deleted */
-    private Integer isLogicDeleted;
+    private FLogicDelete isLogicDeleted;
 
     /** File type */
     private FileType fileType;
@@ -35,13 +35,10 @@ public class FileDownloadValidInfo {
     }
 
     public boolean isDeleted() {
-        if (isLogicDeleted == null)
-            return false;
-
-        return Objects.equals(FileLogicDeletedEnum.LOGICALLY_DELETED.getValue(), isLogicDeleted);
+        return isLogicDeleted == FLogicDelete.DELETED;
     }
 
     public boolean isPublicGroup() {
-        return Objects.equals(userGroup, FileUserGroupEnum.PUBLIC.getValue());
+        return Objects.equals(userGroup, FUserGroup.PUBLIC);
     }
 }

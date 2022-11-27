@@ -1,14 +1,16 @@
 package com.yongj.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.curtisnewbie.common.enums.IntEnum;
 import com.curtisnewbie.common.util.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * Ownership of the files being queried
  *
  * @author yongjie.zhuang
  */
-public enum FileOwnership implements IntEnum {
+public enum FOwnership implements IntEnum {
 
     /** all the files */
     ALL_FILES(0),
@@ -16,9 +18,11 @@ public enum FileOwnership implements IntEnum {
     /** files that belong to the requester */
     FILES_OF_THE_REQUESTER(1);
 
+    @JsonValue
+    @EnumValue
     private final int val;
 
-    FileOwnership(int v) {
+    FOwnership(int v) {
         this.val = v;
     }
 
@@ -27,7 +31,7 @@ public enum FileOwnership implements IntEnum {
         return this.val;
     }
 
-    public static FileOwnership parse(int v) {
-        return EnumUtils.parse(v, FileOwnership.class);
+    public static FOwnership parse(int v) {
+        return EnumUtils.parse(v, FOwnership.class);
     }
 }

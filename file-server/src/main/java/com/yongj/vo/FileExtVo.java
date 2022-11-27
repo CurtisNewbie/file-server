@@ -1,7 +1,5 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.util.DateUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yongj.enums.FExtIsEnabled;
 import lombok.Data;
 
@@ -30,11 +28,9 @@ public class FileExtVo {
 
     private String createBy;
 
-    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
     private LocalDateTime createTime;
 
     private String updateBy;
 
-    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
     private LocalDateTime updateTime;
 }

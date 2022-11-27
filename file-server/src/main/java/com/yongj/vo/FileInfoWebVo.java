@@ -1,11 +1,12 @@
 package com.yongj.vo;
 
-import com.curtisnewbie.common.util.DateUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.yongj.enums.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yongj.enums.FUserGroup;
+import com.yongj.enums.FileType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * @author yongjie.zhuang
@@ -22,26 +23,32 @@ public class FileInfoWebVo {
     /** name of the file */
     private String name;
 
-    /** name of the uploader */
-    private String uploaderName;
-
     /** upload time */
-    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
     private LocalDateTime uploadTime;
+
+    /** uploader's name */
+    private String uploaderName;
 
     /** size in bytes */
     private Long sizeInBytes;
 
     /** the group that the file belongs to, 0-public, 1-private */
-    private Integer userGroup;
+    private FUserGroup userGroup;
 
     /** Whether current user is the owner of this file */
     private Boolean isOwner;
 
-    /** file type: FILE, DIR */
+    /** file type */
     private FileType fileType;
 
-    @JsonFormat(pattern = DateUtils.DD_MM_YYYY_HH_MM)
+    /** update time */
     private LocalDateTime updateTime;
 
+    @JsonIgnore
+    /** uploader id, i.e., user.id */
+    private Integer uploaderId;
+
+    public void checkAndSetIsOwner(int currentUserId) {
+        this.isOwner = Objects.equals(uploaderId, currentUserId);
+    }
 }

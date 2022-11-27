@@ -2,7 +2,6 @@ package com.yongj.services;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -116,7 +115,7 @@ public class FileServiceImpl implements FileService {
 
         final FileInfo file = fileInfoMapper.selectOne(MapperUtils.select(FileInfo::getId, FileInfo::getUploaderId, FileInfo::getFileType, FileInfo::getUuid)
                 .eq(FileInfo::getId, cmd.getFileId())
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue()));
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
         nonNull(file, "File not found");
 
         // only uploader can grant access to the file
@@ -174,14 +173,14 @@ public class FileServiceImpl implements FileService {
         }
 
         FileInfo f = new FileInfo();
-        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        f.setIsLogicDeleted(FLogicDelete.NORMAL);
+        f.setIsPhysicDeleted(FPhysicDelete.NORMAL);
         f.setName(param.getFileName());
         f.setUploaderId(uploaderId);
         f.setUploaderName(param.getUsername());
         f.setUploadTime(LocalDateTime.now());
         f.setUuid(fileKey);
-        f.setUserGroup(param.getUserGroup().getValue());
+        f.setUserGroup(param.getUserGroup());
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
         _doInsertFileInfo(f, param.getUserNo());
@@ -192,7 +191,7 @@ public class FileServiceImpl implements FileService {
     public FileInfo uploadFilesAsZip(final UploadZipFileVo param) throws IOException {
         final int userId = param.getUserId();
         final String zipFile = param.getZipFile();
-        final FileUserGroupEnum userGroup = param.getUserGroup();
+        final FUserGroup userGroup = param.getUserGroup();
         final MultipartFile[] multipartFiles = param.getMultipartFiles();
 
         nonNull(userGroup);
@@ -219,14 +218,14 @@ public class FileServiceImpl implements FileService {
 
         // save file info record
         FileInfo f = new FileInfo();
-        f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        f.setIsLogicDeleted(FLogicDelete.NORMAL);
+        f.setIsPhysicDeleted(FPhysicDelete.NORMAL);
         f.setName(zipFile.toLowerCase().endsWith(".zip") ? zipFile : zipFile + ".zip");
         f.setUploaderId(userId);
         f.setUploadTime(LocalDateTime.now());
         f.setUploaderName(param.getUsername());
         f.setUuid(fileKey);
-        f.setUserGroup(userGroup.getValue());
+        f.setUserGroup(userGroup);
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
         _doInsertFileInfo(f, param.getUserNo());
@@ -234,63 +233,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public PageableList<FileInfoVo> listFilesByAccess(ListFileInfoReqVo reqVo) {
-        SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
-        if (reqVo.filterForOwnedFilesOnly()) {
-            param.setFilterOwnedFiles(true);
-        }
-        final Page<?> p = forPage(reqVo.getPagingVo());
-        final List<FileInfoVo> dataList;
-        final long count;
-
-        /*
-            Based on whether tagName is present, we use different queries
-
-            Instead of using the Page<?> for pagination, we do COUNT(*) manually,
-            the paginator plugin always fails to optimise the query :D
-         */
-        final long offset = p.getSize() * (p.getCurrent() - 1);
-        final long limit = p.getSize();
-        final boolean qryForTag = StringUtils.hasText(param.getTagName());
-        if (qryForTag) {
-            dataList = fileInfoMapper.selectFileListForUserAndTag(offset, limit, param);
-            count = fileInfoMapper.countFileListForUserAndTag(param);
-        } else {
-            /*
-                If parentFile is empty, and filename/userGroup are not searched, then we only return the top level file or dir.
-                The query for tags will ignore parent_file param, so it's working fine
-             */
-            if (!StringUtils.hasText(param.getParentFile())
-                    && !StringUtils.hasText(param.getFilename())
-                    && param.getUserGroup() == null) {
-
-                if (param.getFilename() != null) param.setFilename(null);
-                param.setParentFile(""); // top-level file/dir
-            }
-
-            dataList = fileInfoMapper.selectFileListForUserSelective(offset, limit, param);
-            count = fileInfoMapper.countFileListForUserSelective(param);
-        }
-
-        // set is_owner
-        dataList.forEach(v -> v.checkAndSetIsOwner(reqVo.getUserId()));
-
-        final PageableList<FileInfoVo> pl = new PageableList<>();
-        pl.setPayload(dataList);
-        pl.setPagingVo(PagingUtil.ofPageAndTotal((int) p.getCurrent(), count));
-        return pl;
-
-    }
-
-    @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PageableList<FileInfoVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
+    public PageableList<FileInfoWebVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
         SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
         if (reqVo.filterForOwnedFilesOnly()) {
             param.setFilterOwnedFiles(true);
         }
         final Page<?> p = forPage(reqVo.getPagingVo());
-        final List<FileInfoVo> dataList;
+        final List<FileInfoWebVo> dataList;
         final long count;
 
         /*
@@ -325,7 +275,7 @@ public class FileServiceImpl implements FileService {
         // set is_owner
         dataList.forEach(v -> v.checkAndSetIsOwner(reqVo.getUserId()));
 
-        final PageableList<FileInfoVo> pl = new PageableList<>();
+        final PageableList<FileInfoWebVo> pl = new PageableList<>();
         pl.setPayload(dataList);
         pl.setPagingVo(PagingUtil.ofPageAndTotal((int) p.getCurrent(), count));
         return pl;
@@ -352,12 +302,9 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findById(int id) {
-        QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
-                .eq("id", id)
-                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue())
-                .eq("is_del", IsDel.NORMAL.getValue());
-
-        return fileInfoMapper.selectOne(cond);
+        return fileInfoMapper.selectOne(MapperUtils.eq(FileInfo::getId, id)
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
+                .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue()));
     }
 
     @Override
@@ -365,7 +312,7 @@ public class FileServiceImpl implements FileService {
     public FileInfo findByKey(String uuid) {
         LambdaQueryWrapper<FileInfo> cond = new LambdaQueryWrapper<FileInfo>()
                 .eq(FileInfo::getUuid, uuid)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue());
 
         return fileInfoMapper.selectOne(cond);
@@ -376,8 +323,8 @@ public class FileServiceImpl implements FileService {
         final FileInfo f = fileInfoMapper.selectOne(MapperUtils.eq(FileInfo::getUuid, fileKey)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue()));
         final FileInfoResp fir = BeanCopyUtils.toType(f, FileInfoResp.class);
-        fir.setIsDeleted(f.getIsLogicDeleted() == FileLogicDeletedEnum.LOGICALLY_DELETED.getValue()
-                || f.getIsPhysicDeleted() == FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
+        fir.setIsDeleted(f.getIsLogicDeleted() == FLogicDelete.DELETED
+                || f.getIsPhysicDeleted() == FPhysicDelete.DELETED);
         fir.setFileType(f.getFileType().name());
         return fir;
     }
@@ -437,7 +384,7 @@ public class FileServiceImpl implements FileService {
 
             final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                     .eq(FileInfo::getUuid, uuid)
-                    .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+                    .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
             nonNull(f, "Record not found");
             AssertUtils.equals(userId, (int) f.getUploaderId(), "Only the uploader can move files");
 
@@ -456,7 +403,7 @@ public class FileServiceImpl implements FileService {
             LockUtils.lockAndRun(getFileLock(parentFileUuid), () -> {
                 final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                         .eq(FileInfo::getUuid, parentFileUuid)
-                        .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+                        .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
                 nonNull(dir, "Directory not found");
                 isTrue(dir.isDir(), "Target file is not a directory");
                 AssertUtils.equals(userId, (int) dir.getUploaderId(), "You are not the owner of this directory");
@@ -475,7 +422,7 @@ public class FileServiceImpl implements FileService {
             final FileInfo f = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                     .select(FileInfo::getId, FileInfo::getUploaderId, FileInfo::getFileType)
                     .eq(FileInfo::getUuid, uuid)
-                    .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL));
+                    .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
 
             nonNull(f, "Record not found");
             AssertUtils.equals(userId, (int) f.getUploaderId(), "You can only delete files that you uploaded");
@@ -486,7 +433,7 @@ public class FileServiceImpl implements FileService {
                 final boolean isEmpty = fileInfoMapper.selectOne(new LambdaQueryWrapper<FileInfo>()
                         .select(FileInfo::getId)
                         .eq(FileInfo::getParentFile, uuid)
-                        .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                        .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                         .last("limit 1")) == null;
 
                 AssertUtils.isTrue(isEmpty, "Directory is not empty, unable to delete it");
@@ -513,21 +460,16 @@ public class FileServiceImpl implements FileService {
         // Directory is by default private, and it's not allowed to update it
         if (fileInfo.isDir()
                 && cmd.getUserGroup() != null
-                && cmd.getUserGroup().getValue() != (int) fileInfo.getUserGroup()) {
+                && cmd.getUserGroup() != fileInfo.getUserGroup()) {
             throw new UnrecoverableException("Updating directory's UserGroup is not allowed");
         }
 
-        FileInfo fi = new FileInfo();
-        fi.setId(cmd.getId());
-        fi.setUserGroup(cmd.getUserGroup().getValue());
-        fi.setName(cmd.getFileName());
-
-        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
-                .eq("id", cmd.getId())
-                .eq("is_logic_deleted", FileLogicDeletedEnum.NORMAL.getValue())
-                .eq("is_del", IsDel.NORMAL.getValue());
-
-        fileInfoMapper.update(fi, cond);
+        fileInfoMapper.update(MapperUtils
+                .set(FileInfo::getUserGroup, cmd.getUserGroup())
+                .set(FileInfo::getName, cmd.getFileName())
+                .eq(FileInfo::getId, cmd.getId())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
+                .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue()));
     }
 
     @Override
@@ -549,7 +491,7 @@ public class FileServiceImpl implements FileService {
         final FileInfo f = fileInfoMapper.selectOne(MapperUtils.select(FileInfo::getId, FileInfo::getUuid)
                 .eq(FileInfo::getId, fileId)
                 .eq(FileInfo::getUploaderId, removedByUserId)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue()));
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
         Assert.isTrue(f != null, "Only uploader can remove granted access");
         final String fileKey = f.getUuid();
 
@@ -570,14 +512,10 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void fillBlankUploaderName(int fileId, @NotNull String uploaderName) {
-        final FileInfo updateParam = new FileInfo();
-        updateParam.setUploaderName(uploaderName);
-
-        final QueryWrapper<FileInfo> cond = new QueryWrapper<FileInfo>()
-                .eq("id", fileId)
-                .eq("uploader_name", ""); // make sure we don't accidentally overwrite previous name
-
-        fileInfoMapper.update(updateParam, cond);
+        fileInfoMapper.update(MapperUtils
+                .set(FileInfo::getUploaderName, uploaderName)
+                .eq(FileInfo::getId, fileId)
+                .eq(FileInfo::getUploaderName, "")); // make sure we don't accidentally overwrite previous name
     }
 
     @Override
@@ -609,12 +547,10 @@ public class FileServiceImpl implements FileService {
 
             // reset, if it's deleted
             if (selected.isDeleted()) {
-                final FileTag updated = new FileTag();
-                updated.setIsDel(IsDel.NORMAL);
-                final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
-                        .eq("id", selected.getId())
-                        .eq("is_del", IsDel.DELETED.getValue());
-                fileTagMapper.update(updated, where);
+                fileTagMapper.update(MapperUtils
+                        .set(FileTag::getIsDel, IsDel.NORMAL.getValue())
+                        .eq(FileTag::getId, selected.getId())
+                        .eq(FileTag::getIsDel, IsDel.DELETED.getValue()));
             }
         } finally {
             lock.unlock();
@@ -648,31 +584,28 @@ public class FileServiceImpl implements FileService {
             // todo we don't delete the tag here for now
             // set as deleted
             if (!fileTag.isDeleted()) {
-                final FileTag updated = new FileTag();
-                updated.setIsDel(IsDel.DELETED);
-                final QueryWrapper<FileTag> where = new QueryWrapper<FileTag>()
-                        .eq("id", fileTag.getId())
-                        .eq("is_del", IsDel.NORMAL.getValue());
+                fileTagMapper.update(MapperUtils
+                        .set(FileTag::getIsDel, IsDel.DELETED.getValue())
+                        .eq(FileTag::getId, fileTag.getId())
+                        .eq(FileTag::getIsDel, IsDel.NORMAL.getValue()));
 
-                if (fileTagMapper.update(updated, where) > 0) {
-                    log.info("Untagged file, file_id: {}, tag_name: {}", fileId, tagName);
+                log.info("Untagged file, file_id: {}, tag_name: {}", fileId, tagName);
 
-                    /*
-                        check if the tag is still associated with other files, if not, we remove it
-                        remember, the tag is bound for a specific user only, so this doesn't affect
-                        other users
-                     */
-                    Integer anyId = fileTagMapper.selectAndConvert(new LambdaQueryWrapper<FileTag>()
-                            .select(FileTag::getId)
-                            .eq(FileTag::getTagId, tagId)
-                            .eq(FileTag::getIsDel, IsDel.NORMAL)
-                            .last("limit 1"), FileTag::getId);
-                    if (anyId == null) {
-                        Tag ut = new Tag();
-                        ut.setIsDel(IsDel.DELETED);
-                        ut.setId(tagId);
-                        tagMapper.updateById(ut);
-                    }
+                /*
+                    check if the tag is still associated with other files, if not, we remove it
+                    remember, the tag is bound for a specific user only, so this doesn't affect
+                    other users
+                 */
+                Integer anyId = fileTagMapper.selectAndConvert(new LambdaQueryWrapper<FileTag>()
+                        .select(FileTag::getId)
+                        .eq(FileTag::getTagId, tagId)
+                        .eq(FileTag::getIsDel, IsDel.NORMAL)
+                        .last("limit 1"), FileTag::getId);
+                if (anyId == null) {
+                    Tag ut = new Tag();
+                    ut.setIsDel(IsDel.DELETED);
+                    ut.setId(tagId);
+                    tagMapper.updateById(ut);
                 }
             }
         } finally {
@@ -696,7 +629,7 @@ public class FileServiceImpl implements FileService {
                 .select(FileInfo::getId)
                 .eq(FileInfo::getId, fileId)
                 .eq(FileInfo::getUploaderId, userId)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                 .last("limit 1")) != null;
     }
 
@@ -706,7 +639,7 @@ public class FileServiceImpl implements FileService {
                 .select(FileInfo::getId)
                 .eq(FileInfo::getUuid, uuid)
                 .eq(FileInfo::getUploaderId, userId)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                 .last("limit 1")) != null;
     }
 
@@ -726,15 +659,15 @@ public class FileServiceImpl implements FileService {
         FileInfo dir = new FileInfo();
         dir.setName(r.getName());
         dir.setUuid(fileKey);
-        dir.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-        dir.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+        dir.setIsLogicDeleted(FLogicDelete.NORMAL);
+        dir.setIsPhysicDeleted(FPhysicDelete.NORMAL);
         dir.setSizeInBytes(0L);
         dir.setUploaderId(r.getUploaderId());
         dir.setUploaderName(r.getUploaderName());
         dir.setUploadTime(LocalDateTime.now());
 
-        if (r.getUserGroup() == null) r.setUserGroup(FileUserGroupEnum.PRIVATE.getValue());
-        else AssertUtils.notNull(FileUserGroupEnum.parse(r.getUserGroup()));
+        if (r.getUserGroup() == null) r.setUserGroup(FUserGroup.PRIVATE);
+        else AssertUtils.notNull(r.getUserGroup());
 
         dir.setUserGroup(r.getUserGroup());
         dir.setFileType(FileType.DIR);
@@ -748,7 +681,7 @@ public class FileServiceImpl implements FileService {
                 .select(FileInfo::getId, FileInfo::getUuid, FileInfo::getName)
                 .eq(FileInfo::getUploaderId, userId)
                 .eq(FileInfo::getFileType, FileType.DIR)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL));
         return BeanCopyUtils.toTypeList(fileInfos, ListDirVo.class);
     }
@@ -760,7 +693,7 @@ public class FileServiceImpl implements FileService {
                 .select(select)
                 .eq(FileInfo::getParentFile, fileKey)
                 .eq(FileInfo::getFileType, FileType.FILE)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL)
                 .last(PagingUtil.limit(offset, limit)), select);
     }
@@ -772,7 +705,7 @@ public class FileServiceImpl implements FileService {
                 .eq(FileInfo::getName, filename)
                 .eq(FileInfo::getUploaderId, userId)
                 .eq(FileInfo::getFileType, FileType.FILE)
-                .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL)
                 .last("limit 1")) != null;
     }
@@ -844,14 +777,14 @@ public class FileServiceImpl implements FileService {
             // if compression was successful
             if (size > -1) {
                 FileInfo f = new FileInfo();
-                f.setIsLogicDeleted(FileLogicDeletedEnum.NORMAL.getValue());
-                f.setIsPhysicDeleted(FilePhysicDeletedEnum.NORMAL.getValue());
+                f.setIsLogicDeleted(FLogicDelete.NORMAL);
+                f.setIsPhysicDeleted(FPhysicDelete.NORMAL);
                 f.setName(zipFileName);
                 f.setUploaderId(user.getUserId());
                 f.setUploaderName(user.getUsername());
                 f.setUploadTime(LocalDateTime.now());
                 f.setUuid(fileKey);
-                f.setUserGroup(FileUserGroupEnum.PRIVATE.getValue());
+                f.setUserGroup(FUserGroup.PRIVATE);
                 f.setSizeInBytes(size);
                 f.setFsGroupId(fsGroup.getId());
                 _doInsertFileInfo(f, user.getUserNo());
@@ -871,7 +804,7 @@ public class FileServiceImpl implements FileService {
             Paginator<FileInfo> paginator = new Paginator<>(p ->
                     fileInfoMapper.selectList(
                             MapperUtils.select(FileInfo::getId, FileInfo::getUuid, FileInfo::getUploaderId)
-                                    .eq(FileInfo::getIsLogicDeleted, FileLogicDeletedEnum.NORMAL.getValue())
+                                    .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
                                     .orderByAsc(FileInfo::getId) // make the old ones are generated first
                                     .last(PagingUtil.limit(p.getOffset(), p.getLimit()))))
                     .pageSize(100);
@@ -965,17 +898,15 @@ public class FileServiceImpl implements FileService {
     }
 
     private FileTag selectFileTag(final int fileId, final int tagId) {
-        final QueryWrapper<FileTag> cond = new QueryWrapper<FileTag>()
-                .eq("file_id", fileId)
-                .eq("tag_id", tagId);
-        return fileTagMapper.selectOne(cond);
+        return fileTagMapper.selectOne(MapperUtils
+                .eq(FileTag::getFileId, fileId)
+                .eq(FileTag::getTagId, tagId));
     }
 
     private Tag selectTag(final int userId, final String name) {
-        final QueryWrapper<Tag> cond = new QueryWrapper<Tag>()
-                .eq("user_id", userId)
-                .eq("name", name);
-        return tagMapper.selectOne(cond);
+        return tagMapper.selectOne(MapperUtils
+                .eq(Tag::getUserId, userId)
+                .eq(Tag::getName, name));
     }
 
     /**
@@ -1000,13 +931,10 @@ public class FileServiceImpl implements FileService {
 
         // update is_del back to normal
         if (selected.isDeleted()) {
-            final Tag updated = new Tag();
-            updated.setIsDel(IsDel.NORMAL);
-
-            final QueryWrapper<Tag> cond = new QueryWrapper<Tag>()
-                    .eq("id", selected.getId())
-                    .eq("is_del", IsDel.DELETED.getValue());
-            tagMapper.update(updated, cond);
+            tagMapper.update(MapperUtils
+                    .set(Tag::getIsDel, IsDel.NORMAL.getValue())
+                    .eq(Tag::getId, selected.getId())
+                    .eq(Tag::getIsDel, IsDel.DELETED.getValue()));
         }
 
         return selected.getId();

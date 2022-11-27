@@ -1,23 +1,27 @@
 package com.yongj.enums;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.curtisnewbie.common.enums.IntEnum;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * Enum for file_info.is_logic_deleted
  *
  * @author yongjie.zhuang
  */
-public enum FileLogicDeletedEnum implements IntEnum {
+public enum FLogicDelete implements IntEnum {
 
     /** Normal */
     NORMAL(0),
 
     /** Logically deleted */
-    LOGICALLY_DELETED(1);
+    DELETED(1);
 
+    @JsonValue
+    @EnumValue
     private final int value;
 
-    FileLogicDeletedEnum(int v) {
+    FLogicDelete(int v) {
         this.value = v;
     }
 

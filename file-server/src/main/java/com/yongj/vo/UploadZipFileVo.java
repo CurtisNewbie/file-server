@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.FUserGroup;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +22,7 @@ public class UploadZipFileVo {
     private String username;
 
     /** user group */
-    private FileUserGroupEnum userGroup;
+    private FUserGroup userGroup;
 
     /** zip file's name */
     private String zipFile;

@@ -13,14 +13,13 @@ import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationExcep
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdReq;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByIdResp;
-import com.yongj.converters.FileInfoConverter;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.FileExtension;
 import com.yongj.dao.FileInfo;
 import com.yongj.enums.FExtIsEnabled;
-import com.yongj.enums.FileLogicDeletedEnum;
-import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.FLogicDelete;
+import com.yongj.enums.FUserGroup;
 import com.yongj.enums.TokenType;
 import com.yongj.io.PathResolver;
 import com.yongj.io.operation.MediaStreamingUtils;
@@ -65,7 +64,6 @@ import static com.curtisnewbie.common.trace.TraceUtils.tUser;
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
 import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
-import static com.curtisnewbie.common.util.BeanCopyUtils.mapTo;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
 import static com.curtisnewbie.common.util.Runner.runSafely;
@@ -74,6 +72,7 @@ import static com.curtisnewbie.common.util.Runner.runSafely;
  * @author yongjie.zhuang
  */
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("${web.base-path}/file")
 public class FileController {
@@ -92,8 +91,6 @@ public class FileController {
     private FileService fileInfoService;
     @Autowired
     private TempTokenFileDownloadService tempTokenFileDownloadService;
-    @Autowired
-    private FileInfoConverter fileInfoConverter;
     @Autowired
     private FileSharingConverter fileSharingConverter;
     @Autowired
@@ -126,7 +123,7 @@ public class FileController {
                                      @RequestHeader(value = "ignoreOnDupName", required = false, defaultValue = "true") boolean ignoreOnDupName,
                                      HttpServletRequest request) throws IOException, ExecutionException, InterruptedException {
 
-        final FileUserGroupEnum userGroup = FileUserGroupEnum.from(userGroupInt);
+        final FUserGroup userGroup = FUserGroup.from(userGroupInt);
         nonNull(userGroup, "Incorrect user group");
         hasText(fileName, "File name can't be empty");
         fileName = URLDecoder.decode(fileName, "UTF-8");
@@ -203,7 +200,7 @@ public class FileController {
                                @RequestParam(value = "tag", required = false) @Nullable String[] tags,
                                @RequestParam("userGroup") int userGroup) throws IOException {
 
-        final FileUserGroupEnum userGroupEnum = FileUserGroupEnum.parse(userGroup);
+        final FUserGroup userGroupEnum = FUserGroup.parse(userGroup);
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
         AssertUtils.notEmpty(multipartFiles, "No file uploaded");
         hasText(fileName, "File name can't be empty");
@@ -309,7 +306,7 @@ public class FileController {
     @LogOperation(name = "makeDir", description = "Make directory")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/make-dir")
-    public DeferredResult<Result<String>> makeDir(@RequestBody MakeDirReqVo r) {
+    public DeferredResult<Result<String>> makeDir(@RequestBody @Valid MakeDirReqVo r) {
         return runAsyncResult(() -> {
             final TUser user = tUser();
             r.setUserNo(user.getUserNo());
@@ -326,10 +323,9 @@ public class FileController {
     @LogOperation(name = "grantAccessToUser", description = "Grant file access")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/grant-access")
-    public DeferredResult<Result<Void>> grantAccessToUser(@RequestBody GrantAccessToUserReqVo v) {
+    public DeferredResult<Result<Void>> grantAccessToUser(@RequestBody @Valid GrantAccessToUserReqVo v) {
         return runAsync(() -> {
             final TUser tUser = tUser();
-            v.validate();
             final String grantedToUsername = v.getGrantedTo();
             final Result<Integer> result = userServiceFeign.findIdByUsername(grantedToUsername);
             result.assertIsOk();
@@ -410,8 +406,7 @@ public class FileController {
         if (log.isDebugEnabled()) log.debug("List files, req: {}, user: {}", req, user.getUserNo());
 
         return runAsyncResult(() -> {
-
-            final PageableList<FileInfoVo> pl;
+            final PageableList<FileInfoWebVo> pl;
             // folder mode
             if (StringUtils.hasText(req.getFolderNo())) {
                 ListVFolderFilesReq fr = new ListVFolderFilesReq();
@@ -426,7 +421,7 @@ public class FileController {
                 req.setUserNo(user.getUserNo());
                 pl = fileInfoService.findPagedFilesForUser(req);
             }
-            return PageableList.from(mapTo(pl.getPayload(), fileInfoConverter::toWebVo), pl.getPagingVo());
+            return pl;
         });
     }
 
@@ -504,7 +499,7 @@ public class FileController {
             fileInfoService.updateFile(UpdateFileCmd.builder()
                     .id(reqVo.getId())
                     .fileName(reqVo.getName())
-                    .userGroup(EnumUtils.parse(reqVo.getUserGroup(), FileUserGroupEnum.class))
+                    .userGroup(reqVo.getUserGroup())
                     .updatedById(tUser.getUserId())
                     .build());
         });
@@ -550,7 +545,7 @@ public class FileController {
         FileInfo fi = fileInfoService.findById(id);
         notNull(fi, "File not found");
 
-        if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
+        if (!Objects.equals(fi.getIsLogicDeleted(), FLogicDelete.NORMAL)) {
             // remove the token
             tempTokenFileDownloadService.removeToken(token);
             throw new UnrecoverableException("File is deleted already");
@@ -577,7 +572,7 @@ public class FileController {
         FileInfo fi = fileInfoService.findById(id);
         notNull(fi, "File not found");
 
-        if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
+        if (!Objects.equals(fi.getIsLogicDeleted(), FLogicDelete.NORMAL)) {
             // remove the token
             tempTokenFileDownloadService.removeToken(token);
             throw new UnrecoverableException("File is deleted already");
@@ -601,7 +596,7 @@ public class FileController {
         FileInfo fi = fileInfoService.findById(id);
         notNull(fi, "File not found");
 
-        if (!Objects.equals(fi.getIsLogicDeleted(), FileLogicDeletedEnum.NORMAL.getValue())) {
+        if (!Objects.equals(fi.getIsLogicDeleted(), FLogicDelete.NORMAL)) {
             // remove the token
             tempTokenFileDownloadService.removeToken(token);
             throw new UnrecoverableException("File is deleted already");

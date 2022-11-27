@@ -17,7 +17,7 @@ public class SelectFileInfoListParam {
     private Integer userId;
 
     /** the group that the file belongs to, 0-public, 1-private */
-    private Integer userGroup;
+    private FUserGroup userGroup;
 
     /** name of the file */
     private String filename;

@@ -2,12 +2,12 @@ package com.yongj.vo;
 
 import com.curtisnewbie.common.vo.PageableVo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.yongj.enums.*;
+import com.yongj.enums.FOwnership;
+import com.yongj.enums.FUserGroup;
+import com.yongj.enums.FileType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Objects;
 
 /**
  * @author yongjie.zhuang
@@ -18,13 +18,13 @@ import java.util.Objects;
 public class ListFileInfoReqVo extends PageableVo {
 
     /** the group that the file belongs to, 0-public, 1-private */
-    private Integer userGroup;
+    private FUserGroup userGroup;
 
     /** name of the file */
     private String filename;
 
     /** ownership of file, 0-all files, 1-files that belong to current users */
-    private Integer ownership;
+    private FOwnership ownership;
 
     /** id of the user */
     @JsonIgnore
@@ -50,7 +50,7 @@ public class ListFileInfoReqVo extends PageableVo {
      * Check whether we are only requesting files that we own
      */
     public boolean filterForOwnedFilesOnly() {
-        return ownership != null && Objects.equals(FileOwnership.parse(ownership), FileOwnership.FILES_OF_THE_REQUESTER);
+        return ownership != null && ownership == FOwnership.FILES_OF_THE_REQUESTER;
     }
 
 }

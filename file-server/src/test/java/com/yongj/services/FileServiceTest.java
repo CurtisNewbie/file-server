@@ -99,7 +99,7 @@ public class FileServiceTest {
                     .userId(TEST_USER_ID)
                     .username("zhuangyongj")
                     .zipFile(UPLOADED_TEST_FILE_ZIP)
-                    .userGroup(FileUserGroupEnum.PRIVATE)
+                    .userGroup(FUserGroup.PRIVATE)
                     .multipartFiles(new MultipartFile[]{mf, mf1})
                     .build());
             Assertions.assertNotNull(fi, "No FileInfo returned");
@@ -192,7 +192,7 @@ public class FileServiceTest {
             fileInfoService.deleteFileLogically(TEST_USER_ID, fi.getUuid());
             FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
-            Assertions.assertEquals(sfi.getIsLogicDeleted(), FileLogicDeletedEnum.LOGICALLY_DELETED.getValue());
+            Assertions.assertEquals(sfi.getIsLogicDeleted(), FLogicDelete.DELETED.getValue());
         });
 
         doCleanUp(fi);
@@ -210,7 +210,7 @@ public class FileServiceTest {
             fileInfoService.markFileDeletedPhysically(fi.getId(), fi.getUuid());
             FileInfo sfi = fileInfoMapper.selectById(fi.getId());
             Assertions.assertNotNull(sfi);
-            Assertions.assertEquals(sfi.getIsPhysicDeleted(), FilePhysicDeletedEnum.PHYSICALLY_DELETED.getValue());
+            Assertions.assertEquals(sfi.getIsPhysicDeleted(), FPhysicDelete.DELETED.getValue());
         });
 
         doCleanUp(fi);
@@ -246,7 +246,7 @@ public class FileServiceTest {
                 .fileName(fileName)
                 .userNo("userno")
                 .username("zhuangyongj")
-                .userGroup(FileUserGroupEnum.PRIVATE)
+                .userGroup(FUserGroup.PRIVATE)
                 .inputStream(inputStream)
                 .build());
     }

@@ -2,15 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yongj.dao.VFolderMapper">
 
-  <select id="findVFolderForUser" resultType="com.yongj.dao.VFolder">
-    select vf.* from vfolder vf
-    left join user_vfolder uv on (vf.folder_no = uv.folder_no and uv.is_del = 0)
-    where vf.is_del = 0
-    and uv.user_no = #{userNo}
-    and uv.folder_no = #{folderNo}
-    limit 1
-  </select>
-
   <select id="findIdForFolderWithName" resultType="java.lang.Integer">
     select vf.id from vfolder vf
     left join user_vfolder uv on (vf.folder_no = uv.folder_no and uv.is_del = 0)
@@ -29,9 +20,10 @@
     <if test="r.name != null and r.name != ''">
       and f.name like "%"#{r.name}"%"
     </if>
+    order by id desc
   </select>
 
-  <select id="listFilesInVFolders" resultType="com.yongj.vo.FileInfoVo">
+  <select id="listFilesInVFolders" resultType="com.yongj.vo.FileInfoWebVo">
     select fi.id, fi.name, fi.uuid, fi.size_in_bytes, fi.user_group, fi.uploader_id, fi.uploader_name, fi.upload_time,
       fi.file_type, fi.update_time
     from file_info fi

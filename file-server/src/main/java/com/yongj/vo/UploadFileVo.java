@@ -1,6 +1,6 @@
 package com.yongj.vo;
 
-import com.yongj.enums.FileUserGroupEnum;
+import com.yongj.enums.FUserGroup;
 import lombok.Builder;
 import lombok.Data;
 
@@ -30,7 +30,7 @@ public class UploadFileVo {
 
     /** user group */
     @NotNull
-    private FileUserGroupEnum userGroup;
+    private FUserGroup userGroup;
 
     /** input stream */
     @NotNull

@@ -2,7 +2,7 @@ package com.yongj.dao;
 
 import com.curtisnewbie.common.util.EnhancedMapper;
 import com.yongj.vo.FileDownloadValidInfo;
-import com.yongj.vo.FileInfoVo;
+import com.yongj.vo.FileInfoWebVo;
 import com.yongj.vo.SelectFileInfoListParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,14 +14,14 @@ import java.util.List;
  */
 public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
 
-    List<FileInfoVo> selectFileListForUserSelective(@Param("offset") long offset, @Param("limit") long limit, @Param("p") SelectFileInfoListParam param);
+    List<FileInfoWebVo> selectFileListForUserSelective(@Param("offset") long offset, @Param("limit") long limit, @Param("p") SelectFileInfoListParam param);
 
     /**
      * Count for {@link #selectFileListForUserSelective(long, long, SelectFileInfoListParam)}
      */
     long countFileListForUserSelective(@Param("p") SelectFileInfoListParam param);
 
-    List<FileInfoVo> selectFileListForUserAndTag(@Param("offset") long offset, @Param("limit") long limit, @Param("p") SelectFileInfoListParam param);
+    List<FileInfoWebVo> selectFileListForUserAndTag(@Param("offset") long offset, @Param("limit") long limit, @Param("p") SelectFileInfoListParam param);
 
     /**
      * Count for {@link #selectFileListForUserAndTag(long, long, SelectFileInfoListParam)} 

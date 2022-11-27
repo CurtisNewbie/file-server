@@ -1,5 +1,6 @@
 package com.yongj.config;
 
+import com.curtisnewbie.common.formatters.LocalDateTimeEpochFormatter;
 import com.curtisnewbie.common.util.AsyncUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -7,6 +8,7 @@ import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -52,6 +54,11 @@ public class AsyncConfig implements AsyncConfigurer {
                 configurer.setDefaultTimeout(360_000).setTaskExecutor(taskExecutor);
                 configurer.registerCallableInterceptors(callableProcessingInterceptor);
                 WebMvcConfigurer.super.configureAsyncSupport(configurer);
+            }
+
+            @Override
+            public void addFormatters(FormatterRegistry registry) {
+                registry.addFormatter(new LocalDateTimeEpochFormatter());
             }
         };
     }

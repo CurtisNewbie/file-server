@@ -28,8 +28,8 @@ public class VFolderQueryServiceImpl implements VFolderQueryService {
     }
 
     @Override
-    public PageableList<FileInfoVo> listFilesInFolder(ListVFolderFilesReq req) {
-        final Page<FileInfoVo> page = vFolderMapper.listFilesInVFolders(req.page(), req);
+    public PageableList<FileInfoWebVo> listFilesInFolder(ListVFolderFilesReq req) {
+        final Page<FileInfoWebVo> page = vFolderMapper.listFilesInVFolders(req.page(), req);
         page.getRecords().forEach(v -> v.setIsOwner(Objects.equals(v.getUploaderId(), req.getUserId())));
         return PageableList.from(page);
     }
