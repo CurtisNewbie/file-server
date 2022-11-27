@@ -48,7 +48,7 @@ public class MvcAsyncConfig implements AsyncConfigurer {
 
     /** Configure async support for Spring MVC. */
     @Bean
-    public WebMvcConfigurer webMvcConfigurerConfigurer(AsyncTaskExecutor taskExecutor, CallableProcessingInterceptor callableProcessingInterceptor) {
+    public WebMvcConfigurer webMvcConfigurer(AsyncTaskExecutor taskExecutor, CallableProcessingInterceptor callableProcessingInterceptor) {
         return new WebMvcConfigurer() {
             @Override
             public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
