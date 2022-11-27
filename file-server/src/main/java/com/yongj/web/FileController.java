@@ -306,13 +306,16 @@ public class FileController {
     @LogOperation(name = "makeDir", description = "Make directory")
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/make-dir")
-    public DeferredResult<Result<String>> makeDir(@RequestBody @Valid MakeDirReqVo r) {
+    public DeferredResult<Result<String>> makeDir(@RequestBody MakeDirReqVo req) {
         return runAsyncResult(() -> {
             final TUser user = tUser();
-            r.setUserNo(user.getUserNo());
-            r.setUploaderId(user.getUserId());
-            r.setUploaderName(user.getUsername());
-            final FileInfo dir = fileInfoService.mkdir(r);
+            MakeDirCmd cmd = new MakeDirCmd();
+            cmd.setUserNo(user.getUserNo());
+            cmd.setUploaderId(user.getUserId());
+            cmd.setUploaderName(user.getUsername());
+            cmd.setName(req.getName());
+            cmd.setUserGroup(req.getUserGroup());
+            final FileInfo dir = fileInfoService.mkdir(cmd);
             return dir.getUuid();
         });
     }

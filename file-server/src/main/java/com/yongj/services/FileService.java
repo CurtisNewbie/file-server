@@ -200,7 +200,7 @@ public interface FileService {
     /**
      * Make Directory
      */
-    FileInfo mkdir(@NotNull @Valid MakeDirReqVo req);
+    FileInfo mkdir(@NotNull @Valid MakeDirCmd req);
 
     /**
      * List DIR type files

@@ -653,7 +653,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public FileInfo mkdir(MakeDirReqVo r) {
+    public FileInfo mkdir(MakeDirCmd r) {
         final String fileKey = fileKeyGenerator.generate();
 
         FileInfo dir = new FileInfo();

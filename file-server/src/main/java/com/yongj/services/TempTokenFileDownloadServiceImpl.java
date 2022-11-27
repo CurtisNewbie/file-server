@@ -4,8 +4,6 @@ import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.enums.TokenType;
-import com.yongj.util.NumberTokenGenerator;
-import com.yongj.util.TokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,9 +20,6 @@ import static com.curtisnewbie.common.util.AssertUtils.isTrue;
 @Service
 @Slf4j
 public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadService {
-
-    private static final int TOKEN_LEN = 15;
-    private final TokenGenerator tokenGenerator = new NumberTokenGenerator();
 
     @Autowired
     private RedisController redisController;
