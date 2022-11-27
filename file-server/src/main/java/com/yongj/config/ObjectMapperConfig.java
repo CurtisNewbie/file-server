@@ -15,6 +15,6 @@ public class ObjectMapperConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return JsonUtils.constructsJsonMapper();
+        return JsonUtils.constructsEpochJsonMapper();
     }
 }
