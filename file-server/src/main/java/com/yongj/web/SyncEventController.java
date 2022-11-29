@@ -18,11 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -59,12 +56,13 @@ public class SyncEventController {
         curl -X POST http://localhost:8080/open/api/sync/event/poll -H 'content-type: application/json' -d '{ "secret" : "123456", "eventId": "0", "limit": "10" }'
      */
     @PostMapping("/event/poll")
-    public DeferredResult<Result<List<FileEventVo>>> pollEvents(@RequestBody PollFileEventReq req, @Header("x-forwarded-for") String[] xForwardedFor,
+    public DeferredResult<Result<List<FileEventVo>>> pollEvents(@RequestBody PollFileEventReq req,
+                                                                @RequestHeader(value = "x-forwarded-for", required = false) String forwardedFor,
                                                                 HttpServletRequest hsr) {
         log.info("Received pollEvents request, req: {}", req);
         return AsyncUtils.runAsync(() -> {
             // validation
-            final Result<?> err = preRequest(req, xForwardedFor, hsr.getRemoteAddr());
+            final Result<?> err = preRequest(req, forwardedFor, hsr.getRemoteAddr());
             if (err != null) return (Result<List<FileEventVo>>) err;
 
             if (req.getEventId() == null || req.getEventId() < 0L) req.setEventId(0L);
@@ -77,12 +75,13 @@ public class SyncEventController {
         curl -X POST http://localhost:8080/open/api/sync/file/info -H 'content-type: application/json' -d '{ "secret" : "123456", "fileKey": "e2e63cfd-a7fa-4b8a-9cb4-3a6f85991e3b" }'
      */
     @PostMapping("/file/info")
-    public DeferredResult<Result<FileInfoResp>> getSyncFileInfo(@RequestBody SyncFileInfoReq r, @Header("x-forwarded-for") String[] xForwardedFor,
-                                                                    HttpServletRequest hsr) {
+    public DeferredResult<Result<FileInfoResp>> getSyncFileInfo(@RequestBody SyncFileInfoReq r,
+                                                                @RequestHeader(value = "x-forwarded-for", required = false) String forwardedFor,
+                                                                HttpServletRequest hsr) {
         log.info("Received getSyncFileInfo request, req: {}", r);
         return AsyncUtils.runAsync(() -> {
             // validation
-            final Result<?> err = preRequest(r, xForwardedFor, hsr.getRemoteAddr());
+            final Result<?> err = preRequest(r, forwardedFor, hsr.getRemoteAddr());
             if (err != null) return (Result<FileInfoResp>) err;
 
             return Result.of(fileService.findRespByKey(r.getFileKey()));
@@ -93,10 +92,11 @@ public class SyncEventController {
         curl -X POST http://localhost:8080/open/api/sync/file/download -H 'content-type: application/json' -d '{ "secret" : "123456", "fileKey": "e2e63cfd-a7fa-4b8a-9cb4-3a6f85991e3b" }' -o temp.png
      */
     @PostMapping("/file/download")
-    public StreamingResponseBody download(@RequestBody SyncFileInfoReq r, @Header("x-forwarded-for") String[] xForwardedFor, HttpServletResponse resp,
-                                          HttpServletRequest hsr) {
+    public StreamingResponseBody download(@RequestBody SyncFileInfoReq r,
+                                          @RequestHeader(value = "x-forwarded-for", required = false) String forwardedFor,
+                                          HttpServletResponse resp, HttpServletRequest hsr) {
         // validation
-        final Result<?> err = preRequest(r, xForwardedFor, hsr.getRemoteAddr());
+        final Result<?> err = preRequest(r, forwardedFor, hsr.getRemoteAddr());
         if (err != null) err.assertIsOk();
 
         final FileInfo fi = fileService.findByKey(r.getFileKey());
@@ -118,11 +118,22 @@ public class SyncEventController {
 
     /** Validate the request, return error Result if validation fails, else return null */
     @Nullable
-    private Result<?> preRequest(EventSyncReq r, String[] xForwardedFor, String remoteAddr) {
+    private Result<?> preRequest(EventSyncReq r, String xForwardedFor, String remoteAddr) {
+        log.info("preRequest: {}, xForwardedFor: {}, remoteAddr: {}", r, xForwardedFor, remoteAddr);
+
         notNull(r);
         if (!eventSyncConfig.isEnabled()) return Result.error("Event sync disabled");
 
-        final String clientIp = (xForwardedFor == null || xForwardedFor.length < 1) ? remoteAddr : xForwardedFor[0];
+        final String clientIp;
+        if (!StringUtils.hasText(xForwardedFor))
+            clientIp = remoteAddr;
+        else {
+            final String[] splited = xForwardedFor.split(",");
+            if (splited.length < 1)
+                clientIp = remoteAddr;
+            else
+                clientIp = splited[0];
+        }
         if (!eventSyncConfig.permitIpAddress(clientIp)) {
             log.warn("Received pollEvents request, ip address not permitted (clientIp: '{}'), request rejected", clientIp);
             return Result.error("Not permitted");
