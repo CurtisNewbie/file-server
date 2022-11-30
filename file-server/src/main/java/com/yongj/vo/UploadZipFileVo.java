@@ -3,6 +3,7 @@ package com.yongj.vo;
 import com.yongj.enums.FUserGroup;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.lang.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -28,4 +29,8 @@ public class UploadZipFileVo {
     private String zipFile;
 
     private MultipartFile[] multipartFiles;
+
+    /** Key of parent file */
+    @Nullable
+    private String parentFile;
 }

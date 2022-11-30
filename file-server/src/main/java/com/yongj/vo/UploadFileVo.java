@@ -3,6 +3,7 @@ package com.yongj.vo;
 import com.yongj.enums.FUserGroup;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.lang.*;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -35,4 +36,8 @@ public class UploadFileVo {
     /** input stream */
     @NotNull
     private InputStream inputStream;
+
+    /** Key of parent file */
+    @Nullable
+    private String parentFile;
 }

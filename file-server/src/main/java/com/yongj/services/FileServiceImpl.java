@@ -184,6 +184,12 @@ public class FileServiceImpl implements FileService {
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
         _doInsertFileInfo(f, param.getUserNo());
+
+        // move file into dir
+        if (StringUtils.hasText(param.getParentFile())) {
+            _doMoveFileIntoDir(uploaderId, fileKey, param.getParentFile());
+        }
+
         return f;
     }
 
@@ -229,6 +235,12 @@ public class FileServiceImpl implements FileService {
         f.setSizeInBytes(sizeInBytes);
         f.setFsGroupId(fsGroup.getId());
         _doInsertFileInfo(f, param.getUserNo());
+
+        // move file into dir
+        if (StringUtils.hasText(param.getParentFile())) {
+            _doMoveFileIntoDir(userId, fileKey, param.getParentFile());
+        }
+
         return f;
     }
 
@@ -882,7 +894,7 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * delete userFileAccess, this method doesn't have lock internally, but it needs one
+     * delete userFileAccess, this method doesn't obtain lock internally, lock should be obtained before calling this method
      * <p>
      * see {@link LockKeys#fileAccessKeySup}
      */

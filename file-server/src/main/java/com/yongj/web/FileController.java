@@ -153,6 +153,7 @@ public class FileController {
                 .fileName(fileName)
                 .userGroup(userGroup)
                 .inputStream(request.getInputStream())
+                .parentFile(parentFile)
                 .build());
         log.info("File uploaded and persisted in database, file_info: {}", f);
 
@@ -160,13 +161,6 @@ public class FileController {
         final Span span = tracer.nextSpan();
         CompletableFuture.runAsync(() -> {
             try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-                // move file to dir
-                runSafely(() -> {
-                    if (StringUtils.hasText(parentFile)) {
-                        fileInfoService.moveFileInto(tUser.getUserId(), f.getUuid(), parentFile);
-                    }
-                }, e -> log.error("Failed to move file {} ({}) to dir {}", f.getName(), f.getUuid(), parentFile, e));
-
                 // add tags
                 if (tags != null && tags.length > 0) {
                     // todo repeated code :D
@@ -196,6 +190,7 @@ public class FileController {
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<Void> upload(@RequestParam("fileName") String fileName,
                                @RequestParam("file") MultipartFile[] multipartFiles,
+                               @RequestParam(value = "parentFile", required = false) String parentFile,
                                @RequestParam(value = "tag", required = false) @Nullable String[] tags,
                                @RequestParam("userGroup") int userGroup) throws IOException {
 
@@ -225,6 +220,7 @@ public class FileController {
                                 .fileName(fileName)
                                 .userGroup(userGroupEnum)
                                 .inputStream(multipartFiles[0].getInputStream())
+                                .parentFile(parentFile)
                                 .build());
                     } else {
                         /*
@@ -238,6 +234,7 @@ public class FileController {
                                 .zipFile(fileName)
                                 .userGroup(userGroupEnum)
                                 .multipartFiles(multipartFiles)
+                                .parentFile(parentFile)
                                 .build());
                     }
                 }));
