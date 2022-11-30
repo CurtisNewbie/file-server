@@ -14,6 +14,10 @@ import javax.validation.constraints.NotNull;
 @Data
 public class MakeDirCmd {
 
+    /** Key of parent file */
+    @Nullable
+    private String parentFile;
+
     /** name of the directory */
     @NotEmpty
     private String name;

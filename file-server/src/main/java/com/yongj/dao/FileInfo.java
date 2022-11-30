@@ -6,6 +6,7 @@ import com.curtisnewbie.common.dao.DaoSkeleton;
 import com.yongj.enums.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -71,5 +72,9 @@ public class FileInfo extends DaoSkeleton {
 
     public boolean isDir() {
         return fileType == FileType.DIR;
+    }
+
+    public boolean belongsTo(int userId) {
+        return this.uploaderId != null && this.uploaderId == userId;
     }
 }

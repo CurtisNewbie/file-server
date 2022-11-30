@@ -13,6 +13,10 @@ import javax.validation.constraints.*;
 @Data
 public class MakeDirReqVo {
 
+    /** Key of parent file */
+    @Nullable
+    private String parentFile;
+
     /** name of the directory */
     @NotEmpty
     private String name;

@@ -314,6 +314,7 @@ public class FileController {
             cmd.setUploaderName(user.getUsername());
             cmd.setName(req.getName());
             cmd.setUserGroup(req.getUserGroup());
+            cmd.setParentFile(req.getParentFile());
             final FileInfo dir = fileInfoService.mkdir(cmd);
             return dir.getUuid();
         });

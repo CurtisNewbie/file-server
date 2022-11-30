@@ -400,19 +400,30 @@ public class FileServiceImpl implements FileService {
                 return;
             }
 
-            // lock the parent dir, and move current file/dir into the parent dir
-            LockUtils.lockAndRun(getFileLock(parentFileUuid), () -> {
-                final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
-                        .eq(FileInfo::getUuid, parentFileUuid)
-                        .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
-                nonNull(dir, "Directory not found");
-                isTrue(dir.isDir(), "Target file is not a directory");
-                AssertUtils.equals(userId, (int) dir.getUploaderId(), "You are not the owner of this directory");
+            // Move current file into dir
+            _doMoveFileIntoDir(userId, uuid, parentFileUuid);
+        });
+    }
 
-                fileInfoMapper.update(null, Wrappers.lambdaUpdate(FileInfo.class)
-                        .set(FileInfo::getParentFile, parentFileUuid)
-                        .eq(FileInfo::getUuid, uuid));
-            });
+    /**
+     * Move current file into dir
+     * <p>
+     * Before calling this method, current file must be locked
+     */
+    protected void _doMoveFileIntoDir(int userId, String currFileKey, String parentFileKey) {
+        // lock the parent dir, and move current file/dir into the parent dir
+        LockUtils.lockAndRun(getFileLock(parentFileKey), () -> {
+            final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
+                    .eq(FileInfo::getUuid, parentFileKey)
+                    .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
+
+            nonNull(dir, "Directory not found");
+            isTrue(dir.isDir(), "Target file is not a directory");
+            AssertUtils.isTrue(dir.belongsTo(userId), "You are not the owner of this directory");
+
+            fileInfoMapper.update(null, Wrappers.lambdaUpdate(FileInfo.class)
+                    .set(FileInfo::getParentFile, parentFileKey)
+                    .eq(FileInfo::getUuid, currFileKey));
         });
     }
 
@@ -654,6 +665,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @Transactional
     public FileInfo mkdir(MakeDirCmd r) {
         final String fileKey = fileKeyGenerator.generate();
 
@@ -673,6 +685,12 @@ public class FileServiceImpl implements FileService {
         dir.setUserGroup(r.getUserGroup());
         dir.setFileType(FileType.DIR);
         _doInsertFileInfo(dir, r.getUserNo());
+
+        // move the file into the directory
+        if (StringUtils.hasText(r.getParentFile())) {
+            _doMoveFileIntoDir(r.getUploaderId(), dir.getUuid(), dir.getParentFile());
+        }
+
         return dir;
     }
 
