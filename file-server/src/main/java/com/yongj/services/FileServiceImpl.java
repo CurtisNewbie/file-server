@@ -391,6 +391,8 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void moveFileInto(int userId, String uuid, String parentFileUuid) {
+        AssertUtils.notEquals(uuid, parentFileUuid, "Illegal Request");
+
         log.info("Moving file '{}' to '{}', userId: '{}'", uuid, parentFileUuid, userId);
         // lock the current file/dir
         LockUtils.lockAndRun(getFileLock(uuid), () -> {
@@ -423,6 +425,8 @@ public class FileServiceImpl implements FileService {
      * Before calling this method, current file must be locked
      */
     protected void _doMoveFileIntoDir(int userId, String currFileKey, String parentFileKey) {
+        if (Objects.equals(currFileKey, parentFileKey)) return;
+
         // lock the parent dir, and move current file/dir into the parent dir
         LockUtils.lockAndRun(getFileLock(parentFileKey), () -> {
             final FileInfo dir = fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
@@ -700,7 +704,7 @@ public class FileServiceImpl implements FileService {
 
         // move the file into the directory
         if (StringUtils.hasText(r.getParentFile())) {
-            _doMoveFileIntoDir(r.getUploaderId(), dir.getUuid(), dir.getParentFile());
+            _doMoveFileIntoDir(r.getUploaderId(), dir.getUuid(), r.getParentFile());
         }
 
         return dir;
