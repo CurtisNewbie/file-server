@@ -1,6 +1,7 @@
 package com.yongj.domain;
 
 import com.curtisnewbie.common.domain.Domain;
+import com.curtisnewbie.common.util.*;
 import com.yongj.dao.AppFile;
 import com.yongj.dao.AppFileMapper;
 import com.yongj.dao.FsGroup;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.UUID;
 
 import static com.curtisnewbie.common.util.AssertUtils.notNull;
 
@@ -35,6 +35,8 @@ import static com.curtisnewbie.common.util.AssertUtils.notNull;
 @Domain
 @Validated
 public class AppFileDomain {
+
+    public static final String APP_FILE_KEY_PRE = "AF";
 
     @Nullable
     private AppFile appFile;
@@ -64,14 +66,14 @@ public class AppFileDomain {
      */
     public String uploadAppFile(@Valid @NotNull UploadAppFileCmd cmd) throws IOException {
 
-        // gen uuid
-        final String uuid = UUID.randomUUID().toString();
+        // gen fileKey
+        final String fileKey = IdUtils.gen(APP_FILE_KEY_PRE);
 
         // resolve abs path
         final FsGroupType fst = FsGroupType.APP;
         final FsGroup fsGroup = writeFsGroupSupplier.supply(fst);
         notNull(fsGroup, "Writable FsGroup for type: %s is not found", fst);
-        final String absPath = pathResolver.resolveAbsolutePath(uuid, cmd.getAppName(), fsGroup.getBaseFolder());
+        final String absPath = pathResolver.resolveAbsolutePath(fileKey, cmd.getAppName(), fsGroup.getBaseFolder());
 
         // write the file and get the size of it
         final long size = ioHandler.writeFile(absPath, cmd.getInputStream());
@@ -79,14 +81,14 @@ public class AppFileDomain {
         // persist record
         AppFile appFile = new AppFile();
         appFile.setName(cmd.getFileName());
-        appFile.setUuid(uuid);
+        appFile.setUuid(fileKey);
         appFile.setSize(size);
         appFile.setAppName(cmd.getAppName());
         appFile.setUserId(cmd.getUserId());
         appFile.setFsGroupId(fsGroup.getId());
         appFileMapper.insert(appFile);
 
-        return uuid;
+        return fileKey;
     }
 
     /** Obtain an download info for the app file */

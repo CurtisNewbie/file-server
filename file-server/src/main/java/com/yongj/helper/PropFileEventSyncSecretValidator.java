@@ -1,11 +1,11 @@
 package com.yongj.helper;
 
+import com.curtisnewbie.common.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author yongj.zhuang
@@ -16,7 +16,7 @@ public class PropFileEventSyncSecretValidator implements FileEventSyncSecretVali
 
     public static final String FILE_EVENT_SYNC_SECRET_PROP = "event.sync.secret";
 
-    private final String inMemorySecret = UUID.randomUUID().toString();
+    private final String inMemorySecret = new RandTokenGenerator().generate();
     private final Environment environment;
 
     public PropFileEventSyncSecretValidator(Environment environment) {

@@ -1,15 +1,15 @@
 package com.yongj.services;
 
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
-import com.curtisnewbie.common.util.AssertUtils;
+import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.enums.TokenType;
+import com.yongj.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.curtisnewbie.common.util.AssertUtils.isTrue;
@@ -20,6 +20,8 @@ import static com.curtisnewbie.common.util.AssertUtils.isTrue;
 @Service
 @Slf4j
 public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadService {
+
+    private final RandTokenGenerator randTokenGenerator = new RandTokenGenerator();
 
     @Autowired
     private RedisController redisController;
@@ -37,8 +39,8 @@ public class TempTokenFileDownloadServiceImpl implements TempTokenFileDownloadSe
 
     @Override
     public String generateTempTokenForFile(int id, int minutes, TokenType tokenType) {
-        final String token = UUID.randomUUID().toString(); // UUID is much harder to predict (subjectively)
-        log.info("Generated token: {} for file's id: {}, exp: {} min", token, id, minutes);
+        final String token = randTokenGenerator.generate();
+        log.info("Generated token for file's id: {}, exp: {} min", id, minutes);
 
         isTrue(redisController.setIfNotExists(token, id + ":" + tokenType.name(), minutes, TimeUnit.MINUTES),
                 "Unable to generate token, please try again later");
