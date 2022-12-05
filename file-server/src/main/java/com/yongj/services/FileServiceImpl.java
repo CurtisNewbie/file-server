@@ -240,7 +240,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public PageableList<FileInfoWebVo> findPagedFilesForUser(@NotNull ListFileInfoReqVo reqVo) {
         SelectFileInfoListParam param = BeanCopyUtils.toType(reqVo, SelectFileInfoListParam.class);
         if (reqVo.filterForOwnedFilesOnly()) {
@@ -289,7 +288,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting() {
         List<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting();
         return BeanCopyUtils.toTypeList(dataList, PhysicDeleteFileVo.class);
@@ -307,7 +305,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findById(int id) {
         return fileInfoMapper.selectOne(MapperUtils.eq(FileInfo::getId, id)
                 .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
@@ -315,7 +312,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public FileInfo findByKey(String uuid) {
         LambdaQueryWrapper<FileInfo> cond = new LambdaQueryWrapper<FileInfo>()
                 .eq(FileInfo::getUuid, uuid)
@@ -337,7 +333,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(int id) throws IOException {
         return Files.newInputStream(resolveFilePath(id));
     }
@@ -350,7 +345,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public InputStream retrieveFileInputStream(String uuid) throws IOException {
         LambdaQueryWrapper<FileInfo> w = new LambdaQueryWrapper<FileInfo>()
                 .select(FileInfo::getId)
@@ -495,7 +489,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public PageableList<FileSharingVo> listGrantedAccess(int fileId, int requestUserId, @NotNull Page page) {
         Assert.isTrue(isFileOwner(requestUserId, fileId), "Only uploader can list granted access");
 
