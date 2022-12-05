@@ -233,4 +233,8 @@ public interface FileService {
      * Fetch events after the eventId (exclusive)
      */
     List<FileEventVo> fetchEventsAfter(long eventId, int limit);
+
+    /** Get parent file key */
+    @Nullable
+    ParentFileInfo getParentFileInfo(@NotEmpty String fileKey, @NotNull TUser user);
 }

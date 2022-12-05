@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -820,6 +819,25 @@ public class FileServiceImpl implements FileService {
                         .last("limit " + limit)),
                 e -> new FileEventVo(e.getId(), e.getType(), e.getFileKey())
         );
+    }
+
+    @Override
+    public ParentFileInfo getParentFileInfo(String fileKey, TUser user) {
+        final FileInfo fi = findByKey(fileKey);
+        Assert.notNull(fi, "File not found");
+
+        // dir is only visible to the uploader for now
+        Assert.isTrue(fi.belongsTo(user.getUserId()), "Not permitted");
+        var pfk = fi.getParentFile();
+        if (!StringUtils.hasText(pfk)) return null;
+
+        final FileInfo pf = findByKey(pfk);
+        if (pf == null) return null;
+
+        var pfi = new ParentFileInfo();
+        pfi.setFileKey(pfk);
+        pfi.setFileName(pf.getName());
+        return pfi;
     }
 
     // ------------------------------------- private helper methods ------------------------------------

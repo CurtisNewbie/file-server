@@ -5,7 +5,10 @@ import brave.Tracer;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.TUser;
-import com.curtisnewbie.common.util.*;
+import com.curtisnewbie.common.util.AssertUtils;
+import com.curtisnewbie.common.util.AsyncUtils;
+import com.curtisnewbie.common.util.BeanCopyUtils;
+import com.curtisnewbie.common.util.Runner;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
@@ -66,7 +69,6 @@ import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
 import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
 import static com.curtisnewbie.common.util.PagingUtil.convertPayload;
 import static com.curtisnewbie.common.util.PagingUtil.forPage;
-import static com.curtisnewbie.common.util.Runner.runSafely;
 
 /**
  * @author yongjie.zhuang
@@ -103,8 +105,16 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @GetMapping("/upload/duplication/preflight")
-    public Result<Boolean> handleDuplicateOnNamePreflightCheck(@RequestParam("fileName") String fileName) {
-        return Result.of(fileInfoService.filenameExists(fileName, tUser().getUserId()));
+    public DeferredResult<Result<Boolean>> handleDuplicateOnNamePreflightCheck(@RequestParam("fileName") String fileName) {
+        return AsyncUtils.runAsyncResult(() -> fileInfoService.filenameExists(fileName, tUser().getUserId()));
+    }
+
+    /**
+     * Fetch parent file info
+     */
+    @GetMapping("/parent")
+    public DeferredResult<Result<ParentFileInfo>> fetchParentFileInfo(@RequestParam("fileKey") String fileKey) {
+        return AsyncUtils.runAsyncResult(() -> fileInfoService.getParentFileInfo(fileKey, tUser()));
     }
 
 
