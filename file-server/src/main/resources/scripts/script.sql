@@ -1,5 +1,5 @@
 -- script for creating the table
-CREATE TABLE `file_extension` (
+CREATE TABLE IF NOT EXISTS `file_extension` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(15) NOT NULL COMMENT 'name of file extension, e.g., txt',
   `is_enabled` int NOT NULL DEFAULT '0' COMMENT 'indicates whether current file extension is disabled, 0-enabled, 1-disabled',
@@ -11,7 +11,7 @@ CREATE TABLE `file_extension` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `file_info` (
+CREATE TABLE IF NOT EXISTS file_info (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT 'name of the file',
   `uuid` varchar(64) NOT NULL COMMENT 'file''s uuid',
@@ -34,11 +34,11 @@ CREATE TABLE `file_info` (
   `parent_file` varchar(64) NOT NULL DEFAULT '' COMMENT 'parent file uuid',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid_uk` (`uuid`),
-  KEY `parent_file_idx` (`parent_file`),
-  KEY `name_idx` (`name`)
+  KEY `parent_file_type_idx` (`parent_file`,`file_type`),
+  KEY `uploader_id_idx` (`uploader_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `file_tag` (
+CREATE TABLE IF NOT EXISTS `file_tag` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   `file_id` int unsigned NOT NULL COMMENT 'id of file_info',
   `tag_id` int unsigned NOT NULL COMMENT 'id of tag',
@@ -52,7 +52,7 @@ CREATE TABLE `file_tag` (
   KEY `user_id_file_id_idx` (`user_id`,`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='join table between file_info and tag'
 
-CREATE TABLE `tag` (
+CREATE TABLE IF NOT EXISTS `tag` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   `name` varchar(50) NOT NULL COMMENT 'name of tag',
   `user_id` int unsigned NOT NULL COMMENT 'user who owns this tag (tags are isolated between different users)',
@@ -65,7 +65,7 @@ CREATE TABLE `tag` (
   UNIQUE KEY `uk_user_tag` (`user_id`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='tag';
 
-CREATE TABLE `file_sharing` (
+CREATE TABLE IF NOT EXISTS `file_sharing` (
   `id` int NOT NULL AUTO_INCREMENT,
   `file_id` int NOT NULL COMMENT 'id of file_info',
   `user_id` int NOT NULL COMMENT 'user who now have access to the file',
@@ -78,7 +78,7 @@ CREATE TABLE `file_sharing` (
   UNIQUE KEY `file_id` (`file_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='file''s sharing information';
 
-CREATE TABLE `fs_group` (
+CREATE TABLE IF NOT EXISTS `fs_group` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT 'group name',
   `base_folder` varchar(255) NOT NULL COMMENT 'base folder',
@@ -94,7 +94,7 @@ CREATE TABLE `fs_group` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='FileSystem group, used to differentiate which base folder or mounted folder should be used';
 
-CREATE TABLE `app_file` (
+CREATE TABLE IF NOT EXISTS `app_file` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT 'name of the file',
   `uuid` varchar(255) NOT NULL COMMENT 'file''s uuid',
@@ -110,7 +110,7 @@ CREATE TABLE `app_file` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Application File';
 
-CREATE TABLE `vfolder` (
+CREATE TABLE IF NOT EXISTS vfolder (
   `id` int NOT NULL AUTO_INCREMENT,
   `folder_no` varchar(64) NOT NULL COMMENT 'folder no',
   `name` varchar(255) NOT NULL COMMENT 'name of the folder',
@@ -123,7 +123,7 @@ CREATE TABLE `vfolder` (
   UNIQUE KEY `folder_no_uk` (`folder_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Virtual folder';
 
-CREATE TABLE `user_vfolder` (
+CREATE TABLE IF NOT EXISTS user_vfolder (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_no` varchar(64) NOT NULL COMMENT 'user no',
   `folder_no` varchar(64) NOT NULL COMMENT 'folder no',
@@ -138,7 +138,7 @@ CREATE TABLE `user_vfolder` (
   UNIQUE KEY `user_folder_uk` (`user_no`,`folder_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='User and Virtual folder join table';
 
-CREATE TABLE `file_vfolder` (
+CREATE TABLE IF NOT EXISTS `file_vfolder` (
   `id` int NOT NULL AUTO_INCREMENT,
   `folder_no` varchar(64) NOT NULL COMMENT 'folder no',
   `uuid` varchar(64) NOT NULL COMMENT 'file''s uuid',
@@ -151,7 +151,12 @@ CREATE TABLE `file_vfolder` (
   UNIQUE KEY `folder_file_uk` (`folder_no`,`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='File and vfolder join table';
 
-CREATE TABLE `task` (
+-- ------------------------------------------------
+--
+-- For tasks, not needed if dtask-go is used
+--
+-- ------------------------------------------------
+CREATE TABLE IF NOT EXISTS `task` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
   `job_name` varchar(255) NOT NULL COMMENT 'job''s name',
   `target_bean` varchar(255) NOT NULL COMMENT 'name of bean that will be executed',
@@ -168,7 +173,7 @@ CREATE TABLE `task` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='task';
 
-CREATE TABLE `task_history` (
+CREATE TABLE IF NOT EXISTS `task_history` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'id',
   `task_id` int DEFAULT NULL COMMENT 'task id',
   `start_time` timestamp NULL DEFAULT NULL COMMENT 'start time',
@@ -178,16 +183,3 @@ CREATE TABLE `task_history` (
   `create_time` datetime DEFAULT NULL COMMENT 'create time',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='task history';
-
-CREATE TABLE IF NOT EXISTS user_file_access (
-    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT "primary key",
-    user_no varchar(64) NOT NULL COMMENT 'user no',
-    file_uuid varchar(64) NOT NULL COMMENT 'file key',
-    access_type varchar(15) NOT NULL DEFAULT "OWNER" COMMENT 'User Access Type',
-    create_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the record is created',
-    create_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who created this record',
-    update_time DATETIME NOT NULL DEFAULT NOW() COMMENT 'when the record is updated',
-    update_by VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'who updated this record',
-    is_del TINYINT NOT NULL DEFAULT '0' COMMENT '0-normal, 1-deleted',
-    KEY user_no_file_uuid_idx (user_no, file_uuid)
-) ENGINE=InnoDB COMMENT 'User file access';
