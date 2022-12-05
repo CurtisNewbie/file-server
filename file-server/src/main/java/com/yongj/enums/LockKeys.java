@@ -11,8 +11,7 @@ public final class LockKeys {
     }
 
     /**
-     * Supplier of lock key for any userFileAccess's change (including fileSharing, since that's basically changing
-     * userFileAccess)
+     * Supplier of lock key for change to file_sharing
      * <p>
      * Only owner of the file change this access to the file, so we just lock the file.
      */

@@ -229,14 +229,6 @@ public interface FileService {
      */
     void exportAsZip(@NotNull ExportAsZipReq r, @NotNull TUser user);
 
-
-    /**
-     * Refresh user's file access
-     * <p>
-     * This is primarily used to generate the access records for the first time
-     */
-    void loadUserFileAccess();
-
     /**
      * Fetch events after the eventId (exclusive)
      */

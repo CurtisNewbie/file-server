@@ -101,8 +101,6 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private UserServiceFeign userServiceFeign;
     @Autowired
-    private UserFileAccessMapper userFileAccessMapper;
-    @Autowired
     private TransactionTemplate transactionTemplate;
 
     @Override
@@ -147,9 +145,6 @@ public class FileServiceImpl implements FileService {
                 updateParam.setIsDel(IsDel.NORMAL);
                 fileSharingMapper.updateById(updateParam);
             }
-
-            // generate UserFileAccess to the file with GRANTED type
-            _tryGenerateUserFileAccess(tuser.getUserNo(), file.getUuid(), FileAccessType.GRANTED);
         });
     }
 
@@ -368,9 +363,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void validateUserDownload(int userId, int fileId, String userNo) {
-        final FileDownloadValidInfo f = fileInfoMapper.selectValidateInfoById(fileId, userNo);
+        final FileDownloadValidInfo f = fileInfoMapper.selectValidateInfoById(fileId, userId);
         nonNull(f, "File is not found");
         isFalse(f.isDeleted(), "File is deleted");
         isTrue(f.isNotDir(), "Downloading a directory is not supported");
@@ -381,7 +375,7 @@ public class FileServiceImpl implements FileService {
         if (Objects.equals(f.getUploaderId(), userId)) return;
 
         // file shared by the uploader
-        if (f.getAccessType() != null) return;
+        if (f.getFileSharingId() != null) return;
 
         // file belongs to a folder that current user has access to
         if (fileInfoMapper.selectAnyUserFolderIdForFile(fileId, userNo) != null) return;
@@ -523,18 +517,12 @@ public class FileServiceImpl implements FileService {
         Assert.isTrue(f != null, "Only uploader can remove granted access");
         final String fileKey = f.getUuid();
 
-        // TODO optimise this?
-        final String userNo = Objects.requireNonNull(fetchUserNo(userId));
-
         LockUtils.lockAndRun(redisController.getLock(fileAccessKeySup.apply(fileKey)), () -> {
             // delete fileSharing logically
             fileSharingMapper.update(MapperUtils.set(FileSharing::getIsDel, IsDel.DELETED)
                     .eq(FileSharing::getFileId, fileId)
                     .eq(FileSharing::getUserId, userId)
                     .eq(FileSharing::getIsDel, IsDel.NORMAL));
-
-            // delete fileAccess physically
-            _delUserFileAccess(userNo, fileKey);
         });
     }
 
@@ -832,36 +820,6 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void loadUserFileAccess() {
-        final Lock lock = redisController.getLock("file:user:access:refresh:global");
-        LockUtils.lockAndRun(lock, () -> {
-
-            Paginator<FileInfo> paginator = new Paginator<>(p ->
-                    fileInfoMapper.selectList(
-                            MapperUtils.select(FileInfo::getId, FileInfo::getUuid, FileInfo::getUploaderId)
-                                    .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
-                                    .orderByAsc(FileInfo::getId) // make the old ones are generated first
-                                    .last(PagingUtil.limit(p.getOffset(), p.getLimit()))))
-                    .pageSize(100);
-
-            paginator.loopEachTilEnd(fi -> {
-                final String fileKey = fi.getUuid();
-                Runner.runSafely(() -> {
-                    LockUtils.lockAndRun(redisController.getLock(fileAccessKeySup.apply(fileKey)), () -> {
-                        // create access for the uploader of the user
-                        _tryGenerateUserFileAccess(fetchUserNo(fi.getUploaderId()), fileKey, FileAccessType.OWNER);
-
-                        // create access for the shared access
-                        fileSharingMapper.selectList(MapperUtils.eq(FileSharing::getFileId, fi.getId()))
-                                .forEach(fs -> _tryGenerateUserFileAccess(fetchUserNo(fs.getUserId()), fileKey, FileAccessType.GRANTED));
-                    });
-                }, (e) -> log.error("Failed to load user file access, fileKey: {}", fileKey));
-            });
-        });
-
-    }
-
-    @Override
     public List<FileEventVo> fetchEventsAfter(long eventId, int limit) {
         return BeanCopyUtils.mapTo(fileEventMapper.selectList(MapperUtils.select(FileEvent::getId, FileEvent::getType, FileEvent::getFileKey)
                         .gt(FileEvent::getId, eventId)
@@ -873,12 +831,11 @@ public class FileServiceImpl implements FileService {
 
     // ------------------------------------- private helper methods ------------------------------------
 
-    /** Insert FileInfo and create UserFileAccess */
+    /** Insert FileInfo */
     private void _doInsertFileInfo(FileInfo f, String userNo) {
         transactionTemplate.execute((tx) -> {
             fileInfoMapper.insert(f);
             _recordFileEvent(f.getUuid(), FEventType.UPLOADED);
-            _tryGenerateUserFileAccess(userNo, f.getUuid(), FileAccessType.OWNER);
             return null;
         });
     }
@@ -895,33 +852,6 @@ public class FileServiceImpl implements FileService {
                 () -> String.format("UserServiceFeign#fetchUserInfo, userId: %d", userId));
         Assert.notNull(user, "userInfoVo == null");
         return user.getUserNo();
-    }
-
-    /**
-     * delete userFileAccess, this method doesn't obtain lock internally, lock should be obtained before calling this method
-     * <p>
-     * see {@link LockKeys#fileAccessKeySup}
-     */
-    private void _delUserFileAccess(String userNo, String fileKey) {
-        userFileAccessMapper.delete(MapperUtils.eq(UserFileAccess::getUserNo, userNo)
-                .eq(UserFileAccess::getFileUuid, fileKey));
-    }
-
-    /**
-     * try generate userFileAccess, this method doesn't have lock internally, but it needs one
-     * <p>
-     * see {@link LockKeys#fileAccessKeySup}
-     */
-    private void _tryGenerateUserFileAccess(String userNo, String fileKey, FileAccessType fat) {
-        UserFileAccess ufa = userFileAccessMapper.selectOne(MapperUtils.eq(UserFileAccess::getUserNo, userNo)
-                .eq(UserFileAccess::getFileUuid, fileKey));
-        if (ufa != null) return;
-
-        ufa = new UserFileAccess();
-        ufa.setUserNo(userNo);
-        ufa.setFileUuid(fileKey);
-        ufa.setAccessType(fat);
-        userFileAccessMapper.insert(ufa);
     }
 
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {

@@ -28,7 +28,7 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
      */
     long countFileListForUserAndTag(@Param("p") SelectFileInfoListParam param);
 
-    FileDownloadValidInfo selectValidateInfoById(@Param("id") int fileId, @Param("userNo") String userNo);
+    FileDownloadValidInfo selectValidateInfoById(@Param("fileId") int fileId, @Param("userId") int userId);
 
     Integer selectAnyUserFolderIdForFile(@Param("id") int fileId, @Param("userNo") String userNo);
 

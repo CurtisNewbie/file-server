@@ -26,8 +26,8 @@ public class FileDownloadValidInfo {
     /** File type */
     private FileType fileType;
 
-    /** User file access type */
-    private FileAccessType accessType;
+    /** file_sharing.id */
+    private Integer fileSharingId;
 
     /** Is not a directory */
     public boolean isNotDir() {

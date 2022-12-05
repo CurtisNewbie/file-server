@@ -103,10 +103,10 @@
   </select>
 
   <select id="selectValidateInfoById" resultType="com.yongj.vo.FileDownloadValidInfo">
-    select fi.id 'file_id', fi.user_group, fi.uploader_id, fi.is_logic_deleted, fi.file_type, ufa.access_type
+    select fi.id 'file_id', fi.user_group, fi.uploader_id, fi.is_logic_deleted, fi.file_type, fs.id 'file_sharing_id'
     from file_info fi
-    left join user_file_access ufa on (fi.uuid = ufa.file_uuid and ufa.user_no = #{userNo})
-    where fi.id = #{id} and fi.is_del = 0
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{userId})
+    where fi.id = #{fileId} and fi.is_del = 0
   </select>
 
   <select id="selectNameById" resultType="java.lang.String">
