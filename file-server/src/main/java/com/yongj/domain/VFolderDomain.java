@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.curtisnewbie.common.domain.Domain;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.BeanCopyUtils;
-import com.curtisnewbie.common.util.IdUtils;
+import com.curtisnewbie.common.util.MapperUtils;
 import com.yongj.dao.*;
 import com.yongj.enums.VFOwnership;
 import com.yongj.vo.VFolderWithOwnership;
@@ -42,36 +42,20 @@ public class VFolderDomain {
         this.userVFolderMapper = userVFolderMapper;
     }
 
-    /**
-     * Create a new folder for current user
-     *
-     * @return folderNo
-     */
-    public String createFolder(@NotEmpty String name, @NotEmpty String username) {
-        final String folderNo = IdUtils.gen(FOLDER_NO_PRE);
+    /** Remove file from vfolder */
+    public void removeFile(@NotEmpty String fileKey) {
+        if (isFileNotInFolder(fileKey)) {
+            log.info("File '{}' is not in folder", fileKey);
+            return;
+        }
 
-        // for the vfolder
-        folder = new VFolder();
-        folder.setName(name);
-        folder.setFolderNo(folderNo);
-        vfolderMapper.insert(folder);
-
-        // for the user - vfolder relation
-        final UserVFolder relation = new UserVFolder();
-        relation.setFolderNo(folderNo);
-        relation.setUserNo(this.userNo);
-        relation.setOwnership(VFOwnership.OWNER);
-        relation.setGrantedBy(username);
-        userVFolderMapper.insert(relation);
-        return folderNo;
+        fileFolderMapper.delete(MapperUtils
+                .eq(FileVFolder::getFolderNo, this.folder.getFolderNo())
+                .eq(FileVFolder::getUuid, fileKey));
     }
 
     /** Add file to this VFolder */
     public void addFile(@NotEmpty String fileKey) {
-
-        // only owner of the folder can do this
-        _assertIsFolderOwner();
-
         // make sure the file is not in current VFolder
         if (!isFileNotInFolder(fileKey)) {
             log.info("File '{}' is already in folder", fileKey);
@@ -82,10 +66,42 @@ public class VFolderDomain {
         ff.setFolderNo(this.folder.getFolderNo());
         ff.setUuid(fileKey);
         fileFolderMapper.insert(ff);
+        log.info("File {} added to folder: {}", fileKey, this.folder.getFolderNo());
     }
 
+    /** Check whether current user is owner of the vfolder */
     public boolean isOwner() {
         return ownership == VFOwnership.OWNER;
+    }
+
+    /** Share vfolder to user */
+    public void shareTo(@NotEmpty String sharedToUserNo) {
+        final boolean isSharedAlready = userVFolderMapper.selectOne(MapperUtils
+                .select(UserVFolder::getId)
+                .eq(UserVFolder::getFolderNo, folder.getFolderNo())
+                .eq(UserVFolder::getUserNo, sharedToUserNo)
+                .last("limit 1")) != null;
+        if (isSharedAlready) {
+            log.info("VFolder is shared already, folderNo: {}, sharedTo: {}", this.folder.getFolderNo(), sharedToUserNo);
+            return;
+        }
+
+        // for the user - vfolder relation
+        final UserVFolder relation = new UserVFolder();
+        relation.setFolderNo(this.folder.getFolderNo());
+        relation.setUserNo(sharedToUserNo);
+        relation.setOwnership(VFOwnership.GRANTED);
+        relation.setGrantedBy(this.userNo);
+        userVFolderMapper.insert(relation);
+        log.info("VFolder shared to {} by {}, folderNo: {}", sharedToUserNo, this.userNo, this.folder.getFolderNo());
+    }
+
+    /** Remove granted access to vfolder */
+    public void removeGrantedAccess(String sharedToUserNo) {
+        userVFolderMapper.delete(MapperUtils
+                .eq(UserVFolder::getFolderNo, folder.getFolderNo())
+                .eq(UserVFolder::getUserNo, sharedToUserNo)
+                .eq(UserVFolder::getOwnership, VFOwnership.GRANTED));
     }
 
     // ------------------------------- private ---------------------------------------------
@@ -104,10 +120,6 @@ public class VFolderDomain {
         this.folder = BeanCopyUtils.toType(folder, VFolder.class);
         this.ownership = folder.getOwnership();
         return this;
-    }
-
-    private void _assertIsFolderOwner() {
-        AssertUtils.isTrue(isOwner(), "Only owner can add files to this folder");
     }
 
     private boolean isFileNotInFolder(String fileKey) {

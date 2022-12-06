@@ -5,6 +5,7 @@ import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.yongj.services.VFolderService;
 import com.yongj.services.qry.VFolderQueryService;
 import com.yongj.vo.*;
@@ -62,12 +63,39 @@ public class VFolderController {
     @PostMapping("/file/add")
     public DeferredResult<Result<Void>> addFileToVFolder(@RequestBody AddFileToVFolderReq req) {
         final TUser user = TraceUtils.tUser();
-        log.info("Adding file to VFolder, req: {}, user: {}", req, user.getUsername());
+        log.info("Adding files to VFolder, req: {}, user: {}", req, user.getUsername());
 
         return runAsync(() -> vFolderService.addFileToVFolder(AddFileToVFolderCmd.builder()
                 .userNo(user.getUserNo())
                 .folderNo(req.getFolderNo())
                 .fileKeys(req.getFileKeys())
+                .build()));
+    }
+
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping("/file/remove")
+    public DeferredResult<Result<Void>> removeFileFromVFolder(@RequestBody AddFileToVFolderReq req) {
+        final TUser user = TraceUtils.tUser();
+        log.info("Removing files from VFolder, req: {}, user: {}", req, user.getUsername());
+
+        return runAsync(() -> vFolderService.removeFileFromVFolder(RemoveFileFromVFolderCmd.builder()
+                .userNo(user.getUserNo())
+                .folderNo(req.getFolderNo())
+                .fileKeys(req.getFileKeys())
+                .build()));
+    }
+
+    @LogOperation(name = "shareVFolder", description = "Share access to vfolder")
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping("/share")
+    public DeferredResult<Result<Void>> shareVFolder(@RequestBody ShareVFolderReq req) {
+        final TUser user = TraceUtils.tUser();
+        log.info("Sharing VFolder, req: {}, user: {}", req, user.getUsername());
+
+        return runAsync(() -> vFolderService.shareVFolder(ShareVFolderCmd.builder()
+                .currUserNo(user.getUserNo())
+                .sharedToUserNo(req.getUserNo())
+                .folderNo(req.getFolderNo())
                 .build()));
     }
 }

@@ -4,9 +4,11 @@
 
   <select id="findIdForFolderWithName" resultType="java.lang.Integer">
     select vf.id from vfolder vf
-    left join user_vfolder uv on (vf.folder_no = uv.folder_no and uv.is_del = 0)
+    left join user_vfolder uv on (vf.folder_no = uv.folder_no)
     where vf.is_del = 0
+    and uv.is_del = 0
     and uv.user_no = #{userNo}
+    and uv.ownership = 'OWNER'
     and vf.name = #{name}
     limit 1
   </select>

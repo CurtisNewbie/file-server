@@ -14,13 +14,15 @@ import javax.validation.constraints.NotEmpty;
 public interface VFolderRepository {
 
     /**
-     * Build Vfolder
+     * Find Vfolder
      */
-    VFolderDomain buildVFolder(@NotEmpty String userNo, @NotEmpty String folderNo);
+    VFolderDomain findVFolder(@NotEmpty String userNo, @NotEmpty String folderNo);
 
     /**
-     * Build new Vfolder, if one exists for current user, exception is thrown
+     * Create new Vfolder for current user
+     *
+     * @return folderNo
      */
-    VFolderDomain buildForNewVFolder(@NotEmpty String userNo, @NotEmpty String name);
+    String createVFolder(@NotEmpty String userNo, @NotEmpty String name);
 
 }

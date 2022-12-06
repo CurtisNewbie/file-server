@@ -74,6 +74,10 @@ public class FileInfo extends DaoSkeleton {
         return fileType == FileType.DIR;
     }
 
+    public boolean isFile() {
+        return fileType == FileType.FILE;
+    }
+
     public boolean belongsTo(int userId) {
         return this.uploaderId != null && this.uploaderId == userId;
     }

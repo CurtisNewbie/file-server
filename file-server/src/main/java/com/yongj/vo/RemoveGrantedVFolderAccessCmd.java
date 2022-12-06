@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.*;
 
 /**
  * @author yongj.zhuang
@@ -16,18 +14,14 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddFileToVFolderCmd {
+public class RemoveGrantedVFolderAccessCmd {
 
     @NotEmpty
-    private String userNo;
+    private String currUserNo;
 
-    @NotNull
-    private int userId;
+    @NotEmpty
+    private String sharedToUserNo;
 
     @NotEmpty
     private String folderNo;
-
-    /** file key (uuid) */
-    @NotEmpty
-    private List<String> fileKeys;
 }
