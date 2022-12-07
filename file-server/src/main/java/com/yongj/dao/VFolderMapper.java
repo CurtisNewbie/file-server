@@ -13,7 +13,7 @@ import java.util.List;
 public interface VFolderMapper extends BaseMapper<VFolder> {
 
     VFolderWithOwnership findVFolderWithOwnership(@Param("userNo") String userNo,
-            @Param("folderNo") String folderNo);
+                                                  @Param("folderNo") String folderNo);
 
     Integer findIdForFolderWithName(@Param("userNo") String userNo, @Param("name") String name);
 
@@ -22,4 +22,6 @@ public interface VFolderMapper extends BaseMapper<VFolder> {
     Page<FileInfoWebVo> listFilesInVFolders(Page forPage, @Param("r") ListVFolderFilesReq req);
 
     List<VFolderBrief> listOwnedVFolderBrief(@Param("userNo") String userNo);
+
+    Page<UserVFolder> listGrantedAccess(Page page, @Param("folderNo") String folderNo);
 }

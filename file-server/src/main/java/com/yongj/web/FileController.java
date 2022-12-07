@@ -356,10 +356,10 @@ public class FileController {
      */
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/list-granted-access")
-    public DeferredResult<Result<ListGrantedAccessRespVo>> listGrantedAccess(@Validated @RequestBody ListGrantedAccessReqVo v) {
+    public DeferredResult<Result<ListGrantedFileAccessRespVo>> listGrantedAccess(@Validated @RequestBody ListGrantedFileAccessReqVo v) {
         return AsyncUtils.runAsyncResult(() -> {
             final PageableList<FileSharingVo> pps = fileInfoService.listGrantedAccess(v.getFileId(), tUser().getUserId(), v.page());
-            final ListGrantedAccessRespVo resp = new ListGrantedAccessRespVo();
+            final ListGrantedFileAccessRespVo resp = new ListGrantedFileAccessRespVo();
             // collect list of userIds
             List<Integer> idList = pps.getPayload().stream().map(FileSharingVo::getUserId).collect(Collectors.toList());
             if (!idList.isEmpty()) {

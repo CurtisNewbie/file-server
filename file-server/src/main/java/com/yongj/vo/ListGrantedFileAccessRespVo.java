@@ -9,7 +9,7 @@ import java.util.List;
  * @author yongjie.zhuang
  */
 @Data
-public class ListGrantedAccessRespVo extends PageableVo {
+public class ListGrantedFileAccessRespVo extends PageableVo {
 
     private List<FileSharingWebVo> list;
 }

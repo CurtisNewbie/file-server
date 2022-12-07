@@ -1,5 +1,6 @@
 package com.yongj.services;
 
+import com.curtisnewbie.common.vo.*;
 import com.yongj.vo.*;
 import org.springframework.validation.annotation.Validated;
 

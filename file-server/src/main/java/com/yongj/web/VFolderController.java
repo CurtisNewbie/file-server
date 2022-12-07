@@ -6,6 +6,7 @@ import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
+import com.curtisnewbie.service.auth.remote.feign.*;
 import com.yongj.services.VFolderService;
 import com.yongj.services.qry.VFolderQueryService;
 import com.yongj.vo.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
+import java.util.stream.*;
 
 import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
 import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
@@ -31,6 +33,8 @@ public class VFolderController {
     private VFolderService vFolderService;
     @Autowired
     private VFolderQueryService vFolderQueryService;
+    @Autowired
+    private UserServiceFeign userServiceFeign;
 
     @GetMapping("/brief/owned")
     public DeferredResult<Result<List<VFolderBrief>>> listOwnedVFolderBriefs() {
@@ -74,7 +78,7 @@ public class VFolderController {
 
     @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/file/remove")
-    public DeferredResult<Result<Void>> removeFileFromVFolder(@RequestBody AddFileToVFolderReq req) {
+    public DeferredResult<Result<Void>> removeFileFromVFolder(@RequestBody RemoveFileFromVFolderReq req) {
         final TUser user = TraceUtils.tUser();
         log.info("Removing files from VFolder, req: {}, user: {}", req, user.getUsername());
 
@@ -97,6 +101,23 @@ public class VFolderController {
                 .sharedToUserNo(req.getUserNo())
                 .folderNo(req.getFolderNo())
                 .build()));
+    }
+
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping("/granted/list")
+    public DeferredResult<Result<PageableList<GrantedFolderAccess>>> listGrantedFolderAccess(@RequestBody ListGrantedFolderAccessReq req) {
+        final String userNo = TraceUtils.requireUserNo();
+        return runAsyncResult(() -> {
+            final PageableList<GrantedFolderAccess> resp = vFolderQueryService.listGrantedAccess(req, userNo);
+            if (!resp.getPayload().isEmpty()) {
+                var userNos = resp.getPayload().stream()
+                        .map(GrantedFolderAccess::getUserNo)
+                        .collect(Collectors.toList());
+
+                // TODO fetch username by userNo
+            }
+            return resp;
+        });
     }
 }
 

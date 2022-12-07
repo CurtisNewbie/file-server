@@ -30,4 +30,9 @@ public interface VFolderQueryService {
      * List owned vfolder brief
      */
     List<VFolderBrief> listOwnedVFolderBriefs(@NotEmpty String userNo);
+
+    /**
+     * List granted access to vfolder
+     */
+    PageableList<GrantedFolderAccess> listGrantedAccess(@NotNull ListGrantedFolderAccessReq req, @NotEmpty String userNo);
 }

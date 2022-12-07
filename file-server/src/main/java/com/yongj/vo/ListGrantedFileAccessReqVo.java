@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
  * @author yongjie.zhuang
  */
 @Data
-public class ListGrantedAccessReqVo extends PageableVo {
+public class ListGrantedFileAccessReqVo extends PageableVo {
 
     @NotNull
     private Integer fileId;

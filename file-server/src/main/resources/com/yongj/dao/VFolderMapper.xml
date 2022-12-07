@@ -54,4 +54,12 @@
     and uv.ownership = 'OWNER'
   </select>
 
+  <select id="listGrantedAccess" resultType="com.yongj.dao.UserVFolder">
+    select *
+    from user_vfolder
+    where folder_no = #{folderNo}
+    and ownership = 'GRANTED'
+    and is_del = 0
+  </select>
+
 </mapper>

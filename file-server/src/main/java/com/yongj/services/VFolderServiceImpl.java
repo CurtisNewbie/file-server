@@ -2,6 +2,7 @@ package com.yongj.services;
 
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.util.LockUtils;
+import com.curtisnewbie.common.vo.*;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.yongj.domain.VFolderDomain;
 import com.yongj.helper.VFolderAddFileOpHelper;
