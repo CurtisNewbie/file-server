@@ -10,7 +10,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 - file-service-front (Angular frontend) >= [v1.1.16](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.16)
 - auth-gateway >= [v1.0.4](https://github.com/CurtisNewbie/auth-gateway/tree/v1.0.4)
-- auth-service >= [v1.1.4.3](https://github.com/CurtisNewbie/auth-service/tree/v1.1.4.3)
+- auth-service >= [v1.1.4.5](https://github.com/CurtisNewbie/auth-service/tree/v1.1.4.5)
 - MySQL 5.7 or 8
 - Consul
 - RabbitMQ

@@ -6,7 +6,9 @@ import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
-import com.curtisnewbie.service.auth.remote.feign.*;
+import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
+import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByUserNosReq;
+import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByUserNosResp;
 import com.yongj.services.VFolderService;
 import com.yongj.services.qry.VFolderQueryService;
 import com.yongj.vo.*;
@@ -16,7 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
-import java.util.stream.*;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
 import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
@@ -109,12 +112,21 @@ public class VFolderController {
         final String userNo = TraceUtils.requireUserNo();
         return runAsyncResult(() -> {
             final PageableList<GrantedFolderAccess> resp = vFolderQueryService.listGrantedAccess(req, userNo);
-            if (!resp.getPayload().isEmpty()) {
-                var userNos = resp.getPayload().stream()
-                        .map(GrantedFolderAccess::getUserNo)
-                        .collect(Collectors.toList());
+            if (resp.getPayload().isEmpty()) return resp;
 
-                // TODO fetch username by userNo
+            var userNos = resp.getPayload().stream()
+                    .map(GrantedFolderAccess::getUserNo)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            var freq = new FetchUsernameByUserNosReq(userNos);
+            final FetchUsernameByUserNosResp fresp = Result.tryGetData(userServiceFeign.fetchUsernameByUserNos(freq), () -> "fetchUsernameByUserNos");
+            if (fresp.getUserNoToUsername() != null) {
+                final Map<String, String> userNoToName = fresp.getUserNoToUsername();
+                resp.getPayload().forEach(gfa -> {
+                    if (userNoToName.containsKey(gfa.getUserNo()))
+                        gfa.setUsername(userNoToName.get(gfa.getUserNo()));
+                });
             }
             return resp;
         });
