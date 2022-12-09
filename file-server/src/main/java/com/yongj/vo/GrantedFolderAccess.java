@@ -11,6 +11,6 @@ import java.time.*;
 @Data
 public class GrantedFolderAccess {
     private String userNo;
-    private String username; // TODO
+    private String username;
     private LocalDateTime createTime;
 }

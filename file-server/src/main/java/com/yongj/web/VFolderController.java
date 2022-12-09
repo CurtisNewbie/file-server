@@ -3,12 +3,15 @@ package com.yongj.web;
 import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.trace.TraceUtils;
+import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByUserNosReq;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByUserNosResp;
+import com.curtisnewbie.service.auth.remote.vo.FindUserReq;
+import com.curtisnewbie.service.auth.remote.vo.UserInfoVo;
 import com.yongj.services.VFolderService;
 import com.yongj.services.qry.VFolderQueryService;
 import com.yongj.vo.*;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AsyncUtils.runAsync;
 import static com.curtisnewbie.common.util.AsyncUtils.runAsyncResult;
+import static com.curtisnewbie.common.vo.Result.tryGetData;
 
 /**
  * @author yongj.zhuang
@@ -99,10 +103,27 @@ public class VFolderController {
         final TUser user = TraceUtils.tUser();
         log.info("Sharing VFolder, req: {}, user: {}", req, user.getUsername());
 
+        final UserInfoVo uv = tryGetData(userServiceFeign.findUser(FindUserReq.builder()
+                .username(req.getUsername())
+                .build()));
+        AssertUtils.nonNull(uv, "User '%s' doesn't exist", req.getUsername());
+
         return runAsync(() -> vFolderService.shareVFolder(ShareVFolderCmd.builder()
                 .currUserNo(user.getUserNo())
-                .sharedToUserNo(req.getUserNo())
+                .sharedToUserNo(uv.getUserNo())
                 .folderNo(req.getFolderNo())
+                .build()));
+    }
+
+    @LogOperation(name = "removeGrantedFolderAccess", description = "Remove granted access to vfolder")
+    @RoleControlled(rolesForbidden = "guest")
+    @PostMapping("/access/remove")
+    public DeferredResult<Result<Void>> removeGrantedFolderAccess(@RequestBody RemoveGrantedFolderAccessReq req) {
+        final String userNo = TraceUtils.requireUserNo();
+        return runAsync(() -> vFolderService.removeGrantedAccess(RemoveGrantedVFolderAccessCmd.builder()
+                .currUserNo(userNo)
+                .folderNo(req.getFolderNo())
+                .sharedToUserNo(req.getUserNo())
                 .build()));
     }
 
@@ -120,7 +141,7 @@ public class VFolderController {
                     .collect(Collectors.toList());
 
             var freq = new FetchUsernameByUserNosReq(userNos);
-            final FetchUsernameByUserNosResp fresp = Result.tryGetData(userServiceFeign.fetchUsernameByUserNos(freq), () -> "fetchUsernameByUserNos");
+            final FetchUsernameByUserNosResp fresp = tryGetData(userServiceFeign.fetchUsernameByUserNos(freq), () -> "fetchUsernameByUserNos");
             if (fresp.getUserNoToUsername() != null) {
                 final Map<String, String> userNoToName = fresp.getUserNoToUsername();
                 resp.getPayload().forEach(gfa -> {

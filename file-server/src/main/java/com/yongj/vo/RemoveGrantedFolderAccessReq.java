@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ShareVFolderReq {
+public class RemoveGrantedFolderAccessReq {
 
     private String folderNo;
 
-    private String username;
+    private String userNo;
 }
