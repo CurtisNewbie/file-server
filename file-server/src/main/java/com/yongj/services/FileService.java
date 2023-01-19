@@ -237,4 +237,6 @@ public interface FileService {
     /** Get parent file key */
     @Nullable
     ParentFileInfo getParentFileInfo(@NotEmpty String fileKey, @NotNull TUser user);
+
+    List<FileInfo> findNonDeletedByKeys(List<String> fileKeys);
 }

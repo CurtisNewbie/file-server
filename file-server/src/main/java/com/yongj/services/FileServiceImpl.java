@@ -840,6 +840,13 @@ public class FileServiceImpl implements FileService {
         return pfi;
     }
 
+    @Override
+    public List<FileInfo> findNonDeletedByKeys(List<String> fileKeys) {
+        if (fileKeys == null) return new ArrayList<>();
+        return fileInfoMapper.selectList(MapperUtils.in(FileInfo::getUuid, fileKeys)
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     /** Insert FileInfo */

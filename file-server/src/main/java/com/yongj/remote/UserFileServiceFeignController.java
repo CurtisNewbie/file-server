@@ -6,19 +6,19 @@ import com.curtisnewbie.common.util.AsyncUtils;
 import com.curtisnewbie.common.util.ValueUtils;
 import com.curtisnewbie.common.vo.Result;
 import com.yongj.dao.FileInfo;
+import com.yongj.enums.TokenType;
 import com.yongj.file.remote.UserFileServiceFeign;
 import com.yongj.file.remote.vo.FileInfoResp;
+import com.yongj.file.remote.vo.GenFileTempTokenReq;
 import com.yongj.services.FileService;
+import com.yongj.services.TempTokenFileDownloadService;
 import com.yongj.util.PathUtils;
 import com.yongj.web.streaming.ChannelStreamingResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -27,7 +27,10 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.util.AssertUtils.notNull;
 
@@ -42,6 +45,8 @@ public class UserFileServiceFeignController {
 
     @Autowired
     private FileService fileService;
+    @Autowired
+    private TempTokenFileDownloadService tempTokenFileDownloadService;
 
     // curl "http://localhost:8080/remote/user/file/indir/list?fileKey=5ddf49ca-dec9-4ecf-962d-47b0f3eab90c&limit=10&page=1"
     @GetMapping("/indir/list")
@@ -100,5 +105,23 @@ public class UserFileServiceFeignController {
             log.error("Download App File failed", e);
             throw new UnrecoverableException("Failed to download file, unknown I/O exception occurred, " + e.getMessage());
         }
+    }
+
+    @PostMapping("/temp/token")
+    public Result<Map<String, String>> generateFileTempToken(@RequestBody GenFileTempTokenReq req) {
+        log.info("Internal service call, request generating file temp token, req: {}", req);
+        Map<String /* fileKey */, String /* token */> m = new HashMap<>();
+        var fileKeys = req.getFileKeys().stream().distinct().collect(Collectors.toList());
+        var exp = req.getExpireInMin();
+        if (exp == null || exp <= 0) exp = 15;
+
+        if (req.getFileKeys() == null)
+            return Result.of(m);
+
+        final List<FileInfo> files = fileService.findNonDeletedByKeys(fileKeys);
+        for (FileInfo f : files) {
+            m.put(f.getUuid(), tempTokenFileDownloadService.generateTempTokenForFile(f.getId(), exp, TokenType.DOWNLOAD));
+        }
+        return Result.of(m);
     }
 }
