@@ -136,11 +136,10 @@ public class FileController {
         final FUserGroup userGroup = FUserGroup.from(userGroupInt);
         nonNull(userGroup, "Incorrect user group");
         hasText(fileName, "File name can't be empty");
-        fileName = URLDecoder.decode(fileName, "UTF-8");
+        fileName = URLDecoder.decode(fileName, "UTF-8").trim();
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
-        pathResolver.validateFileExtension(fileName);
         final TUser tUser = tUser();
 
         /*
@@ -208,10 +207,10 @@ public class FileController {
         AssertUtils.nonNull(userGroupEnum, "Incorrect user group");
         AssertUtils.notEmpty(multipartFiles, "No file uploaded");
         hasText(fileName, "File name can't be empty");
+        var fname = fileName.trim();
 
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
-        pathResolver.validateFileExtension(fileName);
         TUser tUser = tUser();
 
         /*
@@ -227,7 +226,7 @@ public class FileController {
                         return fileInfoService.uploadFile(UploadFileVo.builder()
                                 .userId(tUser.getUserId())
                                 .username(tUser.getUsername())
-                                .fileName(fileName)
+                                .fileName(fname)
                                 .userGroup(userGroupEnum)
                                 .inputStream(multipartFiles[0].getInputStream())
                                 .parentFile(parentFile)
@@ -241,7 +240,7 @@ public class FileController {
                                 .userNo(tUser.getUserNo())
                                 .userId(tUser.getUserId())
                                 .username(tUser.getUsername())
-                                .zipFile(fileName)
+                                .zipFile(fname)
                                 .userGroup(userGroupEnum)
                                 .multipartFiles(multipartFiles)
                                 .parentFile(parentFile)

@@ -868,7 +868,7 @@ public class FileServiceImpl implements FileService {
     private List<ZipCompressEntry> prepareZipEntries(MultipartFile[] multipartFiles) throws IOException {
         List<ZipCompressEntry> l = new ArrayList<>(multipartFiles.length);
         for (final MultipartFile mf : multipartFiles) {
-            l.add(new ZipCompressEntry(mf.getOriginalFilename(), mf.getInputStream()));
+            l.add(new ZipCompressEntry(mf.getOriginalFilename().trim(), mf.getInputStream()));
         }
         return l;
     }
