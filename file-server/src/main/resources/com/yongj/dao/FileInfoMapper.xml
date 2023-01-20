@@ -88,6 +88,7 @@
     from file_info fi
     left join file_tag ft on (ft.user_id = #{p.userId} and fi.id = ft.file_id)
     left join tag t on (ft.tag_id = t.id)
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     <include refid="selectListForTagCond"/>
   </select>
 
@@ -97,6 +98,7 @@
     from file_info fi
     left join file_tag ft on (ft.user_id = #{p.userId} and fi.id = ft.file_id)
     left join tag t on (ft.tag_id = t.id)
+    left join file_sharing fs on (fi.id = fs.file_id and fs.user_id = #{p.userId})
     <include refid="selectListForTagCond"/>
     order by fi.id desc
     limit #{offset}, #{limit}
