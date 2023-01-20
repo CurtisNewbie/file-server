@@ -71,6 +71,11 @@ public interface FileService {
     FileInfo findByKey(@NotEmpty String uuid);
 
     /**
+     * Find id by key
+     */
+    Integer idOfKey(@NotEmpty String uuid);
+
+    /**
      * Find resp by key
      */
     FileInfoResp findRespByKey(@NotEmpty String fileKey);

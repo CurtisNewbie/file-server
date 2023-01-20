@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull;
 @Data
 public class GenerateTokenReqVo {
 
-    @NotNull(message = "file id is required")
-    private Integer id;
+    @NotNull(message = "file key is required")
+    private String fileKey;
 
     /** Token Type */
     private TokenType tokenType = TokenType.DOWNLOAD;

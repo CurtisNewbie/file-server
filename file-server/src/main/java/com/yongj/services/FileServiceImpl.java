@@ -11,6 +11,7 @@ import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.util.*;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.messaging.service.MessagingService;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.UserInfoVo;
@@ -18,6 +19,7 @@ import com.yongj.config.FileServiceConfig;
 import com.yongj.converters.FileSharingConverter;
 import com.yongj.converters.TagConverter;
 import com.yongj.dao.*;
+import com.yongj.domain.FileTaskDomain;
 import com.yongj.enums.*;
 import com.yongj.file.remote.vo.FileInfoResp;
 import com.yongj.helper.FileKeyGenerator;
@@ -26,9 +28,11 @@ import com.yongj.helper.WriteFsGroupSupplier;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
+import com.yongj.repository.FileTaskRepository;
 import com.yongj.util.IOUtils;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
+import com.yongj.vo.event.FileDeletedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +70,10 @@ import static com.yongj.enums.LockKeys.fileAccessKeySup;
  */
 @Slf4j
 @Service
-@Transactional
 public class FileServiceImpl implements FileService {
 
+    @Autowired
+    private MessagingService messagingService;
     @Autowired
     private FileEventMapper fileEventMapper;
     @Autowired
@@ -101,6 +106,8 @@ public class FileServiceImpl implements FileService {
     private UserServiceFeign userServiceFeign;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private FileTaskRepository fileTaskRepository;
 
     @Override
     @Transactional
@@ -321,6 +328,18 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public Integer idOfKey(String uuid) {
+        LambdaQueryWrapper<FileInfo> cond = new LambdaQueryWrapper<FileInfo>()
+                .select(FileInfo::getId)
+                .eq(FileInfo::getUuid, uuid)
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL)
+                .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue());
+
+        var f = fileInfoMapper.selectOne(cond);
+        return f != null ? f.getId() : null;
+    }
+
+    @Override
     public FileInfoResp findRespByKey(String fileKey) {
         final FileInfo f = fileInfoMapper.selectOne(MapperUtils.eq(FileInfo::getUuid, fileKey)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue()));
@@ -456,6 +475,9 @@ public class FileServiceImpl implements FileService {
 
             // mark logically deleted
             fileInfoMapper.logicDelete(f.getId());
+
+            // notify other components about the delete
+            messagingService.send(new FileDeletedEvent(uuid), MqConst.FILE_DELETED_EVENT_EXG);
         });
     }
 
@@ -729,6 +751,7 @@ public class FileServiceImpl implements FileService {
     public void exportAsZip(ExportAsZipReq r, TUser user) {
         // lock is to prevent multiple export
         final RLock lock = (RLock) redisController.getLock("fs:export:zip:" + user.getUserNo());
+        FileTaskDomain fileTask = null;
         boolean isLocked = false;
         try {
             isLocked = lock.tryLock(1, -1, TimeUnit.MILLISECONDS);
@@ -738,6 +761,10 @@ public class FileServiceImpl implements FileService {
             final String filePre = "export_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
             final String folderName = user.getUserId() + "_" + filePre;
             final String zipFileName = filePre + ".zip";
+
+            var desc = String.format("Export Task: '%s' (%d files)", zipFileName, r.getFileIds().size());
+            fileTask = fileTaskRepository.createFileTask(user.getUserNo(), FileTaskType.EXPORT, desc);
+            fileTask.startTask();
 
             // temp dir
             final String tmpPre = "/tmp/";
@@ -784,8 +811,10 @@ public class FileServiceImpl implements FileService {
             long size = -1;
             try {
                 size = ioHandler.writeLocalZipFile(absPath, entries);
+                log.info("Compressed zip files, req: {}, size: {}", r, size);
             } catch (IOException e) {
                 log.error("Failed to compress zip files for exporting, userNo: {}", user.getUserNo(), e);
+                fileTask.taskFailed(e.getMessage());
             }
 
             // TODO needs refactoring
@@ -803,11 +832,18 @@ public class FileServiceImpl implements FileService {
                 f.setSizeInBytes(size);
                 f.setFsGroupId(fsGroup.getId());
                 _doInsertFileInfo(f, user.getUserNo());
+                fileTask.taskFinished(fileKey);
             }
         } catch (Exception e) {
             log.info("exportAsZip threw exception, userNo: {}", user.getUserNo(), e);
+            if (fileTask != null && !fileTask.isEnded()) {
+                fileTask.taskFailed(e.getMessage());
+            }
         } finally {
             if (isLocked) lock.unlock();
+            if (fileTask != null && !fileTask.isEnded()) {
+                fileTask.taskInterrupted();
+            }
         }
     }
 

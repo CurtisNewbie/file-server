@@ -287,7 +287,7 @@ public class FileController {
                 .filter(Objects::nonNull).collect(Collectors.toList());
         AssertUtils.isTrue(!fileIds.isEmpty(), "Please select files first");
 
-        CompletableFuture.runAsync(() -> fileInfoService.exportAsZip(r, user));
+        CompletableFuture.runAsync(() -> fileInfoService.exportAsZip(r, user), AsyncUtils.getCommonWorkStealingPool());
 
         return Result.ok();
     }
@@ -532,8 +532,8 @@ public class FileController {
         return runAsyncResult(() -> {
             final TUser tUser = tUser();
 
-            // validate user authority
-            final Integer fileId = reqVo.getId();
+            var fileId = fileInfoService.idOfKey(reqVo.getFileKey());
+            AssertUtils.notNull(fileId, "File not found");
             fileInfoService.validateUserDownload(tUser.getUserId(), fileId, tUser.getUserNo());
 
             return tempTokenFileDownloadService.generateTempTokenForFile(fileId, 15,
