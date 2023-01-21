@@ -1,8 +1,8 @@
 package com.yongj.io.operation;
 
+import com.yongj.io.FileWrp;
 import com.yongj.io.ZipCompressEntry;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,6 +31,6 @@ public interface ZipFileOperation {
      * @return size of file in bytes
      * @throws IOException
      */
-    long compressLocalFile(String absPath, List<File> entries) throws IOException;
+    long compressLocalFile(String absPath, List<FileWrp> entries) throws IOException;
 
 }

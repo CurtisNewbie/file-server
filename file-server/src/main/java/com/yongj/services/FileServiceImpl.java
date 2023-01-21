@@ -25,6 +25,7 @@ import com.yongj.file.remote.vo.FileInfoResp;
 import com.yongj.helper.FileKeyGenerator;
 import com.yongj.helper.FsGroupIdResolver;
 import com.yongj.helper.WriteFsGroupSupplier;
+import com.yongj.io.FileWrp;
 import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
@@ -43,7 +44,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
@@ -57,6 +57,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.curtisnewbie.common.util.AssertUtils.*;
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
@@ -772,20 +773,38 @@ public class FileServiceImpl implements FileService {
 
             // copy all these files to temp dir, where we compress them as a zip
             final Set<String> fnames = new HashSet<>(); // to avoid name collision
-            final List<File> entries = r.getFileIds().stream()
-                    .map(fid -> {
+            final List<FileWrp> entries = r.getFileIds().stream()
+                    .map(this::findById)
+                    .flatMap(f -> {
+                        if (f.isFile()) return Stream.of(f);
+
+                        // list files under the directory
+                        // we don't handle all the nested child files for now, it may be too many
+                        List<FileInfo> cflist = new ArrayList<>();
+                        var pag = new Paginator<FileInfo>()
+                                .pageSize(100)
+                                .nextPageSupplier(p -> fileInfoMapper.selectList(MapperUtils.eq(FileInfo::getParentFile, f.getUuid())
+                                        .eq(FileInfo::getFileType, FileType.FILE)
+                                        .last(p.toLimitStr())));
+                        pag.loopPageTilEnd(cflist::addAll);
+                        return cflist.stream();
+                    })
+                    .map(f -> {
                         try {
-                            validateUserDownload(user.getUserId(), fid, user.getUserNo());
+                            if (!f.belongsTo(user.getUserId())) {
+                                validateUserDownload(user.getUserId(), f.getId(), user.getUserNo());
+                            }
 
                             // to avoid name collision, if we found a file with the same name, we add suffix to it
-                            String fname = PathUtils.escapeFilename(findById(fid).getName());
+                            String fname = PathUtils.escapeFilename(f.getName());
                             while (!fnames.add(fname)) {
                                 fname = PathUtils.getNextFilename(fname);
                             }
 
-                            return resolveFilePath(fid).toFile();
+                            var file = resolveFilePath(f).toFile();
+                            return new FileWrp(file, fname);
                         } catch (Exception e) {
-                            log.warn("Failed to create File handle for exporting, file.id: {}", fid, e);
+                            log.warn("Failed to create File handle for exporting, file.id: {}", f.getId(), e);
                         }
                         return null;
                     })
@@ -953,17 +972,22 @@ public class FileServiceImpl implements FileService {
         return redisController.getLock(String.format("file:tag:uid:%s:name:%s", userId, tagName));
     }
 
-    private Path resolveFilePath(int id) {
-        final FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
-        nonNull(fi, "File not found or may be deleted");
+    private Path resolveFilePath(FileInfo fi) {
+        nonNull(fi, "FileInfo is null");
 
         final FsGroup fsg = fsGroupIdResolver.resolve(fi.getFsGroupId());
         if (fsg == null || fsg.isDeleted())
             throw illegalState("FS Group FS Group for this record is not found");
 
         final String absPath = pathResolver.resolveAbsolutePath(fi.getUuid(), fi.getUploaderId(), fsg.getBaseFolder());
-        log.info("Resolved path: '{}' for file.id: {}", absPath, id);
+        log.info("Resolved path: '{}' for file.id: {}", absPath, fi.getId());
         return Paths.get(absPath);
+    }
+
+    private Path resolveFilePath(int id) {
+        final FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
+        nonNull(fi, "File not found or may be deleted");
+        return resolveFilePath(fi);
     }
 
     /** Get Lock for fileInfo */

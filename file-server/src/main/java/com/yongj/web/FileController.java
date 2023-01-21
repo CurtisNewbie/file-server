@@ -11,6 +11,7 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.Runner;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.module.redisutil.RedisController;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
@@ -99,6 +100,8 @@ public class FileController {
     private TagConverter tagConverter;
     @Autowired
     private Tracer tracer;
+    @Autowired
+    private RedisController redisController;
 
     /**
      * Preflight check on whether the filename exists already
@@ -286,6 +289,11 @@ public class FileController {
                 .stream()
                 .filter(Objects::nonNull).collect(Collectors.toList());
         AssertUtils.isTrue(!fileIds.isEmpty(), "Please select files first");
+
+        // merely an optimization, may not accurate
+        if (redisController.exists("fs:export:zip:" + user.getUserNo())) {
+            return Result.error("Your are currently exporting a zip file, please wait before it finishes");
+        }
 
         CompletableFuture.runAsync(() -> fileInfoService.exportAsZip(r, user), AsyncUtils.getCommonWorkStealingPool());
 

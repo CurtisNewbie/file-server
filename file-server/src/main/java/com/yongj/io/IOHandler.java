@@ -4,7 +4,6 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +30,7 @@ public interface IOHandler {
     /**
      * Write data to a zip file of the absolute path
      */
-    long writeLocalZipFile(@NotEmpty String absPath, @NotEmpty List<File> entries) throws IOException;
+    long writeLocalZipFile(@NotEmpty String absPath, @NotEmpty List<FileWrp> entries) throws IOException;
 
     /**
      * Write data (from an InputStream) to file of absolute path

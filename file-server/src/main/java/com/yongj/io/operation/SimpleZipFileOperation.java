@@ -1,6 +1,7 @@
 package com.yongj.io.operation;
 
 import com.yongj.config.FileServiceConfig;
+import com.yongj.io.FileWrp;
 import com.yongj.io.ZipCompressEntry;
 import com.yongj.util.IOThrottler;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,7 @@ public class SimpleZipFileOperation implements ZipFileOperation {
     }
 
     @Override
-    public long compressLocalFile(String absPath, List<File> entries) throws IOException {
+    public long compressLocalFile(String absPath, List<FileWrp> entries) throws IOException {
         final boolean isIOLimited = fileServiceConfig.getCompressSpeedLimit() > -1;
         if (isIOLimited) {
             log.info("IOThrottler enabled, expected compression speed: {}mb/s", fileServiceConfig.getCompressSpeedLimit());
@@ -71,10 +72,12 @@ public class SimpleZipFileOperation implements ZipFileOperation {
         try (final ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(file.toPath())));
              final WritableByteChannel wc = Channels.newChannel(zipOut)) {
 
-            for (File entry : entries) {
-                final ZipEntry ze = new ZipEntry(entry.getName());
+            for (FileWrp entry : entries) {
+                log.info("Compressing '{}' to '{}'", entry.proposedName, absPath);
+
+                final ZipEntry ze = new ZipEntry(entry.proposedName);
                 zipOut.putNextEntry(ze);
-                try (final ReadableByteChannel rc = Channels.newChannel(Files.newInputStream(entry.toPath(), StandardOpenOption.READ))) {
+                try (final ReadableByteChannel rc = Channels.newChannel(Files.newInputStream(entry.file.toPath(), StandardOpenOption.READ))) {
                     copy(rc, wc, buffer, ioThrottler);
                 }
                 zipOut.closeEntry();

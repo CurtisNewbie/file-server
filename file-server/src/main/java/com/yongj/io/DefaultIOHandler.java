@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,7 +69,7 @@ public class DefaultIOHandler implements IOHandler {
     }
 
     @Override
-    public long writeLocalZipFile(String absPath, List<File> entries) throws IOException {
+    public long writeLocalZipFile(String absPath, List<FileWrp> entries) throws IOException {
         createParentDirIfNotExists(absPath);
         return zipFileOperation.compressLocalFile(absPath, entries);
     }
