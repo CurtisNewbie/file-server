@@ -132,7 +132,7 @@
   </select>
 
   <select id="selectDownloadInfoById" resultType="com.yongj.dao.FileInfo">
-    select fs_group_id, uuid, uploader_id
+    select id, fs_group_id, uuid, uploader_id
     from file_info
     where id = #{id}
     and is_logic_deleted = 0
