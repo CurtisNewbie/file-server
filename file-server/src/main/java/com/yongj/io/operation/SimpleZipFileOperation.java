@@ -1,7 +1,12 @@
 package com.yongj.io.operation;
 
+import com.yongj.config.FileServiceConfig;
 import com.yongj.io.ZipCompressEntry;
+import com.yongj.util.IOThrottler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,14 +27,21 @@ import static com.yongj.util.IOUtils.copy;
  *
  * @author yongjie.zhuang
  */
+@Slf4j
 public class SimpleZipFileOperation implements ZipFileOperation {
+
+    private static final long HALF_SEC = 500;
+    private static final long HALF_MB = 1024 * 512;
+
+    @Autowired
+    private FileServiceConfig fileServiceConfig;
 
     @Override
     public long compressFile(String absPath, List<ZipCompressEntry> entries) throws IOException {
         final File file = new File(absPath);
         final ByteBuffer buffer = ByteBuffer.allocateDirect(8192 * 2);
 
-        try (final ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
+        try (final ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
              final WritableByteChannel wc = Channels.newChannel(zipOut)) {
 
             for (ZipCompressEntry entry : entries) {
@@ -46,17 +58,24 @@ public class SimpleZipFileOperation implements ZipFileOperation {
 
     @Override
     public long compressLocalFile(String absPath, List<File> entries) throws IOException {
+        final boolean isIOLimited = fileServiceConfig.getCompressSpeedLimit() > -1;
+        if (isIOLimited) {
+            log.info("IOThrottler enabled, expected compression speed: {}mb/s", fileServiceConfig.getCompressSpeedLimit());
+        }
+
+        final IOThrottler ioThrottler = isIOLimited ? new IOThrottler(HALF_SEC, fileServiceConfig.getCompressSpeedLimit() * HALF_MB) : null;
+
         final File file = new File(absPath);
         final ByteBuffer buffer = ByteBuffer.allocateDirect(8192 * 2);
 
-        try (final ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(file.toPath()));
+        try (final ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(file.toPath())));
              final WritableByteChannel wc = Channels.newChannel(zipOut)) {
 
             for (File entry : entries) {
                 final ZipEntry ze = new ZipEntry(entry.getName());
                 zipOut.putNextEntry(ze);
                 try (final ReadableByteChannel rc = Channels.newChannel(Files.newInputStream(entry.toPath(), StandardOpenOption.READ))) {
-                    copy(rc, wc, buffer);
+                    copy(rc, wc, buffer, ioThrottler);
                 }
                 zipOut.closeEntry();
             }

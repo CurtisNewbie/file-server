@@ -44,6 +44,7 @@ redisson-config: redisson-test.yaml
 file-service:
   max-zip-entries: 200
   upload-speed-limit: 50 # 50mb/s
+  compress-speed-limit: 5 # 5mb/s
 
 event.sync:
   enabled: false

@@ -3,7 +3,6 @@ package com.yongj.util;
 import com.curtisnewbie.common.data.LongWrapper;
 import com.curtisnewbie.common.util.Runner;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.function.Consumer;
 
 /**
  * IOUtils
@@ -52,11 +50,10 @@ public final class IOUtils {
      * @param from      from channel
      * @param to        to channel
      * @param buffer    buffer
-     * @param throttler throttler (nullable)
+     * @param ioThrottler throttler (nullable)
      * @return number of bytes copied
      */
-    public static long copy(ReadableByteChannel from, WritableByteChannel to, ByteBuffer buffer,
-                            @Nullable Consumer<Long /* bytesTransferred */> throttler) throws IOException {
+    public static long copy(ReadableByteChannel from, WritableByteChannel to, ByteBuffer buffer, IOThrottler ioThrottler) throws IOException {
         long p = 0;
         final boolean isFileChannel = to instanceof FileChannel;
 
@@ -70,7 +67,7 @@ public final class IOUtils {
                     t = to.write(buffer);
                 p += t;
 
-                if (throttler != null) throttler.accept(t);
+                if (ioThrottler != null) ioThrottler.throttleIfNecessary(t);
             }
             ((Buffer) buffer).clear();
         }

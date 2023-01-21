@@ -29,7 +29,6 @@ import com.yongj.io.IOHandler;
 import com.yongj.io.PathResolver;
 import com.yongj.io.ZipCompressEntry;
 import com.yongj.repository.FileTaskRepository;
-import com.yongj.util.IOUtils;
 import com.yongj.util.PathUtils;
 import com.yongj.vo.*;
 import com.yongj.vo.event.FileDeletedEvent;
@@ -755,22 +754,17 @@ public class FileServiceImpl implements FileService {
         boolean isLocked = false;
         try {
             isLocked = lock.tryLock(1, -1, TimeUnit.MILLISECONDS);
-            if (!isLocked)
+            if (!isLocked) {
+                log.info("User {} is already exporting a zip file", user.getUserNo());
                 return;
+            }
 
             final String filePre = "export_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            final String folderName = user.getUserId() + "_" + filePre;
             final String zipFileName = filePre + ".zip";
 
             var desc = String.format("Export Task: '%s' (%d files)", zipFileName, r.getFileIds().size());
             fileTask = fileTaskRepository.createFileTask(user.getUserNo(), FileTaskType.EXPORT, desc);
             fileTask.startTask();
-
-            // temp dir
-            final String tmpPre = "/tmp/";
-            final String tmpDirPath = tmpPre + folderName;
-            final File tmpDir = new File(tmpDirPath);
-            tmpDir.mkdir();
 
             // fsgroup
             final FsGroup fsGroup = writeFsGroupSupplier.supply(FsGroupType.USER);
@@ -789,13 +783,9 @@ public class FileServiceImpl implements FileService {
                                 fname = PathUtils.getNextFilename(fname);
                             }
 
-                            // copy the file to the tmp dir
-                            final File toFile = new File(tmpDirPath + "/" + fname);
-                            IOUtils.copy(retrieveFileChannel(fid), toFile);
-
-                            return toFile;
+                            return resolveFilePath(fid).toFile();
                         } catch (Exception e) {
-                            log.warn("Failed to copy file to temp dir for exporting, id: {}, tmpDirPath: {}", fid, tmpDirPath, e);
+                            log.warn("Failed to create File handle for exporting, file.id: {}", fid, e);
                         }
                         return null;
                     })
@@ -965,7 +955,7 @@ public class FileServiceImpl implements FileService {
 
     private Path resolveFilePath(int id) {
         final FileInfo fi = fileInfoMapper.selectDownloadInfoById(id);
-        nonNull(fi, "Record not found");
+        nonNull(fi, "File not found or may be deleted");
 
         final FsGroup fsg = fsGroupIdResolver.resolve(fi.getFsGroupId());
         if (fsg == null || fsg.isDeleted())

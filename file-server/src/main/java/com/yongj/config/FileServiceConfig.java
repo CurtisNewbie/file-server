@@ -16,4 +16,7 @@ public class FileServiceConfig {
 
     /** uploading speed in mb/s */
     private int uploadSpeedLimit = -1;
+
+    /** export compression speed in mb/s */
+    private int compressSpeedLimit = -1;
 }

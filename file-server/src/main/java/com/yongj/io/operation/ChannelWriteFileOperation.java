@@ -25,6 +25,7 @@ import static com.yongj.util.IOUtils.copy;
 @Slf4j
 public class ChannelWriteFileOperation extends TimedWriteFileOperation {
 
+    private static final long HALF_SEC = 500;
     private static final long HALF_MB = 1024 * 512;
 
     @Autowired
@@ -40,15 +41,13 @@ public class ChannelWriteFileOperation extends TimedWriteFileOperation {
             log.info("IOThrottler enabled, expected speed: {}mb/s", fileServiceConfig.getUploadSpeedLimit());
         }
 
-        final IOThrottler ioThrottler = isIOLimited ? new IOThrottler(500, fileServiceConfig.getUploadSpeedLimit() * HALF_MB) : null;
+        final IOThrottler ioThrottler = isIOLimited ? new IOThrottler(HALF_SEC, fileServiceConfig.getUploadSpeedLimit() * HALF_MB) : null;
         final ByteBuffer buffer = ByteBuffer.allocateDirect(16384); // 16 * 1024
 
         try (final FileChannel fc = FileChannel.open(file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.APPEND);
              ReadableByteChannel rc = Channels.newChannel(inputStream)) {
 
-            return copy(rc, fc, buffer, (transferred) -> {
-                if (ioThrottler != null) ioThrottler.throttleIfNecessary(transferred);
-            });
+            return copy(rc, fc, buffer, ioThrottler);
         }
     }
 }
