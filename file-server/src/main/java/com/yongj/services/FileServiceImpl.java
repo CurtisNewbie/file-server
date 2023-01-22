@@ -892,6 +892,25 @@ public class FileServiceImpl implements FileService {
                 .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL));
     }
 
+    @Override
+    public Map<String, String> findNameOfFiles(Set<String> fileKeys) {
+        if (fileKeys.isEmpty()) return Collections.emptyMap();
+        return fileInfoMapper.selectList(MapperUtils
+                        .select(FileInfo::getUuid, FileInfo::getName)
+                        .in(FileInfo::getUuid, fileKeys)
+                        .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL))
+                .stream()
+                .collect(Collectors.toMap(FileInfo::getUuid, FileInfo::getName, (k1, k2) -> k2));
+    }
+
+    @Override
+    public String findNameOfFile(String fileKey) {
+        return fileInfoMapper.selectAndConvert(MapperUtils
+                .select(FileInfo::getName)
+                .eq(FileInfo::getUuid, fileKey)
+                .eq(FileInfo::getIsLogicDeleted, FLogicDelete.NORMAL), FileInfo::getName);
+    }
+
     // ------------------------------------- private helper methods ------------------------------------
 
     /** Insert FileInfo */

@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Service for files
@@ -244,4 +246,8 @@ public interface FileService {
     ParentFileInfo getParentFileInfo(@NotEmpty String fileKey, @NotNull TUser user);
 
     List<FileInfo> findNonDeletedByKeys(List<String> fileKeys);
+
+    Map<String /* fileKey */, String /* name */> findNameOfFiles(@NotNull Set<String> fileKeys);
+
+    String findNameOfFile(@NotNull String fileKey);
 }
