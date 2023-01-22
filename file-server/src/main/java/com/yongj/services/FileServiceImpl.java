@@ -344,9 +344,14 @@ public class FileServiceImpl implements FileService {
         final FileInfo f = fileInfoMapper.selectOne(MapperUtils.eq(FileInfo::getUuid, fileKey)
                 .eq(FileInfo::getIsDel, IsDel.NORMAL.getValue()));
         final FileInfoResp fir = BeanCopyUtils.toType(f, FileInfoResp.class);
-        fir.setIsDeleted(f.getIsLogicDeleted() == FLogicDelete.DELETED
-                || f.getIsPhysicDeleted() == FPhysicDelete.DELETED);
+
+        var deleted = f.getIsLogicDeleted() == FLogicDelete.DELETED
+                || f.getIsPhysicDeleted() == FPhysicDelete.DELETED;
+        fir.setIsDeleted(deleted);
         fir.setFileType(f.getFileType().name());
+        if (!deleted && f.isFile()) {
+            fir.setLocalPath(resolveFilePath(f).toString());
+        }
         return fir;
     }
 

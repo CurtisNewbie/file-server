@@ -34,4 +34,7 @@ public class FileInfoResp {
 
     /** parent file's uuid */
     private String parentFile;
+
+    /** file's local path */
+    private String localPath;
 }
