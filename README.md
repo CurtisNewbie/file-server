@@ -35,7 +35,7 @@ This project depends on the following modules that you must manually install (us
 
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
 - [distributed-task-module v2.1.1.4](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.4)
-- [messaging-module v2.0.7](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.7)
+- [messaging-module v2.0.8](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.8)
 - [auth-service-remote v1.1.4.3](https://github.com/curtisnewbie/auth-service/tree/v1.1.4.3)
 - [common-module v2.1.11](https://github.com/CurtisNewbie/common-module/tree/v2.1.11)
 - [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
