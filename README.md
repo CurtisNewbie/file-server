@@ -8,7 +8,7 @@ This app is ***not a standalone server***, you must have `auth-service`, `auth-g
 
 ## Requirements 
 
-- file-service-front (Angular frontend) >= [v1.1.16](https://github.com/CurtisNewbie/file-service-front/tree/v1.1.16)
+- file-service-front (Angular frontend) >= [v1.2.0](https://github.com/CurtisNewbie/file-service-front/tree/v1.2.0)
 - auth-gateway >= [v1.0.4](https://github.com/CurtisNewbie/auth-gateway/tree/v1.0.4)
 - auth-service >= [v1.1.4.5](https://github.com/CurtisNewbie/auth-service/tree/v1.1.4.5)
 - MySQL 5.7 or 8
@@ -36,8 +36,8 @@ This project depends on the following modules that you must manually install (us
 - [curtisnewbie-bom](https://github.com/CurtisNewbie/curtisnewbie-bom)
 - [distributed-task-module v2.1.1.4](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.4)
 - [messaging-module v2.0.8](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.8)
-- [auth-service-remote v1.1.4.3](https://github.com/curtisnewbie/auth-service/tree/v1.1.4.3)
-- [common-module v2.1.11](https://github.com/CurtisNewbie/common-module/tree/v2.1.11)
+- [auth-service-remote v1.1.4.5](https://github.com/curtisnewbie/auth-service/tree/v1.1.4.5)
+- [common-module v2.1.12](https://github.com/CurtisNewbie/common-module/tree/v2.1.12)
 - [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
 
 
