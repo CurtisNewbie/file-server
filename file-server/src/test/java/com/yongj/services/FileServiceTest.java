@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.zip.ZipFile;
 
@@ -135,10 +136,10 @@ public class FileServiceTest {
         Assertions.assertNotNull(fileInfoService.findPagedFilesForUser(reqVo));
     }
 
-    /** Test {@link FileService#findPagedFileIdsForPhysicalDeleting()} */
+    /** Test {@link FileService#findPagedFileIdsForPhysicalDeleting(LocalDateTime)} */
     @Test
     void shouldFindPagedFilesForPhysicalDeleting() {
-        Assertions.assertNotNull(fileInfoService.findPagedFileIdsForPhysicalDeleting());
+        Assertions.assertNotNull(fileInfoService.findPagedFileIdsForPhysicalDeleting(LocalDateTime.now()));
     }
 
     private void doCleanUp(Path fp) {

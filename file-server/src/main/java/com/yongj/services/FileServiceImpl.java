@@ -294,8 +294,8 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting() {
-        List<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting();
+    public List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(LocalDateTime beforeDeleteTime) {
+        List<FileInfo> dataList = fileInfoMapper.findInfoForPhysicalDeleting(beforeDeleteTime);
         return BeanCopyUtils.toTypeList(dataList, PhysicDeleteFileVo.class);
     }
 

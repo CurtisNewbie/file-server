@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +56,7 @@ public interface FileService {
     /**
      * Find logically deleted, but not physically deleted files
      */
-    List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting();
+    List<PhysicDeleteFileVo> findPagedFileIdsForPhysicalDeleting(@NotNull LocalDateTime beforeDeleteTime);
 
     /**
      * File uploader id of files that doesn't contain uploader name

@@ -50,7 +50,7 @@ public interface FileInfoMapper extends EnhancedMapper<FileInfo> {
     /**
      * Select id of files that are logically deleted but not physically deleted
      */
-    List<FileInfo> findInfoForPhysicalDeleting();
+    List<FileInfo> findInfoForPhysicalDeleting(@Param("beforeDeleteTime") LocalDateTime beforeDeleteTime);
 
     /**
      * Mark file being physically deleted

@@ -129,6 +129,7 @@
     from file_info
     where is_logic_deleted = 1
     and is_physic_deleted = 0
+    and logic_delete_time &lt;= #{beforeDeleteTime}
   </select>
 
   <select id="selectDownloadInfoById" resultType="com.yongj.dao.FileInfo">

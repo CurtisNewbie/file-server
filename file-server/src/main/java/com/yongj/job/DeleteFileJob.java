@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.curtisnewbie.common.util.ExceptionUtils.illegalState;
@@ -47,7 +48,10 @@ public class DeleteFileJob extends AbstractJob {
     public void executeInternal(TaskVo task) throws JobExecutionException {
         log.info("Physical file deleting job started...");
 
-        final List<PhysicDeleteFileVo> files = fileInfoService.findPagedFileIdsForPhysicalDeleting();
+        // Only 'physically' delete files that are marked deleted 12 hours ago
+        var before = LocalDateTime.now().minusHours(12);
+
+        final List<PhysicDeleteFileVo> files = fileInfoService.findPagedFileIdsForPhysicalDeleting(before);
         log.info("Found {} files, preparing to delete them", files.size());
 
         // delete the file physically
