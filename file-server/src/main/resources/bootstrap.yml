@@ -20,7 +20,7 @@ spring:
         - services
 
 # base path for the exposed api
-web.base-path: "/open/api/"
+web.base-path: "/open/api"
 
 mybatis:
   config-location: classpath:mybatis-config.xml

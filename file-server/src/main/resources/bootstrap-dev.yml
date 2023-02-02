@@ -50,3 +50,5 @@ event.sync:
   ip-address: localhost,127.0.0.1
   enabled: true
   secret: '123456'
+
+goauth.path.report.disabled: true
