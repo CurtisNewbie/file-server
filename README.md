@@ -40,8 +40,9 @@ This project depends on the following modules that you must manually install (us
 - [distributed-task-module v2.1.1.4](https://github.com/CurtisNewbie/distributed-task-module/tree/v2.1.1.4)
 - [messaging-module v2.0.8](https://github.com/CurtisNewbie/messaging-module/tree/v2.0.8)
 - [auth-service-remote v1.1.4.5](https://github.com/curtisnewbie/auth-service/tree/v1.1.4.5)
-- [common-module v2.1.12](https://github.com/CurtisNewbie/common-module/tree/v2.1.12)
+- [common-module v2.2.0](https://github.com/CurtisNewbie/common-module/tree/v2.2.0)
 - [redis-util-module v2.0.3](https://github.com/CurtisNewbie/redis-util-module/tree/v2.0.3)
+- [goauth-client-java v1.0.0](https://github.com/CurtisNewbie/goauth/tree/v1.0.0/client/goauth-client-java)
 
 ## File Operations and SPI Interfaces
 

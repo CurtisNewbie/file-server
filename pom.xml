@@ -21,7 +21,7 @@
     <distributed-task-module.version>2.1.1.4</distributed-task-module.version>
     <messaging-module.version>2.0.8</messaging-module.version>
     <auth-service-api.version>1.1.4.5</auth-service-api.version>
-    <common-module.version>2.1.12</common-module.version>
+    <common-module.version>2.2.0</common-module.version>
     <redis-util-module.version>2.0.3</redis-util-module.version>
     <goauth-client.version>1.0.0</goauth-client.version>
     <java.version>11</java.version>
