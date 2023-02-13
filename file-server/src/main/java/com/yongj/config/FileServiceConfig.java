@@ -19,4 +19,7 @@ public class FileServiceConfig {
 
     /** export compression speed in mb/s */
     private int compressSpeedLimit = -1;
+
+    /** compression level (0-9) */
+    private int compressLevel = 0;
 }

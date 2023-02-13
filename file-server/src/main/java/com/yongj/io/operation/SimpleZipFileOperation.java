@@ -45,6 +45,10 @@ public class SimpleZipFileOperation implements ZipFileOperation {
         try (final ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
              final WritableByteChannel wc = Channels.newChannel(zipOut)) {
 
+            int compressLevel = fileServiceConfig.getCompressLevel();
+            log.info("Using compression level: {}", compressLevel);
+            zipOut.setLevel(compressLevel);
+
             for (ZipCompressEntry entry : entries) {
                 final ZipEntry ze = new ZipEntry(entry.getEntryName());
                 zipOut.putNextEntry(ze);
@@ -71,6 +75,9 @@ public class SimpleZipFileOperation implements ZipFileOperation {
 
         try (final ZipOutputStream zipOut = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(file.toPath())));
              final WritableByteChannel wc = Channels.newChannel(zipOut)) {
+            int compressLevel = fileServiceConfig.getCompressLevel();
+            log.info("Using compression level: {}", compressLevel);
+            zipOut.setLevel(compressLevel);
 
             for (FileWrp entry : entries) {
                 log.info("Compressing '{}' to '{}'", entry.proposedName, absPath);
