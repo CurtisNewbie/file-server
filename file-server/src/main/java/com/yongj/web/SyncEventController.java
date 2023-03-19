@@ -3,6 +3,8 @@ package com.yongj.web;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.util.AsyncUtils;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.goauth.client.PathDoc;
+import com.curtisnewbie.goauth.client.PathType;
 import com.yongj.config.EventSyncConfig;
 import com.yongj.dao.FileInfo;
 import com.yongj.file.remote.vo.FileInfoResp;
@@ -55,6 +57,7 @@ public class SyncEventController {
     /*
         curl -X POST http://localhost:8080/open/api/sync/event/poll -H 'content-type: application/json' -d '{ "secret" : "123456", "eventId": "0", "limit": "10" }'
      */
+    @PathDoc(description = "Poll file sync events (validated by secret in payload)", type = PathType.PUBLIC)
     @PostMapping("/event/poll")
     public DeferredResult<Result<List<FileEventVo>>> pollEvents(@RequestBody PollFileEventReq req,
                                                                 @RequestHeader(value = "x-forwarded-for", required = false) String forwardedFor,
@@ -74,6 +77,7 @@ public class SyncEventController {
     /*
         curl -X POST http://localhost:8080/open/api/sync/file/info -H 'content-type: application/json' -d '{ "secret" : "123456", "fileKey": "e2e63cfd-a7fa-4b8a-9cb4-3a6f85991e3b" }'
      */
+    @PathDoc(description = "Get file sync event (validated by secret in payload)", type = PathType.PUBLIC)
     @PostMapping("/file/info")
     public DeferredResult<Result<FileInfoResp>> getSyncFileInfo(@RequestBody SyncFileInfoReq r,
                                                                 @RequestHeader(value = "x-forwarded-for", required = false) String forwardedFor,
@@ -91,6 +95,7 @@ public class SyncEventController {
     /*
         curl -X POST http://localhost:8080/open/api/sync/file/download -H 'content-type: application/json' -d '{ "secret" : "123456", "fileKey": "e2e63cfd-a7fa-4b8a-9cb4-3a6f85991e3b" }' -o temp.png
      */
+    @PathDoc(description = "Download file (validated by secret in payload)", type = PathType.PUBLIC)
     @PostMapping("/file/download")
     public StreamingResponseBody download(@RequestBody SyncFileInfoReq r,
                                           @RequestHeader(value = "x-forwarded-for", required = false) String forwardedFor,

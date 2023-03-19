@@ -2,7 +2,6 @@ package com.yongj.web;
 
 import brave.Span;
 import brave.Tracer;
-import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.exceptions.UnrecoverableException;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.util.AssertUtils;
@@ -11,6 +10,8 @@ import com.curtisnewbie.common.util.BeanCopyUtils;
 import com.curtisnewbie.common.util.Runner;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.goauth.client.PathDoc;
+import com.curtisnewbie.goauth.client.PathType;
 import com.curtisnewbie.module.redisutil.RedisController;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.curtisnewbie.service.auth.remote.exception.InvalidAuthenticationException;
@@ -78,6 +79,7 @@ import static com.curtisnewbie.common.util.PagingUtil.forPage;
 @Validated
 @RestController
 @RequestMapping("${web.base-path}/file")
+@PathDoc(resourceCode = Resources.MANAGE_FILE_CODE, resourceName = Resources.MANAGE_FILE_NAME)
 public class FileController {
 
     public static final long SIZE_MB_10 = 10 * 1024 * 1024;
@@ -106,7 +108,7 @@ public class FileController {
     /**
      * Preflight check on whether the filename exists already
      */
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "User - preflight check for duplicate file uploads")
     @GetMapping("/upload/duplication/preflight")
     public DeferredResult<Result<Boolean>> handleDuplicateOnNamePreflightCheck(@RequestParam("fileName") String fileName) {
         return AsyncUtils.runAsyncResult(() -> fileInfoService.filenameExists(fileName, tUser().getUserId()));
@@ -115,11 +117,11 @@ public class FileController {
     /**
      * Fetch parent file info
      */
+    @PathDoc(description = "User fetch parent file info")
     @GetMapping("/parent")
     public DeferredResult<Result<ParentFileInfo>> fetchParentFileInfo(@RequestParam("fileKey") String fileKey) {
         return AsyncUtils.runAsyncResult(() -> fileInfoService.getParentFileInfo(fileKey, tUser()));
     }
-
 
     /**
      * Upload file using stream
@@ -127,7 +129,7 @@ public class FileController {
      * Only supports a single file upload, but since we are using stream, it can handle pretty large file in an
      * efficient way
      */
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "User upload file via streaming")
     @PostMapping(path = "/upload/stream", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Result<Void> streamUpload(@RequestHeader("fileName") String fileName,
                                      @RequestHeader(value = "userGroup") Integer userGroupInt,
@@ -198,7 +200,7 @@ public class FileController {
     /**
      * Upload file, only user and admin are allowed to upload file (guest is not allowed)
      */
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "User upload files")
     @PostMapping(path = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<Void> upload(@RequestParam("fileName") String fileName,
                                @RequestParam("file") MultipartFile[] multipartFiles,
@@ -280,7 +282,7 @@ public class FileController {
     /**
      * Export selected files as zip
      */
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "User export files")
     @LogOperation(name = "exportAsZip", description = "Export As Zip")
     @PostMapping(path = "/export-as-zip")
     public Result<Void> exportAsZip(@RequestBody ExportAsZipReq r) {
@@ -303,8 +305,8 @@ public class FileController {
     /**
      * Move file into directory
      */
+    @PathDoc(description = "User move files into directory")
     @LogOperation(name = "moveIntoDir", description = "Move into directory")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/move-to-dir")
     public DeferredResult<Result<Void>> moveFileIntoDir(@RequestBody MoveFileIntoDirReqVo r) {
         return runAsync(() -> {
@@ -316,8 +318,8 @@ public class FileController {
     /**
      * Make Directory for current user
      */
+    @PathDoc(description = "User make directory")
     @LogOperation(name = "makeDir", description = "Make directory")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/make-dir")
     public DeferredResult<Result<String>> makeDir(@RequestBody MakeDirReqVo req) {
         return runAsyncResult(() -> {
@@ -337,8 +339,8 @@ public class FileController {
     /**
      * Grant access to the file to another user (only file uploader can do so)
      */
+    @PathDoc(description = "User grant file access")
     @LogOperation(name = "grantAccessToUser", description = "Grant file access")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/grant-access")
     public DeferredResult<Result<Void>> grantAccessToUser(@RequestBody @Valid GrantAccessToUserReqVo v) {
         return runAsync(() -> {
@@ -361,7 +363,7 @@ public class FileController {
     /**
      * List accesses granted to the file (for current user)
      */
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "User list granted file access")
     @PostMapping(path = "/list-granted-access")
     public DeferredResult<Result<ListGrantedFileAccessRespVo>> listGrantedAccess(@Validated @RequestBody ListGrantedFileAccessReqVo v) {
         return AsyncUtils.runAsyncResult(() -> {
@@ -392,8 +394,8 @@ public class FileController {
     /**
      * Remove the access granted to a user (for current user, and only file uploader can do it)
      */
+    @PathDoc(description = "User remove granted file access")
     @LogOperation(name = "removeGrantedFileAccess", description = "Remove granted file access")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/remove-granted-access")
     public DeferredResult<Result<Void>> removeGrantedFileAccess(@Validated @RequestBody RemoveGrantedFileAccessReqVo v) {
         return runAsync(() -> {
@@ -404,6 +406,7 @@ public class FileController {
     /**
      * List accessible DIRs for current user
      */
+    @PathDoc(description = "User list directories")
     @GetMapping(path = "/dir/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<Result<List<ListDirVo>>> listDirs() {
         return runAsyncResult(() -> fileInfoService.listDirs(tUser().getUserId()));
@@ -417,6 +420,7 @@ public class FileController {
      * When the folderNo is specified, it's the folder mode; depends on which mode is used, different sql queries are
      * also used
      */
+    @PathDoc(description = "User list files")
     @PostMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<Result<PageableList<FileInfoWebVo>>> listFiles(@RequestBody ListFileInfoReqVo req) {
         final TUser user = tUser();
@@ -445,8 +449,8 @@ public class FileController {
     /**
      * Delete file (only file uploader can do it)
      */
+    @PathDoc(description = "User delete file")
     @LogOperation(name = "deleteFile", description = "Delete a file logically")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping(path = "/delete")
     public DeferredResult<Result<Void>> deleteFile(@RequestBody @Valid LogicDeleteFileReqVo reqVo) {
         return runAsync(() -> {
@@ -457,6 +461,7 @@ public class FileController {
     /**
      * List supported file extension names
      */
+    @PathDoc(description = "User list supported file extension names")
     @GetMapping(path = "/extension/name", produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<Result<List<String>>> listSupportedFileExtensionNames() {
         return runAsyncResult(() -> fileExtensionService.getNamesOfAllEnabled());
@@ -465,8 +470,8 @@ public class FileController {
     /**
      * Add a new file extension
      */
+    @PathDoc(description = "Admin add supported file extension", resourceCode = Resources.ADMIN_FS_CODE, resourceName = Resources.ADMIN_FS_NAME)
     @LogOperation(name = "addFileExtension", description = "Add file extension")
-    @RoleControlled(rolesRequired = "admin")
     @PostMapping("/extension/add")
     public DeferredResult<Result<Void>> addFileExtension(@RequestBody AddFileExtReqVo reqVo) {
         hasText(reqVo.getName(), "extension name must not be empty");
@@ -482,7 +487,7 @@ public class FileController {
     /**
      * List details of all file extensions
      */
-    @RoleControlled(rolesRequired = "admin")
+    @PathDoc(description = "Admin list supported file extension details", resourceCode = Resources.ADMIN_FS_CODE, resourceName = Resources.ADMIN_FS_NAME)
     @PostMapping(path = "/extension/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<Result<PageableList<FileExtVo>>> listFileExtensionDetails(@RequestBody ListFileExtReqVo vo) {
         return runAsyncResult(() -> fileExtensionService.getDetailsOfAllByPageSelective(vo));
@@ -491,7 +496,7 @@ public class FileController {
     /**
      * Update file extension
      */
-    @RoleControlled(rolesRequired = "admin")
+    @PathDoc(description = "Admin update supported file extension detail", resourceCode = Resources.ADMIN_FS_CODE, resourceName = Resources.ADMIN_FS_NAME)
     @LogOperation(name = "updateFileExtension", description = "Update file extension")
     @PostMapping(path = "/extension/update")
     public DeferredResult<Result<Void>> updateFileExtension(@RequestBody UpdateFileExtReq req) {
@@ -504,7 +509,7 @@ public class FileController {
     /**
      * Update file's info (only uploader can do it)
      */
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "User update file info")
     @PostMapping("/info/update")
     public DeferredResult<Result<Void>> updateFileInfo(@RequestBody UpdateFileReqVo reqVo) {
 
@@ -525,6 +530,7 @@ public class FileController {
     /**
      * Extends temp token expiration
      */
+    @PathDoc(description = "User refresh temporary token expiration")
     @PostMapping("/token/renew")
     public DeferredResult<Result<Void>> extendsTempTokenExp(@Valid @RequestBody ExtendsTokenExpReqVo req) {
         return runAsync(() -> tempTokenFileDownloadService.extendsStreamingTokenExp(req.getToken(), 15));
@@ -534,6 +540,7 @@ public class FileController {
     /**
      * Generate temporary token to download/stream (media) the file
      */
+    @PathDoc(description = "User generate temporary token")
     @PostMapping("/token/generate")
     public DeferredResult<Result<String>> generateTempToken(@Valid @RequestBody GenerateTokenReqVo reqVo) {
 
@@ -552,6 +559,7 @@ public class FileController {
     /**
      * Handle HEAD request for media streaming
      */
+    @PathDoc(description = "Test media streaming support")
     @RequestMapping(value = "/token/media/streaming", method = RequestMethod.HEAD)
     public ResponseEntity<Void> handleStreamingHeadRequest(@RequestParam("token") String token) {
 
@@ -578,6 +586,7 @@ public class FileController {
     /**
      * Media streaming by a generated token
      */
+    @PathDoc(description = "Stream media", type = PathType.PUBLIC)
     @GetMapping(value = "/token/media/streaming")
     public StreamingResponseBody streamMediaByToken(HttpServletRequest req, HttpServletResponse resp,
                                                     @RequestParam("token") String token) throws IOException {
@@ -602,6 +611,7 @@ public class FileController {
     /**
      * Download file by a generated token
      */
+    @PathDoc(description = "Download file", type = PathType.PUBLIC)
     @GetMapping("/token/download")
     public StreamingResponseBody downloadByToken(HttpServletRequest req, HttpServletResponse resp,
                                                  @RequestParam("token") String token) throws IOException {
@@ -625,6 +635,7 @@ public class FileController {
     /**
      * List all tags for current user
      */
+    @PathDoc(description = "User list all file tags")
     @GetMapping("/tag/list/all")
     public DeferredResult<Result<List<String>>> listAllTags() throws InvalidAuthenticationException {
         return runAsyncResult(() -> fileInfoService.listFileTags(tUser().getUserId()));
@@ -633,6 +644,7 @@ public class FileController {
     /**
      * List all tags for the current user and the selected file
      */
+    @PathDoc(description = "User list tags of file")
     @PostMapping("/tag/list-for-file")
     public DeferredResult<Result<PageableList<TagWebVo>>> listTagsForFile(@Validated @RequestBody ListTagsForFileWebReqVo req) {
         return runAsyncResult(() -> {
@@ -644,6 +656,7 @@ public class FileController {
     /**
      * Tag the file (only for current user)
      */
+    @PathDoc(description = "User tag file")
     @PostMapping("/tag")
     public DeferredResult<Result<Void>> tagFile(@Validated @RequestBody TagFileWebReqVo req) {
         return runAsync(() -> {
@@ -659,6 +672,7 @@ public class FileController {
     /**
      * Remove the tag for the file (only for current user)
      */
+    @PathDoc(description = "User untag file")
     @PostMapping("/untag")
     public DeferredResult<Result<Void>> untagFile(@Validated @RequestBody UntagFileWebReqVo req) {
         return runAsync(() -> {

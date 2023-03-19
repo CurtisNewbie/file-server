@@ -1,11 +1,11 @@
 package com.yongj.web;
 
-import com.curtisnewbie.common.advice.RoleControlled;
 import com.curtisnewbie.common.trace.TUser;
 import com.curtisnewbie.common.trace.TraceUtils;
 import com.curtisnewbie.common.util.AssertUtils;
 import com.curtisnewbie.common.vo.PageableList;
 import com.curtisnewbie.common.vo.Result;
+import com.curtisnewbie.goauth.client.PathDoc;
 import com.curtisnewbie.service.auth.messaging.helper.LogOperation;
 import com.curtisnewbie.service.auth.remote.feign.UserServiceFeign;
 import com.curtisnewbie.service.auth.remote.vo.FetchUsernameByUserNosReq;
@@ -33,6 +33,7 @@ import static com.curtisnewbie.common.vo.Result.tryGetData;
  */
 @Slf4j
 @RestController
+@PathDoc(resourceCode = Resources.MANAGE_FILE_CODE, resourceName = Resources.MANAGE_FILE_NAME)
 @RequestMapping("${web.base-path}/vfolder")
 public class VFolderController {
 
@@ -43,11 +44,13 @@ public class VFolderController {
     @Autowired
     private UserServiceFeign userServiceFeign;
 
+    @PathDoc(description = "User list virtual folder briefs")
     @GetMapping("/brief/owned")
     public DeferredResult<Result<List<VFolderBrief>>> listOwnedVFolderBriefs() {
         return runAsyncResult(() -> vFolderQueryService.listOwnedVFolderBriefs(TraceUtils.requireUserNo()));
     }
 
+    @PathDoc(description = "User list virtual folders")
     @PostMapping("/list")
     public DeferredResult<Result<PageableList<VFolderListResp>>> listVFolders(@RequestBody ListVFolderReq req) {
         final String userNo = TraceUtils.requireUserNo();
@@ -57,7 +60,7 @@ public class VFolderController {
         return runAsyncResult(() -> vFolderQueryService.listVFolders(req));
     }
 
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "Create virtual folder")
     @PostMapping("/create")
     public DeferredResult<Result<String>> createVFolder(@RequestBody CreateVFolderReq req) {
         final TUser user = TraceUtils.tUser();
@@ -70,7 +73,7 @@ public class VFolderController {
                 .build()));
     }
 
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "Add file to virtual folder")
     @PostMapping("/file/add")
     public DeferredResult<Result<Void>> addFileToVFolder(@RequestBody AddFileToVFolderReq req) {
         final TUser user = TraceUtils.tUser();
@@ -83,7 +86,7 @@ public class VFolderController {
                 .build()));
     }
 
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "Remove file from virtual folder")
     @PostMapping("/file/remove")
     public DeferredResult<Result<Void>> removeFileFromVFolder(@RequestBody RemoveFileFromVFolderReq req) {
         final TUser user = TraceUtils.tUser();
@@ -96,8 +99,8 @@ public class VFolderController {
                 .build()));
     }
 
+    @PathDoc(description = "Share access to virtual folder")
     @LogOperation(name = "shareVFolder", description = "Share access to vfolder")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/share")
     public DeferredResult<Result<Void>> shareVFolder(@RequestBody ShareVFolderReq req) {
         final TUser user = TraceUtils.tUser();
@@ -115,8 +118,8 @@ public class VFolderController {
                 .build()));
     }
 
+    @PathDoc(description = "Remove granted access to virtual folder")
     @LogOperation(name = "removeGrantedFolderAccess", description = "Remove granted access to vfolder")
-    @RoleControlled(rolesForbidden = "guest")
     @PostMapping("/access/remove")
     public DeferredResult<Result<Void>> removeGrantedFolderAccess(@RequestBody RemoveGrantedFolderAccessReq req) {
         final String userNo = TraceUtils.requireUserNo();
@@ -127,7 +130,7 @@ public class VFolderController {
                 .build()));
     }
 
-    @RoleControlled(rolesForbidden = "guest")
+    @PathDoc(description = "List granted access to virtual folder")
     @PostMapping("/granted/list")
     public DeferredResult<Result<PageableList<GrantedFolderAccess>>> listGrantedFolderAccess(@RequestBody ListGrantedFolderAccessReq req) {
         final String userNo = TraceUtils.requireUserNo();
