@@ -559,7 +559,7 @@ public class FileController {
     /**
      * Handle HEAD request for media streaming
      */
-    @PathDoc(description = "Test media streaming support")
+    @PathDoc(description = "Test media streaming support", type = PathType.PUBLIC)
     @RequestMapping(value = "/token/media/streaming", method = RequestMethod.HEAD)
     public ResponseEntity<Void> handleStreamingHeadRequest(@RequestParam("token") String token) {
 

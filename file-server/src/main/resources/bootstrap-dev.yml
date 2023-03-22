@@ -51,4 +51,4 @@ event.sync:
   enabled: true
   secret: '123456'
 
-goauth.path.report.disabled: true
+goauth.path.report.disabled: false
