@@ -144,8 +144,6 @@ public class FileController {
         hasText(fileName, "File name can't be empty");
         fileName = URLDecoder.decode(fileName, "UTF-8").trim();
 
-        // only validate the first fileName, if there is only one file, this will be the name of the file
-        // if there are multiple files, this will be the name of the zip file
         final TUser tUser = tUser();
 
         // We are streaming the data, it must be synchronous
@@ -160,7 +158,7 @@ public class FileController {
                 .build());
         log.info("File uploaded and persisted in database, file_info: {}", f);
 
-        // attempt to propagate tracing
+        // attempt to propagate trace
         final Span span = tracer.nextSpan();
         CompletableFuture.runAsync(() -> {
             try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
@@ -180,7 +178,7 @@ public class FileController {
             }
         }).whenComplete((v, e) -> {
             if (e != null)
-                log.error("Exception occurred while moving files to dir or adding tags, uuid: {}", f.getUuid(), e);
+                log.error("Exception occurred while add tags to files, uuid: {}", f.getUuid(), e);
         });
 
         return Result.ok();
