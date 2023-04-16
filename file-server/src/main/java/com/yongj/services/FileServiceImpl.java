@@ -741,9 +741,10 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean filenameExists(String filename, int userId) {
+    public boolean filenameExists(String filename, String parentFileKey, int userId) {
         return fileInfoMapper.selectOne(Wrappers.lambdaQuery(FileInfo.class)
                 .select(FileInfo::getId)
+                .eq(parentFileKey != null, FileInfo::getParentFile, parentFileKey)
                 .eq(FileInfo::getName, filename)
                 .eq(FileInfo::getUploaderId, userId)
                 .eq(FileInfo::getFileType, FileType.FILE)

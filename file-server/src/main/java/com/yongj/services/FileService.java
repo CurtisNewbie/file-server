@@ -227,10 +227,11 @@ public interface FileService {
      * Check if a file with same exists for current user
      *
      * @param fileName file's name
+     * @param parentFileKey
      * @param userId   user's id
      * @return exists
      */
-    boolean filenameExists(@NotEmpty String fileName, int userId);
+    boolean filenameExists(@NotEmpty String fileName, @Nullable String parentFileKey, int userId);
 
     /**
      * Export file as a zip

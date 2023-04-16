@@ -62,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.curtisnewbie.common.trace.TraceUtils.tUser;
@@ -110,8 +109,11 @@ public class FileController {
      */
     @PathDoc(description = "User - preflight check for duplicate file uploads")
     @GetMapping("/upload/duplication/preflight")
-    public DeferredResult<Result<Boolean>> handleDuplicateOnNamePreflightCheck(@RequestParam("fileName") String fileName) {
-        return AsyncUtils.runAsyncResult(() -> fileInfoService.filenameExists(fileName, tUser().getUserId()));
+    public Result<Boolean> handleDuplicateOnNamePreflightCheck(@RequestParam("fileName") String fileName,
+                                                               @RequestParam(value = "parentFileKey", required = false) String parentFileKey) {
+        parentFileKey = parentFileKey.trim();
+        if (!StringUtils.hasText(parentFileKey)) parentFileKey = "";
+        return Result.of(fileInfoService.filenameExists(fileName, parentFileKey, tUser().getUserId()));
     }
 
     /**
@@ -135,8 +137,7 @@ public class FileController {
                                      @RequestHeader(value = "userGroup") Integer userGroupInt,
                                      @RequestHeader(value = "tag", required = false) @Nullable String[] tags,
                                      @RequestHeader(value = "parentFile", required = false) @Nullable String parentFile,
-                                     @RequestHeader(value = "ignoreOnDupName", required = false, defaultValue = "true") boolean ignoreOnDupName,
-                                     HttpServletRequest request) throws IOException, ExecutionException, InterruptedException {
+                                     HttpServletRequest request) throws IOException {
 
         final FUserGroup userGroup = FUserGroup.from(userGroupInt);
         nonNull(userGroup, "Incorrect user group");
@@ -146,18 +147,6 @@ public class FileController {
         // only validate the first fileName, if there is only one file, this will be the name of the file
         // if there are multiple files, this will be the name of the zip file
         final TUser tUser = tUser();
-
-        /*
-        check whether the file name is used by current user, we don't add lock here because it's not really a strong requirement,
-        uploading a file usually takes quite a long time, so for sure, a lock will block for a quite a while,
-        but it's useful when the user is uploading multiple files and he/she doesn't known which were uploaded already before
-         */
-        if (ignoreOnDupName) {
-            if (fileInfoService.filenameExists(fileName, tUser.getUserId())) {
-                log.info("File '{}' uploading ignored because of 'ignoreOnDupName'", fileName);
-                return Result.ok();
-            }
-        }
 
         // We are streaming the data, it must be synchronous
         final FileInfo f = fileInfoService.uploadFile(UploadFileVo.builder()
