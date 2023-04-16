@@ -158,12 +158,12 @@ public class FileController {
                 .build());
         log.info("File uploaded and persisted in database, file_info: {}", f);
 
-        // attempt to propagate trace
-        final Span span = tracer.nextSpan();
-        CompletableFuture.runAsync(() -> {
-            try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
-                // add tags
-                if (tags != null && tags.length > 0) {
+        // add tags
+        if (tags != null && tags.length > 0) {
+            // attempt to propagate trace
+            final Span span = tracer.nextSpan();
+            CompletableFuture.runAsync(() -> {
+                try (Tracer.SpanInScope ws = tracer.withSpanInScope(span)) {
                     // todo repeated code :D
                     log.info("Adding tags to new file {} ({}), tags: {}", f.getName(), f.getUuid(), tags);
                     for (String tag : tags) {
@@ -175,11 +175,11 @@ public class FileController {
                                 .build());
                     }
                 }
-            }
-        }).whenComplete((v, e) -> {
-            if (e != null)
-                log.error("Exception occurred while add tags to files, uuid: {}", f.getUuid(), e);
-        });
+            }).whenComplete((v, e) -> {
+                if (e != null)
+                    log.error("Exception occurred while add tags to files, uuid: {}", f.getUuid(), e);
+            });
+        }
 
         return Result.ok();
     }
