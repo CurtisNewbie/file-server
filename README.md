@@ -1,4 +1,4 @@
-# File-Service V1.2.6
+# File-Service V1.2.7
 
 Upload file, list files, and download file.
 
@@ -10,7 +10,7 @@ modules & dependencies, these are all my repositories.
 
 ## Requirements
 
-- file-service-front (Angular frontend) >= [v1.2.1](https://github.com/CurtisNewbie/file-service-front/tree/v1.2.1)
+- file-service-front (Angular frontend) >= [v1.2.2](https://github.com/CurtisNewbie/file-service-front/tree/v1.2.2)
 - auth-gateway >= [v1.1.1](https://github.com/CurtisNewbie/auth-gateway/tree/v1.1.1)
 - auth-service >= [v1.1.6](https://github.com/CurtisNewbie/auth-service/tree/v1.1.6)
 - goauth >= [v1.0.0](https://github.com/CurtisNewbie/goauth/tree/v1.0.0)
