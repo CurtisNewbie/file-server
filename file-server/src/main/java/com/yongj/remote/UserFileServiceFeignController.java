@@ -62,9 +62,10 @@ public class UserFileServiceFeignController {
 
         final long flimit = limit;
         final long fpage = page;
+        final long offset = (fpage - 1) * limit;
 
         return AsyncUtils.runAsyncResult(() -> {
-            List<String> fileKeys = fileService.listFilesInDir(fileKey, flimit, fpage);
+            List<String> fileKeys = fileService.listFilesInDir(fileKey, flimit, offset);
             if (fileKeys == null) fileKeys = Collections.emptyList();
             return fileKeys;
         });
