@@ -1,12 +1,13 @@
-# File-Service V1.2.7
+# File-Service
 
-Upload file, list files, and download file.
+Service that manage files.
 
 This app is ***not a standalone server***, you must have `auth-service`, `auth-gateway` and other relevant services
 setup (the so called microservices :D). To compile this app, you will also need to manually install the following
 modules & dependencies, these are all my repositories.
 
 ***Do not run the 'build' scripts, these are written for my development environment only***
+***This project is nolonger maintained, it has been replaced with [vfm](https://github.com/curtisnewbie/vfm) and [mini-fstore](https://github.com/curtisnewbie/mini-fstore).***
 
 ## Requirements
 
@@ -108,13 +109,7 @@ com.yongj.io.operation.PhysicallyDeleteFileOperation
 ## Task Scheduling
 
 Task scheduling in this app is supported by `Quartz` and `distributed-task-module`. A few task implementation beans are
-already written for this application, these tasks are automatically registered and will run on application startup:
-
-The task implementation beans:
-
-- com.yongj.job.DeleteFileJob
-- com.yongj.job.FetchFileUploaderNameJob
-- com.yongj.job.ScanFsGroupSizeJob
+already written for this application, these tasks are automatically registered and will run on application startup.
 
 ## Updates
 
